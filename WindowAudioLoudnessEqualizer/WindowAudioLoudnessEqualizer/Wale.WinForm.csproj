@@ -89,12 +89,6 @@
     <Compile Include="Config.Designer.cs">
       <DependentUpon>Config.cs</DependentUpon>
     </Compile>
-    <Compile Include="ResetBaseVolume.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ResetBaseVolume.Designer.cs">
-      <DependentUpon>ResetBaseVolume.cs</DependentUpon>
-    </Compile>
     <Compile Include="Libs\AudioControl.cs" />
     <Compile Include="MainWindow.cs">
       <SubType>Form</SubType>
@@ -110,9 +104,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="MainWindow.resx">
       <DependentUpon>MainWindow.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ResetBaseVolume.resx">
-      <DependentUpon>ResetBaseVolume.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
