@@ -9,6 +9,7 @@
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
+*.xlsx
 
 # Build results
 [Dd]ebug/
@@ -87,6 +88,7 @@ ipch/
 # Visual Studio profiler
 *.psess
 *.vsp
+*.vsps
 *.vspx
 *.sap
 
@@ -259,5 +261,3 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
-*.vsps
-*.xlsx
