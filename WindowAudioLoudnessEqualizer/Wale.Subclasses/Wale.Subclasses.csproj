@@ -47,10 +47,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AudioManager.cs" />
+    <Compile Include="Audio.cs" />
     <Compile Include="Lockers.cs" />
+    <Compile Include="MasterDevice.cs" />
+    <Compile Include="Session.cs" />
     <Compile Include="SessionData.cs" />
     <Compile Include="SessionDataPack.cs" />
+    <Compile Include="Sessions.cs" />
     <Compile Include="Transformation.cs" />
     <Compile Include="VFunction.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -416,7 +416,7 @@ namespace Wale.WinForm
                             }
                             foreach (MeterSet item in tabSession.Controls)
                             {//check expired session and update not expired session
-                                if (!Audio.Sessions.CheckData(item.ID)) { expired.Add(item); reAlign = true; break; }
+                                if (Audio.Sessions.GetData(item.ID) == null) { expired.Add(item); reAlign = true; break; }
                                 SessionData session = Audio.Sessions.GetData(item.ID);
                                 if (session.Expired) { expired.Add(item); reAlign = true; }
                                 else// if (session.Active)
@@ -425,7 +425,7 @@ namespace Wale.WinForm
                                     else item.DetailOff();
                                     if (item.detailChanged) { reAlign = true; item.detailChanged = false; }
                                     item.UpdateData(session.Volume, session.Peak, session.AveragePeak);
-                                    session.Relative = (item.Relative);
+                                    session.Relative = (float)item.Relative;
                                     session.AutoIncluded = item.AutoIncluded;
                                 }
                             }

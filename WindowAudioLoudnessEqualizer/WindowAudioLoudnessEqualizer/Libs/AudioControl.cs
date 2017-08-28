@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections;
+using System.Runtime.InteropServices;
 using Wale.Subclasses;
 
 namespace Wale
@@ -14,6 +15,7 @@ namespace Wale
         //internal variables
         private Wale.Properties.Settings settings = Wale.Properties.Settings.Default;
         private JLdebPack.DebugPackage DP;
+        private Wale.Subclasses.MasterDevice masterDevice;
         
         private object terminatelock = new object(), autoconlock = new object(), AClocker = new object();
         private bool disposed = false, terminate = false;//, _AutoControl = true;
@@ -22,11 +24,15 @@ namespace Wale
         private Task audioControlTask, controllerCleanTask;
 
         //global variables
-        public SessionDataPack Sessions;
+        public Wale.Subclasses.SessionDataPack Sessions;
         //public bool AutoControl { get => Autocon(); set { Autocon(value); if (!Autocon()) ResetAllSessionVolume(); } }
         public bool Debug { get => DP.DebugMode; set => DP.DebugMode = value; }
-        public double MasterVolume { get; private set; }
-        public double MasterPeak { get; private set; }
+        public double MasterPeak { get { if (masterDevice != null) return masterDevice.MasterPeak; else return 0; } }
+        public double MasterVolume
+        {
+            get { if (masterDevice != null) return masterDevice.MasterVolume; else return 0; }
+            set { if (masterDevice != null) masterDevice.MasterVolume = (float)value; }
+        }
         public double UpRate { get => upRate; set { upRate = (value * settings.AutoControlInterval / 1000); } }
         public double Skewness { get => skewness; set => skewness = value; }
 
@@ -40,7 +46,9 @@ namespace Wale
         public void Start(bool debug = false)
         {
             Debug = debug;
-            
+
+            masterDevice = new MasterDevice();
+
             Sessions = new SessionDataPack();
             Refresh();
 
@@ -102,7 +110,7 @@ namespace Wale
             else if (v > 1) v = 1;
 
             DP.DML("SetTo:" + v);
-            Wale.Subclasses.AudioManager.SetMasterVolume((float)v);
+            Wale.Subclasses.Audio.SetMasterVolume((float)v);
         }
 
 
@@ -110,7 +118,7 @@ namespace Wale
         //Session Control
         private void ResetAllSessionVolume()
         {
-            uint[] ids = Wale.Subclasses.AudioManager.GetApplicationIDs();
+            uint[] ids = Wale.Subclasses.Audio.GetApplicationIDs();
             for (int i = 0; i < ids.Count(); i++) { SetSessionVolume(ids[i], 0.01); }
         }
         private void SetSessionVolume(uint id, double v)
@@ -121,32 +129,31 @@ namespace Wale
 
             DP.DML(string.Format("SessionTo:{0:n6}", v));
             Sessions.GetData(id).SetVol(v);
-            Wale.Subclasses.AudioManager.SetApplicationVolume(id, (float)v);
+            //Wale.Subclasses.AudioManager.SetApplicationVolume(id, (float)v);
         }
 
 
         //Automatic volume control.
         private void Refresh(bool first = false)
         {
-            MasterPeak = Wale.Subclasses.AudioManager.GetMasterPeak();
-            MasterVolume = Wale.Subclasses.AudioManager.GetMasterVolume();
             lock (AClocker)
             {
                 lock (Lockers.Sessions)
                 {
-                    uint[] ids = Wale.Subclasses.AudioManager.GetApplicationIDs();
+                    uint[] ids = Wale.Subclasses.Audio.GetApplicationIDs();
                     for (int i = 0; i < ids.Count(); i++)
                     {
-                        if (Wale.Subclasses.AudioManager.GetApplicationState(ids[i]) != Vannatech.CoreAudio.Enumerations.AudioSessionState.AudioSessionStateExpired)
+                        SessionState state = Wale.Subclasses.Audio.GetApplicationState(ids[i]);
+                        if (state != SessionState.Expired)
                         {
-                            if (!Sessions.CheckData(ids[i])) Sessions.Add(new SessionData(i, ids[i], Wale.Subclasses.AudioManager.GetApplicationName(ids[i])));
+                            if (!Sessions.CheckData(ids[i])) Sessions.Add(new SessionData(i, ids[i], Wale.Subclasses.Audio.GetApplicationName(ids[i])));
                             SessionData sd = Sessions.GetData(ids[i]);
-                            if (Wale.Subclasses.AudioManager.GetApplicationState(ids[i]) == Vannatech.CoreAudio.Enumerations.AudioSessionState.AudioSessionStateActive) sd.Active = true;
-                            else if (Wale.Subclasses.AudioManager.GetApplicationState(ids[i]) == Vannatech.CoreAudio.Enumerations.AudioSessionState.AudioSessionStateInactive) sd.Active = false;
+                            if (state == SessionState.Active) sd.Active = true;
+                            else if (state == SessionState.Inactive) sd.Active = false;
                             sd.SetIndex(i);
                             sd.SetAvTime(settings.AverageTime, settings.AutoControlInterval);
-                            sd.SetPeak(Wale.Subclasses.AudioManager.GetApplicationPeak(ids[i]));
-                            sd.SetVol(Wale.Subclasses.AudioManager.GetApplicationVolume(ids[i]));
+                            sd.SetPeak(Wale.Subclasses.Audio.GetApplicationPeak(ids[i]));
+                            sd.SetVol(Wale.Subclasses.Audio.GetApplicationVolume(ids[i]));
                             sd.Averaging = settings.Averaging;
                         }
                     }
@@ -157,7 +164,7 @@ namespace Wale
                         bool found = false;
                         for (int i = 0; i < ids.Count(); i++)
                         {
-                            if (s.ID == ids[i] && Wale.Subclasses.AudioManager.GetApplicationState(ids[i]) != Vannatech.CoreAudio.Enumerations.AudioSessionState.AudioSessionStateExpired)
+                            if (s.ID == ids[i] && Wale.Subclasses.Audio.GetApplicationState(ids[i]) != SessionState.Expired)
                             {
                                 found = true;
                             }
@@ -223,7 +230,7 @@ namespace Wale
                             })));
                         });
                         aas.ForEach(t => t.Start());
-                    }/**/
+                    }
                 }
                 //System.Threading.Thread.Sleep(AutoDelay);
                 await Task.Delay(settings.AutoControlInterval);
@@ -246,12 +253,12 @@ namespace Wale
                 if (settings.AutoControl)
                 {
                     Sessions.ForEach(s => {
-                        aas.Add(new Task(new Action(()=> {
-                            SessionData ASD = Sessions.GetData(s.ID);
-                            if (!ASD.Active && ASD.Volume != 0.01)
+                        aas.Add(new Task(new Action(() =>
+                        {
+                            if (!s.Expired && s.Volume != 0.01)
                             {
-                                SetSessionVolume(ASD.ID, 0.01);
-                                ASD.ResetAverage();
+                                SetSessionVolume(s.ID, 0.01);
+                                s.ResetAverage();
                             }
                         })));
                     });

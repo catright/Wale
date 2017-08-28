@@ -9,10 +9,10 @@ using Vannatech.CoreAudio.Enumerations;
 
 namespace Wale.Subclasses
 {
-    public static class AudioManager
+    public static class Audio
     {
         #region Master Volume Manipulation
-        
+
         public static float GetMasterPeak()
         {
             IAudioMeterInformation masterPeak = null;
@@ -141,6 +141,28 @@ namespace Wale.Subclasses
             }
         }
 
+        public static IMMDevice GetDevice()
+        {
+            IMMDeviceEnumerator deviceEnumerator = null;
+            IMMDevice speakers = null;
+            try
+            {
+                deviceEnumerator = (IMMDeviceEnumerator)(new MMDeviceEnumerator());
+                deviceEnumerator.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia, out speakers);
+
+                //Guid IID_IAudioEndpointVolume = typeof(IAudioEndpointVolume).GUID;
+                //object o;
+                //speakers.Activate(IID_IAudioEndpointVolume, 0, IntPtr.Zero, out o);
+                //IAudioEndpointVolume masterVol = (IAudioEndpointVolume)o;
+
+                //return masterVol;
+                return speakers;
+            }
+            finally
+            {
+                if (deviceEnumerator != null) Marshal.ReleaseComObject(deviceEnumerator);
+            }
+        }
         private static IAudioPeakMeter GetMasterLoudnessObject()
         {
             IMMDeviceEnumerator deviceEnumerator = null;
@@ -329,7 +351,7 @@ namespace Wale.Subclasses
                 if (deviceEnumerator != null) Marshal.ReleaseComObject(deviceEnumerator);
             }
         }
-        public static AudioSessionState GetApplicationState(uint pid)
+        public static SessionState GetApplicationState(uint pid)
         {
             IMMDeviceEnumerator deviceEnumerator = null;
             IAudioSessionEnumerator sessionEnumerator = null;
@@ -380,7 +402,17 @@ namespace Wale.Subclasses
                     }
                 }
 
-                return state;
+                switch (state)
+                {
+                    case AudioSessionState.AudioSessionStateActive:
+                        return SessionState.Active;
+                    case AudioSessionState.AudioSessionStateInactive:
+                        return SessionState.Inactive;
+                    case AudioSessionState.AudioSessionStateExpired:
+                        return SessionState.Expired;
+                    default:
+                        return SessionState.Expired;
+                }
             }
             finally
             {
@@ -658,14 +690,15 @@ namespace Wale.Subclasses
         #endregion
         
     }
+    
 
     #region Abstracted COM interfaces from Windows CoreAudio API
     
-    [ComImport]
-    [Guid("BCDE0395-E52F-467C-8E3D-C4579291692E")]
+    [ComImport, Guid("BCDE0395-E52F-467C-8E3D-C4579291692E")]
     internal class MMDeviceEnumerator
     {
     }
-    
+
+    public enum SessionState { Active, Inactive, Expired }
     #endregion
 }
