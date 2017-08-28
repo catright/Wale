@@ -400,31 +400,31 @@ namespace Wale.WinForm
                         List<MeterSet> expired = new List<MeterSet>(); //expired tabSession.controls buffer
                         lock (Lockers.Sessions)
                         {
-                            foreach (SessionData sc in Audio.Sessions)
+                            foreach (Session sc in Audio.Sessions)
                             {//check and insert new session data as meterset to tabSession.controls
-                                if (!sc.Expired)
+                                if (sc.SessionState != SessionState.Expired)
                                 {
                                     bool found = false;
-                                    foreach (MeterSet item in tabSession.Controls) { if (sc.ID == item.ID) found = true; }
+                                    foreach (MeterSet item in tabSession.Controls) { if (sc.ProcessId == item.ID) found = true; }
                                     if (!found)
                                     {
-                                        SetTabControl(tabSession, new MeterSet(sc.ID, sc.Name, settings.DetailedView, updateSessionDebug));
+                                        SetTabControl(tabSession, new MeterSet(sc.ProcessId, sc.ProcessName, settings.DetailedView, updateSessionDebug));
                                         reAlign = true;
-                                        Log($"New MeterSet:{sc.Name}({sc.ID})");
+                                        Log($"New MeterSet:{sc.ProcessName}({sc.ProcessId})");
                                     }
                                 }
                             }
                             foreach (MeterSet item in tabSession.Controls)
                             {//check expired session and update not expired session
-                                if (Audio.Sessions.GetData(item.ID) == null) { expired.Add(item); reAlign = true; break; }
-                                SessionData session = Audio.Sessions.GetData(item.ID);
-                                if (session.Expired) { expired.Add(item); reAlign = true; }
+                                if (Audio.Sessions.GetSession(item.ID) == null) { expired.Add(item); reAlign = true; break; }
+                                Session session = Audio.Sessions.GetSession(item.ID);
+                                if (session.SessionState == SessionState.Expired) { expired.Add(item); reAlign = true; }
                                 else// if (session.Active)
                                 {
                                     if (settings.DetailedView) item.DetailOn();
                                     else item.DetailOff();
                                     if (item.detailChanged) { reAlign = true; item.detailChanged = false; }
-                                    item.UpdateData(session.Volume, session.Peak, session.AveragePeak);
+                                    item.UpdateData(session.SessionVolume, session.SessionPeak, session.AveragePeak);
                                     session.Relative = (float)item.Relative;
                                     session.AutoIncluded = item.AutoIncluded;
                                 }

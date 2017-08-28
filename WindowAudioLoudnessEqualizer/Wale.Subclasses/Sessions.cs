@@ -13,6 +13,8 @@ namespace Wale.Subclasses
     {
         public void RefreshSessions()
         {
+            //System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+            //sw.Start();
             uint[] ids = GetApplicationIDs();
             for (uint i = 0; i < ids.Count(); i++)
             {
@@ -35,6 +37,8 @@ namespace Wale.Subclasses
             });
             expired.ForEach(s => this.Remove(s));
             expired.Clear();
+            //sw.Stop();
+            //Console.WriteLine($"session list refresh time={sw.ElapsedMilliseconds}");
         }
         public Sessions() { this.Clear(); RefreshSessions(); }
         public Session GetSession(uint id) { try { return this.Find(sc => sc.ProcessId == id); } catch (ArgumentNullException) { return null; } }

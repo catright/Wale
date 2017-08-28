@@ -17,11 +17,104 @@ namespace Wale.Subclasses
 
         public uint ProcessId { get; private set; }
         public string ProcessName { get; private set; }
-        public SessionState SessionState { get => GetApplicationState(); }
-        public float SessionPeak { get => GetApplicationPeak(); }
-        public float SessionVolume { get => GetApplicationVolume(); set => SetApplicationVolume(value); }
+        public SessionState SessionState { get; private set; }
+        public float SessionPeak { get; private set; }
+        public float SessionVolume { get; private set; }
 
-        public void GetSession() { GetControlObject(); GetPeakObject(); GetVolumeObject(); }
+        public void Refresh()
+        {
+            //System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+            //sw.Start();
+            IMMDeviceEnumerator deviceEnumerator = null;
+            IAudioSessionEnumerator sessionEnumerator = null;
+            IAudioSessionManager2 mgr = null;
+            IMMDevice speakers = null;
+            //lock (Locker.MMDeviceEnumerator)
+            //{
+                try
+                {
+                    // get the speakers (1st render + multimedia) device
+                    deviceEnumerator = (IMMDeviceEnumerator)(new MMDeviceEnumerator());
+                    deviceEnumerator.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia, out speakers);
+                }
+                finally
+                {
+                    if (deviceEnumerator != null) Marshal.ReleaseComObject(deviceEnumerator);
+                }
+            //}
+            try
+            {
+                // activate the session manager. we need the enumerator
+                Guid IID_IAudioSessionManager2 = typeof(IAudioSessionManager2).GUID;
+                object o;
+                speakers.Activate(IID_IAudioSessionManager2, 0, IntPtr.Zero, out o);
+                mgr = (IAudioSessionManager2)o;
+
+                // enumerate sessions for on this device
+                mgr.GetSessionEnumerator(out sessionEnumerator);
+                int count;
+                sessionEnumerator.GetCount(out count);
+
+                IAudioSessionControl2 SCObject = null;
+                // search for an audio session with the required process-id
+                for (int i = 0; i < count; ++i)
+                {
+                    IAudioSessionControl ctl = null;
+                    try
+                    {
+                        sessionEnumerator.GetSession(i, out ctl);
+
+                        SCObject = (IAudioSessionControl2)ctl;
+                        // NOTE: we could also use the app name from ctl.GetDisplayName()
+                        uint cpid;
+                        SCObject.GetProcessId(out cpid);
+
+                        if (cpid == ProcessId)
+                        {
+                            AudioSessionState state;
+                            SCObject.GetState(out state);
+                            switch (state)
+                            {
+                                case AudioSessionState.AudioSessionStateActive:
+                                    SessionState = SessionState.Active;
+                                    break;
+                                case AudioSessionState.AudioSessionStateInactive:
+                                    SessionState = SessionState.Inactive;
+                                    break;
+                                case AudioSessionState.AudioSessionStateExpired:
+                                    SessionState = SessionState.Expired;
+                                    break;
+                                default:
+                                    SessionState = SessionState.Expired;
+                                    break;
+                            }
+                            float peak, volume;
+                            (SCObject as IAudioMeterInformation).GetPeakValue(out peak);
+                            SessionPeak = peak;
+                            (SCObject as ISimpleAudioVolume).GetMasterVolume(out volume);
+                            SessionVolume = volume;
+                        }
+                        //rcwHandle = GCHandle.Alloc(SessionControlObject, GCHandleType.Normal);
+                        // NOTE: we could also use the app name from ctl.GetDisplayName()
+                    }
+                    finally
+                    {
+                        //if (ctl != null) Marshal.ReleaseComObject(ctl);
+                    }
+                }
+
+            }
+            finally
+            {
+                if (sessionEnumerator != null) Marshal.ReleaseComObject(sessionEnumerator);
+                if (mgr != null) Marshal.ReleaseComObject(mgr);
+                if (speakers != null) Marshal.ReleaseComObject(speakers);
+            }
+            //sw.Stop();
+            //Console.WriteLine($"session {this.ProcessName}({this.ProcessId}) refresh time={sw.ElapsedMilliseconds}");
+        }
+        public void SetVolume(float volume) { SetApplicationVolume(volume); }
+        public void GetSession() { /*MakeControlObject(); MakePeakObject(); MakeVolumeObject();*/ }
 
         public Session(uint pid)
         {
@@ -61,12 +154,21 @@ namespace Wale.Subclasses
             IAudioSessionEnumerator sessionEnumerator = null;
             IAudioSessionManager2 mgr = null;
             IMMDevice speakers = null;
+            lock (Locker.MMDeviceEnumerator)
+            {
+                try
+                {
+                    // get the speakers (1st render + multimedia) device
+                    deviceEnumerator = (IMMDeviceEnumerator)(new MMDeviceEnumerator());
+                    deviceEnumerator.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia, out speakers);
+                }
+                finally
+                {
+                    if (deviceEnumerator != null) Marshal.ReleaseComObject(deviceEnumerator);
+                }
+            }
             try
             {
-                // get the speakers (1st render + multimedia) device
-                deviceEnumerator = (IMMDeviceEnumerator)(new MMDeviceEnumerator());
-                deviceEnumerator.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia, out speakers);
-
                 // activate the session manager. we need the enumerator
                 Guid IID_IAudioSessionManager2 = typeof(IAudioSessionManager2).GUID;
                 object o;
@@ -106,14 +208,13 @@ namespace Wale.Subclasses
                     }
                 }
                 if (name == "null") return false;
-                else { ProcessName = name; return true; }
+                else { ProcessName = MakeName(name); return true; }
             }
             finally
             {
                 if (sessionEnumerator != null) Marshal.ReleaseComObject(sessionEnumerator);
                 if (mgr != null) Marshal.ReleaseComObject(mgr);
                 if (speakers != null) Marshal.ReleaseComObject(speakers);
-                if (deviceEnumerator != null) Marshal.ReleaseComObject(deviceEnumerator);
             }
         }
         private string MakeName(string name)
@@ -132,12 +233,14 @@ namespace Wale.Subclasses
 
         private SessionState GetApplicationState()
         {
+            IAudioSessionControl2 SCObject = null;
             try
             {
-                if (SessionControlObject == null) return SessionState.Expired;
+                SCObject = GetControlObject();
+                if (SCObject == null) return SessionState.Expired;
 
                 AudioSessionState state;
-                SessionControlObject.GetState(out state);
+                SCObject.GetState(out state);
                 switch (state)
                 {
                     case AudioSessionState.AudioSessionStateActive:
@@ -150,63 +253,281 @@ namespace Wale.Subclasses
                         return SessionState.Expired;
                 }
             }
-            finally { }
+            finally { if (SCObject != null) Marshal.ReleaseComObject(SCObject); }
         }
         private float GetApplicationPeak()
         {
+            IAudioMeterInformation SPObject = null;
             try
             {
-                if (SessionVolumeObject == null) return -1;
+                SPObject = GetPeakObject();
+                if (SPObject == null) return -1;
 
-                uint peakCount;
-                SessionPeakObject.GetMeteringChannelCount(out peakCount);
-                if (peakCount <= 0) return -2;
+                //uint peakCount;
+                //SPObject.GetMeteringChannelCount(out peakCount);
+                //if (peakCount <= 0) return -2;
 
                 float peakLevel;
-                SessionPeakObject.GetPeakValue(out peakLevel);
+                SPObject.GetPeakValue(out peakLevel);
                 return peakLevel;
             }
-            finally { }
+            finally { if (SPObject != null) Marshal.ReleaseComObject(SPObject); }
         }
         private float GetApplicationVolume()
         {
+            ISimpleAudioVolume SVObject = null;
             try
             {
-                if (SessionVolumeObject == null) return -1;
+                SVObject = GetVolumeObject();
+                if (SVObject == null) return -1;
 
                 float volume;
-                SessionVolumeObject.GetMasterVolume(out volume);
+                SVObject.GetMasterVolume(out volume);
                 return volume;
             }
-            finally { }
+            finally { if (SVObject != null) Marshal.ReleaseComObject(SVObject); }
         }
         private void SetApplicationVolume(float volume)
         {
+            ISimpleAudioVolume SVObject = null;
             try
             {
-                if (SessionVolumeObject == null) return;
+                SVObject = GetVolumeObject();
+                if (SVObject == null) return;
 
-                SessionVolumeObject.SetMasterVolume(volume, Guid.Empty);
+                SVObject.SetMasterVolume(volume, Guid.Empty);
             }
-            finally { }
+            finally { if (SVObject != null) Marshal.ReleaseComObject(SVObject); }
         }
 
         private IAudioSessionControl2 SessionControlObject = null;
         private IAudioMeterInformation SessionPeakObject = null;
         private ISimpleAudioVolume SessionVolumeObject = null;
 
-        private void GetControlObject()
+        private IAudioSessionControl2 GetControlObject()
         {
             IMMDeviceEnumerator deviceEnumerator = null;
             IAudioSessionEnumerator sessionEnumerator = null;
             IAudioSessionManager2 mgr = null;
             IMMDevice speakers = null;
+            lock (Locker.MMDeviceEnumerator)
+            {
+                try
+                {
+                    // get the speakers (1st render + multimedia) device
+                    deviceEnumerator = (IMMDeviceEnumerator)(new MMDeviceEnumerator());
+                    deviceEnumerator.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia, out speakers);
+                }
+                finally
+                {
+                    if (deviceEnumerator != null) Marshal.ReleaseComObject(deviceEnumerator);
+                }
+            }
             try
             {
-                // get the speakers (1st render + multimedia) device
-                deviceEnumerator = (IMMDeviceEnumerator)(new MMDeviceEnumerator());
-                deviceEnumerator.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia, out speakers);
+                // activate the session manager. we need the enumerator
+                Guid IID_IAudioSessionManager2 = typeof(IAudioSessionManager2).GUID;
+                object o;
+                speakers.Activate(IID_IAudioSessionManager2, 0, IntPtr.Zero, out o);
+                mgr = (IAudioSessionManager2)o;
 
+                // enumerate sessions for on this device
+                mgr.GetSessionEnumerator(out sessionEnumerator);
+                int count;
+                sessionEnumerator.GetCount(out count);
+
+                IAudioSessionControl2 SCObject = null;
+                // search for an audio session with the required process-id
+                for (int i = 0; i < count; ++i)
+                {
+                    IAudioSessionControl ctl = null;
+                    try
+                    {
+                        sessionEnumerator.GetSession(i, out ctl);
+
+                        SCObject = (IAudioSessionControl2)ctl;
+                        // NOTE: we could also use the app name from ctl.GetDisplayName()
+                        uint cpid;
+                        SCObject.GetProcessId(out cpid);
+
+                        if (cpid == ProcessId)
+                        {
+                            break;
+                        }
+                        //rcwHandle = GCHandle.Alloc(SessionControlObject, GCHandleType.Normal);
+                        // NOTE: we could also use the app name from ctl.GetDisplayName()
+                    }
+                    finally
+                    {
+                        //if (ctl != null) Marshal.ReleaseComObject(ctl);
+                    }
+                }
+                return SCObject;
+            }
+            finally
+            {
+                if (sessionEnumerator != null) Marshal.ReleaseComObject(sessionEnumerator);
+                if (mgr != null) Marshal.ReleaseComObject(mgr);
+                if (speakers != null) Marshal.ReleaseComObject(speakers);
+            }
+        }
+        private IAudioMeterInformation GetPeakObject()
+        {
+            IMMDeviceEnumerator deviceEnumerator = null;
+            IAudioSessionEnumerator sessionEnumerator = null;
+            IAudioSessionManager2 mgr = null;
+            IMMDevice speakers = null;
+            lock (Locker.MMDeviceEnumerator)
+            {
+                try
+                {
+                    // get the speakers (1st render + multimedia) device
+                    deviceEnumerator = (IMMDeviceEnumerator)(new MMDeviceEnumerator());
+                    deviceEnumerator.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia, out speakers);
+                }
+                finally
+                {
+                    if (deviceEnumerator != null) Marshal.ReleaseComObject(deviceEnumerator);
+                }
+            }
+            try
+            {
+                // activate the session manager. we need the enumerator
+                Guid IID_IAudioSessionManager2 = typeof(IAudioSessionManager2).GUID;
+                object o;
+                speakers.Activate(IID_IAudioSessionManager2, 0, IntPtr.Zero, out o);
+                mgr = (IAudioSessionManager2)o;
+
+                // enumerate sessions for on this device
+                mgr.GetSessionEnumerator(out sessionEnumerator);
+                int count;
+                sessionEnumerator.GetCount(out count);
+
+                IAudioMeterInformation SPObject = null;
+                // search for an audio session with the required process-id
+                for (int i = 0; i < count; ++i)
+                {
+                    IAudioSessionControl ctl = null;
+                    IAudioSessionControl2 ctl2 = null;
+                    try
+                    {
+                        sessionEnumerator.GetSession(i, out ctl);
+
+                        ctl2 = (IAudioSessionControl2)ctl;
+                        // NOTE: we could also use the app name from ctl.GetDisplayName()
+                        uint cpid;
+                        ctl2.GetProcessId(out cpid);
+
+                        if (cpid == ProcessId)
+                        {
+                            SPObject = ctl2 as IAudioMeterInformation;
+                            break;
+                        }
+                    }
+                    finally
+                    {
+                        //if (ctl != null) Marshal.ReleaseComObject(ctl);
+                        //if (ctl2 != null) Marshal.ReleaseComObject(ctl2);
+                    }
+                }
+                return SPObject;
+            }
+            finally
+            {
+                if (sessionEnumerator != null) Marshal.ReleaseComObject(sessionEnumerator);
+                if (mgr != null) Marshal.ReleaseComObject(mgr);
+                if (speakers != null) Marshal.ReleaseComObject(speakers);
+            }
+        }
+        private ISimpleAudioVolume GetVolumeObject()
+        {
+            IMMDeviceEnumerator deviceEnumerator = null;
+            IAudioSessionEnumerator sessionEnumerator = null;
+            IAudioSessionManager2 mgr = null;
+            IMMDevice speakers = null;
+            //lock (Locker.MMDeviceEnumerator)
+            //{
+                try
+                {
+                    // get the speakers (1st render + multimedia) device
+                    deviceEnumerator = (IMMDeviceEnumerator)(new MMDeviceEnumerator());
+                    deviceEnumerator.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia, out speakers);
+                }
+                finally
+                {
+                    if (deviceEnumerator != null) Marshal.ReleaseComObject(deviceEnumerator);
+                }
+            //}
+            try
+            {
+                // activate the session manager. we need the enumerator
+                Guid IID_IAudioSessionManager2 = typeof(IAudioSessionManager2).GUID;
+                object o;
+                speakers.Activate(IID_IAudioSessionManager2, 0, IntPtr.Zero, out o);
+                mgr = (IAudioSessionManager2)o;
+
+                // enumerate sessions for on this device
+                mgr.GetSessionEnumerator(out sessionEnumerator);
+                int count;
+                sessionEnumerator.GetCount(out count);
+
+                ISimpleAudioVolume SVObject = null;
+                // search for an audio session with the required process-id
+                for (int i = 0; i < count; ++i)
+                {
+                    IAudioSessionControl ctl = null;
+                    IAudioSessionControl2 ctl2 = null;
+                    try
+                    {
+                        sessionEnumerator.GetSession(i, out ctl);
+
+                        ctl2 = (IAudioSessionControl2)ctl;
+                        // NOTE: we could also use the app name from ctl.GetDisplayName()
+                        uint cpid;
+                        ctl2.GetProcessId(out cpid);
+
+                        if (cpid == ProcessId)
+                        {
+                            SVObject = ctl2 as ISimpleAudioVolume;
+                            break;
+                        }
+                    }
+                    finally
+                    {
+                        //if (ctl != null) Marshal.ReleaseComObject(ctl);
+                        //if (ctl2 != null) Marshal.ReleaseComObject(ctl2);
+                    }
+                }
+                return SVObject;
+            }
+            finally
+            {
+                if (sessionEnumerator != null) Marshal.ReleaseComObject(sessionEnumerator);
+                if (mgr != null) Marshal.ReleaseComObject(mgr);
+                if (speakers != null) Marshal.ReleaseComObject(speakers);
+            }
+        }
+        private void MakeControlObject()
+        {
+            IMMDeviceEnumerator deviceEnumerator = null;
+            IAudioSessionEnumerator sessionEnumerator = null;
+            IAudioSessionManager2 mgr = null;
+            IMMDevice speakers = null;
+            lock (Locker.MMDeviceEnumerator)
+            {
+                try
+                {
+                    // get the speakers (1st render + multimedia) device
+                    deviceEnumerator = (IMMDeviceEnumerator)(new MMDeviceEnumerator());
+                    deviceEnumerator.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia, out speakers);
+                }
+                finally
+                {
+                    if (deviceEnumerator != null) Marshal.ReleaseComObject(deviceEnumerator);
+                }
+            }
+            try
+            {
                 // activate the session manager. we need the enumerator
                 Guid IID_IAudioSessionManager2 = typeof(IAudioSessionManager2).GUID;
                 object o;
@@ -242,21 +563,29 @@ namespace Wale.Subclasses
                 if (sessionEnumerator != null) Marshal.ReleaseComObject(sessionEnumerator);
                 if (mgr != null) Marshal.ReleaseComObject(mgr);
                 if (speakers != null) Marshal.ReleaseComObject(speakers);
-                if (deviceEnumerator != null) Marshal.ReleaseComObject(deviceEnumerator);
             }
         }
-        private void GetPeakObject()
+        private void MakePeakObject()
         {
             IMMDeviceEnumerator deviceEnumerator = null;
             IAudioSessionEnumerator sessionEnumerator = null;
             IAudioSessionManager2 mgr = null;
             IMMDevice speakers = null;
+            lock (Locker.MMDeviceEnumerator)
+            {
+                try
+                {
+                    // get the speakers (1st render + multimedia) device
+                    deviceEnumerator = (IMMDeviceEnumerator)(new MMDeviceEnumerator());
+                    deviceEnumerator.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia, out speakers);
+                }
+                finally
+                {
+                    if (deviceEnumerator != null) Marshal.ReleaseComObject(deviceEnumerator);
+                }
+            }
             try
             {
-                // get the speakers (1st render + multimedia) device
-                deviceEnumerator = (IMMDeviceEnumerator)(new MMDeviceEnumerator());
-                deviceEnumerator.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia, out speakers);
-
                 // activate the session manager. we need the enumerator
                 Guid IID_IAudioSessionManager2 = typeof(IAudioSessionManager2).GUID;
                 object o;
@@ -301,21 +630,29 @@ namespace Wale.Subclasses
                 if (sessionEnumerator != null) Marshal.ReleaseComObject(sessionEnumerator);
                 if (mgr != null) Marshal.ReleaseComObject(mgr);
                 if (speakers != null) Marshal.ReleaseComObject(speakers);
-                if (deviceEnumerator != null) Marshal.ReleaseComObject(deviceEnumerator);
             }
         }
-        private void GetVolumeObject()
+        private void MakeVolumeObject()
         {
             IMMDeviceEnumerator deviceEnumerator = null;
             IAudioSessionEnumerator sessionEnumerator = null;
             IAudioSessionManager2 mgr = null;
             IMMDevice speakers = null;
+            lock (Locker.MMDeviceEnumerator)
+            {
+                try
+                {
+                    // get the speakers (1st render + multimedia) device
+                    deviceEnumerator = (IMMDeviceEnumerator)(new MMDeviceEnumerator());
+                    deviceEnumerator.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia, out speakers);
+                }
+                finally
+                {
+                    if (deviceEnumerator != null) Marshal.ReleaseComObject(deviceEnumerator);
+                }
+            }
             try
             {
-                // get the speakers (1st render + multimedia) device
-                deviceEnumerator = (IMMDeviceEnumerator)(new MMDeviceEnumerator());
-                deviceEnumerator.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia, out speakers);
-
                 // activate the session manager. we need the enumerator
                 Guid IID_IAudioSessionManager2 = typeof(IAudioSessionManager2).GUID;
                 object o;
@@ -360,7 +697,6 @@ namespace Wale.Subclasses
                 if (sessionEnumerator != null) Marshal.ReleaseComObject(sessionEnumerator);
                 if (mgr != null) Marshal.ReleaseComObject(mgr);
                 if (speakers != null) Marshal.ReleaseComObject(speakers);
-                if (deviceEnumerator != null) Marshal.ReleaseComObject(deviceEnumerator);
             }
         }
 
@@ -377,6 +713,7 @@ namespace Wale.Subclasses
             if (Peaks.Count > AvCount) Peaks.RemoveAt(0);
             Peaks.Add(peak);
             AveragePeak = Peaks.Average();
+            //Console.WriteLine($"Av={AveragePeak}, PC={Peaks.Count}, AvT={AvTime}");
         }
     }
 }

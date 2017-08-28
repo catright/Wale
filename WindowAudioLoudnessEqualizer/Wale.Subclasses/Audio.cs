@@ -700,5 +700,9 @@ namespace Wale.Subclasses
     }
 
     public enum SessionState { Active, Inactive, Expired }
+    internal static class Locker
+    {
+        public static object MMDeviceEnumerator = new object();
+    }
     #endregion
 }
