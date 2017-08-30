@@ -12,6 +12,7 @@
 *.xlsx
 *.ps1
 *.cmd
+*.lnk
 
 # Build results
 [Dd]ebug/
