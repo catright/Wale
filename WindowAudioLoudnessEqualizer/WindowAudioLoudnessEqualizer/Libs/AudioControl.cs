@@ -129,7 +129,6 @@ namespace Wale
 
             DP.DML(string.Format("SessionTo:{0:n6}", v));
             Sessions.GetSession(id).SetVolume((float)v);
-            //Wale.Subclasses.AudioManager.SetApplicationVolume(id, (float)v);
         }
 
 
@@ -141,49 +140,11 @@ namespace Wale
                 lock (Lockers.Sessions)
                 {
                     Sessions.RefreshSessions();
-                    //System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-                    //sw.Start();
                     Sessions.ForEach(s =>
                     {
                         s.SetAvTime(settings.AverageTime, settings.AutoControlInterval);
                         s.Refresh();
                     });
-                    //sw.Stop();
-                    //Console.WriteLine($"all session refresh time={sw.ElapsedMilliseconds}");
-
-                    /*uint[] ids = Wale.Subclasses.Audio.GetApplicationIDs();
-                    for (int i = 0; i < ids.Count(); i++)
-                    {
-                        SessionState state = Wale.Subclasses.Audio.GetApplicationState(ids[i]);
-                        if (state != SessionState.Expired)
-                        {
-                            if (!Sessions.CheckData(ids[i])) Sessions.Add(new SessionData(i, ids[i], Wale.Subclasses.Audio.GetApplicationName(ids[i])));
-                            SessionData sd = Sessions.GetData(ids[i]);
-                            if (state == SessionState.Active) sd.Active = true;
-                            else if (state == SessionState.Inactive) sd.Active = false;
-                            sd.SetIndex(i);
-                            sd.SetAvTime(settings.AverageTime, settings.AutoControlInterval);
-                            sd.SetPeak(Wale.Subclasses.Audio.GetApplicationPeak(ids[i]));
-                            sd.SetVol(Wale.Subclasses.Audio.GetApplicationVolume(ids[i]));
-                            sd.Averaging = settings.Averaging;
-                        }
-                    }
-
-                    SessionDataPack expired = new SessionDataPack();
-                    Sessions.ForEach(s =>
-                    {
-                        bool found = false;
-                        for (int i = 0; i < ids.Count(); i++)
-                        {
-                            if (s.ID == ids[i] && Wale.Subclasses.Audio.GetApplicationState(ids[i]) != SessionState.Expired)
-                            {
-                                found = true;
-                            }
-                        }
-                        if (!found) { expired.Add(s); }
-                    });
-                    expired.ForEach(s => Sessions.Remove(s));
-                    expired.Clear();*/
                 }
             }
             //DP.DML($"{Sessions.Count} ({System.DateTime.Now.Ticks})");
@@ -231,7 +192,7 @@ namespace Wale
                                                 UpLimit = VFunction.FixedReciprocal(volume, UpRate, skewness) + volume;
                                                 break;
                                             default:
-                                                UpLimit = 0;
+                                                UpLimit = 1;
                                                 break;
                                         }
                                         DP.DM($" T={tVol:n3} UL={UpLimit:n3}");
@@ -269,7 +230,6 @@ namespace Wale
                             SessionState state = s.SessionState;
                             if (state != SessionState.Active && s.SessionVolume != 0.01)
                             {
-                                //Console.WriteLine($"S={s.ProcessName}({s.ProcessId}, State={state})");
                                 SetSessionVolume(s.ProcessId, 0.01);
                                 s.ResetAverage();
                             }
@@ -277,15 +237,12 @@ namespace Wale
                     });
                     aas.ForEach(t => t.Start());
                 }/**/
-
-                //System.Threading.Thread.Sleep(AutoDelay);
+                
                 await Task.Delay(settings.GCInterval);
 
                 if (settings.AutoControl) await Task.WhenAll(aas);
                 aas.Clear();
-
-                //System.Threading.Thread.Sleep(settings.GCInterval);
-
+                
                 long mmc = GC.GetTotalMemory(true);
                 Console.WriteLine($"Total Memory: {mmc:n0}");
                 if (logCounter > 1800000/settings.GCInterval)
