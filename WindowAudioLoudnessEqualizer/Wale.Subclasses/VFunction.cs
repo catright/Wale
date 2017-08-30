@@ -8,7 +8,7 @@ namespace Wale.Subclasses
 {
     public static class VFunction
     {
-        public enum Func { Linear, SlicedLinear, Reciprocal, FixedReciprocal }
+        public enum Func { None, Linear, SlicedLinear, Reciprocal, FixedReciprocal }
 
         public struct FactorsForSlicedLinear
         {
@@ -37,7 +37,7 @@ namespace Wale.Subclasses
         public static double Reciprocal(double input, double upRate, double skewness)
         {
             if (skewness == 1 && input == 0) return 99;
-            return upRate * (1 / ((1 - skewness) + (skewness) * input) - 1);
+            return upRate * (1 / ((skewness) + (1 - skewness) * input) - 1);
         }/**/
         public static double FixedReciprocal(double input, double upRate, double skewness)
         {

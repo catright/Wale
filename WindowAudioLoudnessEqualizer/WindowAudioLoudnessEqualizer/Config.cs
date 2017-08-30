@@ -94,6 +94,13 @@ namespace Wale.WinForm
                 if (!string.IsNullOrEmpty(textBox6.Text)) skewness = Convert.ToDouble(textBox6.Text);
             }
             catch { MessageBox.Show("Invalid First Value"); }
+
+            string selectedFunction = comboBox1.SelectedItem.ToString();
+            if (selectedFunction == VFunction.Func.None.ToString()) { textBox5.Enabled = false; }
+            else { textBox5.Enabled = true; }
+            if (selectedFunction == VFunction.Func.Reciprocal.ToString() || selectedFunction == VFunction.Func.FixedReciprocal.ToString()) { textBox6.Enabled = true; }
+            else { textBox6.Enabled = false; }
+
             //DrawDevideLine();
             DrawGraph("Original");
             DrawBase();
@@ -159,26 +166,13 @@ namespace Wale.WinForm
             originalMinPeak.Text = textBox8.Text = settings.MinPeak.ToString();
             comboBox1.DataSource = Enum.GetValues(typeof(VFunction.Func));
             comboBox1.SelectedItem = settings.VFunc;
-            originalFunction.Text = comboBox1.SelectedText;
+            originalFunction.Text = comboBox1.SelectedItem.ToString();
         }
         private void DrawNew() { DrawGraph("Graph"); }
         private void DrawGraph(string graphName)
         {
             VFunction.Func f;
             Enum.TryParse<VFunction.Func>(comboBox1.SelectedValue.ToString(), out f);
-            //chart.ChartAreas["Area"].RecalculateAxesScale();
-            /*switch (f)
-            {
-                case VFunction.Func.Linear:
-                case VFunction.Func.SlicedLinear:
-                case VFunction.Func.Reciprocal:
-                case VFunction.Func.FixedReciprocal:
-                    chart.ChartAreas["Area"].AxisY.Minimum = 0;
-                    chart.ChartAreas["Area"].AxisY.Maximum = 1;
-                    break;
-                default:
-                    break;
-            }/**/
 
             System.Windows.Forms.DataVisualization.Charting.Series graph = chart.Series.FindByName(graphName);
             if (graph == null) graph = chart.Series.Add(graphName);
@@ -223,6 +217,12 @@ namespace Wale.WinForm
                     }
                     break;
                 default:
+                    for (double x = 0; x < 1.05; x += 0.05)
+                    {
+                        val = 1;
+                        graph.Points.AddXY(x, val);
+                    }
+                    maxVal = 1;
                     break;
             }
             //MessageBox.Show($"{maxVal}");
@@ -349,6 +349,11 @@ namespace Wale.WinForm
         private void Function_Changed(object sender, EventArgs e)
         {
             if (!loaded) return;
+            string selectedFunction = (sender as ComboBox).SelectedItem.ToString();
+            if (selectedFunction == VFunction.Func.None.ToString()) { textBox5.Enabled = false; }
+            else { textBox5.Enabled = true; }
+            if (selectedFunction == VFunction.Func.Reciprocal.ToString() || selectedFunction == VFunction.Func.FixedReciprocal.ToString()) { textBox6.Enabled = true; }
+            else { textBox6.Enabled = false; }
             DrawNew();
         }
 

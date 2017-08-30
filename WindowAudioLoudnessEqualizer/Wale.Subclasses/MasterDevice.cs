@@ -88,11 +88,21 @@ namespace Wale.Subclasses
         {
             IMMDeviceEnumerator deviceEnumerator = null;
             IMMDevice speakers = null;
+            //lock (Locker.MMDeviceEnumerator)
+            //{
+                try
+                {
+                    // get the speakers (1st render + multimedia) device
+                    deviceEnumerator = (IMMDeviceEnumerator)(new MMDeviceEnumerator());
+                    deviceEnumerator.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia, out speakers);
+                }
+                finally
+                {
+                    if (deviceEnumerator != null) Marshal.ReleaseComObject(deviceEnumerator);
+                }
+            //}
             try
             {
-                deviceEnumerator = (IMMDeviceEnumerator)(new MMDeviceEnumerator());
-                deviceEnumerator.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia, out speakers);
-
                 Guid IID_IAudioEndpointPeak = typeof(IAudioMeterInformation).GUID;
                 object o;
                 speakers.Activate(IID_IAudioEndpointPeak, 0, IntPtr.Zero, out o);
@@ -103,18 +113,27 @@ namespace Wale.Subclasses
             finally
             {
                 if (speakers != null) Marshal.ReleaseComObject(speakers);
-                if (deviceEnumerator != null) Marshal.ReleaseComObject(deviceEnumerator);
             }
         }
         private IAudioEndpointVolume GetMasterVolumeObject()
         {
             IMMDeviceEnumerator deviceEnumerator = null;
             IMMDevice speakers = null;
+            //lock (Locker.MMDeviceEnumerator)
+            //{
+                try
+                {
+                    // get the speakers (1st render + multimedia) device
+                    deviceEnumerator = (IMMDeviceEnumerator)(new MMDeviceEnumerator());
+                    deviceEnumerator.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia, out speakers);
+                }
+                finally
+                {
+                    if (deviceEnumerator != null) Marshal.ReleaseComObject(deviceEnumerator);
+                }
+            //}
             try
             {
-                deviceEnumerator = (IMMDeviceEnumerator)(new MMDeviceEnumerator());
-                deviceEnumerator.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia, out speakers);
-
                 Guid IID_IAudioEndpointVolume = typeof(IAudioEndpointVolume).GUID;
                 object o;
                 speakers.Activate(IID_IAudioEndpointVolume, 0, IntPtr.Zero, out o);
@@ -125,7 +144,6 @@ namespace Wale.Subclasses
             finally
             {
                 if (speakers != null) Marshal.ReleaseComObject(speakers);
-                if (deviceEnumerator != null) Marshal.ReleaseComObject(deviceEnumerator);
             }
         }
     }

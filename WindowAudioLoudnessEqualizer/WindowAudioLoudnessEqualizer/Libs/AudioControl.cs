@@ -24,7 +24,7 @@ namespace Wale
         private Task audioControlTask, controllerCleanTask;
 
         //global variables
-        public Wale.Subclasses.SessionDataPack Sessions;
+        public Wale.Subclasses.Sessions Sessions;
         //public bool AutoControl { get => Autocon(); set { Autocon(value); if (!Autocon()) ResetAllSessionVolume(); } }
         public bool Debug { get => DP.DebugMode; set => DP.DebugMode = value; }
         public double MasterPeak { get { if (masterDevice != null) return masterDevice.MasterPeak; else return 0; } }
@@ -49,7 +49,7 @@ namespace Wale
 
             masterDevice = new MasterDevice();
 
-            Sessions = new SessionDataPack();
+            Sessions = new Sessions();
             Refresh();
 
             controllerCleanTask = new Task(ControllerCleanTask);
@@ -128,8 +128,7 @@ namespace Wale
             else if (v > 1) v = 1;
 
             DP.DML(string.Format("SessionTo:{0:n6}", v));
-            Sessions.GetData(id).SetVol(v);
-            //Wale.Subclasses.AudioManager.SetApplicationVolume(id, (float)v);
+            Sessions.GetSession(id).SetVolume((float)v);
         }
 
 
@@ -140,39 +139,12 @@ namespace Wale
             {
                 lock (Lockers.Sessions)
                 {
-                    uint[] ids = Wale.Subclasses.Audio.GetApplicationIDs();
-                    for (int i = 0; i < ids.Count(); i++)
-                    {
-                        SessionState state = Wale.Subclasses.Audio.GetApplicationState(ids[i]);
-                        if (state != SessionState.Expired)
-                        {
-                            if (!Sessions.CheckData(ids[i])) Sessions.Add(new SessionData(i, ids[i], Wale.Subclasses.Audio.GetApplicationName(ids[i])));
-                            SessionData sd = Sessions.GetData(ids[i]);
-                            if (state == SessionState.Active) sd.Active = true;
-                            else if (state == SessionState.Inactive) sd.Active = false;
-                            sd.SetIndex(i);
-                            sd.SetAvTime(settings.AverageTime, settings.AutoControlInterval);
-                            sd.SetPeak(Wale.Subclasses.Audio.GetApplicationPeak(ids[i]));
-                            sd.SetVol(Wale.Subclasses.Audio.GetApplicationVolume(ids[i]));
-                            sd.Averaging = settings.Averaging;
-                        }
-                    }
-
-                    SessionDataPack expired = new SessionDataPack();
+                    Sessions.RefreshSessions();
                     Sessions.ForEach(s =>
                     {
-                        bool found = false;
-                        for (int i = 0; i < ids.Count(); i++)
-                        {
-                            if (s.ID == ids[i] && Wale.Subclasses.Audio.GetApplicationState(ids[i]) != SessionState.Expired)
-                            {
-                                found = true;
-                            }
-                        }
-                        if (!found) { expired.Add(s); }
+                        s.SetAvTime(settings.AverageTime, settings.AutoControlInterval);
+                        s.Refresh();
                     });
-                    expired.ForEach(s => Sessions.Remove(s));
-                    expired.Clear();
                 }
             }
             //DP.DML($"{Sessions.Count} ({System.DateTime.Now.Ticks})");
@@ -184,60 +156,60 @@ namespace Wale
             while (!Terminate())
             {
                 Refresh();
-                lock (Lockers.Sessions)
+                //bool auto = Autocon();
+                if (settings.AutoControl)
                 {
-                    //bool auto = Autocon();
-                    if (settings.AutoControl)
+                    lock (Lockers.Sessions)
                     {
                         Sessions.ForEach(s =>
                         {
                             aas.Add(new Task(new Action(() =>
                             {
-                                DP.DM($"AutoVolume:{s.Name}({s.ID}), inc={s.AutoIncluded}");
-                                if (s.Active && s.AutoIncluded)
+                                DP.DM($"AutoVolume:{s.ProcessName}({s.ProcessId}), inc={s.AutoIncluded}");
+                                if (s.SessionState == SessionState.Active && s.AutoIncluded)
                                 {
-                                    DP.DM($" P:{s.Peak:n3}");
-                                    if (s.Peak > settings.MinPeak)
+                                    double peak = s.SessionPeak, volume = s.SessionVolume;
+                                    DP.DM($" P:{peak:n3}");
+                                    if (peak > settings.MinPeak)
                                     {
-                                        DP.DM($" V:{s.Volume:n3}");
+                                        DP.DM($" V:{volume:n3}");
                                         double tVol, UpLimit;
-                                        if (s.Averaging) s.SetAverage(s.Peak);
-                                        if (s.Averaging && s.Peak < s.AveragePeak) tVol = baseVolSquare / s.AveragePeak;
-                                        else tVol = baseVolSquare / s.Peak;
+                                        if (s.Averaging) s.SetAverage(peak);
+                                        if (s.Averaging && peak < s.AveragePeak) tVol = baseVolSquare / s.AveragePeak;
+                                        else tVol = baseVolSquare / peak;
                                         switch (settings.VFunc)
                                         {
                                             case VFunction.Func.Linear:
-                                                UpLimit = VFunction.Linear(s.Volume, UpRate) + s.Volume;
+                                                UpLimit = VFunction.Linear(volume, UpRate) + volume;
                                                 break;
                                             case VFunction.Func.SlicedLinear:
-                                                UpLimit = VFunction.SlicedLinear(s.Volume, UpRate, baseVol, sliceFactors.A, sliceFactors.B) + s.Volume;
+                                                UpLimit = VFunction.SlicedLinear(volume, UpRate, baseVol, sliceFactors.A, sliceFactors.B) + volume;
                                                 break;
                                             case VFunction.Func.Reciprocal:
-                                                UpLimit = VFunction.Reciprocal(s.Volume, UpRate, skewness) + s.Volume;
+                                                UpLimit = VFunction.Reciprocal(volume, UpRate, skewness) + volume;
                                                 break;
                                             case VFunction.Func.FixedReciprocal:
-                                                UpLimit = VFunction.FixedReciprocal(s.Volume, UpRate, skewness) + s.Volume;
+                                                UpLimit = VFunction.FixedReciprocal(volume, UpRate, skewness) + volume;
                                                 break;
                                             default:
-                                                UpLimit = 0;
+                                                UpLimit = 1;
                                                 break;
                                         }
                                         DP.DM($" T={tVol:n3} UL={UpLimit:n3}");
-                                        SetSessionVolume(s.ID, (tVol > UpLimit) ? UpLimit : tVol);
+                                        SetSessionVolume(s.ProcessId, (tVol > UpLimit) ? UpLimit : tVol);
                                     }
                                     DP.DML("");
                                 }
                             })));
                         });
-                        aas.ForEach(t => t.Start());
                     }
+                    aas.ForEach(t => t.Start());
                 }
                 //System.Threading.Thread.Sleep(AutoDelay);
                 await Task.Delay(settings.AutoControlInterval);
 
                 if (settings.AutoControl) await Task.WhenAll(aas);
                 aas.Clear();
-
             }
             JLdebPack.DebugPack.Log("Audio Control Task End");
         }
@@ -255,24 +227,22 @@ namespace Wale
                     Sessions.ForEach(s => {
                         aas.Add(new Task(new Action(() =>
                         {
-                            if (!s.Expired && s.Volume != 0.01)
+                            SessionState state = s.SessionState;
+                            if (state != SessionState.Active && s.SessionVolume != 0.01)
                             {
-                                SetSessionVolume(s.ID, 0.01);
+                                SetSessionVolume(s.ProcessId, 0.01);
                                 s.ResetAverage();
                             }
                         })));
                     });
                     aas.ForEach(t => t.Start());
                 }/**/
-
-                //System.Threading.Thread.Sleep(AutoDelay);
+                
                 await Task.Delay(settings.GCInterval);
 
                 if (settings.AutoControl) await Task.WhenAll(aas);
                 aas.Clear();
-
-                //System.Threading.Thread.Sleep(settings.GCInterval);
-
+                
                 long mmc = GC.GetTotalMemory(true);
                 Console.WriteLine($"Total Memory: {mmc:n0}");
                 if (logCounter > 1800000/settings.GCInterval)
