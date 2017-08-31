@@ -33,6 +33,9 @@
             this.Submit = new System.Windows.Forms.Button();
             this.Cancel = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.originalMinPeak = new System.Windows.Forms.Label();
+            this.textBox8 = new System.Windows.Forms.TextBox();
+            this.label10 = new System.Windows.Forms.Label();
             this.averageEnabled = new System.Windows.Forms.CheckBox();
             this.originalAvTime = new System.Windows.Forms.Label();
             this.textBox7 = new System.Windows.Forms.TextBox();
@@ -62,9 +65,7 @@
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.detailedView = new System.Windows.Forms.CheckBox();
             this.runAtWindowsStartup = new System.Windows.Forms.CheckBox();
-            this.originalMinPeak = new System.Windows.Forms.Label();
-            this.textBox8 = new System.Windows.Forms.TextBox();
-            this.label10 = new System.Windows.Forms.Label();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.titlePanel.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -126,6 +127,7 @@
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox1.Controls.Add(this.checkBox1);
             this.groupBox1.Controls.Add(this.originalMinPeak);
             this.groupBox1.Controls.Add(this.textBox8);
             this.groupBox1.Controls.Add(this.label10);
@@ -162,6 +164,35 @@
             this.groupBox1.TabIndex = 17;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Sound";
+            // 
+            // originalMinPeak
+            // 
+            this.originalMinPeak.AutoSize = true;
+            this.originalMinPeak.Location = new System.Drawing.Point(123, 251);
+            this.originalMinPeak.Name = "originalMinPeak";
+            this.originalMinPeak.Size = new System.Drawing.Size(8, 12);
+            this.originalMinPeak.TabIndex = 105;
+            this.originalMinPeak.Text = "l";
+            // 
+            // textBox8
+            // 
+            this.textBox8.Location = new System.Drawing.Point(167, 248);
+            this.textBox8.MaxLength = 7;
+            this.textBox8.Name = "textBox8";
+            this.textBox8.Size = new System.Drawing.Size(49, 21);
+            this.textBox8.TabIndex = 103;
+            this.textBox8.Enter += new System.EventHandler(this.textBoxesFocus_Enter);
+            this.textBox8.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBoxForDigits_KeyPress);
+            this.textBox8.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.textboxes_PreviewKeyDown);
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(8, 251);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(92, 12);
+            this.label10.TabIndex = 104;
+            this.label10.Text = "Min Peak Level";
             // 
             // averageEnabled
             // 
@@ -458,34 +489,18 @@
             this.runAtWindowsStartup.Text = "Run at Windows Startup";
             this.runAtWindowsStartup.UseVisualStyleBackColor = true;
             // 
-            // originalMinPeak
+            // checkBox1
             // 
-            this.originalMinPeak.AutoSize = true;
-            this.originalMinPeak.Location = new System.Drawing.Point(123, 251);
-            this.originalMinPeak.Name = "originalMinPeak";
-            this.originalMinPeak.Size = new System.Drawing.Size(8, 12);
-            this.originalMinPeak.TabIndex = 105;
-            this.originalMinPeak.Text = "l";
-            // 
-            // textBox8
-            // 
-            this.textBox8.Location = new System.Drawing.Point(167, 248);
-            this.textBox8.MaxLength = 7;
-            this.textBox8.Name = "textBox8";
-            this.textBox8.Size = new System.Drawing.Size(49, 21);
-            this.textBox8.TabIndex = 103;
-            this.textBox8.Enter += new System.EventHandler(this.textBoxesFocus_Enter);
-            this.textBox8.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBoxForDigits_KeyPress);
-            this.textBox8.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.textboxes_PreviewKeyDown);
-            // 
-            // label10
-            // 
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(8, 251);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(92, 12);
-            this.label10.TabIndex = 104;
-            this.label10.Text = "Min Peak Level";
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Checked = global::Wale.Properties.Settings.Default.AutoControl;
+            this.checkBox1.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox1.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Wale.Properties.Settings.Default, "AutoControl", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.checkBox1.Location = new System.Drawing.Point(224, 250);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(143, 16);
+            this.checkBox1.TabIndex = 106;
+            this.checkBox1.Text = "Auto Control Enabled";
+            this.checkBox1.UseVisualStyleBackColor = true;
             // 
             // Config
             // 
@@ -508,7 +523,6 @@
             this.MinimizeBox = false;
             this.Name = "Config";
             this.ShowIcon = false;
-            this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "Config";
             this.TopMost = global::Wale.Properties.Settings.Default.AlwaysTop;
@@ -562,5 +576,6 @@
         private System.Windows.Forms.Label originalMinPeak;
         private System.Windows.Forms.TextBox textBox8;
         private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.CheckBox checkBox1;
     }
 }

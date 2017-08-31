@@ -5,6 +5,18 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+namespace Wale
+{
+    public static class Version
+    {
+        static System.Version versionObject = typeof(Wale.WinForm.Program).Assembly.GetName().Version;
+        public static int Major = versionObject.Major;
+        public static int Minor = versionObject.Minor;
+        public static int Build = versionObject.Build;
+        public static string LongVersion = $"{Major}.{Minor}.{Build}";
+        public static string Option = "beta";
+    }
+}
 namespace Wale.WinForm
 {
     static class Program

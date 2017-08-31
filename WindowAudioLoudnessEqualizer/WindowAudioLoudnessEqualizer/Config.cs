@@ -31,6 +31,8 @@ namespace Wale.WinForm
         public Config()
         {
             InitializeComponent();
+            if (string.IsNullOrWhiteSpace(Version.Option)) label3.Text = $"WALE - CONFIG v{Version.LongVersion}";
+            else label3.Text = $"WALE - CONFIG v{Version.LongVersion}-{Version.Option}";
             titlePanel.BackColor = Blue;
             GraphPanel.Controls.Add(chart);
             chart.Dock = DockStyle.Fill;
@@ -105,6 +107,8 @@ namespace Wale.WinForm
             DrawGraph("Original");
             DrawBase();
             DrawNew();
+
+            Activate();
         }
 
         //title panel control

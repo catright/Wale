@@ -337,6 +337,15 @@ namespace Wale.WinForm
             form.FormClosed -= Config_FormClosed;
             form.Dispose();
         }
+        
+        private void licensesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DP.DM("Licenses");
+            Licenses form = new Licenses();
+            form.Location = FWP.PointFromMouse(-(form.Width / 2), -form.Height, JLdebPack.FormWindowPackage.PointMode.AboveTaskbar);
+            
+            form.ShowDialog();
+        }
         #endregion
 
 

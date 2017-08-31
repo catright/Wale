@@ -35,6 +35,7 @@
             this.cmsAutoControl = new System.Windows.Forms.ToolStripMenuItem();
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.licensesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.label1 = new System.Windows.Forms.Label();
             this.tbVolume = new System.Windows.Forms.TextBox();
@@ -76,15 +77,18 @@
             this.cmsAutoControl,
             this.settingsToolStripMenuItem,
             this.toolStripSeparator1,
+            this.licensesToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.NICMstrip.Name = "NICMstrip";
-            this.NICMstrip.Size = new System.Drawing.Size(165, 76);
+            this.NICMstrip.Size = new System.Drawing.Size(165, 120);
             // 
             // cmsAutoControl
             // 
+            this.cmsAutoControl.Enabled = false;
             this.cmsAutoControl.Name = "cmsAutoControl";
             this.cmsAutoControl.Size = new System.Drawing.Size(164, 22);
             this.cmsAutoControl.Text = "&AutoControl(On)";
+            this.cmsAutoControl.Visible = false;
             this.cmsAutoControl.Click += new System.EventHandler(this.AutoControlMenuItem_Click);
             // 
             // settingsToolStripMenuItem
@@ -98,6 +102,13 @@
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
             this.toolStripSeparator1.Size = new System.Drawing.Size(161, 6);
+            // 
+            // licensesToolStripMenuItem
+            // 
+            this.licensesToolStripMenuItem.Name = "licensesToolStripMenuItem";
+            this.licensesToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+            this.licensesToolStripMenuItem.Text = "Licenses";
+            this.licensesToolStripMenuItem.Click += new System.EventHandler(this.licensesToolStripMenuItem_Click);
             // 
             // exitToolStripMenuItem
             // 
@@ -400,6 +411,7 @@
         private System.Windows.Forms.TabPage tabSession;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.TextBox Logs;
+        private System.Windows.Forms.ToolStripMenuItem licensesToolStripMenuItem;
     }
 }
 

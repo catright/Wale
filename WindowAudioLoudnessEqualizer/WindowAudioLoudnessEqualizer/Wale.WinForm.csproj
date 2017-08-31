@@ -90,6 +90,12 @@
       <DependentUpon>Config.cs</DependentUpon>
     </Compile>
     <Compile Include="Libs\AudioControl.cs" />
+    <Compile Include="Licenses.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Licenses.Designer.cs">
+      <DependentUpon>Licenses.cs</DependentUpon>
+    </Compile>
     <Compile Include="MainWindow.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -101,6 +107,9 @@
     <Compile Include="Settings.cs" />
     <EmbeddedResource Include="Config.resx">
       <DependentUpon>Config.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Licenses.resx">
+      <DependentUpon>Licenses.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainWindow.resx">
       <DependentUpon>MainWindow.cs</DependentUpon>
