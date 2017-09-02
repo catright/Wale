@@ -10,9 +10,9 @@ using System.Windows.Forms;
 
 namespace Wale.WinForm
 {
-    public partial class Licenses : Form
+    public partial class Help : Form
     {
-        public Licenses()
+        public Help()
         {
             InitializeComponent();
             ColorBindings();
@@ -30,14 +30,10 @@ namespace Wale.WinForm
             button1.BackColor = ColorSet.BackColorAlt;
             button1.FlatAppearance.BorderColor = ColorSet.ForeColor;
 
-
-            JLdebPack.FormPack2.Bind(tabPage1, "BackColor", this, "BackColor");
-            JLdebPack.FormPack2.Bind(tabPage2, "BackColor", this, "BackColor");
+            JLdebPack.FormPack2.Bind(panel1, "BackColor", this, "BackColor");
             JLdebPack.FormPack2.Bind(richTextBox1, "BackColor", this, "BackColor");
-            JLdebPack.FormPack2.Bind(richTextBox2, "BackColor", this, "BackColor");
             JLdebPack.FormPack2.Bind(button1, "BackColor", this, "BackColor");
         }
-
         #region title panel control, location and size check events
         //title panel control
         private bool titleDrag = false;
@@ -83,7 +79,9 @@ namespace Wale.WinForm
             Close();
         }
 
-
-
+        private void textBox1_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://github.com/catright/Wale/wiki");
+        }
     }
 }

@@ -14,12 +14,12 @@ namespace Wale.WinForm
 {
     public partial class Config : Form
     {
-        RegistryKey rkApp = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
+        RegistryKey rkApp = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
         Wale.Properties.Settings settings = Wale.Properties.Settings.Default;
         System.Windows.Forms.DataVisualization.Charting.Chart chart = new System.Windows.Forms.DataVisualization.Charting.Chart();
         System.Windows.Forms.DataVisualization.Charting.TextAnnotation myText1 = new System.Windows.Forms.DataVisualization.Charting.TextAnnotation(), myText2 = new System.Windows.Forms.DataVisualization.Charting.TextAnnotation();
         bool loaded = false;
-        double baseVolume, upRate, skewness, originalMax;
+        double baseLevel, upRate, kurtosis, originalMax;
         Color White = Color.LightGray;
         Color Gray = Color.Gray;
         Color Black = Color.DimGray;
@@ -91,9 +91,9 @@ namespace Wale.WinForm
             loaded = true;
             try
             {
-                if (!string.IsNullOrEmpty(textBox4.Text)) baseVolume = Convert.ToDouble(textBox4.Text);
+                if (!string.IsNullOrEmpty(textBox4.Text)) baseLevel = Convert.ToDouble(textBox4.Text);
                 if (!string.IsNullOrEmpty(textBox5.Text)) upRate = (Convert.ToDouble(textBox5.Text) * Convert.ToDouble(textBox2.Text) / 1000.0);
-                if (!string.IsNullOrEmpty(textBox6.Text)) skewness = Convert.ToDouble(textBox6.Text);
+                if (!string.IsNullOrEmpty(textBox6.Text)) kurtosis = Convert.ToDouble(textBox6.Text);
             }
             catch { MessageBox.Show("Invalid First Value"); }
 
@@ -163,9 +163,9 @@ namespace Wale.WinForm
             originalUIInterval.Text = textBox1.Text = settings.UIUpdateInterval.ToString();
             originalACInterval.Text = textBox2.Text = settings.AutoControlInterval.ToString();
             originalGCInterval.Text = textBox3.Text = settings.GCInterval.ToString();
-            originalBaseVolume.Text = textBox4.Text = settings.BaseVolume.ToString();
+            originalBaseLevel.Text = textBox4.Text = settings.BaseLevel.ToString();
             originalUpRate.Text = textBox5.Text = settings.UpRate.ToString();
-            originalSkewness.Text = textBox6.Text = settings.Skewness.ToString();
+            originalKurtosis.Text = textBox6.Text = settings.Kurtosis.ToString();
             originalAvTime.Text = textBox7.Text = (settings.AverageTime / 1000).ToString();
             originalMinPeak.Text = textBox8.Text = settings.MinPeak.ToString();
             comboBox1.DataSource = Enum.GetValues(typeof(VFunction.Func));
@@ -196,10 +196,10 @@ namespace Wale.WinForm
                     }
                     break;
                 case VFunction.Func.SlicedLinear:
-                    VFunction.FactorsForSlicedLinear sliceFactors = VFunction.GetFactorsForSlicedLinear(upRate, baseVolume);
+                    VFunction.FactorsForSlicedLinear sliceFactors = VFunction.GetFactorsForSlicedLinear(upRate, baseLevel);
                     for (double x = 0; x < 1.05; x += 0.05)
                     {
-                        val = VFunction.SlicedLinear(x, upRate, baseVolume, sliceFactors.A, sliceFactors.B) * 1000 / settings.AutoControlInterval;
+                        val = VFunction.SlicedLinear(x, upRate, baseLevel, sliceFactors.A, sliceFactors.B) * 1000 / settings.AutoControlInterval;
                         maxVal = Math.Max(maxVal, val);
                         graph.Points.AddXY(x, val);
                     }
@@ -207,7 +207,7 @@ namespace Wale.WinForm
                 case VFunction.Func.Reciprocal:
                     for (double x = 0; x < 1.05; x += 0.05)
                     {
-                        val = VFunction.Reciprocal(x, upRate, skewness) * 1000 / settings.AutoControlInterval;
+                        val = VFunction.Reciprocal(x, upRate, kurtosis) * 1000 / settings.AutoControlInterval;
                         maxVal = Math.Max(maxVal, val);
                         graph.Points.AddXY(x, val);
                     }
@@ -215,7 +215,7 @@ namespace Wale.WinForm
                 case VFunction.Func.FixedReciprocal:
                     for (double x = 0; x < 1.05; x += 0.05)
                     {
-                        val = VFunction.FixedReciprocal(x, upRate, skewness) * 1000 / settings.AutoControlInterval;
+                        val = VFunction.FixedReciprocal(x, upRate, kurtosis) * 1000 / settings.AutoControlInterval;
                         maxVal = Math.Max(maxVal, val);
                         graph.Points.AddXY(x, val);
                     }
@@ -252,7 +252,7 @@ namespace Wale.WinForm
 
             for (double y = 0; y < 99; y++)
             {
-                graph.Points.AddXY(baseVolume, y);
+                graph.Points.AddXY(baseLevel, y);
             }
         }
         private void DrawDevideLine()
@@ -274,12 +274,12 @@ namespace Wale.WinForm
             settings.AutoControl = false;
             try
             {
-                settings.BaseVolume = Convert.ToDouble(textBox4.Text);
+                settings.BaseLevel = Convert.ToDouble(textBox4.Text);
                 settings.UIUpdateInterval = Convert.ToInt16(textBox1.Text);
                 settings.AutoControlInterval = Convert.ToInt16(textBox2.Text);
                 settings.GCInterval = Convert.ToInt16(textBox3.Text);
                 settings.UpRate = Convert.ToDouble(textBox5.Text);
-                settings.Skewness = Convert.ToDouble(textBox6.Text);
+                settings.Kurtosis = Convert.ToDouble(textBox6.Text);
                 settings.AverageTime = Convert.ToDouble(textBox7.Text) * 1000;
                 settings.MinPeak = Convert.ToDouble(textBox8.Text);
                 VFunction.Func f;
@@ -318,12 +318,12 @@ namespace Wale.WinForm
                 e.Handled = true;
             }
         }
-        private void BaseVolume_Changed(object sender, EventArgs e)
+        private void BaseLevel_Changed(object sender, EventArgs e)
         {
             if (!loaded) return;
             try
             {
-                if (!string.IsNullOrEmpty(textBox4.Text) && textBox4.Text != ".") baseVolume = Convert.ToDouble(textBox4.Text);
+                if (!string.IsNullOrEmpty(textBox4.Text) && textBox4.Text != ".") baseLevel = Convert.ToDouble(textBox4.Text);
             }
             catch { MessageBox.Show("Invalid BaseVolume Value"); }
 
@@ -340,12 +340,12 @@ namespace Wale.WinForm
             catch { MessageBox.Show("Invalid UpRate Value"); }
             DrawNew();
         }
-        private void Skewness_Changed(object sender, EventArgs e)
+        private void Kurtosis_Changed(object sender, EventArgs e)
         {
             if (!loaded) return;
             try
             {
-                if (!string.IsNullOrEmpty(textBox6.Text) && textBox6.Text != ".") skewness = Convert.ToDouble(textBox6.Text);
+                if (!string.IsNullOrEmpty(textBox6.Text) && textBox6.Text != ".") kurtosis = Convert.ToDouble(textBox6.Text);
             }
             catch { MessageBox.Show("Invalid Skewness Value"); }
             DrawNew();

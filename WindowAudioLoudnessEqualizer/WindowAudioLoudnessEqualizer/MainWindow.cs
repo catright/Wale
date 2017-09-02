@@ -34,23 +34,53 @@ namespace Wale.WinForm
                 base.OnMouseLeave(e);
             }
         }/**/
+
+        private const int WM_PAINT = 0x000F;
+        protected override void WndProc(ref Message m)
+        {
+            if (m.Msg != WM_PAINT)
+            {
+                base.WndProc(ref m);
+            }
+            else if (bAllowPaintMaster && m.Msg == WM_PAINT)
+            {
+                base.WndProc(ref m);
+                bAllowPaintMaster = false;
+            }
+            else if (bAllowPaintSession && m.Msg == WM_PAINT)
+            {
+                base.WndProc(ref m);
+                bAllowPaintSession = false;
+            }
+            else if (bAllowPaintSession && m.Msg == WM_PAINT)
+            {
+                base.WndProc(ref m);
+                bAllowPaintLog = false;
+            }
+        }
         #endregion
 
         #region Private Variables
         Wale.Properties.Settings settings = Wale.Properties.Settings.Default;
         AudioControl Audio;
         JLdebPack.DebugPackage DP;
-        JLdebPack.FormWindowPackage FWP;
+        JLdebPack.FormPack FWP;
         List<Task> _updateTasks;
         object _closelock = new object(), _activelock = new object(), _ntvlock = new object();
         volatile bool _realClose = false, _activated = false, _numberToVol = true;
         bool debug = false, mouseWheelDebug = false, audioDebug = false, updateVolumeDebug = false, updateSessionDebug = false;
+        bool bAllowPaintMaster = true, bAllowPaintSession = true, bAllowPaintLog = true;
+        #endregion
+
+        #region Public Vatiables
+
         #endregion
 
         public MainWindow()
         {
             InitializeComponent();
             MakeComponents();
+            ColorBindings();
             StartApp();
             Log("App Started");
         }
@@ -70,13 +100,33 @@ namespace Wale.WinForm
             this.MouseWheel += MainWindow_MouseWheel;
             settings.PropertyChanged += Settings_PropertyChanged;
             DP = new JLdebPack.DebugPackage(debug);
-            FWP = new JLdebPack.FormWindowPackage();
+            FWP = new JLdebPack.FormPack();
             Log("OK1"); DP.DML("OK1");
+        }
+        private void ColorBindings()
+        {
+            this.ForeColor = ColorSet.ForeColor;
+            this.BackColor = ColorSet.BackColor;
+            
+            titlePanel.BackColor = ColorSet.MainColor;
+
+            pbMasterVolume.ForeColor = ColorSet.MainColor;
+            pbBaseLevel.ForeColor = ColorSet.BaseColor;
+            pbMasterPeak.ForeColor = ColorSet.PeakColor;
+
+            bVolumeSet.BackColor = ColorSet.BackColorAlt;
+            bVolumeSet.FlatAppearance.BorderColor = ColorSet.ForeColor;
+
+            lVolume.ForeColor = ColorSet.MainColor;
+
+            JLdebPack.FormPack2.Bind(tabMain, "BackColor", this, "BackColor");
+            JLdebPack.FormPack2.Bind(tabSession, "BackColor", this, "BackColor");
+            JLdebPack.FormPack2.Bind(tabLog, "BackColor", this, "BackColor");
         }
         private void StartApp()
         {
-            Transformation.SetBaseVolume(settings.BaseVolume);
-            Audio = new AudioControl(settings.BaseVolume);
+            Transformation.SetBaseLevel(settings.BaseLevel);
+            Audio = new AudioControl(settings.BaseLevel);
             Audio.Start(audioDebug);
             //Audio.AutoControl = Properties.Settings.Default.autoControl;
             //UpdateConnectTask();
@@ -137,7 +187,7 @@ namespace Wale.WinForm
         {
             if (!Active())
             {
-                Location = FWP.PointFromMouse(-(Width / 2), -Height, JLdebPack.FormWindowPackage.PointMode.AboveTaskbar);
+                Location = FWP.PointFromMouse(-(Width / 2), -Height, JLdebPack.FormPack.PointMode.AboveTaskbar);
                 Show();
                 Activate();
                 Active(true);
@@ -146,6 +196,25 @@ namespace Wale.WinForm
         private void NI_MouseClick(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left) { DP.DML("IconLeftClick"); Active(false); ShowWindow(); }
+        }
+        //ToolTip Messeges
+
+        private ToolTip tt;
+        private void textBox_Enter(object sender, EventArgs e)
+        {
+            TextBox targetTextBox = (sender as TextBox);
+            tt = new ToolTip();
+            tt.InitialDelay = 0;
+            tt.IsBalloon = false;
+            tt.Show(string.Empty, targetTextBox);
+            string msg = "";
+            if (targetTextBox.Name == tbInterval.Name) { msg = "Step of master volume"; }
+            else if (targetTextBox.Name == tbVolume.Name) { msg = "Target master volume to set"; }
+            tt.Show(msg, targetTextBox, 0);
+        }
+        private void textBox_Leave(object sender, EventArgs e)
+        {
+            tt.Dispose();
         }
         #endregion
 
@@ -321,7 +390,7 @@ namespace Wale.WinForm
         {
             DP.DM("Settings");
             Config form = new Config();
-            form.Location = FWP.PointFromMouse(-(form.Width / 2), -form.Height, JLdebPack.FormWindowPackage.PointMode.AboveTaskbar);
+            form.Location = FWP.PointFromMouse(-(form.Width / 2), -form.Height, JLdebPack.FormPack.PointMode.AboveTaskbar);
             form.FormClosed += Config_FormClosed;
             form.Show();
         }
@@ -330,19 +399,27 @@ namespace Wale.WinForm
             Form form = sender as Form;
             if (form.DialogResult == DialogResult.OK)
             {
-                Transformation.SetBaseVolume(settings.BaseVolume);
-                Audio.SetBaseTo(settings.BaseVolume);
+                Transformation.SetBaseLevel(settings.BaseLevel);
+                Audio.SetBaseTo(settings.BaseLevel);
                 Audio.UpRate = settings.UpRate;
             }
             form.FormClosed -= Config_FormClosed;
             form.Dispose();
         }
         
+        private void helpToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DP.DM("Help");
+            Help form = new Help();
+            form.Location = FWP.PointFromMouse(-(form.Width / 2), -form.Height, JLdebPack.FormPack.PointMode.AboveTaskbar);
+
+            form.ShowDialog();
+        }
         private void licensesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             DP.DM("Licenses");
             Licenses form = new Licenses();
-            form.Location = FWP.PointFromMouse(-(form.Width / 2), -form.Height, JLdebPack.FormWindowPackage.PointMode.AboveTaskbar);
+            form.Location = FWP.PointFromMouse(-(form.Width / 2), -form.Height, JLdebPack.FormPack.PointMode.AboveTaskbar);
             
             form.ShowDialog();
         }
@@ -361,10 +438,10 @@ namespace Wale.WinForm
                 if (Active())
                 {
                     JLdebPack.DebugPackage VDP = new JLdebPack.DebugPackage(updateVolumeDebug);
-                    VDP.DML($"base={settings.BaseVolume} vol={Audio.MasterVolume}({Audio.MasterPeak})");
+                    VDP.DML($"base={settings.BaseLevel} vol={Audio.MasterVolume}({Audio.MasterPeak})");
 
-                    SetText(lBaseVolume, $"{settings.BaseVolume:n}");
-                    SetBar(pbBaseVolume, (int)(settings.BaseVolume * 100));
+                    SetText(lBaseVolume, $"{settings.BaseLevel:n}");
+                    SetBar(pbBaseLevel, (int)(settings.BaseLevel * 100));
                     //lBaseVolume.Text = $"{Properties.Settings.Default.baseVolume:n}";
                     //pbBaseVolume.Increment((int)(Properties.Settings.Default.baseVolume * 100) - pbBaseVolume.Value);
 
@@ -372,15 +449,16 @@ namespace Wale.WinForm
                     else SetText(lVolume, $"{Audio.MasterPeak * Audio.MasterVolume:n}");
                     SetBar(pbMasterVolume, (int)(Audio.MasterVolume * 100));
                     double lbuf = Audio.MasterVolume * Audio.MasterPeak * 100;
-                    if (lbuf > pbMasterLevel.Maximum) lbuf = pbMasterLevel.Maximum;
-                    else if (lbuf < pbMasterLevel.Minimum) lbuf = pbMasterLevel.Minimum;
-                    SetBar(pbMasterLevel, (int)lbuf);
+                    if (lbuf > pbMasterPeak.Maximum) lbuf = pbMasterPeak.Maximum;
+                    else if (lbuf < pbMasterPeak.Minimum) lbuf = pbMasterPeak.Minimum;
+                    SetBar(pbMasterPeak, (int)lbuf);
                     //if (NTV()) lVolume.Text = $"{volume:n}";
                     //else lVolume.Text = $"{Audio.MasterPeak * volume:n}";
                     //pbMasterVolume.Increment((int)(Audio.MasterVolume * 100) - pbMasterVolume.Value);
                     //pbMasterLevel.Increment((int)(Audio.MasterPeak * volume * 100) - pbMasterLevel.Value);
                 }
                 //if (updateVolumeDelay > 0) await wait;
+                bAllowPaintMaster = true;
                 System.Threading.Thread.Sleep(settings.UIUpdateInterval);
             }
             Log("End UpdateVolumeTask");
@@ -476,6 +554,7 @@ namespace Wale.WinForm
 
                 }// activated check enclosure
                  //if (updateSessionDelay > 0) await wait;
+                bAllowPaintSession = true;
                 System.Threading.Thread.Sleep(settings.UIUpdateInterval);
             }
             Log("End UpdateSessionTask");
@@ -626,6 +705,7 @@ namespace Wale.WinForm
             JLdebPack.DebugPack.Log($"{DateTime.Now.ToLocalTime()}: {msg}", newLine);
             AppendText(Logs, $"{DateTime.Now.ToLocalTime()}: {msg}");
             if (newLine) AppendText(Logs, "\r\n");
+            bAllowPaintLog = true;
         }
         private void Logs_VisibleChanged(object sender, EventArgs e)
         {
@@ -661,13 +741,13 @@ namespace Wale.WinForm
         private Label lSessionNameLabel, lVolume;
         private Label dlReletive, dlAvPeak, dlPeak;
         private NewProgressBar lVolumeBar, lLevelBar;
+        private Color foreColor = ColorSet.ForeColor, mainColor = ColorSet.MainColor, peakColor = ColorSet.PeakColor, averageColor = ColorSet.AverageColor;
+        private enum LabelMode { Relative, Volume, Peak, AveragePeak };
 
         private uint _ID;
         private int _relative = 0;
         private bool _Updated, detailed;//, _disposed = false;
         private LabelMode labelMode = LabelMode.Volume;
-        private enum LabelMode { Relative, Volume, Peak, AveragePeak };
-        private Color White = Color.LightGray, Blue = Color.CornflowerBlue, Red = Color.PaleVioletRed, Orange = Color.Orange;
 
         //public variables
         //public List<double> LastPeaks;
@@ -709,7 +789,7 @@ namespace Wale.WinForm
             cbAutoIncluded.AutoSize = false;
             cbAutoIncluded.Size = new Size(14, 14);
             cbAutoIncluded.Margin = new Padding(0);
-            cbAutoIncluded.ForeColor = White;
+            cbAutoIncluded.ForeColor = foreColor;
             cbAutoIncluded.FlatStyle = FlatStyle.Flat;
             cbAutoIncluded.Checked = true;
             cbAutoIncluded.Enabled = true;
@@ -718,20 +798,20 @@ namespace Wale.WinForm
             lSessionNameLabel.AutoSize = false;
             lSessionNameLabel.Size = new Size(70, 12);
             lSessionNameLabel.Margin = new Padding(0);
-            lSessionNameLabel.ForeColor = White;
+            lSessionNameLabel.ForeColor = foreColor;
             lSessionNameLabel.Enabled = true;
             lSessionNameLabel.Show();
             lVolume = new Label();
             lVolume.AutoSize = false;
             lVolume.Size = new Size(35, 12);
             lVolume.Margin = new Padding(0);
-            lVolume.ForeColor = Blue;
+            lVolume.ForeColor = mainColor;
             lVolume.Enabled = true;
             lVolume.Show();
             lVolumeBar = new NewProgressBar();
             lVolumeBar.Size = new Size(74, 10);
             lVolumeBar.Margin = new Padding(0);
-            lVolumeBar.ForeColor = Blue;
+            lVolumeBar.ForeColor = mainColor;
             lVolumeBar.Maximum = 100;
             lVolumeBar.Minimum = 0;
             lVolumeBar.Step = 1;
@@ -745,7 +825,7 @@ namespace Wale.WinForm
             lLevelBar = new NewProgressBar();
             lLevelBar.Size = new Size(74, 10);
             lLevelBar.Margin = new Padding(0);
-            lLevelBar.ForeColor = Red;
+            lLevelBar.ForeColor = peakColor;
             lLevelBar.Maximum = 100;
             lLevelBar.Minimum = 0;
             lLevelBar.Step = 1;
@@ -769,7 +849,7 @@ namespace Wale.WinForm
             DP.DM(" - ItemEvents");
             this.MouseWheel += MeterSet_MouseWheel;
             lSessionNameLabel.Click += LSessionNameLabel_Click;
-            lVolume.Click += LVolume_Click;
+            //lVolume.Click += LVolume_Click;
         }
         private void ItemLocations()
         {
@@ -786,7 +866,7 @@ namespace Wale.WinForm
             dlReletive.AutoSize = false;
             dlReletive.Size = new Size(35, 12);
             dlReletive.Margin = new Padding(0);
-            dlReletive.ForeColor = White;
+            dlReletive.ForeColor = foreColor;
             dlReletive.Enabled = true;
             //dlReletive.Show();
             dlReletive.Hide();
@@ -794,7 +874,7 @@ namespace Wale.WinForm
             dlAvPeak.AutoSize = false;
             dlAvPeak.Size = new Size(35, 12);
             dlAvPeak.Margin = new Padding(0);
-            dlAvPeak.ForeColor = Orange;
+            dlAvPeak.ForeColor = averageColor;
             dlAvPeak.Enabled = true;
             //dlAvPeak.Show();
             dlAvPeak.Hide();
@@ -802,7 +882,7 @@ namespace Wale.WinForm
             dlPeak.AutoSize = false;
             dlPeak.Size = new Size(35, 12);
             dlPeak.Margin = new Padding(0);
-            dlPeak.ForeColor = Red;
+            dlPeak.ForeColor = peakColor;
             dlPeak.Enabled = true;
             //dlPeak.Show();
             dlPeak.Hide();
@@ -854,23 +934,19 @@ namespace Wale.WinForm
             {
                 case LabelMode.Relative:
                     labelMode = LabelMode.Volume;
-                    //lVolume.ForeColor = SystemColors.ActiveCaption;
-                    SetForeColor(lVolume, Blue);
+                    SetForeColor(lVolume, mainColor);
                     break;
                 case LabelMode.Volume:
                     labelMode = LabelMode.Peak;
-                    //lVolume.ForeColor = Color.PaleVioletRed;
-                    SetForeColor(lVolume, Red);
+                    SetForeColor(lVolume, peakColor);
                     break;
                 case LabelMode.Peak:
                     labelMode = LabelMode.AveragePeak;
-                    //lVolume.ForeColor = Color.FromArgb(224, 224, 224);
-                    SetForeColor(lVolume, Orange);
+                    SetForeColor(lVolume, averageColor);
                     break;
                 case LabelMode.AveragePeak:
                     labelMode = LabelMode.Relative;
-                    //lVolume.ForeColor = Color.FromArgb(224, 224, 224);
-                    SetForeColor(lVolume, White);
+                    SetForeColor(lVolume, foreColor);
                     break;
             }
         }
@@ -894,24 +970,23 @@ namespace Wale.WinForm
             {
                 case LabelMode.Relative:
                     SetText(lVolume, $"{Relative:n}");
-                    //lVolume.Text = $"{Relative:n}";
                     break;
                 case LabelMode.Volume:
                     SetText(lVolume, string.Format("{0:n}", Transformation.Transform(vol, Transformation.TransFlow.MachineToUser)));
-                    //lVolume.Text = $"{Transformation.Transform(vol, Transformation.TransFlow.MachineToUser):n}";
                     break;
                 case LabelMode.Peak:
                     SetText(lVolume, $"{level:n}");
-                    //lVolume.Text = $"{level:n}";
                     break;
                 case LabelMode.AveragePeak:
                     SetText(lVolume, $"{Avl:n}");
-                    //lVolume.Text = $"{level:n}";
                     break;
             }
-            SetText(dlReletive, $"{Relative:n}");
-            SetText(dlPeak, $"{level:n}");
-            SetText(dlAvPeak, $"{Avl:n}");
+            if (detailed)
+            {
+                SetText(dlReletive, $"{Relative:n}");
+                SetText(dlPeak, $"{level:n}");
+                SetText(dlAvPeak, $"{Avl:n}");
+            }
             SetBar(lVolumeBar, (int)(vol * 100));
             //lVolumeBar.Increment((int)(vol * 100) - lVolumeBar.Value);
             double lbuf = Transformation.Transform(vol, Transformation.TransFlow.MachineToUser) * level * 100;
@@ -929,7 +1004,7 @@ namespace Wale.WinForm
             {
                 lVolume.Click -= LVolume_Click;
                 labelMode = LabelMode.Volume;
-                SetForeColor(lVolume, Blue);
+                SetForeColor(lVolume, mainColor);
                 SetSize(this, new Size(186, 36));
                 ControlShowHide(dlReletive, true);
                 ControlShowHide(dlPeak, true);

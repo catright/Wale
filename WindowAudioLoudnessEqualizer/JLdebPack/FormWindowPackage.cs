@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace JLdebPack
 {
-    public class FormWindowPackage
+    public class FormPack
     {
         public enum PointMode { Position, Offset, AboveTaskbar };
         public System.Drawing.Point PointFromMouse(int xVal, int yVal, PointMode mode)
@@ -34,5 +34,19 @@ namespace JLdebPack
             p.Y = (int)(System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Height - s.Height);
             return p;
         }
+
+
+    }// End class FormPack
+
+
+    public static class FormPack2
+    {
+        public static void Bind(System.Windows.Forms.Control bindingTarget, string propertyName, object dataSource, string dataMember)
+        {
+            bindingTarget.DataBindings.Add(propertyName, dataSource, dataMember, true, System.Windows.Forms.DataSourceUpdateMode.OnValidation);
+        }
     }
-}
+
+
+
+}// End namespace JLdebPack

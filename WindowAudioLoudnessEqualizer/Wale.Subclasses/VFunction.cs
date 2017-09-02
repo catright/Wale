@@ -19,10 +19,10 @@ namespace Wale.Subclasses
                 this.B = B;
             }
         }
-        public static FactorsForSlicedLinear GetFactorsForSlicedLinear(double upRate, double baseVol)
+        public static FactorsForSlicedLinear GetFactorsForSlicedLinear(double upRate, double baseLevel)
         {
-            double acA = upRate - upRate / baseVol;
-            double acB = upRate * baseVol / (baseVol - 1);
+            double acA = upRate - upRate / baseLevel;
+            double acB = upRate * baseLevel / (baseLevel - 1);
             return new FactorsForSlicedLinear(acA, acB);
         }
 
@@ -30,20 +30,20 @@ namespace Wale.Subclasses
         {
             return (upRate - upRate * input);
         }/**/
-        public static double SlicedLinear(double input, double upRate, double baseVol, double a, double b)
+        public static double SlicedLinear(double input, double upRate, double baseLevel, double a, double b)
         {
-            return (input < baseVol) ? a * input + upRate : b * (input - 1);
+            return (input < baseLevel) ? a * input + upRate : b * (input - 1);
         }/**/
-        public static double Reciprocal(double input, double upRate, double skewness)
+        public static double Reciprocal(double input, double upRate, double kurtosis)
         {
-            if (skewness == 1 && input == 0) return 99;
-            return upRate * (1 / ((skewness) + (1 - skewness) * input) - 1);
+            if (kurtosis == 1 && input == 0) return 99;
+            return upRate * (1 / ((kurtosis) + (1 - kurtosis) * input) - 1);
         }/**/
-        public static double FixedReciprocal(double input, double upRate, double skewness)
+        public static double FixedReciprocal(double input, double upRate, double kurtosis)
         {
-            if (skewness == 0) return input;
-            else if (skewness == 1) return input + upRate;
-            return upRate * (Math.Pow((skewness + (1 - skewness) * input), (1 / (Math.Log(skewness, 2)))) - 1);
+            if (kurtosis == 0) return input;
+            else if (kurtosis == 1) return input + upRate;
+            return upRate * (Math.Pow((kurtosis + (1 - kurtosis) * input), (1 / (Math.Log(kurtosis, 2)))) - 1);
         }/**/
         //Class ends
     }//class VolumeFunction

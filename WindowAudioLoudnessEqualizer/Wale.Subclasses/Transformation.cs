@@ -9,13 +9,13 @@ namespace Wale.Subclasses
     public static class Transformation
     {
         private static TransMode transMode;
-        private static double BaseVolume;
+        private static double BaseLevel;
 
         //Transformation methods between user and machine.
         public enum TransMode { Transform1, Transform2 };
         public enum TransFlow { UserToMachine, MachineToUser, IntervalUserToMachine, IntervalMachineToUser };
 
-        public static void SetBaseVolume(double baseVolume) { BaseVolume = baseVolume; }
+        public static void SetBaseLevel(double baseLevel) { BaseLevel = baseLevel; }
         public static void ChangeTransformMethod(TransMode t) { transMode = t; }
         public static double Transform(double input, TransFlow f)
         {
@@ -31,10 +31,10 @@ namespace Wale.Subclasses
         {
             switch (mod)
             {
-                case TransFlow.UserToMachine: return ((input) * BaseVolume);
-                case TransFlow.MachineToUser: return ((input / BaseVolume));
-                case TransFlow.IntervalUserToMachine: return (input * BaseVolume);
-                case TransFlow.IntervalMachineToUser: return (input / BaseVolume);
+                case TransFlow.UserToMachine: return ((input) * BaseLevel);
+                case TransFlow.MachineToUser: return ((input / BaseLevel));
+                case TransFlow.IntervalUserToMachine: return (input * BaseLevel);
+                case TransFlow.IntervalMachineToUser: return (input / BaseLevel);
                 default: return 0;
             }
         }/**/
@@ -42,10 +42,10 @@ namespace Wale.Subclasses
         {
             switch (mod)
             {
-                case TransFlow.UserToMachine: return ((input + 1) / 2 * BaseVolume);
-                case TransFlow.MachineToUser: return ((input * 2) - 1 / BaseVolume);
-                case TransFlow.IntervalUserToMachine: return (input / 2 * BaseVolume);
-                case TransFlow.IntervalMachineToUser: return (input * 2 / BaseVolume);
+                case TransFlow.UserToMachine: return ((input + 1) / 2 * BaseLevel);
+                case TransFlow.MachineToUser: return ((input * 2) - 1 / BaseLevel);
+                case TransFlow.IntervalUserToMachine: return (input / 2 * BaseLevel);
+                case TransFlow.IntervalMachineToUser: return (input * 2 / BaseLevel);
                 default: return 0;
             }
         }/**/

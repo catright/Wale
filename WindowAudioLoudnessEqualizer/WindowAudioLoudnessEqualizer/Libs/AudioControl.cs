@@ -19,7 +19,7 @@ namespace Wale
         
         private object terminatelock = new object(), autoconlock = new object(), AClocker = new object();
         private bool disposed = false, terminate = false;//, _AutoControl = true;
-        private double baseVol, baseVolSquare, upRate = 0.02, skewness = 0.5;
+        private double baseLv, baseLvSquare, upRate = 0.02, kurtosis = 0.5;
         private VFunction.FactorsForSlicedLinear sliceFactors;
         private Task audioControlTask, controllerCleanTask;
 
@@ -34,7 +34,7 @@ namespace Wale
             set { if (masterDevice != null) masterDevice.MasterVolume = (float)value; }
         }
         public double UpRate { get => upRate; set { upRate = (value * settings.AutoControlInterval / 1000); } }
-        public double Skewness { get => skewness; set => skewness = value; }
+        public double Kurtosis { get => kurtosis; set => kurtosis = value; }
 
         //class loads.
         public AudioControl(double bVol, Transformation.TransMode tmode = Transformation.TransMode.Transform1)
@@ -96,10 +96,10 @@ namespace Wale
         {
             if (bVol > 1) bVol = 1;
             else if (bVol < 0.01) bVol = 0.01;
-            baseVol = bVol;
+            baseLv = bVol;
 
-            baseVolSquare = baseVol * baseVol;
-            sliceFactors = VFunction.GetFactorsForSlicedLinear(UpRate, baseVol);
+            baseLvSquare = baseLv * baseLv;
+            sliceFactors = VFunction.GetFactorsForSlicedLinear(UpRate, baseLv);
         }
         private void CalcBaseDerivatives() { }
         public void VolumeUp(double v) { SetVolume(MasterVolume + v); }
@@ -175,21 +175,21 @@ namespace Wale
                                         DP.DM($" V:{volume:n3}");
                                         double tVol, UpLimit;
                                         if (s.Averaging) s.SetAverage(peak);
-                                        if (s.Averaging && peak < s.AveragePeak) tVol = baseVolSquare / s.AveragePeak;
-                                        else tVol = baseVolSquare / peak;
+                                        if (s.Averaging && peak < s.AveragePeak) tVol = baseLvSquare / s.AveragePeak;
+                                        else tVol = baseLvSquare / peak;
                                         switch (settings.VFunc)
                                         {
                                             case VFunction.Func.Linear:
                                                 UpLimit = VFunction.Linear(volume, UpRate) + volume;
                                                 break;
                                             case VFunction.Func.SlicedLinear:
-                                                UpLimit = VFunction.SlicedLinear(volume, UpRate, baseVol, sliceFactors.A, sliceFactors.B) + volume;
+                                                UpLimit = VFunction.SlicedLinear(volume, UpRate, baseLv, sliceFactors.A, sliceFactors.B) + volume;
                                                 break;
                                             case VFunction.Func.Reciprocal:
-                                                UpLimit = VFunction.Reciprocal(volume, UpRate, skewness) + volume;
+                                                UpLimit = VFunction.Reciprocal(volume, UpRate, kurtosis) + volume;
                                                 break;
                                             case VFunction.Func.FixedReciprocal:
-                                                UpLimit = VFunction.FixedReciprocal(volume, UpRate, skewness) + volume;
+                                                UpLimit = VFunction.FixedReciprocal(volume, UpRate, kurtosis) + volume;
                                                 break;
                                             default:
                                                 UpLimit = 1;

@@ -33,6 +33,7 @@
             this.Submit = new System.Windows.Forms.Button();
             this.Cancel = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.originalMinPeak = new System.Windows.Forms.Label();
             this.textBox8 = new System.Windows.Forms.TextBox();
             this.label10 = new System.Windows.Forms.Label();
@@ -42,7 +43,7 @@
             this.label17 = new System.Windows.Forms.Label();
             this.originalFunction = new System.Windows.Forms.Label();
             this.textBox5 = new System.Windows.Forms.TextBox();
-            this.originalSkewness = new System.Windows.Forms.Label();
+            this.originalKurtosis = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.originalGCInterval = new System.Windows.Forms.Label();
             this.textBox4 = new System.Windows.Forms.TextBox();
@@ -50,7 +51,7 @@
             this.originalACInterval = new System.Windows.Forms.Label();
             this.originalUpRate = new System.Windows.Forms.Label();
             this.originalUIInterval = new System.Windows.Forms.Label();
-            this.originalBaseVolume = new System.Windows.Forms.Label();
+            this.originalBaseLevel = new System.Windows.Forms.Label();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.label8 = new System.Windows.Forms.Label();
             this.textBox6 = new System.Windows.Forms.TextBox();
@@ -65,7 +66,7 @@
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.detailedView = new System.Windows.Forms.CheckBox();
             this.runAtWindowsStartup = new System.Windows.Forms.CheckBox();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.checkBox2 = new System.Windows.Forms.CheckBox();
             this.titlePanel.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -102,7 +103,7 @@
             // Submit
             // 
             this.Submit.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.Submit.Location = new System.Drawing.Point(342, 384);
+            this.Submit.Location = new System.Drawing.Point(342, 408);
             this.Submit.Name = "Submit";
             this.Submit.Size = new System.Drawing.Size(129, 23);
             this.Submit.TabIndex = 1001;
@@ -114,7 +115,7 @@
             // 
             this.Cancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.Cancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.Cancel.Location = new System.Drawing.Point(9, 384);
+            this.Cancel.Location = new System.Drawing.Point(9, 408);
             this.Cancel.Name = "Cancel";
             this.Cancel.Size = new System.Drawing.Size(128, 23);
             this.Cancel.TabIndex = 1000;
@@ -124,8 +125,7 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox1.Controls.Add(this.checkBox1);
             this.groupBox1.Controls.Add(this.originalMinPeak);
@@ -137,7 +137,7 @@
             this.groupBox1.Controls.Add(this.label17);
             this.groupBox1.Controls.Add(this.originalFunction);
             this.groupBox1.Controls.Add(this.textBox5);
-            this.groupBox1.Controls.Add(this.originalSkewness);
+            this.groupBox1.Controls.Add(this.originalKurtosis);
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Controls.Add(this.originalGCInterval);
             this.groupBox1.Controls.Add(this.textBox4);
@@ -145,7 +145,7 @@
             this.groupBox1.Controls.Add(this.originalACInterval);
             this.groupBox1.Controls.Add(this.originalUpRate);
             this.groupBox1.Controls.Add(this.originalUIInterval);
-            this.groupBox1.Controls.Add(this.originalBaseVolume);
+            this.groupBox1.Controls.Add(this.originalBaseLevel);
             this.groupBox1.Controls.Add(this.comboBox1);
             this.groupBox1.Controls.Add(this.label8);
             this.groupBox1.Controls.Add(this.textBox6);
@@ -160,10 +160,23 @@
             this.groupBox1.ForeColor = System.Drawing.Color.LightGray;
             this.groupBox1.Location = new System.Drawing.Point(9, 42);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(462, 283);
+            this.groupBox1.Size = new System.Drawing.Size(462, 284);
             this.groupBox1.TabIndex = 17;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Sound";
+            // 
+            // checkBox1
+            // 
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Checked = global::Wale.Properties.Settings.Default.AutoControl;
+            this.checkBox1.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox1.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Wale.Properties.Settings.Default, "AutoControl", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.checkBox1.Location = new System.Drawing.Point(224, 250);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(143, 16);
+            this.checkBox1.TabIndex = 106;
+            this.checkBox1.Text = "Auto Control Enabled";
+            this.checkBox1.UseVisualStyleBackColor = true;
             // 
             // originalMinPeak
             // 
@@ -257,14 +270,14 @@
             this.textBox5.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBoxForDigits_KeyPress);
             this.textBox5.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.textboxes_PreviewKeyDown);
             // 
-            // originalSkewness
+            // originalKurtosis
             // 
-            this.originalSkewness.AutoSize = true;
-            this.originalSkewness.Location = new System.Drawing.Point(123, 152);
-            this.originalSkewness.Name = "originalSkewness";
-            this.originalSkewness.Size = new System.Drawing.Size(8, 12);
-            this.originalSkewness.TabIndex = 20;
-            this.originalSkewness.Text = "l";
+            this.originalKurtosis.AutoSize = true;
+            this.originalKurtosis.Location = new System.Drawing.Point(123, 152);
+            this.originalKurtosis.Name = "originalKurtosis";
+            this.originalKurtosis.Size = new System.Drawing.Size(8, 12);
+            this.originalKurtosis.TabIndex = 20;
+            this.originalKurtosis.Text = "l";
             // 
             // label1
             // 
@@ -272,9 +285,9 @@
             this.label1.ForeColor = System.Drawing.Color.DarkGoldenrod;
             this.label1.Location = new System.Drawing.Point(8, 98);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(77, 12);
+            this.label1.Size = new System.Drawing.Size(68, 12);
             this.label1.TabIndex = 0;
-            this.label1.Text = "BaseVolume";
+            this.label1.Text = "Base Level";
             // 
             // originalGCInterval
             // 
@@ -292,7 +305,7 @@
             this.textBox4.Name = "textBox4";
             this.textBox4.Size = new System.Drawing.Size(49, 21);
             this.textBox4.TabIndex = 4;
-            this.textBox4.TextChanged += new System.EventHandler(this.BaseVolume_Changed);
+            this.textBox4.TextChanged += new System.EventHandler(this.BaseLevel_Changed);
             this.textBox4.Enter += new System.EventHandler(this.textBoxesFocus_Enter);
             this.textBox4.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBoxForDigits_KeyPress);
             this.textBox4.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.textboxes_PreviewKeyDown);
@@ -333,14 +346,14 @@
             this.originalUIInterval.TabIndex = 17;
             this.originalUIInterval.Text = "l";
             // 
-            // originalBaseVolume
+            // originalBaseLevel
             // 
-            this.originalBaseVolume.AutoSize = true;
-            this.originalBaseVolume.Location = new System.Drawing.Point(123, 98);
-            this.originalBaseVolume.Name = "originalBaseVolume";
-            this.originalBaseVolume.Size = new System.Drawing.Size(8, 12);
-            this.originalBaseVolume.TabIndex = 15;
-            this.originalBaseVolume.Text = "l";
+            this.originalBaseLevel.AutoSize = true;
+            this.originalBaseLevel.Location = new System.Drawing.Point(123, 98);
+            this.originalBaseLevel.Name = "originalBaseLevel";
+            this.originalBaseLevel.Size = new System.Drawing.Size(8, 12);
+            this.originalBaseLevel.TabIndex = 15;
+            this.originalBaseLevel.Text = "l";
             // 
             // comboBox1
             // 
@@ -368,7 +381,7 @@
             this.textBox6.Name = "textBox6";
             this.textBox6.Size = new System.Drawing.Size(49, 21);
             this.textBox6.TabIndex = 6;
-            this.textBox6.TextChanged += new System.EventHandler(this.Skewness_Changed);
+            this.textBox6.TextChanged += new System.EventHandler(this.Kurtosis_Changed);
             this.textBox6.Enter += new System.EventHandler(this.textBoxesFocus_Enter);
             this.textBox6.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBoxForDigits_KeyPress);
             this.textBox6.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.textboxes_PreviewKeyDown);
@@ -378,9 +391,9 @@
             this.label7.AutoSize = true;
             this.label7.Location = new System.Drawing.Point(8, 152);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(64, 12);
+            this.label7.Size = new System.Drawing.Size(51, 12);
             this.label7.TabIndex = 11;
-            this.label7.Text = "Skewness";
+            this.label7.Text = "Kurtosis";
             // 
             // GraphPanel
             // 
@@ -457,12 +470,13 @@
             // 
             this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox2.Controls.Add(this.checkBox2);
             this.groupBox2.Controls.Add(this.detailedView);
             this.groupBox2.Controls.Add(this.runAtWindowsStartup);
             this.groupBox2.ForeColor = System.Drawing.Color.LightGray;
-            this.groupBox2.Location = new System.Drawing.Point(9, 331);
+            this.groupBox2.Location = new System.Drawing.Point(9, 332);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(462, 47);
+            this.groupBox2.Size = new System.Drawing.Size(462, 70);
             this.groupBox2.TabIndex = 18;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Window";
@@ -489,18 +503,16 @@
             this.runAtWindowsStartup.Text = "Run at Windows Startup";
             this.runAtWindowsStartup.UseVisualStyleBackColor = true;
             // 
-            // checkBox1
+            // checkBox2
             // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Checked = global::Wale.Properties.Settings.Default.AutoControl;
-            this.checkBox1.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox1.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Wale.Properties.Settings.Default, "AutoControl", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.checkBox1.Location = new System.Drawing.Point(224, 250);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(143, 16);
-            this.checkBox1.TabIndex = 106;
-            this.checkBox1.Text = "Auto Control Enabled";
-            this.checkBox1.UseVisualStyleBackColor = true;
+            this.checkBox2.AutoSize = true;
+            this.checkBox2.Enabled = false;
+            this.checkBox2.Location = new System.Drawing.Point(6, 42);
+            this.checkBox2.Name = "checkBox2";
+            this.checkBox2.Size = new System.Drawing.Size(94, 16);
+            this.checkBox2.TabIndex = 102;
+            this.checkBox2.Text = "Detailed Log";
+            this.checkBox2.UseVisualStyleBackColor = true;
             // 
             // Config
             // 
@@ -509,7 +521,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.CancelButton = this.Cancel;
-            this.ClientSize = new System.Drawing.Size(480, 419);
+            this.ClientSize = new System.Drawing.Size(480, 443);
             this.ControlBox = false;
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
@@ -561,12 +573,12 @@
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.ComboBox comboBox1;
         private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.Label originalSkewness;
+        private System.Windows.Forms.Label originalKurtosis;
         private System.Windows.Forms.Label originalGCInterval;
         private System.Windows.Forms.Label originalACInterval;
         private System.Windows.Forms.Label originalUIInterval;
         private System.Windows.Forms.Label originalUpRate;
-        private System.Windows.Forms.Label originalBaseVolume;
+        private System.Windows.Forms.Label originalBaseLevel;
         private System.Windows.Forms.Label originalFunction;
         private System.Windows.Forms.CheckBox detailedView;
         private System.Windows.Forms.Label originalAvTime;
@@ -577,5 +589,6 @@
         private System.Windows.Forms.TextBox textBox8;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.CheckBox checkBox2;
     }
 }

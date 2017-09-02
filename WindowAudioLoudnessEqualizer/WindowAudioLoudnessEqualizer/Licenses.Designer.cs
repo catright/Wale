@@ -54,7 +54,7 @@
             this.customTabControl1.Location = new System.Drawing.Point(12, 42);
             this.customTabControl1.Name = "customTabControl1";
             this.customTabControl1.SelectedIndex = 0;
-            this.customTabControl1.Size = new System.Drawing.Size(375, 198);
+            this.customTabControl1.Size = new System.Drawing.Size(375, 237);
             this.customTabControl1.TabIndex = 0;
             // 
             // tabPage1
@@ -64,7 +64,7 @@
             this.tabPage1.Location = new System.Drawing.Point(1, 1);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(373, 176);
+            this.tabPage1.Size = new System.Drawing.Size(373, 215);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Wale";
             // 
@@ -79,7 +79,7 @@
             this.richTextBox1.Name = "richTextBox1";
             this.richTextBox1.ReadOnly = true;
             this.richTextBox1.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-            this.richTextBox1.Size = new System.Drawing.Size(367, 170);
+            this.richTextBox1.Size = new System.Drawing.Size(367, 209);
             this.richTextBox1.TabIndex = 1;
             this.richTextBox1.Text = resources.GetString("richTextBox1.Text");
             // 
@@ -90,7 +90,7 @@
             this.tabPage2.Location = new System.Drawing.Point(1, 1);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(273, 176);
+            this.tabPage2.Size = new System.Drawing.Size(373, 215);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Vannatech";
             // 
@@ -105,7 +105,7 @@
             this.richTextBox2.Name = "richTextBox2";
             this.richTextBox2.ReadOnly = true;
             this.richTextBox2.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-            this.richTextBox2.Size = new System.Drawing.Size(267, 170);
+            this.richTextBox2.Size = new System.Drawing.Size(367, 209);
             this.richTextBox2.TabIndex = 2;
             this.richTextBox2.Text = resources.GetString("richTextBox2.Text");
             // 
@@ -141,7 +141,8 @@
             // 
             this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.button1.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.button1.Location = new System.Drawing.Point(330, 227);
+            this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button1.Location = new System.Drawing.Point(330, 266);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(58, 25);
             this.button1.TabIndex = 1;
@@ -155,13 +156,13 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.CancelButton = this.button1;
-            this.ClientSize = new System.Drawing.Size(400, 261);
+            this.ClientSize = new System.Drawing.Size(400, 300);
             this.ControlBox = false;
             this.Controls.Add(this.button1);
             this.Controls.Add(this.titlePanel);
             this.Controls.Add(this.customTabControl1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-            this.MinimumSize = new System.Drawing.Size(400, 250);
+            this.MinimumSize = new System.Drawing.Size(400, 300);
             this.Name = "Licenses";
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;

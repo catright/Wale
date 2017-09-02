@@ -26,12 +26,12 @@ namespace Wale.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0.25")]
-        public double BaseVolume {
+        public double BaseLevel {
             get {
-                return ((double)(this["BaseVolume"]));
+                return ((double)(this["BaseLevel"]));
             }
             set {
-                this["BaseVolume"] = value;
+                this["BaseLevel"] = value;
             }
         }
         
@@ -134,20 +134,20 @@ namespace Wale.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0.35")]
-        public double Skewness {
+        public double Kurtosis {
             get {
-                return ((double)(this["Skewness"]));
+                return ((double)(this["Kurtosis"]));
             }
             set {
-                this["Skewness"] = value;
+                this["Kurtosis"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public Wale.Subclasses.VFunction.Func VFunc {
-            get {//Wale.Subclasses.VFunction.Func
+        public Wale.Subclasses.VFunction.Func VFunc {//Wale.Subclasses.VFunction.Func
+            get {
                 return ((Wale.Subclasses.VFunction.Func)(this["VFunc"]));
             }
             set {

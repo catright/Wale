@@ -89,7 +89,14 @@
     <Compile Include="Config.Designer.cs">
       <DependentUpon>Config.cs</DependentUpon>
     </Compile>
+    <Compile Include="Help.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Help.Designer.cs">
+      <DependentUpon>Help.cs</DependentUpon>
+    </Compile>
     <Compile Include="Libs\AudioControl.cs" />
+    <Compile Include="Libs\ColorSet.cs" />
     <Compile Include="Licenses.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -108,6 +115,9 @@
     <EmbeddedResource Include="Config.resx">
       <DependentUpon>Config.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Help.resx">
+      <DependentUpon>Help.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Licenses.resx">
       <DependentUpon>Licenses.cs</DependentUpon>
     </EmbeddedResource>
@@ -124,6 +134,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <None Include="Properties\DataSources\Wale.WinForm.ColorSet.datasource" />
     <None Include="Properties\DataSources\Wale.WinForm.Properties.Settings.datasource" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -168,6 +179,9 @@
       <Project>{fc52a648-3e05-47fd-8d6d-5c1222ff62b4}</Project>
       <Name>Wale.Subclasses</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

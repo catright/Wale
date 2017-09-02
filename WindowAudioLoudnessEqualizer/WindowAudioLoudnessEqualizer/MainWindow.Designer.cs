@@ -35,32 +35,33 @@
             this.cmsAutoControl = new System.Windows.Forms.ToolStripMenuItem();
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.licensesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.label1 = new System.Windows.Forms.Label();
             this.tbVolume = new System.Windows.Forms.TextBox();
             this.lVolume = new System.Windows.Forms.Label();
             this.bVolumeSet = new System.Windows.Forms.Button();
-            this.pbBaseVolume = new Wale.WinForm.NewProgressBar();
+            this.pbBaseLevel = new Wale.WinForm.NewProgressBar();
             this.label2 = new System.Windows.Forms.Label();
             this.lBaseVolume = new System.Windows.Forms.Label();
             this.pbMasterVolume = new Wale.WinForm.NewProgressBar();
             this.tbInterval = new System.Windows.Forms.TextBox();
             this.titlePanel = new System.Windows.Forms.Panel();
             this.label3 = new System.Windows.Forms.Label();
-            this.pbMasterLevel = new Wale.WinForm.NewProgressBar();
+            this.pbMasterPeak = new Wale.WinForm.NewProgressBar();
             this.tabControl1 = new Wale.WinForm.CustomTabControl();
             this.tabMain = new System.Windows.Forms.TabPage();
             this.cbAlwaysTop = new System.Windows.Forms.CheckBox();
             this.cbStayOn = new System.Windows.Forms.CheckBox();
             this.tabSession = new System.Windows.Forms.TabPage();
-            this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.tabLog = new System.Windows.Forms.TabPage();
             this.Logs = new System.Windows.Forms.TextBox();
             this.NICMstrip.SuspendLayout();
             this.titlePanel.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabMain.SuspendLayout();
-            this.tabPage1.SuspendLayout();
+            this.tabLog.SuspendLayout();
             this.SuspendLayout();
             // 
             // NI
@@ -77,10 +78,11 @@
             this.cmsAutoControl,
             this.settingsToolStripMenuItem,
             this.toolStripSeparator1,
+            this.helpToolStripMenuItem,
             this.licensesToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.NICMstrip.Name = "NICMstrip";
-            this.NICMstrip.Size = new System.Drawing.Size(165, 120);
+            this.NICMstrip.Size = new System.Drawing.Size(165, 142);
             // 
             // cmsAutoControl
             // 
@@ -95,13 +97,20 @@
             // 
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
             this.settingsToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
-            this.settingsToolStripMenuItem.Text = "&Settings";
+            this.settingsToolStripMenuItem.Text = "&Configuration";
             this.settingsToolStripMenuItem.Click += new System.EventHandler(this.ConfigToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
             this.toolStripSeparator1.Size = new System.Drawing.Size(161, 6);
+            // 
+            // helpToolStripMenuItem
+            // 
+            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+            this.helpToolStripMenuItem.Text = "Help";
+            this.helpToolStripMenuItem.Click += new System.EventHandler(this.helpToolStripMenuItem_Click);
             // 
             // licensesToolStripMenuItem
             // 
@@ -135,12 +144,16 @@
             this.tbVolume.Name = "tbVolume";
             this.tbVolume.Size = new System.Drawing.Size(55, 21);
             this.tbVolume.TabIndex = 2;
+            this.tbVolume.Enter += new System.EventHandler(this.textBox_Enter);
             this.tbVolume.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tbVolume_KeyDown);
+            this.tbVolume.Leave += new System.EventHandler(this.textBox_Leave);
+            this.tbVolume.MouseEnter += new System.EventHandler(this.textBox_Enter);
+            this.tbVolume.MouseLeave += new System.EventHandler(this.textBox_Leave);
             // 
             // lVolume
             // 
             this.lVolume.AutoSize = true;
-            this.lVolume.ForeColor = System.Drawing.Color.CornflowerBlue;
+            this.lVolume.ForeColor = System.Drawing.Color.CadetBlue;
             this.lVolume.Location = new System.Drawing.Point(69, 29);
             this.lVolume.Name = "lVolume";
             this.lVolume.Size = new System.Drawing.Size(11, 12);
@@ -150,6 +163,7 @@
             // 
             // bVolumeSet
             // 
+            this.bVolumeSet.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.bVolumeSet.Location = new System.Drawing.Point(109, 49);
             this.bVolumeSet.Name = "bVolumeSet";
             this.bVolumeSet.Size = new System.Drawing.Size(90, 23);
@@ -158,13 +172,13 @@
             this.bVolumeSet.UseVisualStyleBackColor = true;
             this.bVolumeSet.Click += new System.EventHandler(this.VolumeSet_Click);
             // 
-            // pbBaseVolume
+            // pbBaseLevel
             // 
-            this.pbBaseVolume.Location = new System.Drawing.Point(109, 6);
-            this.pbBaseVolume.MarqueeAnimationSpeed = 10;
-            this.pbBaseVolume.Name = "pbBaseVolume";
-            this.pbBaseVolume.Size = new System.Drawing.Size(90, 12);
-            this.pbBaseVolume.TabIndex = 7;
+            this.pbBaseLevel.Location = new System.Drawing.Point(109, 6);
+            this.pbBaseLevel.MarqueeAnimationSpeed = 10;
+            this.pbBaseLevel.Name = "pbBaseLevel";
+            this.pbBaseLevel.Size = new System.Drawing.Size(90, 10);
+            this.pbBaseLevel.TabIndex = 7;
             // 
             // label2
             // 
@@ -203,12 +217,16 @@
             this.tbInterval.Name = "tbInterval";
             this.tbInterval.Size = new System.Drawing.Size(36, 21);
             this.tbInterval.TabIndex = 11;
+            this.tbInterval.Enter += new System.EventHandler(this.textBox_Enter);
+            this.tbInterval.Leave += new System.EventHandler(this.textBox_Leave);
+            this.tbInterval.MouseEnter += new System.EventHandler(this.textBox_Enter);
+            this.tbInterval.MouseLeave += new System.EventHandler(this.textBox_Leave);
             // 
             // titlePanel
             // 
             this.titlePanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.titlePanel.BackColor = System.Drawing.Color.CornflowerBlue;
+            this.titlePanel.BackColor = System.Drawing.Color.CadetBlue;
             this.titlePanel.ContextMenuStrip = this.NICMstrip;
             this.titlePanel.Controls.Add(this.label3);
             this.titlePanel.ForeColor = System.Drawing.SystemColors.ControlText;
@@ -233,15 +251,15 @@
             this.label3.TabIndex = 0;
             this.label3.Text = "WALE";
             // 
-            // pbMasterLevel
+            // pbMasterPeak
             // 
-            this.pbMasterLevel.ForeColor = System.Drawing.Color.PaleVioletRed;
-            this.pbMasterLevel.Location = new System.Drawing.Point(109, 34);
-            this.pbMasterLevel.Margin = new System.Windows.Forms.Padding(3, 0, 3, 3);
-            this.pbMasterLevel.MarqueeAnimationSpeed = 10;
-            this.pbMasterLevel.Name = "pbMasterLevel";
-            this.pbMasterLevel.Size = new System.Drawing.Size(90, 10);
-            this.pbMasterLevel.TabIndex = 13;
+            this.pbMasterPeak.ForeColor = System.Drawing.Color.PaleVioletRed;
+            this.pbMasterPeak.Location = new System.Drawing.Point(109, 34);
+            this.pbMasterPeak.Margin = new System.Windows.Forms.Padding(3, 0, 3, 3);
+            this.pbMasterPeak.MarqueeAnimationSpeed = 10;
+            this.pbMasterPeak.Name = "pbMasterPeak";
+            this.pbMasterPeak.Size = new System.Drawing.Size(90, 10);
+            this.pbMasterPeak.TabIndex = 13;
             // 
             // tabControl1
             // 
@@ -252,7 +270,7 @@
             this.tabControl1.ContextMenuStrip = this.NICMstrip;
             this.tabControl1.Controls.Add(this.tabMain);
             this.tabControl1.Controls.Add(this.tabSession);
-            this.tabControl1.Controls.Add(this.tabPage1);
+            this.tabControl1.Controls.Add(this.tabLog);
             this.tabControl1.Location = new System.Drawing.Point(6, 40);
             this.tabControl1.MinimumSize = new System.Drawing.Size(220, 155);
             this.tabControl1.Name = "tabControl1";
@@ -267,14 +285,14 @@
             this.tabMain.Controls.Add(this.label2);
             this.tabMain.Controls.Add(this.cbAlwaysTop);
             this.tabMain.Controls.Add(this.pbMasterVolume);
-            this.tabMain.Controls.Add(this.pbMasterLevel);
+            this.tabMain.Controls.Add(this.pbMasterPeak);
             this.tabMain.Controls.Add(this.lVolume);
             this.tabMain.Controls.Add(this.bVolumeSet);
             this.tabMain.Controls.Add(this.label1);
             this.tabMain.Controls.Add(this.tbInterval);
             this.tabMain.Controls.Add(this.cbStayOn);
             this.tabMain.Controls.Add(this.lBaseVolume);
-            this.tabMain.Controls.Add(this.pbBaseVolume);
+            this.tabMain.Controls.Add(this.pbBaseLevel);
             this.tabMain.Controls.Add(this.tbVolume);
             this.tabMain.Location = new System.Drawing.Point(1, 1);
             this.tabMain.Name = "tabMain";
@@ -320,16 +338,16 @@
             this.tabSession.TabIndex = 1;
             this.tabSession.Text = "Session(F4)";
             // 
-            // tabPage1
+            // tabLog
             // 
-            this.tabPage1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.tabPage1.Controls.Add(this.Logs);
-            this.tabPage1.Location = new System.Drawing.Point(1, 1);
-            this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(218, 133);
-            this.tabPage1.TabIndex = 2;
-            this.tabPage1.Text = "Log";
+            this.tabLog.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.tabLog.Controls.Add(this.Logs);
+            this.tabLog.Location = new System.Drawing.Point(1, 1);
+            this.tabLog.Name = "tabLog";
+            this.tabLog.Padding = new System.Windows.Forms.Padding(3);
+            this.tabLog.Size = new System.Drawing.Size(218, 133);
+            this.tabLog.TabIndex = 2;
+            this.tabLog.Text = "Log";
             // 
             // Logs
             // 
@@ -378,8 +396,8 @@
             this.tabControl1.ResumeLayout(false);
             this.tabMain.ResumeLayout(false);
             this.tabMain.PerformLayout();
-            this.tabPage1.ResumeLayout(false);
-            this.tabPage1.PerformLayout();
+            this.tabLog.ResumeLayout(false);
+            this.tabLog.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -395,7 +413,7 @@
         private System.Windows.Forms.TextBox tbVolume;
         private System.Windows.Forms.Label lVolume;
         private System.Windows.Forms.Button bVolumeSet;
-        private Wale.WinForm.NewProgressBar pbBaseVolume;
+        private Wale.WinForm.NewProgressBar pbBaseLevel;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label lBaseVolume;
         private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
@@ -404,14 +422,15 @@
         private System.Windows.Forms.CheckBox cbStayOn;
         private System.Windows.Forms.Panel titlePanel;
         private System.Windows.Forms.Label label3;
-        private Wale.WinForm.NewProgressBar pbMasterLevel;
+        private Wale.WinForm.NewProgressBar pbMasterPeak;
         private System.Windows.Forms.CheckBox cbAlwaysTop;
         private Wale.WinForm.CustomTabControl tabControl1;
         private System.Windows.Forms.TabPage tabMain;
         private System.Windows.Forms.TabPage tabSession;
-        private System.Windows.Forms.TabPage tabPage1;
+        private System.Windows.Forms.TabPage tabLog;
         private System.Windows.Forms.TextBox Logs;
         private System.Windows.Forms.ToolStripMenuItem licensesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
     }
 }
 
