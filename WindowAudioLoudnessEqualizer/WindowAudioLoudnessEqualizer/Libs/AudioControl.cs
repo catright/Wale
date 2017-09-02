@@ -165,14 +165,13 @@ namespace Wale
                         {
                             aas.Add(new Task(new Action(() =>
                             {
-                                DP.DM($"AutoVolume:{s.ProcessName}({s.ProcessId}), inc={s.AutoIncluded}");
+                                string dm = $"AutoVolume:{s.ProcessName}({s.ProcessId}), inc={s.AutoIncluded}";
                                 if (s.SessionState == SessionState.Active && s.AutoIncluded)
                                 {
                                     double peak = s.SessionPeak, volume = s.SessionVolume;
-                                    DP.DM($" P:{peak:n3}");
+                                    dm += $" P:{peak:n3} V:{volume:n3}";
                                     if (peak > settings.MinPeak)
                                     {
-                                        DP.DM($" V:{volume:n3}");
                                         double tVol, UpLimit;
                                         if (s.Averaging) s.SetAverage(peak);
                                         if (s.Averaging && peak < s.AveragePeak) tVol = baseLvSquare / s.AveragePeak;
@@ -195,10 +194,10 @@ namespace Wale
                                                 UpLimit = 1;
                                                 break;
                                         }
-                                        DP.DM($" T={tVol:n3} UL={UpLimit:n3}");
+                                        dm += $" T={tVol:n3} UL={UpLimit:n3}";
                                         SetSessionVolume(s.ProcessId, (tVol > UpLimit) ? UpLimit : tVol);
                                     }
-                                    DP.DML("");
+                                    DP.DML(dm);
                                 }
                             })));
                         });

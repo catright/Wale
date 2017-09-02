@@ -40,16 +40,21 @@ namespace JLdebPack
                 {
                     if (fi.Name.Contains(fileName))
                     {
-                        string f = fi.Name;
-                        int first = f.IndexOf("-"), last = f.Length - first;
-                        if (f.EndsWith(".txt")) last = f.LastIndexOf(".txt") - first;
+                        int first = fi.Name.IndexOf("-") + 1, last = fi.Name.Length - first;
+                        if (fi.Name.EndsWith(".txt")) last = fi.Name.LastIndexOf(".txt") - first;
+                        string f = fi.Name.Substring(first, last);
+
                         DateTime ftime;
-                        bool success = DateTime.TryParse(f.Substring(first, last), out ftime);
-                        if (success)
-                        {
-                            TimeSpan dif = ftime - now;
-                            if (dif.Days > eraseDays) System.IO.File.Delete(f);
-                        }
+                        ftime = new DateTime(
+                            Convert.ToInt32(f.Substring(0, 4)),
+                            Convert.ToInt32(f.Substring(4, 2)),
+                            Convert.ToInt32(f.Substring(6, 2)),
+                            Convert.ToInt32(f.Substring(9, 2)),
+                            Convert.ToInt32(f.Substring(11, 2)),
+                            Convert.ToInt32(f.Substring(13, 2))
+                            );
+                        TimeSpan dif = ftime - now;
+                        if (-dif.Days >= eraseDays) System.IO.File.Delete(fi.FullName);
                     }
                 }
             }
