@@ -66,6 +66,9 @@
             this.label3.Size = new System.Drawing.Size(122, 21);
             this.label3.TabIndex = 0;
             this.label3.Text = "WALE - Help";
+            this.label3.MouseDown += new System.Windows.Forms.MouseEventHandler(this.titlePanel_MouseDown);
+            this.label3.MouseMove += new System.Windows.Forms.MouseEventHandler(this.titlePanel_MouseMove);
+            this.label3.MouseUp += new System.Windows.Forms.MouseEventHandler(this.titlePanel_MouseUp);
             // 
             // button1
             // 

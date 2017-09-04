@@ -64,9 +64,9 @@
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.checkBox2 = new System.Windows.Forms.CheckBox();
             this.detailedView = new System.Windows.Forms.CheckBox();
             this.runAtWindowsStartup = new System.Windows.Forms.CheckBox();
-            this.checkBox2 = new System.Windows.Forms.CheckBox();
             this.titlePanel.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -99,6 +99,9 @@
             this.label3.Size = new System.Drawing.Size(140, 21);
             this.label3.TabIndex = 0;
             this.label3.Text = "WALE - config";
+            this.label3.MouseDown += new System.Windows.Forms.MouseEventHandler(this.titlePanel_MouseDown);
+            this.label3.MouseMove += new System.Windows.Forms.MouseEventHandler(this.titlePanel_MouseMove);
+            this.label3.MouseUp += new System.Windows.Forms.MouseEventHandler(this.titlePanel_MouseUp);
             // 
             // Submit
             // 
@@ -481,6 +484,17 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Window";
             // 
+            // checkBox2
+            // 
+            this.checkBox2.AutoSize = true;
+            this.checkBox2.Enabled = false;
+            this.checkBox2.Location = new System.Drawing.Point(6, 42);
+            this.checkBox2.Name = "checkBox2";
+            this.checkBox2.Size = new System.Drawing.Size(94, 16);
+            this.checkBox2.TabIndex = 102;
+            this.checkBox2.Text = "Detailed Log";
+            this.checkBox2.UseVisualStyleBackColor = true;
+            // 
             // detailedView
             // 
             this.detailedView.AutoSize = true;
@@ -502,17 +516,6 @@
             this.runAtWindowsStartup.TabIndex = 100;
             this.runAtWindowsStartup.Text = "Run at Windows Startup";
             this.runAtWindowsStartup.UseVisualStyleBackColor = true;
-            // 
-            // checkBox2
-            // 
-            this.checkBox2.AutoSize = true;
-            this.checkBox2.Enabled = false;
-            this.checkBox2.Location = new System.Drawing.Point(6, 42);
-            this.checkBox2.Name = "checkBox2";
-            this.checkBox2.Size = new System.Drawing.Size(94, 16);
-            this.checkBox2.TabIndex = 102;
-            this.checkBox2.Text = "Detailed Log";
-            this.checkBox2.UseVisualStyleBackColor = true;
             // 
             // Config
             // 
