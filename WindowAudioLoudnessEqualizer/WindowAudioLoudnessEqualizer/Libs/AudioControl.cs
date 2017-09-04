@@ -14,7 +14,7 @@ namespace Wale
     {
         //internal variables
         private Wale.Properties.Settings settings = Wale.Properties.Settings.Default;
-        private JLdebPack.DebugPackage DP;
+        private JDPack.DebugPack DP;
         private Wale.Subclasses.MasterDevice masterDevice;
         
         private object terminatelock = new object(), autoconlock = new object(), AClocker = new object();
@@ -39,7 +39,7 @@ namespace Wale
         //class loads.
         public AudioControl(double bVol, Transformation.TransMode tmode = Transformation.TransMode.Transform1)
         {
-            DP = new JLdebPack.DebugPackage(false);
+            DP = new JDPack.DebugPack(false);
             Transformation.ChangeTransformMethod(tmode);
             SetBaseTo(bVol);
         }
@@ -151,7 +151,7 @@ namespace Wale
         }
         private async void AudioControlTask()
         {
-            JLdebPack.DebugPack.Log("Audio Control Task Start");
+            JDPack.Debug.Log("Audio Control Task Start");
             List<Task> aas = new List<Task>();
             while (!Terminate())
             {
@@ -165,36 +165,36 @@ namespace Wale
                         {
                             aas.Add(new Task(new Action(() =>
                             {
-                                string dm = $"AutoVolume:{s.ProcessName}({s.ProcessId}), inc={s.AutoIncluded}";
-                                if (s.SessionState == SessionState.Active && s.AutoIncluded)
+                            string dm = $"AutoVolume:{s.ProcessName}({s.ProcessId}), inc={s.AutoIncluded}";
+                            if (s.SessionState == SessionState.Active && s.AutoIncluded)
+                            {
+                                double peak = s.SessionPeak, volume = s.SessionVolume;
+                                dm += $" P:{peak:n3} V:{volume:n3}";
+                                if (peak > settings.MinPeak)
                                 {
-                                    double peak = s.SessionPeak, volume = s.SessionVolume;
-                                    dm += $" P:{peak:n3} V:{volume:n3}";
-                                    if (peak > settings.MinPeak)
+                                    double tVol, UpLimit;
+                                    if (s.Averaging) s.SetAverage(peak);
+                                    if (s.Averaging && peak <= s.AveragePeak) tVol = baseLvSquare / s.AveragePeak;
+                                    else tVol = baseLvSquare / peak;
+                                    switch (settings.VFunc)
                                     {
-                                        double tVol, UpLimit;
-                                        if (s.Averaging) s.SetAverage(peak);
-                                        if (s.Averaging && peak < s.AveragePeak) tVol = baseLvSquare / s.AveragePeak;
-                                        else tVol = baseLvSquare / peak;
-                                        switch (settings.VFunc)
-                                        {
-                                            case VFunction.Func.Linear:
-                                                UpLimit = VFunction.Linear(volume, UpRate) + volume;
-                                                break;
-                                            case VFunction.Func.SlicedLinear:
-                                                UpLimit = VFunction.SlicedLinear(volume, UpRate, baseLv, sliceFactors.A, sliceFactors.B) + volume;
-                                                break;
-                                            case VFunction.Func.Reciprocal:
-                                                UpLimit = VFunction.Reciprocal(volume, UpRate, kurtosis) + volume;
-                                                break;
-                                            case VFunction.Func.FixedReciprocal:
-                                                UpLimit = VFunction.FixedReciprocal(volume, UpRate, kurtosis) + volume;
-                                                break;
-                                            default:
-                                                UpLimit = 1;
-                                                break;
-                                        }
-                                        dm += $" T={tVol:n3} UL={UpLimit:n3}";
+                                        case VFunction.Func.Linear:
+                                            UpLimit = VFunction.Linear(volume, UpRate) + volume;
+                                            break;
+                                        case VFunction.Func.SlicedLinear:
+                                            UpLimit = VFunction.SlicedLinear(volume, UpRate, baseLv, sliceFactors.A, sliceFactors.B) + volume;
+                                            break;
+                                        case VFunction.Func.Reciprocal:
+                                            UpLimit = VFunction.Reciprocal(volume, UpRate, kurtosis) + volume;
+                                            break;
+                                        case VFunction.Func.FixedReciprocal:
+                                            UpLimit = VFunction.FixedReciprocal(volume, UpRate, kurtosis) + volume;
+                                            break;
+                                        default:
+                                            UpLimit = 1;
+                                            break;
+                                    }
+                                    dm += $" T={tVol:n3} UL={UpLimit:n3}";//Console.WriteLine($" T={tVol:n3} UL={UpLimit:n3}");
                                         SetSessionVolume(s.ProcessId, (tVol > UpLimit) ? UpLimit : tVol);
                                     }
                                     DP.DML(dm);
@@ -210,11 +210,11 @@ namespace Wale
                 if (settings.AutoControl) await Task.WhenAll(aas);
                 aas.Clear();
             }
-            JLdebPack.DebugPack.Log("Audio Control Task End");
+            JDPack.Debug.Log("Audio Control Task End");
         }
         private async void ControllerCleanTask()
         {
-            JLdebPack.DebugPack.Log("Controller Clean Task(GC) Start");
+            JDPack.Debug.Log("Controller Clean Task(GC) Start");
             uint logCounter = uint.MaxValue;
             while (!Terminate())
             {
@@ -246,12 +246,12 @@ namespace Wale
                 Console.WriteLine($"Total Memory: {mmc:n0}");
                 if (logCounter > 1800000/settings.GCInterval)
                 {
-                    JLdebPack.DebugPack.Log($"Total Memory: {mmc:n0}");
+                    JDPack.Debug.Log($"Total Memory: {mmc:n0}");
                     logCounter = 0;
                 }
                 logCounter++;
             }
-            JLdebPack.DebugPack.Log("Controller Clean Task(GC) End");
+            JDPack.Debug.Log("Controller Clean Task(GC) End");
         }
 
 

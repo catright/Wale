@@ -707,7 +707,7 @@ namespace Wale.Subclasses
         private double AvTime;
 
         public void SetAvTime(double critTime, double unitTime) { AvCount = (int)(critTime / unitTime); AvTime = unitTime * (double)AvCount; }
-        public void ResetAverage() { Peaks.Clear(); AveragePeak = 0; }
+        public void ResetAverage() { Peaks.Clear(); AveragePeak = 1; }
         public void SetAverage(double peak)
         {
             if (Peaks.Count > AvCount) Peaks.RemoveAt(0);

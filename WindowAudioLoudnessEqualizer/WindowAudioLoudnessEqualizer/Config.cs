@@ -20,20 +20,13 @@ namespace Wale.WinForm
         System.Windows.Forms.DataVisualization.Charting.TextAnnotation myText1 = new System.Windows.Forms.DataVisualization.Charting.TextAnnotation(), myText2 = new System.Windows.Forms.DataVisualization.Charting.TextAnnotation();
         bool loaded = false;
         double baseLevel, upRate, kurtosis, originalMax;
-        Color White = Color.LightGray;
-        Color Gray = Color.Gray;
-        Color Black = Color.DimGray;
-        Color Blue = Color.CornflowerBlue;
-        Color Red = Color.PaleVioletRed;
-        Color Orange = Color.Orange;
-        Color Yellow = Color.DarkGoldenrod;
 
         public Config()
         {
             InitializeComponent();
             if (string.IsNullOrWhiteSpace(Version.Option)) label3.Text = $"WALE - CONFIG v{Version.LongVersion}";
             else label3.Text = $"WALE - CONFIG v{Version.LongVersion}-{Version.Option}";
-            titlePanel.BackColor = Blue;
+            titlePanel.BackColor = ColorSet.MainColor;
             GraphPanel.Controls.Add(chart);
             chart.Dock = DockStyle.Fill;
             chart.BackColor = this.BackColor;
@@ -43,13 +36,13 @@ namespace Wale.WinForm
             chart.ChartAreas.Clear();
             chart.ChartAreas.Add("Area");
             chart.ChartAreas["Area"].BackColor = this.BackColor;
-            chart.ChartAreas["Area"].BorderColor = White;
-            chart.ChartAreas["Area"].AxisX.LineColor = Gray;
-            chart.ChartAreas["Area"].AxisY.LineColor = Gray;
-            chart.ChartAreas["Area"].AxisX.MajorGrid.LineColor = Black;
-            chart.ChartAreas["Area"].AxisY.MajorGrid.LineColor = Black;
-            chart.ChartAreas["Area"].AxisX.LabelStyle.ForeColor = Gray;
-            chart.ChartAreas["Area"].AxisY.LabelStyle.ForeColor = Gray;
+            chart.ChartAreas["Area"].BorderColor = ColorSet.ForeColor;
+            chart.ChartAreas["Area"].AxisX.LineColor = ColorSet.ForeColorAlt;
+            chart.ChartAreas["Area"].AxisY.LineColor = ColorSet.ForeColorAlt;
+            chart.ChartAreas["Area"].AxisX.MajorGrid.LineColor = ColorSet.BackColorAlt;
+            chart.ChartAreas["Area"].AxisY.MajorGrid.LineColor = ColorSet.BackColorAlt;
+            chart.ChartAreas["Area"].AxisX.LabelStyle.ForeColor = ColorSet.ForeColorAlt;
+            chart.ChartAreas["Area"].AxisY.LabelStyle.ForeColor = ColorSet.ForeColorAlt;
             //chart.ChartAreas["Area"].AxisY.LabelStyle.IsEndLabelVisible = true;
             chart.ChartAreas["Area"].AxisX.LabelAutoFitMinFontSize = 7;
             chart.ChartAreas["Area"].AxisX.LabelAutoFitMaxFontSize = 9;
@@ -67,7 +60,7 @@ namespace Wale.WinForm
             myText1.AxisY = chart.ChartAreas["Area"].AxisY;
             //myText1.AnchorX = 30;
             //myText1.AnchorY = 75;
-            myText1.ForeColor = Blue;
+            myText1.ForeColor = ColorSet.MainColor;
             //myText1.Font = new Font(this.Font.FontFamily, 9);
             myText1.X = chart.ChartAreas["Area"].AxisX.Maximum * 0.6;
             //myText1.LineWidth = 2;
@@ -80,7 +73,7 @@ namespace Wale.WinForm
             myText2.AxisY = chart.ChartAreas["Area"].AxisY;
             //myText2.AnchorX = 30;
             //myText2.AnchorY = 75;
-            myText2.ForeColor = Red;
+            myText2.ForeColor = ColorSet.PeakColor;
             //myText2.Font = new Font(this.Font.FontFamily, 9);
             myText2.X = chart.ChartAreas["Area"].AxisX.Maximum * 0.6;
             //myText2.LineWidth = 2;
@@ -181,8 +174,8 @@ namespace Wale.WinForm
             System.Windows.Forms.DataVisualization.Charting.Series graph = chart.Series.FindByName(graphName);
             if (graph == null) graph = chart.Series.Add(graphName);
             graph.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            if (graph.Name == "Original") graph.Color = Blue;
-            else graph.Color = Red;
+            if (graph.Name == "Original") graph.Color = ColorSet.MainColor;
+            else graph.Color = ColorSet.PeakColor;
             graph.Points.Clear();
             double val = 0, maxVal = 0, yScale = 1;
             switch (f)
@@ -229,7 +222,7 @@ namespace Wale.WinForm
                     maxVal = 1;
                     break;
             }
-            //MessageBox.Show($"{maxVal}");
+            
             if (graph.Name == "Original") originalMax = maxVal;
             else maxVal = Math.Max(maxVal, originalMax);
             for (double i = 1.0; i > 0.00001; i /= 2)
@@ -247,7 +240,7 @@ namespace Wale.WinForm
             System.Windows.Forms.DataVisualization.Charting.Series graph = chart.Series.FindByName("Base");
             if (graph == null) graph = chart.Series.Add("Base");
             graph.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            graph.Color = Yellow;
+            graph.Color = ColorSet.BaseColor;
             graph.Points.Clear();
 
             for (double y = 0; y < 99; y++)
@@ -260,7 +253,7 @@ namespace Wale.WinForm
             System.Windows.Forms.DataVisualization.Charting.Series graph = chart.Series.FindByName("DevideLine");
             if (graph == null) graph = chart.Series.Add("DevideLine");
             graph.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            graph.Color = Gray;
+            graph.Color = ColorSet.ForeColorAlt;
             graph.Points.Clear();
 
             for (double x = 0; x < 99; x++)
@@ -270,43 +263,48 @@ namespace Wale.WinForm
         }
         private bool Converts()
         {
+            //System.Diagnostics.Stopwatch st = new System.Diagnostics.Stopwatch();
+            //Console.WriteLine("Convert");
             bool success = true, auto = settings.AutoControl;
             settings.AutoControl = false;
             try
             {
-                settings.BaseLevel = Convert.ToDouble(textBox4.Text);
                 settings.UIUpdateInterval = Convert.ToInt16(textBox1.Text);
                 settings.AutoControlInterval = Convert.ToInt16(textBox2.Text);
                 settings.GCInterval = Convert.ToInt16(textBox3.Text);
+                settings.BaseLevel = Convert.ToDouble(textBox4.Text);
                 settings.UpRate = Convert.ToDouble(textBox5.Text);
                 settings.Kurtosis = Convert.ToDouble(textBox6.Text);
                 settings.AverageTime = Convert.ToDouble(textBox7.Text) * 1000;
                 settings.MinPeak = Convert.ToDouble(textBox8.Text);
-                VFunction.Func f;
-                Enum.TryParse<VFunction.Func>(comboBox1.SelectedValue.ToString(), out f);
+                Enum.TryParse<VFunction.Func>(comboBox1.SelectedValue.ToString(), out VFunction.Func f);
                 settings.VFunc = f;
             }
-            catch { success = false; }
+            catch { success = false; JDPack.Debug.Log("Error: Config - Convert failure"); }
             finally { settings.AutoControl = auto; }
+            //Console.WriteLine("Convert End");
             return success;
         }
         private bool Register()
         {
+            //Console.WriteLine("Resister");
+            bool success = true;
             try
             {
                 if (runAtWindowsStartup.Checked)
                 {
                     // Add the value in the registry so that the application runs at startup
-                    rkApp.SetValue("WALEWindowAudioLoudnessEqualizer", Application.ExecutablePath);
+                    if (rkApp.GetValue("WALEWindowAudioLoudnessEqualizer") == null) rkApp.SetValue("WALEWindowAudioLoudnessEqualizer", Application.ExecutablePath);
                 }
                 else
                 {
                     // Remove the value from the registry so that the application doesn't start
-                    rkApp.DeleteValue("WALEWindowAudioLoudnessEqualizer", false);
+                    if (rkApp.GetValue("WALEWindowAudioLoudnessEqualizer") != null) rkApp.DeleteValue("WALEWindowAudioLoudnessEqualizer", false);
                 }
             }
-            catch { return false; }
-            return true;
+            catch { success = false; JDPack.Debug.Log("Error: Config - Register failure"); }
+            //Console.WriteLine("resister End");
+            return success;
         }
 
 

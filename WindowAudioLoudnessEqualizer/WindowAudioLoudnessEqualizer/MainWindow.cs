@@ -52,7 +52,7 @@ namespace Wale.WinForm
                 base.WndProc(ref m);
                 bAllowPaintSession = false;
             }
-            else if (bAllowPaintSession && m.Msg == WM_PAINT)
+            else if (bAllowPaintLog && m.Msg == WM_PAINT)
             {
                 base.WndProc(ref m);
                 bAllowPaintLog = false;
@@ -63,8 +63,8 @@ namespace Wale.WinForm
         #region Private Variables
         Wale.Properties.Settings settings = Wale.Properties.Settings.Default;
         AudioControl Audio;
-        JLdebPack.DebugPackage DP;
-        JLdebPack.FormPack FWP;
+        JDPack.DebugPack DP;
+        JDPack.FormPack FWP;
         List<Task> _updateTasks;
         object _closelock = new object(), _activelock = new object(), _ntvlock = new object();
         volatile bool _realClose = false, _activated = false, _numberToVol = true;
@@ -99,8 +99,8 @@ namespace Wale.WinForm
             this.TopMost = cbAlwaysTop.Checked;
             this.MouseWheel += MainWindow_MouseWheel;
             settings.PropertyChanged += Settings_PropertyChanged;
-            DP = new JLdebPack.DebugPackage(debug);
-            FWP = new JLdebPack.FormPack();
+            DP = new JDPack.DebugPack(debug);
+            FWP = new JDPack.FormPack();
             Log("OK1"); DP.DML("OK1");
         }
         private void ColorBindings()
@@ -119,9 +119,9 @@ namespace Wale.WinForm
 
             lVolume.ForeColor = ColorSet.MainColor;
 
-            JLdebPack.FormPack2.Bind(tabMain, "BackColor", this, "BackColor");
-            JLdebPack.FormPack2.Bind(tabSession, "BackColor", this, "BackColor");
-            JLdebPack.FormPack2.Bind(tabLog, "BackColor", this, "BackColor");
+            JDPack.FormPack2.Bind(tabMain, "BackColor", this, "BackColor");
+            JDPack.FormPack2.Bind(tabSession, "BackColor", this, "BackColor");
+            JDPack.FormPack2.Bind(tabLog, "BackColor", this, "BackColor");
         }
         private void StartApp()
         {
@@ -187,7 +187,7 @@ namespace Wale.WinForm
         {
             if (!Active())
             {
-                Location = FWP.PointFromMouse(-(Width / 2), -Height, JLdebPack.FormPack.PointMode.AboveTaskbar);
+                Location = FWP.PointFromMouse(-(Width / 2), -Height, JDPack.FormPack.PointMode.AboveTaskbar);
                 Show();
                 Activate();
                 Active(true);
@@ -390,7 +390,7 @@ namespace Wale.WinForm
         {
             DP.DM("Settings");
             Config form = new Config();
-            form.Location = FWP.PointFromMouse(-(form.Width / 2), -form.Height, JLdebPack.FormPack.PointMode.AboveTaskbar);
+            form.Location = FWP.PointFromMouse(-(form.Width / 2), -form.Height, JDPack.FormPack.PointMode.AboveTaskbar);
             form.FormClosed += Config_FormClosed;
             form.Show();
         }
@@ -411,7 +411,7 @@ namespace Wale.WinForm
         {
             DP.DM("Help");
             Help form = new Help();
-            form.Location = FWP.PointFromMouse(-(form.Width / 2), -form.Height, JLdebPack.FormPack.PointMode.AboveTaskbar);
+            form.Location = FWP.PointFromMouse(-(form.Width / 2), -form.Height, JDPack.FormPack.PointMode.AboveTaskbar);
 
             form.ShowDialog();
         }
@@ -419,7 +419,7 @@ namespace Wale.WinForm
         {
             DP.DM("Licenses");
             Licenses form = new Licenses();
-            form.Location = FWP.PointFromMouse(-(form.Width / 2), -form.Height, JLdebPack.FormPack.PointMode.AboveTaskbar);
+            form.Location = FWP.PointFromMouse(-(form.Width / 2), -form.Height, JDPack.FormPack.PointMode.AboveTaskbar);
             
             form.ShowDialog();
         }
@@ -437,7 +437,7 @@ namespace Wale.WinForm
                 //if (updateVolumeDelay > 0) wait.Start();
                 if (Active())
                 {
-                    JLdebPack.DebugPackage VDP = new JLdebPack.DebugPackage(updateVolumeDebug);
+                    JDPack.DebugPack VDP = new JDPack.DebugPack(updateVolumeDebug);
                     VDP.DML($"base={settings.BaseLevel} vol={Audio.MasterVolume}({Audio.MasterPeak})");
 
                     SetText(lBaseVolume, $"{settings.BaseLevel:n}");
@@ -445,7 +445,7 @@ namespace Wale.WinForm
                     //lBaseVolume.Text = $"{Properties.Settings.Default.baseVolume:n}";
                     //pbBaseVolume.Increment((int)(Properties.Settings.Default.baseVolume * 100) - pbBaseVolume.Value);
 
-                    if (NTV()) SetText(lVolume, $"{Transformation.Transform(Audio.MasterVolume, Transformation.TransFlow.MachineToUser):n}");
+                    if (NTV()) SetText(lVolume, $"{Audio.MasterVolume:n}");//Transformation.Transform(Audio.MasterVolume, Transformation.TransFlow.MachineToUser)
                     else SetText(lVolume, $"{Audio.MasterPeak * Audio.MasterVolume:n}");
                     SetBar(pbMasterVolume, (int)(Audio.MasterVolume * 100));
                     double lbuf = Audio.MasterVolume * Audio.MasterPeak * 100;
@@ -473,7 +473,7 @@ namespace Wale.WinForm
                 //if (updateSessionDelay > 0) wait.Start();
                 if (Active()) //do when this.activated
                 {
-                    JLdebPack.DebugPackage SDP = new JLdebPack.DebugPackage(updateSessionDebug);
+                    JDPack.DebugPack SDP = new JDPack.DebugPack(updateSessionDebug);
                     SDP.DM("Getting Sessions");
                     int count = 0;
                     lock (Lockers.Sessions)
@@ -702,9 +702,11 @@ namespace Wale.WinForm
         #region Logging
         private void Log(string msg, bool newLine = true)
         {
-            JLdebPack.DebugPack.Log($"{DateTime.Now.ToLocalTime()}: {msg}", newLine);
-            AppendText(Logs, $"{DateTime.Now.ToLocalTime()}: {msg}");
-            if (newLine) AppendText(Logs, "\r\n");
+            JDPack.Debug.Log(msg, newLine);
+            DateTime t = DateTime.Now.ToLocalTime();
+            string content = $"{t.Hour:d2}:{t.Minute:d2}>{msg}";
+            if (newLine) content += "\r\n";
+            AppendText(Logs, content);
             bAllowPaintLog = true;
         }
         private void Logs_VisibleChanged(object sender, EventArgs e)
@@ -736,7 +738,7 @@ namespace Wale.WinForm
     //UI set for session view.
     internal class MeterSet : Panel//, IDisposable
     {
-        private JLdebPack.DebugPackage DP;
+        private JDPack.DebugPack DP;
         private CheckBox cbAutoIncluded;
         private Label lSessionNameLabel, lVolume;
         private Label dlReletive, dlAvPeak, dlPeak;
@@ -763,7 +765,7 @@ namespace Wale.WinForm
         public MeterSet(uint id, string name, bool detail, bool dbg = false)
         {
             _ID = id;
-            DP = new JLdebPack.DebugPackage(dbg);
+            DP = new JDPack.DebugPack(dbg);
 
             Initialization(name);
             detailed = !detail;
@@ -972,7 +974,7 @@ namespace Wale.WinForm
                     SetText(lVolume, $"{Relative:n}");
                     break;
                 case LabelMode.Volume:
-                    SetText(lVolume, string.Format("{0:n}", Transformation.Transform(vol, Transformation.TransFlow.MachineToUser)));
+                    SetText(lVolume, $"{vol:n}");//string.Format("{0:n}", Transformation.Transform(vol, Transformation.TransFlow.MachineToUser)));
                     break;
                 case LabelMode.Peak:
                     SetText(lVolume, $"{level:n}");

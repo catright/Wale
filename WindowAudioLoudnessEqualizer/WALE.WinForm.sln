@@ -13,7 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wale.Subclasses", "Wale.Subclasses\Wale.Subclasses.csproj", "{FC52A648-3E05-47FD-8D6D-5C1222FF62B4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JLdebPack", "JLdebPack\JLdebPack.csproj", "{8D37648E-0B49-41CC-886A-5B373A7B3A58}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JDPack", "JLdebPack\JDPack.csproj", "{8D37648E-0B49-41CC-886A-5B373A7B3A58}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -36,21 +36,6 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 4
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = https://catright.visualstudio.com/
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = WindowAudioLoudnessEqualizer\\Wale.WinForm.csproj
-		SccProjectName1 = WindowAudioLoudnessEqualizer
-		SccLocalPath1 = WindowAudioLoudnessEqualizer
-		SccProjectUniqueName2 = Wale.Subclasses\\Wale.Subclasses.csproj
-		SccProjectName2 = Wale.Subclasses
-		SccLocalPath2 = Wale.Subclasses
-		SccProjectUniqueName3 = JLdebPack\\JLdebPack.csproj
-		SccProjectName3 = JLdebPack
-		SccLocalPath3 = JLdebPack
 	EndGlobalSection
 	GlobalSection(Performance) = preSolution
 		HasPerformanceSessions = true

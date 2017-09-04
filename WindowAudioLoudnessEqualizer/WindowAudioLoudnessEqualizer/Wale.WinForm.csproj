@@ -171,9 +171,9 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\JLdebPack\JLdebPack.csproj">
+    <ProjectReference Include="..\JLdebPack\JDPack.csproj">
       <Project>{8d37648e-0b49-41cc-886a-5b373a7b3a58}</Project>
-      <Name>JLdebPack</Name>
+      <Name>JDPack</Name>
     </ProjectReference>
     <ProjectReference Include="..\Wale.Subclasses\Wale.Subclasses.csproj">
       <Project>{fc52a648-3e05-47fd-8d6d-5c1222ff62b4}</Project>

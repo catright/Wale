@@ -27,9 +27,9 @@ namespace Wale.WinForm
         [STAThread]
         static void Main()
         {
-            JLdebPack.DebugPack.SetWorkDirectory(System.IO.Path.Combine(System.IO.Path.Combine(Environment.ExpandEnvironmentVariables("%userprofile%"), "Documents"), "WaleAudioControl"));
-            JLdebPack.DebugPack.Open("WaleLog");
-            JLdebPack.DebugPack.Erase(3);
+            JDPack.Debug.SetWorkDirectory(System.IO.Path.Combine(System.IO.Path.Combine(Environment.ExpandEnvironmentVariables("%userprofile%"), "Documents"), "WaleAudioControl"));
+            JDPack.Debug.Open("WaleLog");
+            JDPack.Debug.Erase(3);
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
@@ -37,7 +37,7 @@ namespace Wale.WinForm
             {
                 Application.Run(new Wale.WinForm.MainWindow());
             }
-            catch (Exception e) { JLdebPack.DebugPack.Log(e.ToString()); MessageBox.Show(e.ToString()); }
+            catch (Exception e) { JDPack.Debug.Log(e.ToString()); MessageBox.Show(e.ToString()); }
         }
 
     }

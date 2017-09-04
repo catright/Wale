@@ -30,9 +30,9 @@ namespace Wale.WinForm
             button1.BackColor = ColorSet.BackColorAlt;
             button1.FlatAppearance.BorderColor = ColorSet.ForeColor;
 
-            JLdebPack.FormPack2.Bind(panel1, "BackColor", this, "BackColor");
-            JLdebPack.FormPack2.Bind(richTextBox1, "BackColor", this, "BackColor");
-            JLdebPack.FormPack2.Bind(button1, "BackColor", this, "BackColor");
+            JDPack.FormPack2.Bind(panel1, "BackColor", this, "BackColor");
+            JDPack.FormPack2.Bind(richTextBox1, "BackColor", this, "BackColor");
+            JDPack.FormPack2.Bind(button1, "BackColor", this, "BackColor");
         }
         #region title panel control, location and size check events
         //title panel control
