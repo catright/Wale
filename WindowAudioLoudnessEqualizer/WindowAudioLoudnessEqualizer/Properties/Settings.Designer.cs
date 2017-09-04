@@ -85,7 +85,7 @@ namespace Wale.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("200")]
+        [global::System.Configuration.DefaultSettingValueAttribute("250")]
         public int UIUpdateInterval {
             get {
                 return ((int)(this["UIUpdateInterval"]));
@@ -97,7 +97,7 @@ namespace Wale.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("35")]
+        [global::System.Configuration.DefaultSettingValueAttribute("50")]
         public int AutoControlInterval {
             get {
                 return ((int)(this["AutoControlInterval"]));
@@ -145,7 +145,7 @@ namespace Wale.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
         public Wale.Subclasses.VFunction.Func VFunc {//Wale.Subclasses.VFunction.Func
             get {
                 return ((Wale.Subclasses.VFunction.Func)(this["VFunc"]));

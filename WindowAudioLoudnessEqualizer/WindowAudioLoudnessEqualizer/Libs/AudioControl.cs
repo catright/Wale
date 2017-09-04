@@ -149,22 +149,63 @@ namespace Wale
             }
             //DP.DML($"{Sessions.Count} ({System.DateTime.Now.Ticks})");
         }
+        private void SessionControl(Session s)
+        {
+            string dm = $"AutoVolume:{s.ProcessName}({s.ProcessId}), inc={s.AutoIncluded}";
+            if (s.SessionState == SessionState.Active && s.AutoIncluded)
+            {
+                double peak = s.SessionPeak, volume = s.SessionVolume;
+                dm += $" P:{peak:n3} V:{volume:n3}";
+                if (peak > settings.MinPeak)
+                {
+                    double tVol, UpLimit;
+                    if (s.Averaging) s.SetAverage(peak);
+                    if (s.Averaging && peak <= s.AveragePeak) tVol = baseLvSquare / s.AveragePeak;
+                    else tVol = baseLvSquare / peak;
+                    switch (settings.VFunc)
+                    {
+                        case VFunction.Func.Linear:
+                            UpLimit = VFunction.Linear(volume, UpRate) + volume;
+                            break;
+                        case VFunction.Func.SlicedLinear:
+                            UpLimit = VFunction.SlicedLinear(volume, UpRate, baseLv, sliceFactors.A, sliceFactors.B) + volume;
+                            break;
+                        case VFunction.Func.Reciprocal:
+                            UpLimit = VFunction.Reciprocal(volume, UpRate, kurtosis) + volume;
+                            break;
+                        case VFunction.Func.FixedReciprocal:
+                            UpLimit = VFunction.FixedReciprocal(volume, UpRate, kurtosis) + volume;
+                            break;
+                        default:
+                            UpLimit = upRate + volume;
+                            break;
+                    }
+                    dm += $" T={tVol:n3} UL={UpLimit:n3}";//Console.WriteLine($" T={tVol:n3} UL={UpLimit:n3}");
+                    SetSessionVolume(s.ProcessId, (tVol > UpLimit) ? UpLimit : tVol);
+                }
+                DP.DML(dm);
+                //Console.WriteLine(dm);
+            }
+        }
         private async void AudioControlTask()
         {
             JDPack.Debug.Log("Audio Control Task Start");
             List<Task> aas = new List<Task>();
+            //System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+            
             while (!Terminate())
             {
+                //sw.Restart();
+                //Task wait = Task.Delay(settings.AutoControlInterval);
+
                 Refresh();
-                //bool auto = Autocon();
+                
                 if (settings.AutoControl)
                 {
                     lock (Lockers.Sessions)
                     {
-                        Sessions.ForEach(s =>
-                        {
-                            aas.Add(new Task(new Action(() =>
-                            {
+                        Sessions.ForEach(s => aas.Add(new Task(() => SessionControl(s))));
+                        /*Sessions.ForEach(s => aas.Add(new Task(() => {
                             string dm = $"AutoVolume:{s.ProcessName}({s.ProcessId}), inc={s.AutoIncluded}";
                             if (s.SessionState == SessionState.Active && s.AutoIncluded)
                             {
@@ -195,30 +236,39 @@ namespace Wale
                                             break;
                                     }
                                     dm += $" T={tVol:n3} UL={UpLimit:n3}";//Console.WriteLine($" T={tVol:n3} UL={UpLimit:n3}");
-                                        SetSessionVolume(s.ProcessId, (tVol > UpLimit) ? UpLimit : tVol);
-                                    }
-                                    DP.DML(dm);
+                                    SetSessionVolume(s.ProcessId, (tVol > UpLimit) ? UpLimit : tVol);
                                 }
-                            })));
-                        });
+                                DP.DML(dm);
+                            }
+                        })));/**/
                     }
                     aas.ForEach(t => t.Start());
                 }
-                //System.Threading.Thread.Sleep(AutoDelay);
-                await Task.Delay(settings.AutoControlInterval);
 
-                if (settings.AutoControl) await Task.WhenAll(aas);
-                aas.Clear();
-            }
+                await Task.Delay(settings.AutoControlInterval);
+                //await wait;
+                //System.Threading.Thread.Sleep(settings.AutoControlInterval);
+
+                if (settings.AutoControl)
+                {
+                    await Task.WhenAll(aas);
+                    aas.Clear();
+                }
+                //sw.Stop();
+                //Console.WriteLine($"ACTaskElapsed={sw.ElapsedMilliseconds}");
+            }// end while loop
+
             JDPack.Debug.Log("Audio Control Task End");
-        }
+        }// end AudioControlTask
         private async void ControllerCleanTask()
         {
             JDPack.Debug.Log("Controller Clean Task(GC) Start");
+            List<Task> aas = new List<Task>();
             uint logCounter = uint.MaxValue;
+
             while (!Terminate())
             {
-                List<Task> aas = new List<Task>();
+                //Task wait = Task.Delay(settings.GCInterval);
 
                 //bool auto = Autocon();
                 if (settings.AutoControl)
@@ -239,9 +289,12 @@ namespace Wale
                 
                 await Task.Delay(settings.GCInterval);
 
-                if (settings.AutoControl) await Task.WhenAll(aas);
-                aas.Clear();
-                
+                if (settings.AutoControl)
+                {
+                    await Task.WhenAll(aas);
+                    aas.Clear();
+                }
+
                 long mmc = GC.GetTotalMemory(true);
                 Console.WriteLine($"Total Memory: {mmc:n0}");
                 if (logCounter > 1800000/settings.GCInterval)
@@ -250,6 +303,9 @@ namespace Wale
                     logCounter = 0;
                 }
                 logCounter++;
+
+                //System.Threading.Thread.Sleep(settings.GCInterval);
+                //await wait;
             }
             JDPack.Debug.Log("Controller Clean Task(GC) End");
         }

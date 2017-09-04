@@ -433,7 +433,7 @@ namespace Wale.WinForm
             Log("Start UpdateVolumeTask");
             while (!Rclose())
             {
-                //Task wait = new Task(new Action(() => System.Threading.Thread.Sleep(updateVolumeDelay)));
+                //Task wait = Task.Delay(settings.UIUpdateInterval);
                 //if (updateVolumeDelay > 0) wait.Start();
                 if (Active())
                 {
@@ -460,6 +460,7 @@ namespace Wale.WinForm
                 //if (updateVolumeDelay > 0) await wait;
                 bAllowPaintMaster = true;
                 System.Threading.Thread.Sleep(settings.UIUpdateInterval);
+                //await wait;
             }
             Log("End UpdateVolumeTask");
         }
@@ -469,7 +470,7 @@ namespace Wale.WinForm
             Log("Start UpdateSessionTask");
             while (!Rclose())
             {
-                //Task wait = new Task(new Action(() => System.Threading.Thread.Sleep(updateSessionDelay)));
+                //Task wait = Task.Delay(settings.UIUpdateInterval);
                 //if (updateSessionDelay > 0) wait.Start();
                 if (Active()) //do when this.activated
                 {
@@ -556,6 +557,7 @@ namespace Wale.WinForm
                  //if (updateSessionDelay > 0) await wait;
                 bAllowPaintSession = true;
                 System.Threading.Thread.Sleep(settings.UIUpdateInterval);
+                //await wait;
             }
             Log("End UpdateSessionTask");
         }

@@ -91,8 +91,8 @@ namespace Wale.WinForm
             catch { MessageBox.Show("Invalid First Value"); }
 
             string selectedFunction = comboBox1.SelectedItem.ToString();
-            if (selectedFunction == VFunction.Func.None.ToString()) { textBox5.Enabled = false; }
-            else { textBox5.Enabled = true; }
+            //if (selectedFunction == VFunction.Func.None.ToString()) { textBox5.Enabled = false; }
+            //else { textBox5.Enabled = true; }
             if (selectedFunction == VFunction.Func.Reciprocal.ToString() || selectedFunction == VFunction.Func.FixedReciprocal.ToString()) { textBox6.Enabled = true; }
             else { textBox6.Enabled = false; }
 
@@ -216,7 +216,7 @@ namespace Wale.WinForm
                 default:
                     for (double x = 0; x < 1.05; x += 0.05)
                     {
-                        val = 1;
+                        val = upRate * 1000 / settings.AutoControlInterval;
                         graph.Points.AddXY(x, val);
                     }
                     maxVal = 1;
@@ -352,8 +352,8 @@ namespace Wale.WinForm
         {
             if (!loaded) return;
             string selectedFunction = (sender as ComboBox).SelectedItem.ToString();
-            if (selectedFunction == VFunction.Func.None.ToString()) { textBox5.Enabled = false; }
-            else { textBox5.Enabled = true; }
+            //if (selectedFunction == VFunction.Func.None.ToString()) { textBox5.Enabled = false; }
+            //else { textBox5.Enabled = true; }
             if (selectedFunction == VFunction.Func.Reciprocal.ToString() || selectedFunction == VFunction.Func.FixedReciprocal.ToString()) { textBox6.Enabled = true; }
             else { textBox6.Enabled = false; }
             DrawNew();
