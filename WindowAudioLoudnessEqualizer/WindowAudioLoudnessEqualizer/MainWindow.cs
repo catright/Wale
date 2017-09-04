@@ -333,8 +333,9 @@ namespace Wale.WinForm
             try { volume = Convert.ToDouble(tbVolume.Text); } catch { Log("fail to convert master volume\n"); MessageBox.Show("Invalid Volume"); return; }
             if (volume != null)
             {
-                double? buf = Transformation.Transform((double)volume, Transformation.TransFlow.UserToMachine);
-                if (buf != null) Audio.SetVolume((double)buf);
+                //double? buf = Transformation.Transform((double)volume, Transformation.TransFlow.UserToMachine);
+                //if (buf != null) Audio.SetVolume((double)buf);
+                Audio.SetVolume((double)volume);
             }
         }
         private void tbVolume_KeyDown(object sender, KeyEventArgs e)
