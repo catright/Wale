@@ -25,7 +25,7 @@ namespace Wale.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0.5")]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.25")]
         public double BaseLevel {
             get {
                 return ((double)(this["BaseLevel"]));
@@ -97,7 +97,7 @@ namespace Wale.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("50")]
+        [global::System.Configuration.DefaultSettingValueAttribute("35")]
         public int AutoControlInterval {
             get {
                 return ((int)(this["AutoControlInterval"]));
