@@ -81,6 +81,7 @@ namespace Wale.WinForm
             chart.Annotations.Add(myText2);
 
             Makes();
+            MakeOriginals();
             loaded = true;
             try
             {
@@ -153,16 +154,27 @@ namespace Wale.WinForm
                 // The value exists, the application is set to run at startup
                 runAtWindowsStartup.Checked = true;
             }
-            originalUIInterval.Text = textBox1.Text = settings.UIUpdateInterval.ToString();
-            originalACInterval.Text = textBox2.Text = settings.AutoControlInterval.ToString();
-            originalGCInterval.Text = textBox3.Text = settings.GCInterval.ToString();
-            originalBaseLevel.Text = textBox4.Text = settings.BaseLevel.ToString();
-            originalUpRate.Text = textBox5.Text = settings.UpRate.ToString();
-            originalKurtosis.Text = textBox6.Text = settings.Kurtosis.ToString();
-            originalAvTime.Text = textBox7.Text = (settings.AverageTime / 1000).ToString();
-            originalMinPeak.Text = textBox8.Text = settings.MinPeak.ToString();
+            textBox1.Text = settings.UIUpdateInterval.ToString();
+            textBox2.Text = settings.AutoControlInterval.ToString();
+            textBox3.Text = settings.GCInterval.ToString();
+            textBox4.Text = settings.BaseLevel.ToString();
+            textBox5.Text = settings.UpRate.ToString();
+            textBox6.Text = settings.Kurtosis.ToString();
+            textBox7.Text = (settings.AverageTime / 1000).ToString();
+            textBox8.Text = settings.MinPeak.ToString();
             comboBox1.DataSource = Enum.GetValues(typeof(VFunction.Func));
-            comboBox1.SelectedItem = settings.VFunc;
+            if (Enum.TryParse(settings.VFunc, out VFunction.Func f)) comboBox1.SelectedItem = f;
+        }
+        private void MakeOriginals()
+        {
+            originalUIInterval.Text = textBox1.Text;
+            originalACInterval.Text = textBox2.Text;
+            originalGCInterval.Text = textBox3.Text;
+            originalBaseLevel.Text = textBox4.Text;
+            originalUpRate.Text = textBox5.Text;
+            originalKurtosis.Text = textBox6.Text;
+            originalAvTime.Text = textBox7.Text;
+            originalMinPeak.Text = textBox8.Text;
             originalFunction.Text = comboBox1.SelectedItem.ToString();
         }
         private void DrawNew() { DrawGraph("Graph"); }
@@ -277,8 +289,7 @@ namespace Wale.WinForm
                 settings.Kurtosis = Convert.ToDouble(textBox6.Text);
                 settings.AverageTime = Convert.ToDouble(textBox7.Text) * 1000;
                 settings.MinPeak = Convert.ToDouble(textBox8.Text);
-                Enum.TryParse<VFunction.Func>(comboBox1.SelectedValue.ToString(), out VFunction.Func f);
-                settings.VFunc = f;
+                settings.VFunc = comboBox1.SelectedValue.ToString();
             }
             catch { success = false; JDPack.Debug.Log("Error: Config - Convert failure"); }
             finally { settings.AutoControl = auto; }
@@ -391,6 +402,16 @@ namespace Wale.WinForm
             t.SelectionLength = 0;
         }
 
+        private void resetToDafault_Click(object sender, EventArgs e)
+        {
+            DialogResult dr = MessageBox.Show(this, "Do you really want to reset all configurations?", "Warning", MessageBoxButtons.YesNo);
+            if (dr == DialogResult.Yes)
+            {
+                settings.Reset();
+                Makes();
+                JDPack.Debug.Log("All configs are reset.");
+            }
+        }
         private void Submit_Click(object sender, EventArgs e)
         {
             if (Converts() && Register())

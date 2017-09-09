@@ -2,14 +2,11 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Wale.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="BaseVolume" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">0.25</Value>
-    </Setting>
     <Setting Name="AutoControl" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="AlwaysTop" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
+      <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="StayOn" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
@@ -18,22 +15,19 @@
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="UIUpdateInterval" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">200</Value>
+      <Value Profile="(Default)">250</Value>
     </Setting>
     <Setting Name="AutoControlInterval" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">100</Value>
+      <Value Profile="(Default)">35</Value>
     </Setting>
     <Setting Name="GCInterval" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">4000</Value>
+      <Value Profile="(Default)">5000</Value>
     </Setting>
     <Setting Name="UpRate" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">0.1</Value>
+      <Value Profile="(Default)">1</Value>
     </Setting>
-    <Setting Name="Skewness" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">0.35</Value>
-    </Setting>
-    <Setting Name="VFunc" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">2</Value>
+    <Setting Name="VFunc" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Linear</Value>
     </Setting>
     <Setting Name="MasterVolumeInterval" Type="System.Double" Scope="User">
       <Value Profile="(Default)">0.1</Value>
@@ -46,6 +40,15 @@
     </Setting>
     <Setting Name="Averaging" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="BaseLevel" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">0.25</Value>
+    </Setting>
+    <Setting Name="Kurtosis" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">0.35</Value>
+    </Setting>
+    <Setting Name="MinPeak" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">0.01</Value>
     </Setting>
   </Settings>
 </SettingsFile>

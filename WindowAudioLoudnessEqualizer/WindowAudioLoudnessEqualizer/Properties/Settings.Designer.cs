@@ -12,7 +12,7 @@ namespace Wale.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.1.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.3.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -20,18 +20,6 @@ namespace Wale.Properties {
         public static Settings Default {
             get {
                 return defaultInstance;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0.25")]
-        public double BaseLevel {
-            get {
-                return ((double)(this["BaseLevel"]));
-            }
-            set {
-                this["BaseLevel"] = value;
             }
         }
         
@@ -49,7 +37,7 @@ namespace Wale.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool AlwaysTop {
             get {
                 return ((bool)(this["AlwaysTop"]));
@@ -133,22 +121,10 @@ namespace Wale.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0.35")]
-        public double Kurtosis {
+        [global::System.Configuration.DefaultSettingValueAttribute("Linear")]
+        public string VFunc {
             get {
-                return ((double)(this["Kurtosis"]));
-            }
-            set {
-                this["Kurtosis"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public Wale.Subclasses.VFunction.Func VFunc {//Wale.Subclasses.VFunction.Func
-            get {
-                return ((Wale.Subclasses.VFunction.Func)(this["VFunc"]));
+                return ((string)(this["VFunc"]));
             }
             set {
                 this["VFunc"] = value;
@@ -202,18 +178,39 @@ namespace Wale.Properties {
                 this["Averaging"] = value;
             }
         }
-
+        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0.02")]
-        public double MinPeak
-        {
-            get
-            {
+        [global::System.Configuration.DefaultSettingValueAttribute("0.25")]
+        public double BaseLevel {
+            get {
+                return ((double)(this["BaseLevel"]));
+            }
+            set {
+                this["BaseLevel"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.35")]
+        public double Kurtosis {
+            get {
+                return ((double)(this["Kurtosis"]));
+            }
+            set {
+                this["Kurtosis"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.01")]
+        public double MinPeak {
+            get {
                 return ((double)(this["MinPeak"]));
             }
-            set
-            {
+            set {
                 this["MinPeak"] = value;
             }
         }

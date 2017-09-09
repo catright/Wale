@@ -67,6 +67,7 @@
             this.checkBox2 = new System.Windows.Forms.CheckBox();
             this.detailedView = new System.Windows.Forms.CheckBox();
             this.runAtWindowsStartup = new System.Windows.Forms.CheckBox();
+            this.resetToDafault = new System.Windows.Forms.Button();
             this.titlePanel.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -517,6 +518,17 @@
             this.runAtWindowsStartup.Text = "Run at Windows Startup";
             this.runAtWindowsStartup.UseVisualStyleBackColor = true;
             // 
+            // resetToDafault
+            // 
+            this.resetToDafault.Location = new System.Drawing.Point(170, 408);
+            this.resetToDafault.Margin = new System.Windows.Forms.Padding(30, 3, 30, 3);
+            this.resetToDafault.Name = "resetToDafault";
+            this.resetToDafault.Size = new System.Drawing.Size(139, 23);
+            this.resetToDafault.TabIndex = 1002;
+            this.resetToDafault.Text = "Reset To Default";
+            this.resetToDafault.UseVisualStyleBackColor = true;
+            this.resetToDafault.Click += new System.EventHandler(this.resetToDafault_Click);
+            // 
             // Config
             // 
             this.AcceptButton = this.Submit;
@@ -526,6 +538,7 @@
             this.CancelButton = this.Cancel;
             this.ClientSize = new System.Drawing.Size(480, 443);
             this.ControlBox = false;
+            this.Controls.Add(this.resetToDafault);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.Cancel);
@@ -593,5 +606,6 @@
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.CheckBox checkBox2;
+        private System.Windows.Forms.Button resetToDafault;
     }
 }

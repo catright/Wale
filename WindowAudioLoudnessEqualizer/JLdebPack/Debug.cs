@@ -76,6 +76,10 @@ namespace JDPack
                 writer.Write(content);
                 writer.Close();
                 writer.Dispose();
+
+                IEnumerable<string> lines = System.IO.File.ReadLines(File.FullName);
+                int lineCount = lines.Count(), critCount = 3000;
+                if (lineCount > critCount) System.IO.File.WriteAllLines(File.FullName, lines.Skip(lineCount - critCount));
             }
         }
     }
