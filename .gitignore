@@ -13,6 +13,8 @@
 *.ps1
 *.cmd
 *.lnk
+*.png
+*.ico
 
 # Build results
 [Dd]ebug/
