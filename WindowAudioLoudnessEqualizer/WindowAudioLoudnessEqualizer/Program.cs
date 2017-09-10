@@ -27,6 +27,13 @@ namespace Wale.WinForm
         [STAThread]
         static void Main()
         {
+            var mutex = new System.Threading.Mutex(true, "WaleWindowsAudioLoudnessEqualizer", out bool result);
+            if (!result)
+            {
+                MessageBox.Show("The wale is already running.");
+                return;
+            }
+
             JDPack.Debug.SetWorkDirectory(System.IO.Path.Combine(System.IO.Path.Combine(Environment.ExpandEnvironmentVariables("%userprofile%"), "Documents"), "WaleAudioControl"));
             JDPack.Debug.Open("WaleLog");
             JDPack.Debug.Erase(3);
@@ -36,6 +43,7 @@ namespace Wale.WinForm
             try
             {
                 Application.Run(new Wale.WinForm.MainWindow());
+                GC.KeepAlive(mutex);
             }
             catch (Exception e) { JDPack.Debug.Log(e.ToString()); MessageBox.Show(e.ToString()); }
         }

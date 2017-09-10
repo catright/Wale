@@ -88,6 +88,7 @@ namespace Wale.WinForm
         #region initializing
         private void MakeComponents()
         {
+            NI.Icon = this.Icon = Properties.Resources.speaker_white1;
             Point p = new Point();
             p.X = (int)(Screen.PrimaryScreen.WorkingArea.Width - Width);
             p.Y = (int)(Screen.PrimaryScreen.WorkingArea.Height - Height);
