@@ -408,7 +408,17 @@ namespace Wale.WinForm
             form.FormClosed -= Config_FormClosed;
             form.Dispose();
         }
-        
+
+        private void deviceMapToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DP.DM("DeviceMap");
+            DeviceMap form = new DeviceMap();
+            form.Location = FWP.PointFromMouse(-(form.Width / 2), -form.Height, JDPack.FormPack.PointMode.AboveTaskbar);
+
+            form.ShowDialog();
+        }
+
+
         private void helpToolStripMenuItem_Click(object sender, EventArgs e)
         {
             DP.DM("Help");

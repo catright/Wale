@@ -34,6 +34,7 @@
             this.NICMstrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.cmsAutoControl = new System.Windows.Forms.ToolStripMenuItem();
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.deviceMapToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.licensesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -77,12 +78,13 @@
             this.NICMstrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.cmsAutoControl,
             this.settingsToolStripMenuItem,
+            this.deviceMapToolStripMenuItem,
             this.toolStripSeparator1,
             this.helpToolStripMenuItem,
             this.licensesToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.NICMstrip.Name = "NICMstrip";
-            this.NICMstrip.Size = new System.Drawing.Size(240, 180);
+            this.NICMstrip.Size = new System.Drawing.Size(240, 250);
             // 
             // cmsAutoControl
             // 
@@ -99,6 +101,14 @@
             this.settingsToolStripMenuItem.Size = new System.Drawing.Size(239, 34);
             this.settingsToolStripMenuItem.Text = "&Configuration";
             this.settingsToolStripMenuItem.Click += new System.EventHandler(this.ConfigToolStripMenuItem_Click);
+            // 
+            // deviceMapToolStripMenuItem
+            // 
+            this.deviceMapToolStripMenuItem.Enabled = false;
+            this.deviceMapToolStripMenuItem.Name = "deviceMapToolStripMenuItem";
+            this.deviceMapToolStripMenuItem.Size = new System.Drawing.Size(239, 34);
+            this.deviceMapToolStripMenuItem.Text = "DeviceMap";
+            this.deviceMapToolStripMenuItem.Click += new System.EventHandler(this.deviceMapToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
@@ -435,6 +445,7 @@
         private System.Windows.Forms.TextBox Logs;
         private System.Windows.Forms.ToolStripMenuItem licensesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem deviceMapToolStripMenuItem;
     }
 }
 

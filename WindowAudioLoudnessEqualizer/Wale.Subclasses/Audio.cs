@@ -163,6 +163,61 @@ namespace Wale.Subclasses
                 if (deviceEnumerator != null) Marshal.ReleaseComObject(deviceEnumerator);
             }
         }
+        /*public static IMMDevice GetDevice(List<IMMDevice> list)
+        {
+
+            //Guid IID_IAudioEndpointVolume = typeof(IAudioEndpointVolume).GUID;
+            //object o;
+            //speakers.Activate(IID_IAudioEndpointVolume, 0, IntPtr.Zero, out o);
+        }/**/
+        public static uint GetDevicesNum()
+        {
+            IMMDeviceEnumerator deviceEnumerator = null;
+            IMMDeviceCollection speakers = null;
+            try
+            {
+                deviceEnumerator = (IMMDeviceEnumerator)(new MMDeviceEnumerator());
+                deviceEnumerator.EnumAudioEndpoints(EDataFlow.eRender, 1, out speakers);
+                speakers.GetCount(out uint count);
+                return count;
+            }
+            finally
+            {
+                if (deviceEnumerator != null) Marshal.ReleaseComObject(deviceEnumerator);
+                if (speakers != null) Marshal.ReleaseComObject(speakers);
+            }
+        }
+        public static List<IMMDevice> GetDevices()
+        {
+            IMMDeviceEnumerator deviceEnumerator = null;
+            IMMDeviceCollection speakers = null;
+            try
+            {
+                deviceEnumerator = (IMMDeviceEnumerator)(new MMDeviceEnumerator());
+                deviceEnumerator.EnumAudioEndpoints(EDataFlow.eRender, 1, out speakers);
+                speakers.GetCount(out uint count);
+                List<IMMDevice> list = new List<IMMDevice>();
+                for (uint i = 0; i < count; i++)
+                {
+                    speakers.Item(i, out IMMDevice d);
+                    
+                    //Guid IID_IAudioEndpointVolume = typeof(IAudioEndpointVolume).GUID;
+                    //d.Activate(IID_IAudioEndpointVolume, 0, IntPtr.Zero, out object o);
+                    //IMMEndpoint ep = (IMMEndpoint)o;
+                    //IAudioEndpointVolumeEx eve = (IAudioEndpointVolumeEx)o;
+                    //IAudioAutoGainControl gainControl = (IAudioAutoGainControl)o;
+                    
+                    list.Add(d);
+                }
+                return list;
+            }
+            finally
+            {
+                if (deviceEnumerator != null) Marshal.ReleaseComObject(deviceEnumerator);
+                if (speakers != null) Marshal.ReleaseComObject(speakers);
+            }
+        }
+
         private static IAudioPeakMeter GetMasterLoudnessObject()
         {
             IMMDeviceEnumerator deviceEnumerator = null;
@@ -691,6 +746,10 @@ namespace Wale.Subclasses
         
     }
     
+    public static class AudioBasic
+    {
+
+    }
 
     #region Abstracted COM interfaces from Windows CoreAudio API
     
