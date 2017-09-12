@@ -34,19 +34,6 @@ namespace JDPack
             p.Y = (int)(System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Height - s.Height);
             return p;
         }
-
-
+        
     }// End class FormPack
-
-
-    public static class FormPack2
-    {
-        public static void Bind(System.Windows.Forms.Control bindingTarget, string propertyName, object dataSource, string dataMember)
-        {
-            bindingTarget.DataBindings.Add(propertyName, dataSource, dataMember, true, System.Windows.Forms.DataSourceUpdateMode.OnValidation);
-        }
-    }
-
-
-
-}// End namespace JLdebPack
+}// End namespace JDPack

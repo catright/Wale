@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 using Vannatech.CoreAudio.Interfaces;
 using Vannatech.CoreAudio.Enumerations;
 
-namespace Wale.Subclasses
+namespace Wale.CoreAudio
 {
     public class Session : IDisposable
     {
@@ -715,5 +715,5 @@ namespace Wale.Subclasses
             AveragePeak = Peaks.Average();
             //Console.WriteLine($"Av={AveragePeak}, PC={Peaks.Count}, AvT={AvTime}");
         }
-    }
-}
+    }//End class Session
+}//End namespace Wale.Subclasses

@@ -43,15 +43,15 @@
             this.tbVolume = new System.Windows.Forms.TextBox();
             this.lVolume = new System.Windows.Forms.Label();
             this.bVolumeSet = new System.Windows.Forms.Button();
-            this.pbBaseLevel = new Wale.WinForm.NewProgressBar();
+            this.pbBaseLevel = new JDPack.ProgressBarColored();
             this.label2 = new System.Windows.Forms.Label();
             this.lBaseVolume = new System.Windows.Forms.Label();
-            this.pbMasterVolume = new Wale.WinForm.NewProgressBar();
+            this.pbMasterVolume = new JDPack.ProgressBarColored();
             this.tbInterval = new System.Windows.Forms.TextBox();
             this.titlePanel = new System.Windows.Forms.Panel();
             this.label3 = new System.Windows.Forms.Label();
-            this.pbMasterPeak = new Wale.WinForm.NewProgressBar();
-            this.tabControl1 = new Wale.WinForm.CustomTabControl();
+            this.pbMasterPeak = new JDPack.ProgressBarColored();
+            this.tabControl1 = new JDPack.TabControlRepaired();
             this.tabMain = new System.Windows.Forms.TabPage();
             this.cbAlwaysTop = new System.Windows.Forms.CheckBox();
             this.cbStayOn = new System.Windows.Forms.CheckBox();
@@ -84,7 +84,7 @@
             this.licensesToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.NICMstrip.Name = "NICMstrip";
-            this.NICMstrip.Size = new System.Drawing.Size(240, 250);
+            this.NICMstrip.Size = new System.Drawing.Size(240, 214);
             // 
             // cmsAutoControl
             // 
@@ -108,6 +108,7 @@
             this.deviceMapToolStripMenuItem.Name = "deviceMapToolStripMenuItem";
             this.deviceMapToolStripMenuItem.Size = new System.Drawing.Size(239, 34);
             this.deviceMapToolStripMenuItem.Text = "DeviceMap";
+            this.deviceMapToolStripMenuItem.Visible = false;
             this.deviceMapToolStripMenuItem.Click += new System.EventHandler(this.deviceMapToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
@@ -316,9 +317,9 @@
             // cbAlwaysTop
             // 
             this.cbAlwaysTop.AutoSize = true;
-            this.cbAlwaysTop.Checked = global::Wale.Properties.Settings.Default.AlwaysTop;
+            this.cbAlwaysTop.Checked = global::Wale.WinForm.Properties.Settings.Default.AlwaysTop;
             this.cbAlwaysTop.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.cbAlwaysTop.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Wale.Properties.Settings.Default, "AlwaysTop", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.cbAlwaysTop.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Wale.WinForm.Properties.Settings.Default, "AlwaysTop", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.cbAlwaysTop.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.cbAlwaysTop.ForeColor = System.Drawing.Color.LightGray;
             this.cbAlwaysTop.Location = new System.Drawing.Point(8, 77);
@@ -331,8 +332,8 @@
             // cbStayOn
             // 
             this.cbStayOn.AutoSize = true;
-            this.cbStayOn.Checked = global::Wale.Properties.Settings.Default.StayOn;
-            this.cbStayOn.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Wale.Properties.Settings.Default, "StayOn", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.cbStayOn.Checked = global::Wale.WinForm.Properties.Settings.Default.StayOn;
+            this.cbStayOn.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Wale.WinForm.Properties.Settings.Default, "StayOn", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.cbStayOn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.cbStayOn.ForeColor = System.Drawing.Color.LightGray;
             this.cbStayOn.Location = new System.Drawing.Point(8, 99);
@@ -386,7 +387,7 @@
             this.ControlBox = false;
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.titlePanel);
-            this.DataBindings.Add(new System.Windows.Forms.Binding("TopMost", global::Wale.Properties.Settings.Default, "AlwaysTop", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.DataBindings.Add(new System.Windows.Forms.Binding("TopMost", global::Wale.WinForm.Properties.Settings.Default, "AlwaysTop", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.MaximizeBox = false;
@@ -396,7 +397,7 @@
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
-            this.TopMost = global::Wale.Properties.Settings.Default.AlwaysTop;
+            this.TopMost = global::Wale.WinForm.Properties.Settings.Default.AlwaysTop;
             this.Deactivate += new System.EventHandler(this.MainWindow_MouseLeave);
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainWindow_FormClosing);
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainWindow_FormClosed);
@@ -427,18 +428,18 @@
         private System.Windows.Forms.TextBox tbVolume;
         private System.Windows.Forms.Label lVolume;
         private System.Windows.Forms.Button bVolumeSet;
-        private Wale.WinForm.NewProgressBar pbBaseLevel;
+        private JDPack.ProgressBarColored pbBaseLevel;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label lBaseVolume;
         private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
-        private Wale.WinForm.NewProgressBar pbMasterVolume;
+        private JDPack.ProgressBarColored pbMasterVolume;
         private System.Windows.Forms.TextBox tbInterval;
         private System.Windows.Forms.CheckBox cbStayOn;
         private System.Windows.Forms.Panel titlePanel;
         private System.Windows.Forms.Label label3;
-        private Wale.WinForm.NewProgressBar pbMasterPeak;
+        private JDPack.ProgressBarColored pbMasterPeak;
         private System.Windows.Forms.CheckBox cbAlwaysTop;
-        private Wale.WinForm.CustomTabControl tabControl1;
+        private JDPack.TabControlRepaired tabControl1;
         private System.Windows.Forms.TabPage tabMain;
         private System.Windows.Forms.TabPage tabSession;
         private System.Windows.Forms.TabPage tabLog;

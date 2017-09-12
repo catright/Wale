@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 using Vannatech.CoreAudio.Interfaces;
 using Vannatech.CoreAudio.Enumerations;
 
-namespace Wale.Subclasses
+namespace Wale.CoreAudio
 {
     public class Sessions : List<Session>
     {

@@ -5,18 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Wale
-{
-    public static class Version
-    {
-        static System.Version versionObject = typeof(Wale.WinForm.Program).Assembly.GetName().Version;
-        public static int Major = versionObject.Major;
-        public static int Minor = versionObject.Minor;
-        public static int Build = versionObject.Build;
-        public static string LongVersion = $"{Major}.{Minor}.{Build}";
-        public static string Option = "beta";
-    }
-}
 namespace Wale.WinForm
 {
     static class Program
@@ -34,9 +22,9 @@ namespace Wale.WinForm
                 return;
             }
 
-            JDPack.Debug.SetWorkDirectory(System.IO.Path.Combine(System.IO.Path.Combine(Environment.ExpandEnvironmentVariables("%userprofile%"), "Documents"), "WaleAudioControl"));
-            JDPack.Debug.Open("WaleLog");
-            JDPack.Debug.Erase(3);
+            JDPack.FileLog.SetWorkDirectory(System.IO.Path.Combine(System.IO.Path.Combine(Environment.ExpandEnvironmentVariables("%userprofile%"), "Documents"), "WaleAudioControl"));
+            JDPack.FileLog.Open("WaleLog");
+            JDPack.FileLog.Erase(3);
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
@@ -45,7 +33,7 @@ namespace Wale.WinForm
                 Application.Run(new Wale.WinForm.MainWindow());
                 GC.KeepAlive(mutex);
             }
-            catch (Exception e) { JDPack.Debug.Log(e.ToString()); MessageBox.Show(e.ToString()); }
+            catch (Exception e) { JDPack.FileLog.Log(e.ToString()); MessageBox.Show(e.ToString()); }
         }
 
     }

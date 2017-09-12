@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{F8E000BB-D867-4FB1-B8A8-2D52347ED60D}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>Wale</RootNamespace>
-    <AssemblyName>Wale</AssemblyName>
+    <RootNamespace>Wale.WinForm</RootNamespace>
+    <AssemblyName>Wale.WinForm</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -81,35 +81,33 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
-    <Reference Include="Vannatech.CoreAudio">
-      <HintPath>..\..\..\..\GenericSWs(Priv.)\WindowAudioLoudnessEqualizer\WindowAudioLoudnessEqualizer\Libs\Vannatech.CoreAudio.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Config.cs">
+    <Compile Include="AppVersion.cs" />
+    <Compile Include="Forms\Config.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Config.Designer.cs">
+    <Compile Include="Forms\Config.Designer.cs">
       <DependentUpon>Config.cs</DependentUpon>
     </Compile>
-    <Compile Include="DeviceMap.cs">
+    <Compile Include="Forms\DeviceMap.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="DeviceMap.Designer.cs">
+    <Compile Include="Forms\DeviceMap.Designer.cs">
       <DependentUpon>DeviceMap.cs</DependentUpon>
     </Compile>
-    <Compile Include="Help.cs">
+    <Compile Include="Forms\Help.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Help.Designer.cs">
+    <Compile Include="Forms\Help.Designer.cs">
       <DependentUpon>Help.cs</DependentUpon>
     </Compile>
-    <Compile Include="Libs\AudioControl.cs" />
-    <Compile Include="Libs\ColorSet.cs" />
-    <Compile Include="Licenses.cs">
+    <Compile Include="AudioControl.cs" />
+    <Compile Include="ColorSet.cs" />
+    <Compile Include="Forms\Licenses.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Licenses.Designer.cs">
+    <Compile Include="Forms\Licenses.Designer.cs">
       <DependentUpon>Licenses.cs</DependentUpon>
     </Compile>
     <Compile Include="MainWindow.cs">
@@ -118,18 +116,24 @@
     <Compile Include="MainWindow.Designer.cs">
       <DependentUpon>MainWindow.cs</DependentUpon>
     </Compile>
+    <Compile Include="MeterSet.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="MeterSet.Designer.cs">
+      <DependentUpon>MeterSet.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="Config.resx">
+    <EmbeddedResource Include="Forms\Config.resx">
       <DependentUpon>Config.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="DeviceMap.resx">
+    <EmbeddedResource Include="Forms\DeviceMap.resx">
       <DependentUpon>DeviceMap.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Help.resx">
+    <EmbeddedResource Include="Forms\Help.resx">
       <DependentUpon>Help.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Licenses.resx">
+    <EmbeddedResource Include="Forms\Licenses.resx">
       <DependentUpon>Licenses.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainWindow.resx">
@@ -186,9 +190,13 @@
       <Project>{8d37648e-0b49-41cc-886a-5b373a7b3a58}</Project>
       <Name>JDPack</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Wale.Subclasses\Wale.Subclasses.csproj">
+    <ProjectReference Include="..\Wale.Subclasses\Wale.CoreAudio.csproj">
       <Project>{fc52a648-3e05-47fd-8d6d-5c1222ff62b4}</Project>
-      <Name>Wale.Subclasses</Name>
+      <Name>Wale.CoreAudio</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Wale\Wale.csproj">
+      <Project>{88d9419d-58b9-4b5c-be56-9762bae0c670}</Project>
+      <Name>Wale</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

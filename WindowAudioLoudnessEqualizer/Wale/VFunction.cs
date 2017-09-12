@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Wale.Subclasses
+namespace Wale
 {
     public static class VFunction
     {

@@ -4,17 +4,14 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{8D37648E-0B49-41CC-886A-5B373A7B3A58}</ProjectGuid>
+    <ProjectGuid>{88D9419D-58B9-4B5C-BE56-9762BAE0C670}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>JDPack</RootNamespace>
-    <AssemblyName>JDPack</AssemblyName>
+    <RootNamespace>Wale</RootNamespace>
+    <AssemblyName>Wale</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <SccProjectName>SAK</SccProjectName>
-    <SccLocalPath>SAK</SccLocalPath>
-    <SccAuxPath>SAK</SccAuxPath>
-    <SccProvider>SAK</SccProvider>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -36,8 +33,6 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -46,33 +41,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Debug.cs" />
-    <Compile Include="DebugPack.cs" />
-    <Compile Include="FlatForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="FormPack.cs" />
-    <Compile Include="FormPack2.cs" />
-    <Compile Include="FileLog.cs" />
-    <Compile Include="NotifyPropertyChanged.cs" />
-    <Compile Include="ProgressBarColored.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="ProgressBarColored.Designer.cs">
-      <DependentUpon>ProgressBarColored.cs</DependentUpon>
-    </Compile>
+    <Compile Include="AppVersion.cs" />
+    <Compile Include="Lockers.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TabControlRepaired.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="TabControlRepaired.Designer.cs">
-      <DependentUpon>TabControlRepaired.cs</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="FlatForm.resx">
-      <DependentUpon>FlatForm.cs</DependentUpon>
-    </EmbeddedResource>
+    <Compile Include="Transformation.cs" />
+    <Compile Include="VFunction.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

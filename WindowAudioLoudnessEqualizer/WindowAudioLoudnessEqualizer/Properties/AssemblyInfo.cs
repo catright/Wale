@@ -32,5 +32,7 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: System.Reflection.AssemblyVersion("0.1.4.0")]
-[assembly: System.Reflection.AssemblyFileVersion("0.1.4.0")]
+//
+// Using Revision to pre-release option, 0=release, 1=beta, 2=alpha, >2=pre-alpha
+[assembly: System.Reflection.AssemblyVersion("0.1.4.1")]
+[assembly: System.Reflection.AssemblyFileVersion("0.1.4.1")]

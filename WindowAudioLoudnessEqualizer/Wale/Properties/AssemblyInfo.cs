@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Wale.CoreAudio")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Wale")]
+[assembly: AssemblyDescription("WaleBase")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Wale.CoreAudio")]
+[assembly: AssemblyProduct("WaleBase")]
 [assembly: AssemblyCopyright("Copyright © Jongtae Park 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("fc52a648-3e05-47fd-8d6d-5c1222ff62b4")]
+[assembly: Guid("88d9419d-58b9-4b5c-be56-9762bae0c670")]
 
 // Version information for an assembly consists of the following four values:
 //
