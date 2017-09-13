@@ -1,0 +1,2906 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Vannatech.CoreAudio</name>
+    </assembly>
+    <members>
+        <member name="T:Vannatech.CoreAudio.Constants.AUDCLNT_STREAMFLAGS_XXX">
+            <summary>
+            Indicate special characteristics that a client can assign to an audio stream during the initialization of the stream.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd370791.aspx
+            </remarks>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Constants.AUDCLNT_STREAMFLAGS_XXX.AUDCLNT_STREAMFLAGS_CROSSPROCESS">
+            <summary>
+            The audio stream will be a member of a cross-process audio session.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Constants.AUDCLNT_STREAMFLAGS_XXX.AUDCLNT_STREAMFLAGS_LOOPBACK">
+            <summary>
+            The audio stream will operate in loopback mode.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Constants.AUDCLNT_STREAMFLAGS_XXX.AUDCLNT_STREAMFLAGS_EVENTCALLBACK">
+            <summary>
+            Processing of the audio buffer by the client will be event driven.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Constants.AUDCLNT_STREAMFLAGS_XXX.AUDCLNT_STREAMFLAGS_NOPERSIST">
+            <summary>
+            The volume and mute settings for an audio session will not persist across system restarts.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Constants.AUDCLNT_STREAMFLAGS_XXX.AUDCLNT_STREAMFLAGS_RATEADJUST">
+            <summary>
+            The sample rate of the stream is adjusted to a rate specified by an application.
+            </summary>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IAudioMeterInformation">
+            <summary>
+            Represents a peak meter on the audio stream to or from an audio endpoint device.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd368227.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioMeterInformation.GetPeakValue(System.Single@)">
+            <summary>
+            Gets the peak sample value for the channels in the audio stream.
+            </summary>
+            <param name="peak">The peak sample value for the audio stream.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioMeterInformation.GetMeteringChannelCount(System.UInt32@)">
+            <summary>
+            Gets the number of channels in the audio stream that are monitored by peak meters.
+            </summary>
+            <param name="channelCount">The channel count.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioMeterInformation.GetChannelsPeakValues(System.UInt32,System.Single[])">
+            <summary>
+            Gets the peak sample values for all the channels in the audio stream.
+            </summary>
+            <param name="channelCount">The channel count.</param>
+            <param name="peakValues">An array of peak sample values.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioMeterInformation.QueryHardwareSupport(System.UInt32@)">
+            <summary>
+            Queries the audio endpoint device for its hardware-supported functions.
+            </summary>
+            <param name="hardwareSupportMask">A hardware support mask that indicates the capabilities of the endpoint.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IAudioClockAdjustment">
+            <summary>
+            Used to adjust the sample rate of a stream.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd370884.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioClockAdjustment.SetSampleRate(System.Single)">
+            <summary>
+            Sets the sample rate of a stream.
+            </summary>
+            <param name="sampleRate">The new sample rate in frames per second.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IAudioLoudness">
+            <summary>
+            Provides access to a loudness compensation control.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd368224.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioLoudness.GetEnabled(System.Boolean@)">
+            <summary>
+            Gets the current state (enabled or disabled) of the loudness control.
+            </summary>
+            <param name="isEnabled">Receives the current loudness state.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioLoudness.SetEnabled(System.Boolean,System.Guid)">
+            <summary>
+            Enables or disables the loudness control.
+            </summary>
+            <param name="isEnabled">Sets the new loudness state.</param>
+            <param name="eventContext">A user context value that is passed to the notification callback.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IDeviceSpecificProperty">
+            <summary>
+            Provides access to the control value of a device-specific hardware control.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd371121.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IDeviceSpecificProperty.GetType(System.IntPtr@)">
+            <summary>
+            Gets the data type of the device-specific property.
+            </summary>
+            <param name="dataType">Receives the data type of the device-specific property value.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IDeviceSpecificProperty.GetValue(System.IntPtr@,System.UInt32@)">
+            <summary>
+            Gets the value of the device-specific property.
+            </summary>
+            <param name="propertyValue">Receives the property value.</param>
+            <param name="propertySize">Sends the size in bytes of the property value, then receives the actual size of the property value written to the buffer.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IDeviceSpecificProperty.SetValue(System.IntPtr,System.UInt32,System.Guid)">
+            <summary>
+            Sets the value of the device-specific property.
+            </summary>
+            <param name="propertyValue">The property value.</param>
+            <param name="propertySize">The property value size.</param>
+            <param name="eventContext">A user context value that is passed to the notification callback.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IDeviceSpecificProperty.Get4BRange(System.Int32@,System.Int32@,System.Int32@)">
+            <summary>
+            Gets the 4-byte range of the device-specific property.
+            </summary>
+            <param name="propertyMin">Receives the minimum property value.</param>
+            <param name="propertyMax">Receives the maximum property value.</param>
+            <param name="propertyInc">Receives the stepping value between consecutive property values in the range.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IKsJackDescription2">
+            <summary>
+            Provides information about the jacks or internal connectors that provide a physical connection between a device and an endpoint.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd371388.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IKsJackDescription2.GetJackCount(System.UInt32@)">
+            <summary>
+            Gets the number of jacks on the connector, which are required to connect to an endpoint device.
+            </summary>
+            <param name="count">Receives the number of audio jacks associated with the connector.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IKsJackDescription2.GetJackDescription(System.UInt32,Vannatech.CoreAudio.Structures.KSJACK_DESCRIPTION2@)">
+            <summary>
+            Gets the description of a specified audio jack.
+            </summary>
+            <param name="index">The zero-based index of the jack.</param>
+            <param name="descriptor">Receives a structure of type <see cref="T:Vannatech.CoreAudio.Structures.KSJACK_DESCRIPTION2"/> that contains information about the jack.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Structures.AUDIO_VOLUME_NOTIFICATION_DATA">
+            <summary>
+            Describes a change in the volume level or muting state of an audio endpoint device.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd370799.aspx
+            </remarks>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Structures.AUDIO_VOLUME_NOTIFICATION_DATA.EventContext">
+            <summary>
+            The user event context supplied during the change request.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Structures.AUDIO_VOLUME_NOTIFICATION_DATA.IsMuted">
+            <summary>
+            Specifies whether the audio stream is currently muted.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Structures.AUDIO_VOLUME_NOTIFICATION_DATA.MasterVolume">
+            <summary>
+            The current master volume level of the audio stream.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Structures.AUDIO_VOLUME_NOTIFICATION_DATA.ChannelCount">
+            <summary>
+            Specifies the number of channels in the audio stream.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Structures.AUDIO_VOLUME_NOTIFICATION_DATA.ChannelVolumes">
+            <summary>
+            The volume level of each channel in the stream.
+            </summary>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Enumerations.EndpointFormFactor">
+            <summary>
+            Defines constants that indicate the general physical attributes of an audio endpoint device.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd370830.aspx
+            </remarks>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.EndpointFormFactor.RemoteNetworkDevice">
+            <summary>
+            An audio endpoint device that the user accesses remotely through a network.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.EndpointFormFactor.Speakers">
+            <summary>
+            A set of speakers.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.EndpointFormFactor.LineLevel">
+            <summary>
+            An audio endpoint device that sends or receives a line-level a line-level analog signal.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.EndpointFormFactor.Headphones">
+            <summary>
+            A set of headphones.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.EndpointFormFactor.Microphone">
+            <summary>
+            A microphone.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.EndpointFormFactor.Headset">
+            <summary>
+            An earphone or a pair of earphones with an attached mouthpiece for two-way communication.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.EndpointFormFactor.Handset">
+            <summary>
+            The part of a telephone that is held in the hand and that contains a speaker and a microphone for two-way communication.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.EndpointFormFactor.UnknownDigitalPassthrough">
+            <summary>
+            An audio endpoint device that connects to an audio adapter through a connector for a digital interface of unknown type.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.EndpointFormFactor.SPDIF">
+            <summary>
+            An audio endpoint device that connects to an audio adapter through a Sony/Philips Digital Interface (S/PDIF) connector.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.EndpointFormFactor.DigitalAudioDisplayDevice">
+            <summary>
+            An audio endpoint device that connects to an audio adapter through a High-Definition Multimedia Interface (HDMI) connector.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.EndpointFormFactor.UnknownFormFactor">
+            <summary>
+            An audio endpoint device with unknown physical attributes.
+            </summary>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Constants.AUDCLNT_SESSIONFLAGS_XXX">
+            <summary>
+            Indicate characteristics of an audio session associated with the stream.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd370789.aspx
+            </remarks>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Constants.AUDCLNT_SESSIONFLAGS_XXX.AUDCLNT_SESSIONFLAGS_EXPIREWHENUNOWNED">
+            <summary>
+            The session expires when there are no associated streams and owning session control objects holding references.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Constants.AUDCLNT_SESSIONFLAGS_XXX.AUDCLNT_SESSIONFLAGS_DISPLAY_HIDE">
+            <summary>
+            The volume control is hidden in the volume mixer user interface when the audio session is created.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Constants.AUDCLNT_SESSIONFLAGS_XXX.AUDCLNT_SESSIONFLAGS_DISPLAY_HIDEWHENEXPIRED">
+            <summary>
+            The volume control is hidden in the volume mixer user interface after the session expires.
+            </summary>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IMMDevice">
+            <summary>
+            Represents an audio device.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd371395.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IMMDevice.Activate(System.Guid,System.UInt32,System.IntPtr,System.Object@)">
+            <summary>
+            Creates a COM object with the specified interface.
+            </summary>
+            <param name="interfaceId">The interface identifier.</param>
+            <param name="classContext">The execution context, defined by the COM CLSCTX enumeration.</param>
+            <param name="activationParams">Set to NULL to activate Core Audio APIs.</param>
+            <param name="instancePtr">The address of the interface instance specified by parameter IID.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IMMDevice.OpenPropertyStore(System.UInt32,Vannatech.CoreAudio.Externals.IPropertyStore@)">
+            <summary>
+            Gets an interface to the device's property store.
+            </summary>
+            <param name="accessMode">The <see cref="T:Vannatech.CoreAudio.Externals.STGM"/> constant that indicates the storage mode.</param>
+            <param name="properties">The device's property store.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+            <remarks>
+            Note that a client which is not running as administrator is restricted to read-only access.
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IMMDevice.GetId(System.String@)">
+            <summary>
+            Retrieves an endpoint ID string that identifies the audio endpoint device.
+            </summary>
+            <param name="strId">The endpoint device ID.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IMMDevice.GetState(System.UInt32@)">
+            <summary>
+            Gets the current state of the device.
+            </summary>
+            <param name="deviceState">The <see cref="T:Vannatech.CoreAudio.Constants.DEVICE_STATE_XXX"/> constant that indicates the current state.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IMMDeviceEnumerator">
+            <summary>
+            Provides methods for enumerating audio devices.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd371399.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IMMDeviceEnumerator.EnumAudioEndpoints(Vannatech.CoreAudio.Enumerations.EDataFlow,System.UInt32,Vannatech.CoreAudio.Interfaces.IMMDeviceCollection@)">
+            <summary>
+            Generates a collection of audio endpoint devices that meet the specified criteria.
+            </summary>
+            <param name="dataFlow">The <see cref="T:Vannatech.CoreAudio.Enumerations.EDataFlow"/> direction for the endpoint devices in the collection.</param>
+            <param name="stateMask">One or more <see cref="T:Vannatech.CoreAudio.Constants.DEVICE_STATE_XXX"/> constants that indicate the state of the endpoints in the collection.</param>
+            <param name="devices">The <see cref="T:Vannatech.CoreAudio.Interfaces.IMMDeviceCollection"/> interface of the device-collection object.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IMMDeviceEnumerator.GetDefaultAudioEndpoint(Vannatech.CoreAudio.Enumerations.EDataFlow,Vannatech.CoreAudio.Enumerations.ERole,Vannatech.CoreAudio.Interfaces.IMMDevice@)">
+            <summary>
+            Retrieves the default audio endpoint for the specified data-flow direction and role.
+            </summary>
+            <param name="dataFlow">The <see cref="T:Vannatech.CoreAudio.Enumerations.EDataFlow"/> direction for the endpoint device.</param>
+            <param name="role">The <see cref="T:Vannatech.CoreAudio.Enumerations.ERole"/> of the endpoint device.</param>
+            <param name="device">The <see cref="T:Vannatech.CoreAudio.Interfaces.IMMDevice"/> interface of the default audio endpoint device.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IMMDeviceEnumerator.GetDevice(System.String,Vannatech.CoreAudio.Interfaces.IMMDevice@)">
+            <summary>
+            Retrieves an endpoint device that is specified by an endpoint device-identification string.
+            </summary>
+            <param name="endpointId">The endpoint ID.</param>
+            <param name="device">The <see cref="T:Vannatech.CoreAudio.Interfaces.IMMDevice"/> interface for the specified device.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IMMDeviceEnumerator.RegisterEndpointNotificationCallback(Vannatech.CoreAudio.Interfaces.IMMNotificationClient)">
+            <summary>
+            Registers a client's notification callback interface.
+            </summary>
+            <param name="client">The <see cref="T:Vannatech.CoreAudio.Interfaces.IMMNotificationClient"/> interface that the client is registering for notification callbacks.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IMMDeviceEnumerator.UnregisterEndpointNotificationCallback(Vannatech.CoreAudio.Interfaces.IMMNotificationClient)">
+            <summary>
+            Deletes the registration of a notification interface that the client registered in a previous call
+            to the <see cref="M:Vannatech.CoreAudio.Interfaces.IMMDeviceEnumerator.RegisterEndpointNotificationCallback(Vannatech.CoreAudio.Interfaces.IMMNotificationClient)"/> method.
+            </summary>
+            <param name="client">A <see cref="T:Vannatech.CoreAudio.Interfaces.IMMNotificationClient"/> interface that was previously registered for notification callbacks.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Externals.IPropertyStore">
+            <summary>
+            Exposes methods for enumerating, getting, and setting property values.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/bb761474.aspx
+            Note: This item is external to CoreAudio API, and is defined in the Windows Property System API.
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Externals.IPropertyStore.GetCount(System.UInt32@)">
+            <summary>
+            Gets the number of properties attached to the file.
+            </summary>
+            <param name="propertyCount">Receives the property count.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Externals.IPropertyStore.GetAt(System.UInt32,Vannatech.CoreAudio.Externals.PROPERTYKEY@)">
+            <summary>
+            Gets a property key from an item's array of properties.
+            </summary>
+            <param name="propertyIndex">The index of the property key in the array of <see cref="T:Vannatech.CoreAudio.Externals.PROPERTYKEY"/> structures.</param>
+            <param name="propertyKey">The unique identifier for a property.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Externals.IPropertyStore.GetValue(Vannatech.CoreAudio.Externals.PROPERTYKEY@,Vannatech.CoreAudio.Externals.PROPVARIANT@)">
+            <summary>
+            Gets data for a specific property.
+            </summary>
+            <param name="propertyKey">A <see cref="T:Vannatech.CoreAudio.Externals.PROPERTYKEY"/> structure containing a unique identifier for the property in question.</param>
+            <param name="value">Receives a <see cref="T:Vannatech.CoreAudio.Externals.PROPVARIANT"/> structure that contains the property data.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Externals.IPropertyStore.SetValue(Vannatech.CoreAudio.Externals.PROPERTYKEY@,Vannatech.CoreAudio.Externals.PROPVARIANT@)">
+            <summary>
+            Sets a new property value, or replaces or removes an existing value.
+            </summary>
+            <param name="propertyKey">A <see cref="T:Vannatech.CoreAudio.Externals.PROPERTYKEY"/> structure containing a unique identifier for the property in question.</param>
+            <param name="value">A <see cref="T:Vannatech.CoreAudio.Externals.PROPVARIANT"/> structure that contains the new property data.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Externals.IPropertyStore.Commit">
+            <summary>
+            Saves a property change.
+            </summary>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IAudioAutoGainControl">
+            <summary>
+            Provides access to a hardware automatic gain control (AGC).
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd370853.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioAutoGainControl.GetEnabled(System.Boolean@)">
+            <summary>
+            Gets the current state (enabled or disabled) of the AGC.
+            </summary>
+            <param name="isEnabled">Receives the current AGC state.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioAutoGainControl.SetEnabled(System.Boolean,System.Guid)">
+            <summary>
+            Enables or disables the AGC.
+            </summary>
+            <param name="isEnabled">The new AGC state.</param>
+            <param name="eventContext">A user context value that is passed to the notification callback.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IAudioClient">
+            <summary>
+            Enables a client to create and initialize an audio stream between an audio application and the
+            audio engine (for a shared-mode stream) or the hardware buffer (for an exclusive-mode stream).
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd370865.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioClient.Initialize(Vannatech.CoreAudio.Enumerations.AUDCLNT_SHAREMODE,System.UInt32,System.UInt64,System.UInt64,System.IntPtr,System.Guid)">
+            <summary>
+            Initializes the audio stream.
+            </summary>
+            <param name="shareMode">The sharing mode for the connection.</param>
+            <param name="streamFlags">One or more <see cref="T:Vannatech.CoreAudio.Constants.AUDCLNT_STREAMFLAGS_XXX"/> flags to control creation of the stream.</param>
+            <param name="bufferDuration">The buffer capacity as a time value.</param>
+            <param name="devicePeriod">
+            In exclusive mode, this parameter specifies the requested scheduling period for successive
+            buffer accesses by the audio endpoint device. In shared mode, it should always be set to zero.
+            </param>
+            <param name="format">The format descriptor.</param>
+            <param name="audioSessionId">The ID of the audio session.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioClient.GetBufferSize(System.UInt32@)">
+            <summary>
+            Retrieves the size (maximum capacity) of the audio buffer associated with the endpoint.
+            </summary>
+            <param name="size">Receives the number of audio frames that the buffer can hold.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioClient.GetStreamLatency(System.UInt64@)">
+            <summary>
+            Retrieves the maximum latency for the current stream and can be called any time after the stream has been initialized.
+            </summary>
+            <param name="latency">Receives a time value representing the latency.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioClient.GetCurrentPadding(System.UInt32@)">
+            <summary>
+            Retrieves the number of frames of padding in the endpoint buffer.
+            </summary>
+            <param name="frameCount">Receives the number of audio frames of padding in the buffer.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioClient.IsFormatSupported(Vannatech.CoreAudio.Enumerations.AUDCLNT_SHAREMODE,System.IntPtr,System.IntPtr@)">
+            <summary>
+            Indicates whether the audio endpoint device supports a particular stream format.
+            </summary>
+            <param name="shareMode">The sharing mode for the stream format.</param>
+            <param name="format">The specified stream format.</param>
+            <param name="closestMatch">The supported format that is closest to the format specified in the format parameter.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioClient.GetMixFormat(System.IntPtr@)">
+            <summary>
+            Retrieves the stream format that the audio engine uses for its internal processing of shared-mode streams.
+            </summary>
+            <param name="format">Receives the address of the mix format.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioClient.GetDevicePeriod(System.UInt64@,System.UInt64@)">
+            <summary>
+            Retrieves the length of the periodic interval separating successive processing passes by the audio engine on the data in the endpoint buffer.
+            </summary>
+            <param name="processInterval">Receives a time value specifying the default interval between processing passes by the audio engine.</param>
+            <param name="minimumInterval">Receives a time value specifying the minimum interval between processing passes by the audio endpoint device.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioClient.Start">
+            <summary>
+            Starts the audio stream.
+            </summary>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioClient.Stop">
+            <summary>
+            Stops the audio stream.
+            </summary>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioClient.Reset">
+            <summary>
+            Resets the audio stream.
+            </summary>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioClient.SetEventHandle(System.IntPtr)">
+            <summary>
+            Sets the event handle that the audio engine will signal each time a buffer becomes ready to be processed by the client.
+            </summary>
+            <param name="handle">The event handle.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioClient.GetService(System.Guid,System.Object@)">
+            <summary>
+            Accesses additional services from the audio client object.
+            </summary>
+            <param name="interfaceId">The interface ID for the requested service.</param>
+            <param name="instancePtr">Receives the address of an instance of the requested interface.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IAudioOutputSelector">
+            <summary>
+            Provides access to a hardware demultiplexer control (output selector).
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd368236.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioOutputSelector.GetSelection(System.UInt32@)">
+            <summary>
+            Gets the local ID of the part that is connected to the selector output that is currently selected.
+            </summary>
+            <param name="partId">Receives the local ID of the part that has a direct link to the currently selected output.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioOutputSelector.SetSelection(System.UInt32,System.Guid)">
+            <summary>
+            Selects one of the outputs of the output selector.
+            </summary>
+            <param name="partId">The ID of the new selector output.</param>
+            <param name="eventContext">A user context value that is passed to the notification callback.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IAudioSessionControl">
+            <summary>
+            Enables a client to configure the control parameters for an audio session and to monitor events in the session.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd368246.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionControl.GetState(Vannatech.CoreAudio.Enumerations.AudioSessionState@)">
+            <summary>
+            Retrieves the current state of the audio session.
+            </summary>
+            <param name="state">Receives the current session state.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionControl.GetDisplayName(System.String@)">
+            <summary>
+            Retrieves the display name for the audio session.
+            </summary>
+            <param name="displayName">Receives a string that contains the display name.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionControl.SetDisplayName(System.String,System.Guid)">
+            <summary>
+            Assigns a display name to the current audio session.
+            </summary>
+            <param name="displayName">A string that contains the new display name for the session.</param>
+            <param name="eventContext">A user context value that is passed to the notification callback.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionControl.GetIconPath(System.String@)">
+            <summary>
+            Retrieves the path for the display icon for the audio session.
+            </summary>
+            <param name="iconPath">Receives a string that specifies the fully qualified path of the file that contains the icon.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionControl.SetIconPath(System.String,System.Guid)">
+            <summary>
+            Assigns a display icon to the current session.
+            </summary>
+            <param name="iconPath">A string that specifies the fully qualified path of the file that contains the new icon.</param>
+            <param name="eventContext">A user context value that is passed to the notification callback.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionControl.GetGroupingParam(System.Guid@)">
+            <summary>
+            Retrieves the grouping parameter of the audio session.
+            </summary>
+            <param name="groupingId">Receives the grouping parameter ID.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionControl.SetGroupingParam(System.Guid,System.Guid)">
+            <summary>
+            Assigns a session to a grouping of sessions.
+            </summary>
+            <param name="groupingId">The new grouping parameter ID.</param>
+            <param name="eventContext">A user context value that is passed to the notification callback.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionControl.RegisterAudioSessionNotification(Vannatech.CoreAudio.Interfaces.IAudioSessionEvents)">
+            <summary>
+            Registers the client to receive notifications of session events, including changes in the session state.
+            </summary>
+            <param name="client">A client-implemented <see cref="T:Vannatech.CoreAudio.Interfaces.IAudioSessionEvents"/> interface.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionControl.UnregisterAudioSessionNotification(Vannatech.CoreAudio.Interfaces.IAudioSessionEvents)">
+            <summary>
+            Deletes a previous registration by the client to receive notifications.
+            </summary>
+            <param name="client">A client-implemented <see cref="T:Vannatech.CoreAudio.Interfaces.IAudioSessionEvents"/> interface.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IAudioSessionEvents">
+            <summary>
+            Provides notifications of session-related events such as changes in the volume level, display name, and session state.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd368289.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionEvents.OnDisplayNameChanged(System.String,System.Guid@)">
+            <summary>
+            Notifies the client that the display name for the session has changed.
+            </summary>
+            <param name="displayName">The new display name for the session.</param>
+            <param name="eventContext">A user context value that is passed to the notification callback.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionEvents.OnIconPathChanged(System.String,System.Guid@)">
+            <summary>
+            Notifies the client that the display icon for the session has changed.
+            </summary>
+            <param name="iconPath">The path for the new display icon for the session.</param>
+            <param name="eventContext">A user context value that is passed to the notification callback.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionEvents.OnSimpleVolumeChanged(System.Single,System.Boolean,System.Guid@)">
+            <summary>
+            Notifies the client that the volume level or muting state of the session has changed.
+            </summary>
+            <param name="volume">The new volume level for the audio session.</param>
+            <param name="isMuted">The new muting state.</param>
+            <param name="eventContext">A user context value that is passed to the notification callback.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionEvents.OnChannelVolumeChanged(System.UInt32,System.IntPtr,System.UInt32,System.Guid@)">
+            <summary>
+            Notifies the client that the volume level of an audio channel in the session submix has changed.
+            </summary>
+            <param name="channelCount">The channel count.</param>
+            <param name="newVolumes">An array of volumnes cooresponding with each channel index.</param>
+            <param name="channelIndex">The number of the channel whose volume level changed.</param>
+            <param name="eventContext">A user context value that is passed to the notification callback.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionEvents.OnGroupingParamChanged(System.Guid@,System.Guid@)">
+            <summary>
+            Notifies the client that the grouping parameter for the session has changed.
+            </summary>
+            <param name="groupingId">The new grouping parameter for the session.</param>
+            <param name="eventContext">A user context value that is passed to the notification callback.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionEvents.OnStateChanged(Vannatech.CoreAudio.Enumerations.AudioSessionState)">
+            <summary>
+            Notifies the client that the stream-activity state of the session has changed.
+            </summary>
+            <param name="state">The new session state.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionEvents.OnSessionDisconnected(Vannatech.CoreAudio.Enumerations.AudioSessionDisconnectReason)">
+            <summary>
+            Notifies the client that the session has been disconnected.
+            </summary>
+            <param name="disconnectReason">The reason that the audio session was disconnected.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IDeviceTopology">
+            <summary>
+            Provides access to the topology of an audio device.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd371376.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IDeviceTopology.GetConnectorCount(System.UInt32@)">
+            <summary>
+            Gets the number of connectors in the device-topology object.
+            </summary>
+            <param name="count">Receives the connector count.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IDeviceTopology.GetConnector(System.UInt32,Vannatech.CoreAudio.Interfaces.IConnector@)">
+            <summary>
+            Gets the connector that is specified by a connector number.
+            </summary>
+            <param name="index">The zero-based index of the connector.</param>
+            <param name="connector">Receives the <see cref="T:Vannatech.CoreAudio.Interfaces.IConnector"/> interface of the connector object.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IDeviceTopology.GetSubunitCount(System.UInt32@)">
+            <summary>
+            Gets the number of subunits in the device topology.
+            </summary>
+            <param name="subunitCount">Receives the subunit count.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IDeviceTopology.GetSubunit(System.UInt32,Vannatech.CoreAudio.Interfaces.ISubunit@)">
+            <summary>
+            Gets the subunit that is specified by a subunit number.
+            </summary>
+            <param name="subunitIndex">The zero-based index of the subunit.</param>
+            <param name="subunit">Receives the <see cref="T:Vannatech.CoreAudio.Interfaces.ISubunit"/> interface of the object.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IDeviceTopology.GetPartById(System.UInt32,Vannatech.CoreAudio.Interfaces.IPart@)">
+            <summary>
+            Gets a part that is identified by its local ID.
+            </summary>
+            <param name="partId">The ID of the part to get.</param>
+            <param name="part">Receives the <see cref="T:Vannatech.CoreAudio.Interfaces.IPart"/> interface of the part object.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IDeviceTopology.GetDeviceId(System.String@)">
+            <summary>
+            Gets the device identifier of the device that is represented by the device-topology object.
+            </summary>
+            <param name="deviceId">Receives a string containing the device ID.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IDeviceTopology.GetSignalPath(Vannatech.CoreAudio.Interfaces.IPart,Vannatech.CoreAudio.Interfaces.IPart,System.Boolean,Vannatech.CoreAudio.Interfaces.IPartsList@)">
+            <summary>
+            Gets a list of parts in the signal path that links two parts, if the path exists.
+            </summary>
+            <param name="partFrom">The part at the beginning of the signal path.</param>
+            <param name="partTo">The part at the end of the signal path.</param>
+            <param name="rejectMixedPaths">Specifies whether to reject paths that contain mixed data.</param>
+            <param name="partList">Receives an <see cref="T:Vannatech.CoreAudio.Interfaces.IPartsList"/> interface instance.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IPartsList">
+            <summary>
+            Represents a list of parts, each of which is an object with an <see cref="T:Vannatech.CoreAudio.Interfaces.IPart"/> interface that represents a connector or subunit.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd371430.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IPartsList.GetCount(System.UInt32@)">
+            <summary>
+            Gets the number of parts in the parts list.
+            </summary>
+            <param name="count">Receives the number of parts in the parts list.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IPartsList.GetPart(System.UInt32,Vannatech.CoreAudio.Interfaces.IPart@)">
+            <summary>
+            Gets a part from the parts list.
+            </summary>
+            <param name="index">The zero-based index of the part.</param>
+            <param name="part">Receives the <see cref="T:Vannatech.CoreAudio.Interfaces.IPart"/> interface of the specified part object.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IAudioBass">
+            <summary>
+            Provides access to a hardware bass-level control.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd370857.aspx
+            </remarks>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IPerChannelDbLevel">
+            <summary>
+            Represents a generic subunit control interface that provides per-channel control over the
+            volume level, in decibels, of an audio stream or of a frequency band in an audio stream.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd371447.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IPerChannelDbLevel.GetChannelCount(System.UInt32@)">
+            <summary>
+            Gets the number of channels in the audio stream.
+            </summary>
+            <param name="channelCount">Receives the number of channels in the audio stream.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IPerChannelDbLevel.GetLevelRange(System.UInt32,System.Single@,System.Single@,System.Single@)">
+            <summary>
+            Gets the range, in decibels, of the volume level of the specified channel.
+            </summary>
+            <param name="index">The zero-based channel index.</param>
+            <param name="volumeMin">Receives the minimum volume level in decibels.</param>
+            <param name="volumeMax">Receives the maximum volume level in decibels.</param>
+            <param name="volumeStep">Receives the volume increment level in decibels.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IPerChannelDbLevel.GetLevel(System.UInt32,System.Single@)">
+            <summary>
+            Gets the volume level, in decibels, of the specified channel.
+            </summary>
+            <param name="index">The zero-based channel index.</param>
+            <param name="level">Receives the volume level, in decibels, of the specified channel.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IPerChannelDbLevel.SetLevel(System.UInt32,System.Single,System.Guid)">
+            <summary>
+            Sets the volume level, in decibels, of the specified channel.
+            </summary>
+            <param name="index">The zero-based channel index.</param>
+            <param name="level">The new volume level, in decibels, of the specified channel.</param>
+            <param name="eventContext">A user context value that is passed to the notification callback.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IPerChannelDbLevel.SetLevelUniform(System.Single,System.Guid)">
+            <summary>
+            Sets all channels in the audio stream to the same uniform volume level, in decibels.
+            </summary>
+            <param name="level">The new uniform level in decibels.</param>
+            <param name="eventContext">A user context value that is passed to the notification callback.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IPerChannelDbLevel.SetLevelAllChannels(System.Single[],System.UInt32,System.Guid)">
+            <summary>
+            Sets the volume levels, in decibels, of all the channels in the audio stream.
+            </summary>
+            <param name="levels">An array of new volume levels, per channel, in decibels.</param>
+            <param name="channelCount">The number of channels in the audio stream. This must match the array length.</param>
+            <param name="eventContext">A user context value that is passed to the notification callback.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IAudioClock2">
+            <summary>
+            Used to get the current device position.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd370882.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioClock2.GetDevicePosition(System.UInt64@,System.UInt64@)">
+            <summary>
+            Gets the current device position, in frames, directly from the hardware.
+            </summary>
+            <param name="devicePosition">Receives the device position, in frames.</param>
+            <param name="counterPosition">Receives the value of the performance counter at the time that the device read the position.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IPart">
+            <summary>
+            Represents a part (connector or subunit) of a device topology.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd371429.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IPart.GetName(System.String@)">
+            <summary>
+            Gets the friendly name of this part.
+            </summary>
+            <param name="name">Receives the friendly name of this part.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IPart.GetLocalId(System.UInt32@)">
+            <summary>
+            Gets the local ID of this part.
+            </summary>
+            <param name="localId">Receives the local ID of this part.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IPart.GetGlobalId(System.String@)">
+            <summary>
+            Gets the global ID of this part.
+            </summary>
+            <param name="globalId">Receives a string that contains the global ID.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IPart.GetPartType(Vannatech.CoreAudio.Enumerations.PartType@)">
+            <summary>
+            Gets the part type of this part.
+            </summary>
+            <param name="partType">Receives the method writes the part type.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IPart.GetSubType(System.Guid@)">
+            <summary>
+            Gets the part subtype of this part.
+            </summary>
+            <param name="subType">Receives the subtype ID for this part.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IPart.GetControlInterfaceCount(System.UInt32@)">
+            <summary>
+            Gets the number of control interfaces that this part supports.
+            </summary>
+            <param name="count">Receives the number of control interfaces on this part.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IPart.GetControlInterface(System.UInt32,Vannatech.CoreAudio.Interfaces.IControlInterface@)">
+            <summary>
+            Gets a reference to the specified control interface, if this part supports it.
+            </summary>
+            <param name="index">The zero-based index of the control interface.</param>
+            <param name="control">Receives the <see cref="T:Vannatech.CoreAudio.Interfaces.IControlInterface"/> interface of the specified audio function.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IPart.EnumPartsIncoming(Vannatech.CoreAudio.Interfaces.IPartsList@)">
+            <summary>
+            Retrieves a list of all the parts that reside on data paths that are upstream from this part.
+            </summary>
+            <param name="partList">Receives an <see cref="T:Vannatech.CoreAudio.Interfaces.IPartsList"/> interface that encapsulates the list of parts that are immediately upstream from this part.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IPart.EnumPartsOutgoing(Vannatech.CoreAudio.Interfaces.IPartsList@)">
+            <summary>
+            Retrieves a list of all the parts that reside on data paths that are downstream from this part.
+            </summary>
+            <param name="partList">Receives an <see cref="T:Vannatech.CoreAudio.Interfaces.IPartsList"/> interface that encapsulates the list of parts that are immediately downstream from this part.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IPart.GetTopologyObject(Vannatech.CoreAudio.Interfaces.IDeviceTopology@)">
+            <summary>
+            Gets a reference to the <see cref="T:Vannatech.CoreAudio.Interfaces.IDeviceTopology"/> interface of the device topology object that contains this part.
+            </summary>
+            <param name="deviceTopology">Receives the <see cref="T:Vannatech.CoreAudio.Interfaces.IDeviceTopology"/> interface of the device topology object.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IPart.Activate(System.UInt32,System.Guid@,System.Object@)">
+            <summary>
+            Activates an interface on a connector or subunit.
+            </summary>
+            <param name="classContext">The execution context in which the code that manages the newly created object will run.</param>
+            <param name="interfaceId">The interface ID for the requested control function.</param>
+            <param name="instancePtr">Receives the address of an instance implementing the interface specified by the interfaceId parameter.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IPart.RegisterControlChangeCallback(System.Guid@,Vannatech.CoreAudio.Interfaces.IControlChangeNotify)">
+            <summary>
+            Registers the <see cref="T:Vannatech.CoreAudio.Interfaces.IControlChangeNotify"/> interface, which the client implements to receive notifications of status changes in this part.
+            </summary>
+            <param name="interfaceId">The function-specific control interface that is to be monitored for control changes.</param>
+            <param name="client">A client object that implements the <see cref="T:Vannatech.CoreAudio.Interfaces.IControlChangeNotify"/> interface.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IPart.UnregisterControlChangeCallback(Vannatech.CoreAudio.Interfaces.IControlChangeNotify)">
+            <summary>
+            Removes a previous registration of an <see cref="T:Vannatech.CoreAudio.Interfaces.IControlChangeNotify"/> interface.
+            </summary>
+            <param name="client">The client whose registration is to be removed.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Enumerations.EDataFlow">
+            <summary>
+            Defines constants that indicate the direction in which audio data flows between an audio endpoint device and an application.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd370828.aspx
+            </remarks>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.EDataFlow.eRender">
+            <summary>
+            Audio data flows from the application to the audio endpoint device, which renders the stream.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.EDataFlow.eCapture">
+            <summary>
+            Audio data flows from the audio endpoint device that captures the stream, to the application.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.EDataFlow.eAll">
+            <summary>
+            Audio data can flow either from the application to the audio endpoint device, or from the audio endpoint device to the application.
+            </summary>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolumeEx">
+            <summary>
+            Provides volume controls on the audio stream to or from a device endpoint.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd370899.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolumeEx.RegisterControlChangeNotify(Vannatech.CoreAudio.Interfaces.IAudioEndpointVolumeCallback)">
+            <summary>
+            Registers a client's notification callback interface.
+            </summary>
+            <param name="client">The <see cref="T:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolumeCallback"/> interface that is registering for notification callbacks.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolumeEx.UnregisterControlChangeNotify(Vannatech.CoreAudio.Interfaces.IAudioEndpointVolumeCallback)">
+            <summary>
+            Deletes the registration of a client's notification callback interface.
+            </summary>
+            <param name="clientCallback">The <see cref="T:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolumeCallback"/> interface that previously registered for notification callbacks.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolumeEx.GetChannelCount(System.UInt32@)">
+            <summary>
+            Gets a count of the channels in the audio stream.
+            </summary>
+            <param name="channelCount">The number of channels.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolumeEx.SetMasterVolumeLevel(System.Single,System.Guid@)">
+            <summary>
+            Sets the master volume level of the audio stream, in decibels.
+            </summary>
+            <param name="level">The new master volume level in decibels.</param>
+            <param name="eventContext">A user context value that is passed to the notification callback.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolumeEx.SetMasterVolumeLevelScalar(System.Single,System.Guid@)">
+            <summary>
+            Sets the master volume level, expressed as a normalized, audio-tapered value.
+            </summary>
+            <param name="level">The new master volume level expressed as a normalized value between 0.0 and 1.0.</param>
+            <param name="eventContext">A user context value that is passed to the notification callback.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolumeEx.GetMasterVolumeLevel(System.Single@)">
+            <summary>
+            Gets the master volume level of the audio stream, in decibels.
+            </summary>
+            <param name="level">The volume level in decibels.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolumeEx.GetMasterVolumeLevelScalar(System.Single@)">
+            <summary>
+            Gets the master volume level, expressed as a normalized, audio-tapered value.
+            </summary>
+            <param name="level">The volume level expressed as a normalized value between 0.0 and 1.0.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolumeEx.SetChannelVolumeLevel(System.UIntPtr,System.Single,System.Guid@)">
+            <summary>
+            Sets the volume level, in decibels, of the specified channel of the audio stream.
+            </summary>
+            <param name="channelNumber">The channel number.</param>
+            <param name="level">The new volume level in decibels.</param>
+            <param name="eventContext">A user context value that is passed to the notification callback.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolumeEx.SetChannelVolumeLevelScalar(System.UIntPtr,System.Single,System.Guid@)">
+            <summary>
+            Sets the normalized, audio-tapered volume level of the specified channel in the audio stream.
+            </summary>
+            <param name="channelNumber">The channel number.</param>
+            <param name="level">The new master volume level expressed as a normalized value between 0.0 and 1.0.</param>
+            <param name="eventContext">A user context value that is passed to the notification callback.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolumeEx.GetChannelVolumeLevel(System.UIntPtr,System.Single@)">
+            <summary>
+            Gets the volume level, in decibels, of the specified channel in the audio stream.
+            </summary>
+            <param name="channelNumber">The zero-based channel number.</param>
+            <param name="level">The volume level in decibels.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolumeEx.GetChannelVolumeLevelScalar(System.UIntPtr,System.Single@)">
+            <summary>
+            Gets the normalized, audio-tapered volume level of the specified channel of the audio stream.
+            </summary>
+            <param name="channelNumber">The zero-based channel number.</param>
+            <param name="level">The volume level expressed as a normalized value between 0.0 and 1.0.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolumeEx.SetMute(System.Boolean,System.Guid@)">
+            <summary>
+            Sets the muting state of the audio stream.
+            </summary>
+            <param name="isMuted">True to mute the stream, or false to unmute the stream.</param>
+            <param name="eventContext">A user context value that is passed to the notification callback.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolumeEx.GetMute(System.Boolean@)">
+            <summary>
+            Gets the muting state of the audio stream.
+            </summary>
+            <param name="isMuted">The muting state. True if the stream is muted, false otherwise.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolumeEx.GetVolumeStepInfo(System.UIntPtr@,System.UIntPtr@)">
+            <summary>
+            Gets information about the current step in the volume range.
+            </summary>
+            <param name="step">The current zero-based step index.</param>
+            <param name="stepCount">The total number of steps in the volume range.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolumeEx.VolumeStepUp(System.Guid@)">
+            <summary>
+            Increases the volume level by one step.
+            </summary>
+            <param name="eventContext">A user context value that is passed to the notification callback.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolumeEx.VolumeStepDown(System.Guid@)">
+            <summary>
+            Decreases the volume level by one step.
+            </summary>
+            <param name="eventContext">A user context value that is passed to the notification callback.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolumeEx.QueryHardwareSupport(System.UInt32@)">
+            <summary>
+            Queries the audio endpoint device for its hardware-supported functions.
+            </summary>
+            <param name="hardwareSupportMask">A hardware support mask that indicates the capabilities of the endpoint.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolumeEx.GetVolumeRange(System.Single@,System.Single@,System.Single@)">
+            <summary>
+            Gets the volume range of the audio stream, in decibels.
+            </summary>
+            <param name="volumeMin">The minimum volume level in decibels.</param>
+            <param name="volumeMax">The maximum volume level in decibels.</param>
+            <param name="volumeStep">The volume increment level in decibels.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolumeEx.GetVolumeRangeChannel(System.UInt32,System.Single@,System.Single@,System.Single@)">
+            <summary>
+            Gets the volume range for a specified channel.
+            </summary>
+            <param name="channelNumber">The channel number for which to get the volume range.</param>
+            <param name="volumeMin">The minimum volume level for the channel, in decibels.</param>
+            <param name="volumeMax">The maximum volume level for the channel, in decibels.</param>
+            <param name="volumeStep">The volume increment for the channel, in decibels.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IAudioChannelConfig">
+            <summary>
+            Provides access to a hardware channel-configuration control.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd370862.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioChannelConfig.SetChannelConfig(System.UInt32,System.Guid)">
+            <summary>
+            Sets the channel-configuration mask in a channel-configuration control.
+            </summary>
+            <param name="channelConfig">The new channel-configuration mask value.</param>
+            <param name="eventContext">A user context value that is passed to the notification callback.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioChannelConfig.GetChannelConfig(System.UInt32@)">
+            <summary>
+            Gets the current channel-configuration mask from a channel-configuration control.
+            </summary>
+            <param name="channelConfig">Receives the current channel-configuration mask value.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IControlInterface">
+            <summary>
+            Represents a control interface on a part (connector or subunit) in a device topology.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd371098.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IControlInterface.GetName(System.String@)">
+            <summary>
+            Gets the friendly name for the audio function that the control interface encapsulates.
+            </summary>
+            <param name="name">Receives a string that contains the friendly name.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IControlInterface.GetIID(System.Guid@)">
+            <summary>
+            Gets the interface ID of the function-specific control interface of the part.
+            </summary>
+            <param name="interfaceId">Receives the interface ID of the function-specific control interface of the part.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Externals.STGM">
+            <summary>
+            The STGM constants are flags that indicate conditions for creating and deleting the object and access modes for the object.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/aa380337.aspx
+            Note: This item is external to CoreAudio API, and is defined in the Windows Structured Storage API.
+            </remarks>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Externals.STGM.STGM_READ">
+            <summary>
+            Indicates that the object is read-only, meaning that modifications cannot be made.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Externals.STGM.STGM_WRITE">
+            <summary>
+            Enables you to save changes to the object, but does not permit access to its data.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Externals.STGM.STGM_READWRITE">
+            <summary>
+            Enables access and modification of object data.
+            </summary>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Enumerations.AudioSessionState">
+            <summary>
+            Defines constants that indicate the current state of an audio session.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd370792.aspx
+            </remarks>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.AudioSessionState.AudioSessionStateInactive">
+            <summary>
+            The audio session is inactive.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.AudioSessionState.AudioSessionStateActive">
+            <summary>
+            The audio session is active.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.AudioSessionState.AudioSessionStateExpired">
+            <summary>
+            The audio session has expired.
+            </summary>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Structures.KSJACK_DESCRIPTION2">
+            <summary>
+            Describes an audio jack.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd316545.aspx
+            </remarks>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Structures.KSJACK_DESCRIPTION2.DeviceStateInfo">
+            <summary>
+            Reserved for future use.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Structures.KSJACK_DESCRIPTION2.JackCapabilities">
+            <summary>
+            Stores the audio jack's capabilities.
+            </summary>
+            <remarks>
+            From Ksmedia.h, the available flags for this are:
+            1. JACKDESC2_PRESENCE_DETECT_CAPABILITY (0x00000001)
+            2. JACKDESC2_DYNAMIC_FORMAT_CHANGE_CAPABILITY (0x00000002) 
+            </remarks>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolume">
+            <summary>
+            Represents the volume controls on the audio stream to or from an audio endpoint device.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd370892.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolume.RegisterControlChangeNotify(Vannatech.CoreAudio.Interfaces.IAudioEndpointVolumeCallback)">
+            <summary>
+            Registers a client's notification callback interface.
+            </summary>
+            <param name="client">The <see cref="T:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolumeCallback"/> interface that is registering for notification callbacks.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolume.UnregisterControlChangeNotify(Vannatech.CoreAudio.Interfaces.IAudioEndpointVolumeCallback)">
+            <summary>
+            Deletes the registration of a client's notification callback interface.
+            </summary>
+            <param name="client">The <see cref="T:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolumeCallback"/> interface that previously registered for notification callbacks.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolume.GetChannelCount(System.UInt32@)">
+            <summary>
+            Gets a count of the channels in the audio stream.
+            </summary>
+            <param name="channelCount">The number of channels.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolume.SetMasterVolumeLevel(System.Single,System.Guid)">
+            <summary>
+            Sets the master volume level of the audio stream, in decibels.
+            </summary>
+            <param name="level">The new master volume level in decibels.</param>
+            <param name="eventContext">A user context value that is passed to the notification callback.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolume.SetMasterVolumeLevelScalar(System.Single,System.Guid)">
+            <summary>
+            Sets the master volume level, expressed as a normalized, audio-tapered value.
+            </summary>
+            <param name="level">The new master volume level expressed as a normalized value between 0.0 and 1.0.</param>
+            <param name="eventContext">A user context value that is passed to the notification callback.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolume.GetMasterVolumeLevel(System.Single@)">
+            <summary>
+            Gets the master volume level of the audio stream, in decibels.
+            </summary>
+            <param name="level">The volume level in decibels.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolume.GetMasterVolumeLevelScalar(System.Single@)">
+            <summary>
+            Gets the master volume level, expressed as a normalized, audio-tapered value.
+            </summary>
+            <param name="level">The volume level expressed as a normalized value between 0.0 and 1.0.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolume.SetChannelVolumeLevel(System.UInt32,System.Single,System.Guid)">
+            <summary>
+            Sets the volume level, in decibels, of the specified channel of the audio stream.
+            </summary>
+            <param name="channelNumber">The channel number.</param>
+            <param name="level">The new volume level in decibels.</param>
+            <param name="eventContext">A user context value that is passed to the notification callback.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolume.SetChannelVolumeLevelScalar(System.UInt32,System.Single,System.Guid)">
+            <summary>
+            Sets the normalized, audio-tapered volume level of the specified channel in the audio stream.
+            </summary>
+            <param name="channelNumber">The channel number.</param>
+            <param name="level">The new master volume level expressed as a normalized value between 0.0 and 1.0.</param>
+            <param name="eventContext">A user context value that is passed to the notification callback.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolume.GetChannelVolumeLevel(System.UInt32,System.Single@)">
+            <summary>
+            Gets the volume level, in decibels, of the specified channel in the audio stream.
+            </summary>
+            <param name="channelNumber">The zero-based channel number.</param>
+            <param name="level">The volume level in decibels.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolume.GetChannelVolumeLevelScalar(System.UInt32,System.Single@)">
+            <summary>
+            Gets the normalized, audio-tapered volume level of the specified channel of the audio stream.
+            </summary>
+            <param name="channelNumber">The zero-based channel number.</param>
+            <param name="level">The volume level expressed as a normalized value between 0.0 and 1.0.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolume.SetMute(System.Boolean,System.Guid)">
+            <summary>
+            Sets the muting state of the audio stream.
+            </summary>
+            <param name="isMuted">True to mute the stream, or false to unmute the stream.</param>
+            <param name="eventContext">A user context value that is passed to the notification callback.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolume.GetMute(System.Boolean@)">
+            <summary>
+            Gets the muting state of the audio stream.
+            </summary>
+            <param name="isMuted">The muting state. True if the stream is muted, false otherwise.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolume.GetVolumeStepInfo(System.UInt32@,System.UInt32@)">
+            <summary>
+            Gets information about the current step in the volume range.
+            </summary>
+            <param name="step">The current zero-based step index.</param>
+            <param name="stepCount">The total number of steps in the volume range.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolume.VolumeStepUp(System.Guid)">
+            <summary>
+            Increases the volume level by one step.
+            </summary>
+            <param name="eventContext">A user context value that is passed to the notification callback.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolume.VolumeStepDown(System.Guid)">
+            <summary>
+            Decreases the volume level by one step.
+            </summary>
+            <param name="eventContext">A user context value that is passed to the notification callback.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolume.QueryHardwareSupport(System.UInt32@)">
+            <summary>
+            Queries the audio endpoint device for its hardware-supported functions.
+            </summary>
+            <param name="hardwareSupportMask">A hardware support mask that indicates the capabilities of the endpoint.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolume.GetVolumeRange(System.Single@,System.Single@,System.Single@)">
+            <summary>
+            Gets the volume range of the audio stream, in decibels.
+            </summary>
+            <param name="volumeMin">The minimum volume level in decibels.</param>
+            <param name="volumeMax">The maximum volume level in decibels.</param>
+            <param name="volumeStep">The volume increment level in decibels.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IKsJackSinkInformation">
+            <summary>
+            Provides access to jack sink information if the jack is supported by the hardware.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd371393.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IKsJackSinkInformation.GetJackSinkInformation(Vannatech.CoreAudio.Structures.KSJACK_SINK_INFORMATION@)">
+            <summary>
+            Retrieves the sink information for the specified jack. 
+            </summary>
+            <param name="information">Receives a structure of type <see cref="T:Vannatech.CoreAudio.Structures.KSJACK_SINK_INFORMATION"/> that contains the jack sink information.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Externals.PROPVARIANT">
+            <summary>
+            Used by the <see cref="M:Vannatech.CoreAudio.Externals.IPropertyStore.GetValue(Vannatech.CoreAudio.Externals.PROPERTYKEY@,Vannatech.CoreAudio.Externals.PROPVARIANT@)"/> and <see cref="M:Vannatech.CoreAudio.Externals.IPropertyStore.SetValue(Vannatech.CoreAudio.Externals.PROPERTYKEY@,Vannatech.CoreAudio.Externals.PROPVARIANT@)"/> methods
+            of <see cref="T:Vannatech.CoreAudio.Externals.IPropertyStore"/> as the primary way to program item properties.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/aa380072.aspx
+            Note: This item is external to CoreAudio API, and is defined in the Windows Structured Storage API.
+            </remarks>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Externals.PROPVARIANT.vt">
+            <summary>
+            Value type tag.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Externals.PROPVARIANT.wReserved1">
+            <summary>
+            Reserved for future use.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Externals.PROPVARIANT.wReserved2">
+            <summary>
+            Reserved for future use.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Externals.PROPVARIANT.wReserved3">
+            <summary>
+            Reserved for future use.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Externals.PROPVARIANT.Data">
+            <summary>
+            Represents the variant data section.
+            </summary>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Externals.VariantData">
+            <summary>
+            Represents the variant data section of the PROPVARIANT structure.
+            </summary>
+            <remarks>
+            This only provides variants for use within the context of MMDevice properties.
+            </remarks>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Externals.VariantData.AsBoolean">
+            <summary>
+            Represents the data as a boolean value.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Externals.VariantData.AsUInt32">
+            <summary>
+            Represents the data as a unsigned 32-bit integer.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Externals.VariantData.AsStringPtr">
+            <summary>
+            Represents the data as a unicode string pointer.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Externals.VariantData.AsFormatPtr">
+            <summary>
+            Represents the data as a pointer to a WAVEFORMATEX structure.
+            </summary>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Enumerations.ConnectorType">
+            <summary>
+            Indicates the type of connection that a connector is part of.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd370801.aspx
+            </remarks>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.ConnectorType.Unknown_Connector">
+            <summary>
+            The connector is part of a connection of unknown type.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.ConnectorType.Physical_Internal">
+            <summary>
+            The connector is part of a physical connection to an auxiliary device that is installed inside the system chassis.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.ConnectorType.Physical_External">
+            <summary>
+            The connector is part of a physical connection to an external device.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.ConnectorType.Software_IO">
+            <summary>
+            The connector is part of a software-configured I/O connection.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.ConnectorType.Software_Fixed">
+            <summary>
+            The connector is part of a permanent connection that is fixed and cannot be configured under software control.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.ConnectorType.Network">
+            <summary>
+            The connector is part of a connection to a network.
+            </summary>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IAudioMute">
+            <summary>
+            Provides access to a hardware mute control.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd368233.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioMute.SetMute(System.Boolean,System.Guid)">
+            <summary>
+            Enables or disables the mute control.
+            </summary>
+            <param name="isMuted">The new state of the mute control.</param>
+            <param name="eventContext">A user context value that is passed to the notification callback.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioMute.GetMute(System.Boolean@)">
+            <summary>
+            Gets the current state (enabled or disabled) of the mute control.
+            </summary>
+            <param name="isMuted">Receives the current state of the mute control.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IAudioSessionControl2">
+            <summary>
+            Used by a client to get information about the audio session.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd368248.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionControl2.GetState(Vannatech.CoreAudio.Enumerations.AudioSessionState@)">
+            <summary>
+            Retrieves the current state of the audio session.
+            </summary>
+            <param name="state">Receives the current session state.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionControl2.GetDisplayName(System.String@)">
+            <summary>
+            Retrieves the display name for the audio session.
+            </summary>
+            <param name="displayName">Receives a string that contains the display name.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionControl2.SetDisplayName(System.String,System.Guid)">
+            <summary>
+            Assigns a display name to the current audio session.
+            </summary>
+            <param name="displayName">A string that contains the new display name for the session.</param>
+            <param name="eventContext">A user context value that is passed to the notification callback.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionControl2.GetIconPath(System.String@)">
+            <summary>
+            Retrieves the path for the display icon for the audio session.
+            </summary>
+            <param name="iconPath">Receives a string that specifies the fully qualified path of the file that contains the icon.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionControl2.SetIconPath(System.String,System.Guid)">
+            <summary>
+            Assigns a display icon to the current session.
+            </summary>
+            <param name="iconPath">A string that specifies the fully qualified path of the file that contains the new icon.</param>
+            <param name="eventContext">A user context value that is passed to the notification callback.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionControl2.GetGroupingParam(System.Guid@)">
+            <summary>
+            Retrieves the grouping parameter of the audio session.
+            </summary>
+            <param name="groupingId">Receives the grouping parameter ID.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionControl2.SetGroupingParam(System.Guid,System.Guid)">
+            <summary>
+            Assigns a session to a grouping of sessions.
+            </summary>
+            <param name="groupingId">The new grouping parameter ID.</param>
+            <param name="eventContext">A user context value that is passed to the notification callback.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionControl2.RegisterAudioSessionNotification(Vannatech.CoreAudio.Interfaces.IAudioSessionEvents)">
+            <summary>
+            Registers the client to receive notifications of session events, including changes in the session state.
+            </summary>
+            <param name="client">A client-implemented <see cref="T:Vannatech.CoreAudio.Interfaces.IAudioSessionEvents"/> interface.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionControl2.UnregisterAudioSessionNotification(Vannatech.CoreAudio.Interfaces.IAudioSessionEvents)">
+            <summary>
+            Deletes a previous registration by the client to receive notifications.
+            </summary>
+            <param name="client">A client-implemented <see cref="T:Vannatech.CoreAudio.Interfaces.IAudioSessionEvents"/> interface.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionControl2.GetSessionIdentifier(System.String@)">
+            <summary>
+            Retrieves the session identifier.
+            </summary>
+            <param name="sessionId">Receives the audio session identifier.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionControl2.GetSessionInstanceIdentifier(System.String@)">
+            <summary>
+            Retrieves the identifier of the session instance.
+            </summary>
+            <param name="instanceId">Receives the identifier of a particular instance of the audio session.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionControl2.GetProcessId(System.UInt32@)">
+            <summary>
+            Retrieves the process identifier of the session.
+            </summary>
+            <param name="processId">Receives the process identifier of the audio session. </param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionControl2.IsSystemSoundsSession">
+            <summary>
+            Indicates whether the session is a system sounds session.
+            </summary>
+            <returns>An HRESULT code returning S_OK (0x0) or S_FALSE (0x1), indicating whether or not the session is a system sounds session.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionControl2.SetDuckingPreference(System.Boolean)">
+            <summary>
+            Enables or disables the default stream attenuation experience (auto-ducking) provided by the system.
+            </summary>
+            <param name="optOut">True to disable system auto-ducking, or false to enable.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Externals.CLSCTX">
+            <summary>
+            Values that are used in activation calls to indicate the execution contexts in which an object is to be run.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/ms693716.aspx
+            Note: This item is external to CoreAudio API, and is defined in the Windows COM API.
+            </remarks>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Externals.CLSCTX.CLSCTX_INPROC_SERVER">
+            <summary>
+            The code that creates and manages objects of this class is a DLL that runs in the same process as the caller of the function specifying the class context.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Externals.CLSCTX.CLSCTX_INPROC_HANDLER">
+            <summary>
+            The code that manages objects of this class is an in-process handler.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Externals.CLSCTX.CLSCTX_LOCAL_SERVER">
+            <summary>
+            The EXE code that creates and manages objects of this class runs on same machine but is loaded in a separate process space.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Externals.CLSCTX.CLSCTX_INPROC_SERVER16">
+            <summary>
+            Obsolete.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Externals.CLSCTX.CLSCTX_REMOTE_SERVER">
+            <summary>
+            A remote context.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Externals.CLSCTX.CLSCTX_INPROC_HANDLER16">
+            <summary>
+            Obsolete.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Externals.CLSCTX.CLSCTX_RESERVED1">
+            <summary>
+            Reserved.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Externals.CLSCTX.CLSCTX_RESERVED2">
+            <summary>
+            Reserved.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Externals.CLSCTX.CLSCTX_RESERVED3">
+            <summary>
+            Reserved.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Externals.CLSCTX.CLSCTX_RESERVED4">
+            <summary>
+            Reserved.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Externals.CLSCTX.CLSCTX_NO_CODE_DOWNLOAD">
+            <summary>
+            Disaables the downloading of code from the directory service or the Internet.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Externals.CLSCTX.CLSCTX_RESERVED5">
+            <summary>
+            Reserved.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Externals.CLSCTX.CLSCTX_NO_CUSTOM_MARSHAL">
+            <summary>
+            Specify if you want the activation to fail if it uses custom marshalling.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Externals.CLSCTX.CLSCTX_ENABLE_CODE_DOWNLOAD">
+            <summary>
+            Enables the downloading of code from the directory service or the Internet.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Externals.CLSCTX.CLSCTX_NO_FAILURE_LOG">
+            <summary>
+            Can be used to override the logging of failures
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Externals.CLSCTX.CLSCTX_DISABLE_AAA">
+            <summary>
+            Disables activate-as-activator (AAA) activations for this activation only.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Externals.CLSCTX.CLSCTX_ENABLE_AAA">
+            <summary>
+            Enables activate-as-activator (AAA) activations for this activation only.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Externals.CLSCTX.CLSCTX_FROM_DEFAULT_CONTEXT">
+            <summary>
+            Begin this activation from the default context of the current apartment.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Externals.CLSCTX.CLSCTX_ACTIVATE_32_BIT_SERVER">
+            <summary>
+            Activate or connect to a 32-bit version of the server; fail if one is not registered.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Externals.CLSCTX.CLSCTX_ACTIVATE_64_BIT_SERVER">
+            <summary>
+            Activate or connect to a 64 bit version of the server; fail if one is not registered. 
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Externals.CLSCTX.CLSCTX_ENABLE_CLOAKING">
+            <summary>
+            Obsolete.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Externals.CLSCTX.CLSCTX_PS_DLL">
+            <summary>
+            Reserved.
+            </summary>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Enumerations.AUDCLNT_SHAREMODE">
+            <summary>
+            Defines constants that indicate whether an audio stream will run in shared mode or in exclusive mode.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd370790.aspx
+            </remarks>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.AUDCLNT_SHAREMODE.AUDCLNT_SHAREMODE_SHARED">
+            <summary>
+            The audio stream will run in shared mode.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.AUDCLNT_SHAREMODE.AUDCLNT_SHAREMODE_EXCLUSIVE">
+            <summary>
+            The audio stream will run in exclusive mode.
+            </summary>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Structures.DIRECTX_AUDIO_ACTIVATION_PARAMS">
+            <summary>
+            Specifies the initialization parameters for a DirectSound stream.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd370826.aspx
+            </remarks>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Structures.DIRECTX_AUDIO_ACTIVATION_PARAMS.ParamsSize">
+            <summary>
+            The size in bytes of the structure.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Structures.DIRECTX_AUDIO_ACTIVATION_PARAMS.AudioSession">
+            <summary>
+            A GUID value that identifies the audio session that the stream belongs to.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Structures.DIRECTX_AUDIO_ACTIVATION_PARAMS.AudioStreamFlags">
+            <summary>
+            Stream-initialization flags.
+            </summary>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IAudioMidrange">
+            <summary>
+            Provides access to a hardware midrange-level control.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd368232.aspx
+            </remarks>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.ISubunit">
+            <summary>
+            Represents a hardware subunit (for example, a volume control) that lies in the data path between a client and an audio endpoint device.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd316540.aspx
+            </remarks>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Enumerations.AUDCLNT_BUFFERFLAGS">
+            <summary>
+            Defines flags that indicate the status of an audio endpoint buffer.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd371458.aspx
+            </remarks>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.AUDCLNT_BUFFERFLAGS.AUDCLNT_BUFFERFLAGS_DATA_DISCONTINUITY">
+            <summary>
+            The data in the packet is not correlated with the previous packet's device position.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.AUDCLNT_BUFFERFLAGS.AUDCLNT_BUFFERFLAGS_SILENT">
+            <summary>
+            Treat all of the data in the packet as silence and ignore the actual data values.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.AUDCLNT_BUFFERFLAGS.AUDCLNT_BUFFERFLAGS_TIMESTAMP_ERROR">
+            <summary>
+            The time at which the device's stream position was recorded is uncertain.
+            </summary>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IAudioClock">
+            <summary>
+            Enables a client to monitor a stream's data rate and the current position in the stream.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd370881.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioClock.GetFrequency(System.UInt64@)">
+            <summary>
+            Gets the device frequency.
+            </summary>
+            <param name="frequency">Receives the device frequency.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioClock.GetPosition(System.UInt64@,System.UInt64@)">
+            <summary>
+            Gets the current position in the stream.
+            </summary>
+            <param name="devicePosition">Receives the device position.</param>
+            <param name="counterPosition">Receives the value of the performance counter at the time that the device read the position.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioClock.GetCharacteristics(System.UInt32@)">
+            <summary>
+            Reserved for future use.
+            </summary>
+            <param name="characteristics">Receives a value that indicates the characteristics of the audio clock.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Enumerations.DataFlow">
+            <summary>
+            Indicates the data-flow direction of an audio stream through a connector.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd370808.aspx
+            </remarks>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.DataFlow.In">
+            <summary>
+            The audio stream flows into the device through the connector.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.DataFlow.Out">
+            <summary>
+            The audio stream flows out of the device through the connector.
+            </summary>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Constants.PropertyKeys">
+            <summary>
+            Defines all applicable property keys for CoreAudio API.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Constants.PropertyKeys.PKEY_AudioEndpoint_FormFactor">
+            <summary>
+            Indicates the physical attributes of the audio endpoint device.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Constants.PropertyKeys.PKEY_AudioEndpoint_ControlPanelPageProvider">
+            <summary>
+            Specifies the CLSID of the registered provider of the device-properties extension for the audio endpoint device.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Constants.PropertyKeys.PKEY_AudioEndpoint_Association">
+            <summary>
+            Associates a kernel-streaming (KS) pin category with an audio endpoint device.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Constants.PropertyKeys.PKEY_AudioEndpoint_PhysicalSpeakers">
+            <summary>
+            Defines the physical speaker configuration for the audio endpoint device.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Constants.PropertyKeys.PKEY_AudioEndpoint_GUID">
+            <summary>
+            Supplies the DirectSound device identifier that corresponds to the audio endpoint device.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Constants.PropertyKeys.PKEY_AudioEndpoint_Disable_SysFx">
+            <summary>
+            Specifies whether system effects are enabled in the shared-mode stream that flows to or from the audio endpoint device.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Constants.PropertyKeys.PKEY_AudioEndpoint_FullRangeSpeakers">
+            <summary>
+            Specifies the channel-configuration mask for the full-range speakers that are connected to the audio endpoint device.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Constants.PropertyKeys.PKEY_AudioEndpoint_Supports_EventDriven_Mode">
+            <summary>
+            Indicates whether the endpoint supports the event-driven mode.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Constants.PropertyKeys.PKEY_AudioEndpoint_JackSubType">
+            <summary>
+            Contains an output category GUID for an audio endpoint device. 
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Constants.PropertyKeys.PKEY_AudioEngine_DeviceFormat">
+            <summary>
+            Specifies the device format, which is the format that the audio engine uses for the shared-mode stream that flows to or from the audio endpoint device.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Constants.PropertyKeys.PKEY_AudioEngine_OEMFormat">
+            <summary>
+            Specifies the default format of the device that is used for rendering or capturing a stream.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Constants.PropertyKeys.PKEY_DeviceInterface_FriendlyName">
+            <summary>
+            Contains the friendly name of the endpoint device.
+            </summary>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IMMDeviceCollection">
+            <summary>
+            Represents a collection of audio devices.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd371396.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IMMDeviceCollection.GetCount(System.UInt32@)">
+            <summary>
+            Retrieves a count of the devices in the device collection.
+            </summary>
+            <param name="count">The number of devices in the device collection.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IMMDeviceCollection.Item(System.UInt32,Vannatech.CoreAudio.Interfaces.IMMDevice@)">
+            <summary>
+            Retrieves a pointer to the specified item in the device collection.
+            </summary>
+            <param name="index">The zero based device index.</param>
+            <param name="device">The <see cref="T:Vannatech.CoreAudio.Interfaces.IMMDevice"/> interface of the specified item in the device collection.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IMMEndpoint">
+            <summary>
+            Represents an audio endpoint device.
+            </summary>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IMMEndpoint.GetDataFlow(Vannatech.CoreAudio.Enumerations.EDataFlow@)">
+            <summary>
+            Indicates whether the endpoint is associated with a rendering device or a capture device.
+            </summary>
+            <param name="dataFlow">The data-flow direction of the endpoint device.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IMMNotificationClient">
+            <summary>
+            Provides notifications when an audio endpoint device is added or removed, when the state
+            or properties of a device change, or when there is a change in the default role assigned to a device.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd371417.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IMMNotificationClient.OnDeviceStateChanged(System.String,System.UInt32)">
+            <summary>
+            Notifies the client that the default audio endpoint device for a particular role has changed.
+            </summary>
+            <param name="deviceId">The endpoint ID string that identifies the audio endpoint device.</param>
+            <param name="newState">The <see cref="T:Vannatech.CoreAudio.Constants.DEVICE_STATE_XXX"/> constant that indicates the new state.</param>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IMMNotificationClient.OnDeviceAdded(System.String)">
+            <summary>
+            Indicates that a new audio endpoint device has been added.
+            </summary>
+            <param name="deviceId">The endpoint ID string that identifies the audio endpoint device.</param>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IMMNotificationClient.OnDeviceRemoved(System.String)">
+            <summary>
+            Indicates that an audio endpoint device has been removed.
+            </summary>
+            <param name="deviceId">The endpoint ID string that identifies the audio endpoint device.</param>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IMMNotificationClient.OnDefaultDeviceChanged(Vannatech.CoreAudio.Enumerations.EDataFlow,Vannatech.CoreAudio.Enumerations.ERole,System.String)">
+            <summary>
+            Notifies the client that the default audio endpoint device for a particular role has changed.
+            </summary>
+            <param name="dataFlow">The data-flow direction of the endpoint device.</param>
+            <param name="deviceRole">The device role of the audio endpoint device.</param>
+            <param name="defaultDeviceId">The endpoint ID string that identifies the audio endpoint device.</param>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IMMNotificationClient.OnPropertyValueChanged(System.String,Vannatech.CoreAudio.Externals.PROPERTYKEY)">
+            <summary>
+            Indicates that the value of a property belonging to an audio endpoint device has changed.
+            </summary>
+            <param name="deviceId">The endpoint ID string that identifies the audio endpoint device.</param>
+            <param name="propertyKey">A <see cref="T:Vannatech.CoreAudio.Externals.PROPERTYKEY"/> that specifies the type of property.</param>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IAudioCaptureClient">
+            <summary>
+            Enables a client to read input data from a capture endpoint buffer.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd370858.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioCaptureClient.GetBuffer(System.IntPtr@,System.UInt32@,Vannatech.CoreAudio.Enumerations.AUDCLNT_BUFFERFLAGS@,System.UInt64@,System.UInt64@)">
+            <summary>
+            Retrieves a pointer to the next available packet of data in the capture endpoint buffer.
+            </summary>
+            <param name="dataPointer">Receives the starting address of a byte array containing the next data packet that is available for the client to read.</param>
+            <param name="frameCount">Receives the number of audio frames available in the data packet</param>
+            <param name="bufferStatus">Receives the buffer-status flags.</param>
+            <param name="devicePosition">Receives the device position of the first audio frame in the data packet.</param>
+            <param name="counterPosition">
+            Receives the value of the performance counter at the time that the audio endpoint
+            device recorded the device position of the first audio frame in the data packet.
+            </param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioCaptureClient.ReleaseBuffer(System.UInt32)">
+            <summary>
+            Releases a buffer.
+            </summary>
+            <param name="numFramesRead">The number of audio frames that the client read from the capture buffer.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioCaptureClient.GetNextPacketSize(System.UInt32@)">
+            <summary>
+            Retrieves the number of frames in the next data packet in the capture endpoint buffer.
+            </summary>
+            <param name="frameCount">Receives the number of audio frames in the next capture packet.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IAudioRenderClient">
+            <summary>
+            Enables a client to write output data to a rendering endpoint buffer.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd368242.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioRenderClient.GetBuffer(System.UInt32,System.IntPtr@)">
+            <summary>
+            Retrieves a pointer to the next available space in the rendering endpoint buffer.
+            </summary>
+            <param name="frameCount">The number of audio frames in the data packet that the caller plans to write to the requested space in the buffer.</param>
+            <param name="dataPointer">Receives the starting address of the buffer area into which the caller will write the data packet.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioRenderClient.ReleaseBuffer(System.UInt32,System.UInt32)">
+            <summary>
+            Releases the buffer space acquired in the previous call to the <see cref="M:Vannatech.CoreAudio.Interfaces.IAudioRenderClient.GetBuffer(System.UInt32,System.IntPtr@)"/> method.
+            </summary>
+            <param name="frameCount">The number of audio frames written by the client to the data packet.</param>
+            <param name="bufferFlag">The buffer-configuration flags. This should be either zero or <see cref="F:Vannatech.CoreAudio.Enumerations.AUDCLNT_BUFFERFLAGS.AUDCLNT_BUFFERFLAGS_SILENT"/></param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IAudioSessionEnumerator">
+            <summary>
+            Enumerates audio sessions on an audio device.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd368281.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionEnumerator.GetCount(System.Int32@)">
+            <summary>
+            Gets the total number of audio sessions that are open on the audio device.
+            </summary>
+            <param name="count">Receives the total number of audio sessions.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionEnumerator.GetSession(System.Int32,Vannatech.CoreAudio.Interfaces.IAudioSessionControl@)">
+            <summary>
+            Gets the audio session specified by an audio session number. 
+            </summary>
+            <param name="index">The zero-based index of the session.</param>
+            <param name="session">Receives an <see cref="T:Vannatech.CoreAudio.Interfaces.IAudioSessionControl"/> session object in the collection that is maintained by the session enumerator.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IAudioSessionManager">
+            <summary>
+            Enables a client to access the session controls and volume controls for both cross-process and process-specific audio sessions.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd370948.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionManager.GetAudioSessionControl(System.Guid,System.UInt32,Vannatech.CoreAudio.Interfaces.IAudioSessionControl@)">
+            <summary>
+            Retrieves an audio session control.
+            </summary>
+            <param name="sessionId">A new or existing session ID.</param>
+            <param name="streamFlags">Audio session flags.</param>
+            <param name="sessionControl">Receives an <see cref="T:Vannatech.CoreAudio.Interfaces.IAudioSessionControl"/> interface for the audio session.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionManager.GetSimpleAudioVolume(System.Guid,System.UInt32,Vannatech.CoreAudio.Interfaces.ISimpleAudioVolume@)">
+            <summary>
+            Retrieves a simple audio volume control.
+            </summary>
+            <param name="sessionId">A new or existing session ID.</param>
+            <param name="streamFlags">Audio session flags.</param>
+            <param name="audioVolume">Receives an <see cref="T:Vannatech.CoreAudio.Interfaces.ISimpleAudioVolume"/> interface for the audio session.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IAudioSessionManager2">
+            <summary>
+            Enables an application to manage submixes for the audio device.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd370950.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionManager2.GetAudioSessionControl(System.Guid,System.UInt32,Vannatech.CoreAudio.Interfaces.IAudioSessionControl@)">
+            <summary>
+            Retrieves an audio session control.
+            </summary>
+            <param name="sessionId">A new or existing session ID.</param>
+            <param name="streamFlags">Audio session flags.</param>
+            <param name="sessionControl">Receives an <see cref="T:Vannatech.CoreAudio.Interfaces.IAudioSessionControl"/> interface for the audio session.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionManager2.GetSimpleAudioVolume(System.Guid,System.UInt32,Vannatech.CoreAudio.Interfaces.ISimpleAudioVolume@)">
+            <summary>
+            Retrieves a simple audio volume control.
+            </summary>
+            <param name="sessionId">A new or existing session ID.</param>
+            <param name="streamFlags">Audio session flags.</param>
+            <param name="audioVolume">Receives an <see cref="T:Vannatech.CoreAudio.Interfaces.ISimpleAudioVolume"/> interface for the audio session.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionManager2.GetSessionEnumerator(Vannatech.CoreAudio.Interfaces.IAudioSessionEnumerator@)">
+            <summary>
+            Gets a pointer to the audio session enumerator object used to enumerate sessions.
+            </summary>
+            <param name="sessionList">Receives the session enumerator object that the client can use to enumerate audio sessions on the audio device.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionManager2.RegisterSessionNotification(Vannatech.CoreAudio.Interfaces.IAudioSessionNotification)">
+            <summary>
+            Registers the application to receive a notification when a session is created.
+            </summary>
+            <param name="client">The client to be called when session events are raised.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionManager2.UnregisterSessionNotification(Vannatech.CoreAudio.Interfaces.IAudioSessionNotification)">
+            <summary>
+            Deletes the registration to receive a notification when a session is created.
+            </summary>
+            <param name="client">Removes the client from the callback list for session events.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionManager2.RegisterDuckNotification(System.String,Vannatech.CoreAudio.Interfaces.IAudioVolumeDuckNotification)">
+            <summary>
+            Registers the application to receive ducking notifications.
+            </summary>
+            <param name="sessionId">A session instance identifier.</param>
+            <param name="client">The client to be called when ducking events are raised.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionManager2.UnregisterDuckNotification(Vannatech.CoreAudio.Interfaces.IAudioVolumeDuckNotification)">
+            <summary>
+            Deletes the registration to receive ducking notifications.
+            </summary>
+            <param name="client">Removes the client from the callback list for ducking events.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IAudioSessionNotification">
+            <summary>
+            Provides notification when an audio session is created.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd370969.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioSessionNotification.OnSessionCreated(Vannatech.CoreAudio.Interfaces.IAudioSessionControl)">
+            <summary>
+            Notifies the registered processes that the audio session has been created.
+            </summary>
+            <param name="sessionControl">The <see cref="T:Vannatech.CoreAudio.Interfaces.IAudioSessionControl"/> interface of the audio session that was created.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IAudioStreamVolume">
+            <summary>
+            Enables a client to control and monitor the volume levels for all of the channels in an audio stream.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd370977.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioStreamVolume.GetChannelCount(System.UInt32@)">
+            <summary>
+            Retrieves the number of channels contained in the audio stream.
+            </summary>
+            <param name="count">Receives the channel count.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioStreamVolume.SetChannelVolume(System.UInt32,System.Single)">
+            <summary>
+            Sets the volume level for the specified channel in the audio stream.
+            </summary>
+            <param name="index">The zero-based index of the channel.</param>
+            <param name="level">The new volume level expressed as a normalized value between 0.0 and 1.0.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioStreamVolume.GetChannelVolume(System.UInt32,System.Single@)">
+            <summary>
+            Retrieves the volume level for the specified channel in the audio stream.
+            </summary>
+            <param name="index">The zero-based channel index.</param>
+            <param name="level">Receives the volume level expressed as a normalized value between 0.0 and 1.0.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioStreamVolume.SetAllVolumes(System.UInt32,System.Single[])">
+            <summary>
+            Sets the individual volume levels for all the channels in the audio stream.
+            </summary>
+            <param name="count">The number of channels in the audio stream. This must match the volume level array length.</param>
+            <param name="levels">The new volume levels for each channel in the audio stream, expressed as normalized values between 0.0 and 1.0.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioStreamVolume.GetAllVolumes(System.UInt32,System.Single[])">
+            <summary>
+            Retrieves the volume levels for all the channels in the audio stream.
+            </summary>
+            <param name="length">The number of elements in the volumes array.</param>
+            <param name="volumes">Receives an array of volume levels for the channels in the audio stream.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IAudioVolumeDuckNotification">
+            <summary>
+            Used to by the system to send notifications about stream attenuation changes.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd371006.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioVolumeDuckNotification.OnVolumeDuckNotification(System.String,System.UInt32)">
+            <summary>
+            Sends a notification about a pending system ducking event.
+            </summary>
+            <param name="sessionId">A string containing the session instance identifier of the communications session that raises the the auto-ducking event.</param>
+            <param name="activeSessionCount">The number of active communications sessions.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioVolumeDuckNotification.OnVolumeUnduckNotification(System.String)">
+            <summary>
+            Sends a notification about a pending system unducking event.
+            </summary>
+            <param name="sessionId">A string containing the session instance identifier of the terminating communications session that intiated the ducking.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IChannelAudioVolume">
+            <summary>
+            Enables a client to control and monitor the volume levels for all of the channels in the audio session.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd371023.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IChannelAudioVolume.GetChannelCount(System.UInt32@)">
+            <summary>
+            Retrieves the number of channels contained in the session.
+            </summary>
+            <param name="channelCount">Receives the channel count.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IChannelAudioVolume.SetChannelVolume(System.UInt32,System.Single,System.Guid)">
+            <summary>
+            Sets the volume level for the specified channel in the session.
+            </summary>
+            <param name="index">The zero-based index of the channel.</param>
+            <param name="level">The new volume level expressed as a normalized value between 0.0 and 1.0.</param>
+            <param name="eventContext">A user context value that is passed to the notification callback.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IChannelAudioVolume.GetChannelVolume(System.UInt32,System.Single@)">
+            <summary>
+            Retrieves the volume level for the specified channel in the session.
+            </summary>
+            <param name="index">The zero-based channel index.</param>
+            <param name="level">Receives the volume level expressed as a normalized value between 0.0 and 1.0.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IChannelAudioVolume.SetAllVolumes(System.UInt32,System.Single[],System.Guid)">
+            <summary>
+            Sets the individual volume levels for all the channels in the session.
+            </summary>
+            <param name="channelCount">The number of channels in the audio stream. This must match the volume level array length.</param>
+            <param name="levels">The new volume levels for each channel in the audio stream, expressed as normalized values between 0.0 and 1.0.</param>
+            <param name="eventContext">A user context value that is passed to the notification callback.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IChannelAudioVolume.GetAllVolumes(System.UInt32,System.Single[])">
+            <summary>
+            Retrieves the volume levels for all the channels in the session.
+            </summary>
+            <param name="length">The number of elements in the volumes array.</param>
+            <param name="volumes">Receives an array of volume levels for the channels in the audio stream.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.ISimpleAudioVolume">
+            <summary>
+            Enables a client to control the master volume level of an audio session. 
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd316531.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.ISimpleAudioVolume.SetMasterVolume(System.Single,System.Guid)">
+            <summary>
+            Sets the master volume level for the audio session.
+            </summary>
+            <param name="levelNorm">The new volume level expressed as a normalized value between 0.0 and 1.0.</param>
+            <param name="eventContext">A user context value that is passed to the notification callback.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.ISimpleAudioVolume.GetMasterVolume(System.Single@)">
+            <summary>
+            Retrieves the client volume level for the audio session.
+            </summary>
+            <param name="levelNorm">Receives the volume level expressed as a normalized value between 0.0 and 1.0. </param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.ISimpleAudioVolume.SetMute(System.Boolean,System.Guid)">
+            <summary>
+            Sets the muting state for the audio session.
+            </summary>
+            <param name="isMuted">The new muting state.</param>
+            <param name="eventContext">A user context value that is passed to the notification callback.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.ISimpleAudioVolume.GetMute(System.Boolean@)">
+            <summary>
+            Retrieves the current muting state for the audio session.
+            </summary>
+            <param name="isMuted">Receives the muting state.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IAudioInputSelector">
+            <summary>
+            Provides access to a hardware multiplexer control (input selector).
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd368220.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioInputSelector.GetSelection(System.UInt32@)">
+            <summary>
+            Gets the local ID of the part that is connected to the selector input that is currently selected.
+            </summary>
+            <param name="partId">Receives the local ID of the part that directly links to the currently selected selector input.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioInputSelector.SetSelection(System.UInt32,System.Guid)">
+            <summary>
+            Selects one of the inputs of the input selector.
+            </summary>
+            <param name="partId">The ID of the new selector input.</param>
+            <param name="eventContext">A user context value that is passed to the notification callback.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IAudioPeakMeter">
+            <summary>
+            Provides access to a hardware peak-meter control.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd368239.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioPeakMeter.GetChannelCount(System.UInt32@)">
+            <summary>
+            Gets the number of channels in the audio stream.
+            </summary>
+            <param name="count">Receives the channel count.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioPeakMeter.GetLevel(System.UInt32,System.Single@)">
+            <summary>
+            Gets the peak level that the peak meter recorded for the specified channel since the peak level for that channel was previously read.
+            </summary>
+            <param name="index">The zero-based channel index.</param>
+            <param name="level">Receives the peak meter level in decibels.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IAudioTreble">
+            <summary>
+            Provides access to a hardware treble-level control.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd371001.aspx
+            </remarks>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IAudioVolumeLevel">
+            <summary>
+            Provides access to a hardware volume control.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd371019.aspx
+            </remarks>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IConnector">
+            <summary>
+            Represents a point of connection between components.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd371048.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IConnector.GetType(Vannatech.CoreAudio.Enumerations.ConnectorType@)">
+            <summary>
+            Gets the type of this connector.
+            </summary>
+            <param name="connectorType">Receives the connector type.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IConnector.GetDataFlow(Vannatech.CoreAudio.Enumerations.DataFlow@)">
+            <summary>
+            Gets the direction of data flow through this connector.
+            </summary>
+            <param name="dataFlow">Receives the data-flow direction.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IConnector.ConnectTo(Vannatech.CoreAudio.Interfaces.IConnector)">
+            <summary>
+            Connects this connector to a connector in another device topology object.
+            </summary>
+            <param name="connector">The connector in the other device topology.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IConnector.Disconnect">
+            <summary>
+            Disconnects this connector from another connector.
+            </summary>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IConnector.IsConnected(System.Boolean@)">
+            <summary>
+            Indicates whether this connector is connected to another connector.
+            </summary>
+            <param name="isConnected">Receives the connection state.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IConnector.GetConnectedTo(Vannatech.CoreAudio.Interfaces.IConnector@)">
+            <summary>
+            Gets the connector to which this connector is connected.
+            </summary>
+            <param name="connector">Receives the connector that the current object is connected to.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IConnector.GetConnectorIdConnectedTo(System.String@)">
+            <summary>
+            Gets the global ID of the connector, if any, that this connector is connected to.
+            </summary>
+            <param name="connectorId">Receives the other connectors ID.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IConnector.GetDeviceIdConnectedTo(System.String@)">
+            <summary>
+            Gets the device identifier of the audio device, if any, that this connector is connected to.
+            </summary>
+            <param name="deviceId">Receives a string that contains the device identifier of the connected device.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IControlChangeNotify">
+            <summary>
+            Provides notifications when the status of a part (connector or subunit) changes.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd371088.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IControlChangeNotify.OnNotify(System.UInt32,System.Guid)">
+            <summary>
+            Notifies the client when the status of a part (connector or subunit) changes.
+            </summary>
+            <param name="processId">The process ID of the client that changed the state of the control.</param>
+            <param name="eventContext">A user context value that is passed to the notification callback.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IKsFormatSupport">
+            <summary>
+            Provides information about the audio data formats that are supported by a software-configured I/O connection.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd371384.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IKsFormatSupport.IsFormatSupported(System.IntPtr,System.UInt32,System.Boolean@)">
+            <summary>
+            Indicates whether the audio adapter device supports the specified audio stream format.
+            </summary>
+            <param name="format">An audio-stream format specifier.</param>
+            <param name="size">The size in bytes of the buffer that contains the format specifier.</param>
+            <param name="isSupported">Receives a value to indicate whether the format is supported.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IKsFormatSupport.GetDevicePreferredFormat(System.IntPtr@)">
+            <summary>
+            Gets the preferred audio stream format for the connection.
+            </summary>
+            <param name="format">Receives the format specifier for the preferred format.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IKsJackDescription">
+            <summary>
+            Provides information about the jacks or internal connectors that provide a physical connection between a device and an endpoint.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd371387.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IKsJackDescription.GetJackCount(System.UInt32@)">
+            <summary>
+            Gets the number of jacks required to connect to an endpoint device.
+            </summary>
+            <param name="count">Receives the number of jacks associated with the connector.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IKsJackDescription.GetJackDescription(System.UInt32,Vannatech.CoreAudio.Structures.KSJACK_DESCRIPTION@)">
+            <summary>
+            Gets a description of an audio jack.
+            </summary>
+            <param name="index">The zero-based index of the jack.</param>
+            <param name="descriptor">Receives a structure of type <see cref="T:Vannatech.CoreAudio.Structures.KSJACK_DESCRIPTION"/> that contains information about the jack.</param>
+            <returns>An HRESULT code indicating whether the operation succeeded of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolumeCallback">
+            <summary>
+            Provides notifications when the volume level or muting state of an audio endpoint device changes.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd370894.aspx
+            </remarks>
+        </member>
+        <member name="M:Vannatech.CoreAudio.Interfaces.IAudioEndpointVolumeCallback.OnNotify(System.IntPtr)">
+            <summary>
+            Notifies the client that the volume level or muting state of the audio endpoint device has changed.
+            </summary>
+            <param name="notificationData">The volume-notification data.</param>
+            <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Structures.KSJACK_SINK_INFORMATION">
+            <summary>
+            Stores information about an audio jack sink.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd316549.aspx
+            </remarks>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Structures.KSJACK_SINK_INFORMATION.ConnType">
+            <summary>
+            Specifies the type of connection.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Structures.KSJACK_SINK_INFORMATION.ManufacturerId">
+            <summary>
+            Specifies the sink manufacturer identifier.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Structures.KSJACK_SINK_INFORMATION.ProductId">
+            <summary>
+            Specifies the sink product identifier.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Structures.KSJACK_SINK_INFORMATION.AudioLatency">
+            <summary>
+            Specifies the latency of the audio sink.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Structures.KSJACK_SINK_INFORMATION.HDCPCapable">
+            <summary>
+            Specifies whether the sink supports High-bandwidth Digital Content Protection (HDCP).
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Structures.KSJACK_SINK_INFORMATION.AICapable">
+            <summary>
+            Specifies whether the sink supports ACP Packet, ISRC1, or ISRC2.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Structures.KSJACK_SINK_INFORMATION.SinkDescriptionLength">
+            <summary>
+            Specifies the length of the string in the SinkDescription member.
+            </summary>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Enumerations.ERole">
+            <summary>
+            Defines constants that indicate the role that the system has assigned to an audio endpoint device.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd370842.aspx
+            </remarks>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.ERole.eConsole">
+            <summary>
+            Games, system notification sounds, and voice commands.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.ERole.eMultimedia">
+            <summary>
+            Music, movies, narration, and live music recording.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.ERole.eCommunications">
+            <summary>
+            Voice communications (talking to another person).
+            </summary>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Enumerations.AudioSessionDisconnectReason">
+            <summary>
+            Defines constants that indicate a reason for an audio session being disconnected.
+            </summary>
+            <remarks>
+            MSDN Reference: Unknown
+            </remarks>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.AudioSessionDisconnectReason.DisconnectReasonDeviceRemoval">
+            <summary>
+            The user removed the audio endpoint device.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.AudioSessionDisconnectReason.DisconnectReasonServerShutdown">
+            <summary>
+            The Windows audio service has stopped.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.AudioSessionDisconnectReason.DisconnectReasonFormatChanged">
+            <summary>
+            The stream format changed for the device that the audio session is connected to.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.AudioSessionDisconnectReason.DisconnectReasonSessionLogoff">
+            <summary>
+            The user logged off the WTS session that the audio session was running in.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.AudioSessionDisconnectReason.DisconnectReasonSessionDisconnected">
+            <summary>
+            The WTS session that the audio session was running in was disconnected.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.AudioSessionDisconnectReason.DisconnectReasonExclusiveModeOverride">
+            <summary>
+            The (shared-mode) audio session was disconnected to make the audio endpoint device available for an exclusive-mode connection.
+            </summary>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Structures.KSJACK_DESCRIPTION">
+            <summary>
+            Describes an audio jack.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd316543.aspx
+            </remarks>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Structures.KSJACK_DESCRIPTION.ChannelMapping">
+            <summary>
+            Specifies the mapping of the two audio channels in a stereo jack to speaker positions.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Structures.KSJACK_DESCRIPTION.Color">
+            <summary>
+            The jack color.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Structures.KSJACK_DESCRIPTION.ConnectionType">
+            <summary>
+            The connection type.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Structures.KSJACK_DESCRIPTION.GeoLocation">
+            <summary>
+            The geometric location of the jack.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Structures.KSJACK_DESCRIPTION.GenLocation">
+            <summary>
+            The general location of the jack.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Structures.KSJACK_DESCRIPTION.PortConnection">
+            <summary>
+            The type of port represented by the jack.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Structures.KSJACK_DESCRIPTION.IsConnected">
+            <summary>
+            Indicates whether an endpoint device is plugged into the jack, if supported by the adapter.
+            </summary>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Enumerations.KSJACK_SINK_CONNECTIONTYPE">
+            <summary>
+            Defines constants that specify the type of connection.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd316547.aspx
+            </remarks>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.KSJACK_SINK_CONNECTIONTYPE.KSJACK_SINK_CONNECTIONTYPE_HDMI">
+            <summary>
+            High-Definition Multimedia Interface (HDMI) connection.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.KSJACK_SINK_CONNECTIONTYPE.KSJACK_SINK_CONNECTIONTYPE_DISPLAYPORT">
+            <summary>
+            Display port.
+            </summary>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Constants.ComCLSIDs">
+            <summary>
+            Defines all COM CLSIDs applicable to CoreAudio API.
+            </summary>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Enumerations.PartType">
+            <summary>
+            Defines constants that indicate whether a part in a device topology is a connector or subunit.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd316559.aspx
+            </remarks>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.PartType.Connector">
+            <summary>
+            The part is a connector.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Enumerations.PartType.Subunit">
+            <summary>
+            The part is a subunit.
+            </summary>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Externals.PROPERTYKEY">
+            <summary>
+            Specifies the FMTID/PID identifier that programmatically identifies a property.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/bb773381.aspx
+            Note: This item is external to CoreAudio API, and is defined in the Windows Property System API.
+            </remarks>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Externals.PROPERTYKEY.fmtid">
+            <summary>
+            A unique GUID for the property.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Externals.PROPERTYKEY.pid">
+            <summary>
+            A property identifier (PID).
+            </summary>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Constants.DEVICE_STATE_XXX">
+            <summary>
+            Indicate the current state of an audio endpoint device. 
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd370823.aspx
+            </remarks>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Constants.DEVICE_STATE_XXX.DEVICE_STATE_ACTIVE">
+            <summary>
+            The audio endpoint device is active.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Constants.DEVICE_STATE_XXX.DEVICE_STATE_DISABLED">
+            <summary>
+            The audio endpoint device is disabled.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Constants.DEVICE_STATE_XXX.DEVICE_STATE_NOTPRESENT">
+            <summary>
+            The audio endpoint device is not present because the audio adapter that connects to the endpoint device has been removed or disabled.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Constants.DEVICE_STATE_XXX.DEVICE_STATE_UNPLUGGED">
+            <summary>
+            The audio endpoint device is unplugged.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Constants.DEVICE_STATE_XXX.DEVICE_STATEMASK_ALL">
+            <summary>
+            Includes audio endpoint devices in all states.
+            </summary>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Constants.ENDPOINT_HARDWARE_SUPPORT_XXX">
+            <summary>
+            Hardware support flags for an audio endpoint device.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd370835.aspx
+            </remarks>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Constants.ENDPOINT_HARDWARE_SUPPORT_XXX.ENDPOINT_HARDWARE_SUPPORT_VOLUME">
+            <summary>
+            The audio endpoint device supports a hardware volume control.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Constants.ENDPOINT_HARDWARE_SUPPORT_XXX.ENDPOINT_HARDWARE_SUPPORT_MUTE">
+            <summary>
+            The audio endpoint device supports a hardware mute control.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Constants.ENDPOINT_HARDWARE_SUPPORT_XXX.ENDPOINT_HARDWARE_SUPPORT_METER">
+            <summary>
+            The audio endpoint device supports a hardware peak meter.
+            </summary>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Structures.LUID">
+            <summary>
+            Stores the video port identifier.
+            </summary>
+            <remarks>
+            MSDN Reference: http://msdn.microsoft.com/en-us/library/dd316552.aspx
+            </remarks>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Structures.LUID.LowPart">
+            <summary>
+            LowPart of the video port identifier.
+            </summary>
+        </member>
+        <member name="F:Vannatech.CoreAudio.Structures.LUID.HighPart">
+            <summary>
+            HighPart of the video port identifier.
+            </summary>
+        </member>
+        <member name="T:Vannatech.CoreAudio.Constants.ComIIDs">
+            <summary>
+            Defines all COM IIDs applicable to CoreAudio API.
+            </summary>
+        </member>
+    </members>
+</doc>
