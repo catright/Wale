@@ -124,6 +124,7 @@ namespace Wale
         //Session Control
         private void ResetAllSessionVolume()
         {
+            audio.Sessions.ForEach(s => s.Volume = 0.01f);
             //uint[] ids = Wale.Subclasses.Audio.GetApplicationIDs();
             //for (int i = 0; i < ids.Count(); i++) { SetSessionVolume(ids[i], 0.01); }
         }
@@ -143,6 +144,7 @@ namespace Wale
         private void Refresh(bool first = false)
         {
             audio.UpdateSession();
+            Sessions = audio.Sessions;
             /*lock (AClocker)
             {
                 lock (Lockers.Sessions)
@@ -208,7 +210,7 @@ namespace Wale
                 //sw.Restart();
                 //Task wait = Task.Delay(settings.AutoControlInterval);
                 Refresh();
-                /*
+                
                 if (settings.AutoControl)
                 {
                     lock (Lockers.Sessions)
@@ -221,7 +223,7 @@ namespace Wale
                 await Task.Delay(settings.AutoControlInterval);
                 //await wait;
                 //System.Threading.Thread.Sleep(settings.AutoControlInterval);
-                /*
+                
                 if (settings.AutoControl)
                 {
                     await Task.WhenAll(aas);
@@ -252,15 +254,15 @@ namespace Wale
                 //Task wait = Task.Delay(settings.GCInterval);
 
                 //bool auto = Autocon();
-                /*if (settings.AutoControl)
+                if (settings.AutoControl)
                 {
                     Sessions.ForEach(s => {
                         aas.Add(new Task(new Action(() =>
                         {
-                            SessionState state = s.SessionState;
-                            if (state != SessionState.Active && s.SessionVolume != 0.01)
+                            SessionState state = s.State;
+                            if (state != SessionState.Active && s.Volume != 0.01)
                             {
-                                SetSessionVolume(s.ProcessId, 0.01);
+                                SetSessionVolume(s.PID, 0.01);
                                 s.ResetAverage();
                             }
                         })));
@@ -270,7 +272,7 @@ namespace Wale
                 
                 await Task.Delay(settings.GCInterval);
 
-                /*if (settings.AutoControl)
+                if (settings.AutoControl)
                 {
                     await Task.WhenAll(aas);
                     aas.Clear();

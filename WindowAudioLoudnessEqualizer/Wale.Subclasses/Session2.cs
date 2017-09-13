@@ -21,6 +21,7 @@ namespace Wale.CoreAudio
 
         public string Name;
         public int PID { get => ASC.ProcessID; }
+        public string Identifier { get => ASC.SessionIdentifier; }
         public float Volume { get => VolumeObject.MasterVolume; set => VolumeObject.MasterVolume = value; }
         public float Peak { get => PeakObject.PeakValue; }
 
@@ -63,7 +64,7 @@ namespace Wale.CoreAudio
         private SessionState GetState()
         {
             if(ASC == null) { throw new NullReferenceException("AudioSessionControl2 is not exists."); }
-            switch(ASC.SessionState)
+            switch (ASC.SessionState)
             {
                 case AudioSessionState.AudioSessionStateActive:
                     return SessionState.Active;

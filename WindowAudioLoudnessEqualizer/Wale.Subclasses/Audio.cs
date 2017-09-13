@@ -95,22 +95,28 @@ namespace Wale.CoreAudio
         private Sessions2 sessionList;
         private void GetSession()
         {
-            Guid IID = typeof(AudioSessionEnumerator).GUID;
+            Guid IID = typeof(AudioSessionManager2).GUID;
             IntPtr o = defaultDevice.Activate(IID, 0, IntPtr.Zero);
 
             sessionList = new Sessions2();
-            using (AudioSessionEnumerator obj = new AudioSessionEnumerator(o))
+            using (AudioSessionManager2 obj = new AudioSessionManager2(o))
             {
-                for (int i = 0; i < obj.Count; i++)
+                if (obj == null) return;
+                using (AudioSessionEnumerator ase = obj.GetSessionEnumerator())
                 {
-                    AudioSessionControl asc = obj.GetSession(i);
-                    sessionList.Add(new Session2((AudioSessionControl2)asc));
+                    /*for (int i = 0; i < ase.Count; i++)
+                    {
+                        AudioSessionControl asc = ase.GetSession(i);
+                        sessionList.Add(new Session2(new AudioSessionControl2(asc.BasePtr)));
+                    }/**/
+                    foreach (AudioSessionControl asc in ase)
+                    {
+                        sessionList.Add(new Session2(new AudioSessionControl2(asc.BasePtr)));
+                    }
                 }
-                //foreach (AudioSessionControl asc in enumerator)
-                //{
-                    //sessionList.Add(new Session2((AudioSessionControl2)asc));
-                //}
             }
+            //sessionList.ForEach(s => Console.WriteLine($"{s.PID}"));
+            
         }
         #endregion
 

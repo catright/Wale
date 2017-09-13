@@ -59,5 +59,11 @@
     <Compile Include="Sessions2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Wale\Wale.csproj">
+      <Project>{88d9419d-58b9-4b5c-be56-9762bae0c670}</Project>
+      <Name>Wale</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

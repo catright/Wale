@@ -83,7 +83,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AppVersion.cs" />
+    <Compile Include="Libs\AppVersion.cs" />
     <Compile Include="Forms\Config.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -102,8 +102,8 @@
     <Compile Include="Forms\Help.Designer.cs">
       <DependentUpon>Help.cs</DependentUpon>
     </Compile>
-    <Compile Include="AudioControl.cs" />
-    <Compile Include="ColorSet.cs" />
+    <Compile Include="Libs\AudioControl.cs" />
+    <Compile Include="Libs\ColorSet.cs" />
     <Compile Include="Forms\Licenses.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -116,13 +116,13 @@
     <Compile Include="MainWindow.Designer.cs">
       <DependentUpon>MainWindow.cs</DependentUpon>
     </Compile>
-    <Compile Include="MeterSet.cs">
+    <Compile Include="Libs\MeterSet.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="MeterSet.Designer.cs">
+    <Compile Include="Libs\MeterSet.Designer.cs">
       <DependentUpon>MeterSet.cs</DependentUpon>
     </Compile>
-    <Compile Include="Program.cs" />
+    <Compile Include="Libs\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Forms\Config.resx">
       <DependentUpon>Config.cs</DependentUpon>

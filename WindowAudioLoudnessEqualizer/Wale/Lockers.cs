@@ -10,5 +10,6 @@ namespace Wale
     {
         public static object Sessions = new object();
         public static object Logger = new object();
+        public static object AudioObject = new object();
     }
 }

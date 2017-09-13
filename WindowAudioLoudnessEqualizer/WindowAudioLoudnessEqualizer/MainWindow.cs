@@ -67,7 +67,7 @@ namespace Wale.WinForm
         List<Task> _updateTasks;
         object _closelock = new object(), _activelock = new object(), _ntvlock = new object();
         volatile bool _realClose = false, _activated = false, _numberToVol = true;
-        bool debug = false, mouseWheelDebug = false, audioDebug = false, updateVolumeDebug = false, updateSessionDebug = false;
+        bool debug = false, mouseWheelDebug = false, audioDebug = false, updateVolumeDebug = false, updateSessionDebug = true;
         bool bAllowPaintMaster = true, bAllowPaintSession = true, bAllowPaintLog = true;
         #endregion
 
@@ -478,7 +478,7 @@ namespace Wale.WinForm
         private void UpdateSessionTask()
         {
             Log("Start UpdateSessionTask");
-            /*while (!Rclose())
+            while (!Rclose())
             {
                 //Task wait = Task.Delay(settings.UIUpdateInterval);
                 //if (updateSessionDelay > 0) wait.Start();
@@ -498,31 +498,31 @@ namespace Wale.WinForm
                         List<MeterSet> expired = new List<MeterSet>(); //expired tabSession.controls buffer
                         lock (Lockers.Sessions)
                         {
-                            foreach (Session sc in Audio.Sessions)
+                            foreach (Wale.CoreAudio.Session2 sc in Audio.Sessions)
                             {//check and insert new session data as meterset to tabSession.controls
-                                if (sc.SessionState != SessionState.Expired)
+                                if (sc.State != Wale.CoreAudio.SessionState.Expired)
                                 {
                                     bool found = false;
-                                    foreach (MeterSet item in tabSession.Controls) { if (sc.ProcessId == item.ID) found = true; }
+                                    foreach (MeterSet item in tabSession.Controls) { if (sc.PID == item.ID) found = true; }
                                     if (!found)
                                     {
-                                        SetTabControl(tabSession, new MeterSet(sc.ProcessId, sc.ProcessName, settings.DetailedView, updateSessionDebug));
+                                        SetTabControl(tabSession, new MeterSet(sc.PID, sc.Name, settings.DetailedView, updateSessionDebug));
                                         reAlign = true;
-                                        Log($"New MeterSet:{sc.ProcessName}({sc.ProcessId})");
+                                        Log($"New MeterSet:{sc.Name}({sc.PID})");
                                     }
                                 }
                             }
                             foreach (MeterSet item in tabSession.Controls)
                             {//check expired session and update not expired session
                                 if (Audio.Sessions.GetSession(item.ID) == null) { expired.Add(item); reAlign = true; break; }
-                                Session session = Audio.Sessions.GetSession(item.ID);
-                                if (session.SessionState == SessionState.Expired) { expired.Add(item); reAlign = true; }
+                                Wale.CoreAudio.Session2 session = Audio.Sessions.GetSession(item.ID);
+                                if (session.State == Wale.CoreAudio.SessionState.Expired) { expired.Add(item); reAlign = true; }
                                 else// if (session.Active)
                                 {
                                     if (settings.DetailedView) item.DetailOn();
                                     else item.DetailOff();
                                     if (item.detailChanged) { reAlign = true; item.detailChanged = false; }
-                                    item.UpdateData(session.SessionVolume, session.SessionPeak, session.AveragePeak);
+                                    item.UpdateData(session.Volume, session.Peak, session.AveragePeak);
                                     session.Relative = (float)item.Relative;
                                     session.AutoIncluded = item.AutoIncluded;
                                 }

@@ -20,14 +20,14 @@ namespace Wale.WinForm
         private Color foreColor = ColorSet.ForeColor, mainColor = ColorSet.MainColor, peakColor = ColorSet.PeakColor, averageColor = ColorSet.AverageColor;
         private enum LabelMode { Relative, Volume, Peak, AveragePeak };
 
-        private uint _ID;
+        private int _ID;
         private int _relative = 0;
         private bool _Updated, detailed;//, _disposed = false;
         private LabelMode labelMode = LabelMode.Volume;
 
         //public variables
         //public List<double> LastPeaks;
-        public uint ID { get => _ID; }
+        public int ID { get => _ID; }
         public string SessionName { get => lSessionNameLabel.Text; }
         public double Relative { get => ((double)_relative / 100.0); }
         public bool AutoIncluded { get => cbAutoIncluded.Checked; }
@@ -40,7 +40,7 @@ namespace Wale.WinForm
         {
             InitializeComponent();
         }
-        public MeterSet(uint id, string name, bool detail, bool dbg = false)
+        public MeterSet(int id, string name, bool detail, bool dbg = false)
         {
             InitializeComponent();
             _ID = id;
