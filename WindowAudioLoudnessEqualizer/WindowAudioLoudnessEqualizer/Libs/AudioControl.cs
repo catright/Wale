@@ -9,10 +9,9 @@ using Wale.CoreAudio;
 
 namespace Wale
 {
-    //public static class Locker { public static object locker = new object(); }
     public class AudioControl : IDisposable
     {
-        //internal variables
+        #region private variables
         private Wale.WinForm.Properties.Settings settings = Wale.WinForm.Properties.Settings.Default;
         private JDPack.DebugPack DP;
         private CoreAudio.Audio audio;
@@ -23,9 +22,17 @@ namespace Wale
         private double baseLv, baseLvSquare, upRate = 0.02, kurtosis = 0.5;
         private VFunction.FactorsForSlicedLinear sliceFactors;
         private Task audioControlTask, controllerCleanTask;
+        #endregion
 
-        //global variables
-        public Wale.CoreAudio.Sessions2 Sessions;
+        #region global variables
+        public Wale.CoreAudio.SessionDatas Sessions
+        {
+            get
+            {
+                if (audio != null) return audio.Sessions;
+                else return null;
+            }
+        }
         //public bool AutoControl { get => Autocon(); set { Autocon(value); if (!Autocon()) ResetAllSessionVolume(); } }
         public bool Debug { get => DP.DebugMode; set => DP.DebugMode = value; }
         //public double MasterPeak { get { if (masterDevice != null) return masterDevice.MasterPeak; else return 0; } }
@@ -39,8 +46,9 @@ namespace Wale
         public double MasterVolume { get { if (audio != null) return audio.MasterVolume; else return 0; } }
         public double UpRate { get => upRate; set { upRate = (value * settings.AutoControlInterval / 1000); } }
         public double Kurtosis { get => kurtosis; set => kurtosis = value; }
+        #endregion
 
-        //class loads.
+        #region class loads
         public AudioControl(double bVol, Transformation.TransMode tmode = Transformation.TransMode.Transform1)
         {
             DP = new JDPack.DebugPack(false);
@@ -54,7 +62,7 @@ namespace Wale
             audio = new CoreAudio.Audio(true);
             //masterDevice = new MasterDevice();
 
-            Sessions = new Sessions2();
+            //Sessions = new Sessions3();
             Refresh();
 
             controllerCleanTask = new Task(ControllerCleanTask);
@@ -63,8 +71,8 @@ namespace Wale
             audioControlTask = new Task(AudioControlTask);
             audioControlTask.Start();
         }
-
-        //Dispose
+        #endregion
+        #region Dispose
         ~AudioControl() { Dispose(false); }
         public void Dispose()
         {
@@ -87,16 +95,16 @@ namespace Wale
                 disposed = true;
             }
         }
-
-        //flag controls
+        #endregion
+        #region flag controls
         private bool Terminate() { bool val; lock (terminatelock) { val = terminate; } return val; }
         private void Terminate(bool val) { lock (terminatelock) { terminate = val; } }
         //private bool Autocon() { bool val; lock (_autoconlock) { val = _AutoControl; } return val; }
         //private void Autocon(bool val) { lock (_autoconlock) { _AutoControl = val; } }
+        #endregion
 
 
-        
-        //Volume controls
+        #region Master Volume controls
         public void SetBaseTo(double bVol)
         {
             if (bVol > 1) bVol = 1;
@@ -118,48 +126,31 @@ namespace Wale
             audio.MasterVolume = (float)v;
             //Wale.Subclasses.Audio.SetMasterVolume((float)v);
         }
+        #endregion
 
 
-        
-        //Session Control
+        #region Session Control
         private void ResetAllSessionVolume()
         {
             audio.Sessions.ForEach(s => s.Volume = 0.01f);
             //uint[] ids = Wale.Subclasses.Audio.GetApplicationIDs();
             //for (int i = 0; i < ids.Count(); i++) { SetSessionVolume(ids[i], 0.01); }
         }
-        private void SetSessionVolume(int id, double v)
+        private void SetSessionVolume(uint id, double v)
         {
             v += Sessions.GetRelative(id);
             if (v < 0.01) v = 0.01;
             else if (v > 1) v = 1;
 
             DP.DML(string.Format("SessionTo:{0:n6}", v));
-            Sessions.GetSession(id).Volume = (float)v;
+            using (SessionData s = Sessions.GetSession(id))
+            {
+                s.Volume = (float)v;
+                audio.SetSessionVolume(s, (float)v);
+            }
             //Sessions.GetSession(id).SetVolume((float)v);
         }
-
-
-        //Automatic volume control.
-        private void Refresh(bool first = false)
-        {
-            audio.UpdateSession();
-            Sessions = audio.Sessions;
-            /*lock (AClocker)
-            {
-                lock (Lockers.Sessions)
-                {
-                    Sessions.RefreshSessions();
-                    Sessions.ForEach(s =>
-                    {
-                        s.SetAvTime(settings.AverageTime, settings.AutoControlInterval);
-                        s.Refresh();
-                    });
-                }
-            }/**/
-            //DP.DML($"{Sessions.Count} ({System.DateTime.Now.Ticks})");
-        }
-        private void SessionControl(Session2 s)
+        private void SessionControl(SessionData s)
         {
             string dm = $"AutoVolume:{s.Name}({s.PID}), inc={s.AutoIncluded}";
             if (s.State == SessionState.Active && s.AutoIncluded)
@@ -198,6 +189,27 @@ namespace Wale
                 //Console.WriteLine(dm);
             }
         }
+        private void Refresh(bool first = false)
+        {
+            lock (Lockers.Sessions) { audio.UpdateSession(); }
+            //lock (Lockers.Sessions) { Sessions = audio.Sessions; }
+            /*lock (AClocker)
+            {
+                lock (Lockers.Sessions)
+                {
+                    Sessions.RefreshSessions();
+                    Sessions.ForEach(s =>
+                    {
+                        s.SetAvTime(settings.AverageTime, settings.AutoControlInterval);
+                        s.Refresh();
+                    });
+                }
+            }/**/
+            //DP.DML($"{Sessions.Count} ({System.DateTime.Now.Ticks})");
+        }
+        #endregion
+
+        #region Automatic volume control
         private async void AudioControlTask()
         {
             JDPack.FileLog.Log("Audio Control Task Start");
@@ -292,11 +304,8 @@ namespace Wale
             }
             JDPack.FileLog.Log("Controller Clean Task(GC) End");
         }
+        #endregion
 
 
-        
     }//End Class AudioControl
-    
-
-    
 }//End Namespace WindowAudioLoudnessEqualizer

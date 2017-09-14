@@ -3,49 +3,31 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CSCore.CoreAudioAPI;
+//using NAudio.CoreAudioApi;
 
 namespace Wale.CoreAudio
 {
-    public class Session2:IDisposable
-    {
-        private object locker = new object();
-        //private AudioSessionControl2 asc;
-        //private SimpleAudioVolume volumeObject;
-        //private AudioMeterInformation peakObject;
-
-        public IntPtr BasePtr { get; private set; }
-
+    public class Session3 : IDisposable
+    {/*
+        private AudioSessionControl ASC;
         public float Relative = 0;
         public double AveragePeak { get; private set; }
         public bool AutoIncluded = true, Averaging = true;
 
         public SessionState State { get => GetState(); }
 
-        public string Name { get; private set; }
-        private int pid;
-        public uint PID { get => (uint)pid; set => pid = (int)value; }
+        public uint PID { get; private set; }
         public string Identifier { get; private set; }
+        public string Name { get; private set; }
         public float Volume { get => GetVolume(); set => SetVolume(value); }
         public float Peak { get => GetPeak(); }
 
-        public Session2(IntPtr basePtr)
+        public Session3(AudioSessionControl asc)
         {
-            this.BasePtr = basePtr;
-            lock (locker)
-            {
-                using (var asc = new AudioSessionControl2(basePtr))
-                {
-                    this.pid = asc.ProcessID;
-                    this.Identifier = asc.SessionIdentifier;
-                    this.Name = MakeName(asc.SessionIdentifier);
-                }
-                //ASC = asc;
-                //Name = MakeName(asc.SessionIdentifier);
-
-                //volumeObject = new SimpleAudioVolume(asc.BasePtr);
-                //peakObject = new AudioMeterInformation(asc.BasePtr);
-            }
+            this.ASC = asc;
+            this.PID = asc.GetProcessID;
+            this.Identifier = asc.GetSessionIdentifier;
+            this.Name = MakeName(asc.GetSessionIdentifier);
         }
         private string MakeName(string name)
         {
@@ -77,55 +59,43 @@ namespace Wale.CoreAudio
 
         private SessionState GetState()
         {
-            lock (locker)
+            switch (ASC.State)
             {
-                using (var asc = new AudioSessionControl2(BasePtr))
-                {
-                    switch (asc.SessionState)
-                    {
-                        case AudioSessionState.AudioSessionStateActive:
-                            return SessionState.Active;
-                        case AudioSessionState.AudioSessionStateInactive:
-                            return SessionState.Inactive;
-                        case AudioSessionState.AudioSessionStateExpired:
-                            return SessionState.Expired;
-                        default:
-                            return SessionState.Expired;
-                    }
-                }
+                case NAudio.CoreAudioApi.Interfaces.AudioSessionState.AudioSessionStateActive:
+                    return SessionState.Active;
+                case NAudio.CoreAudioApi.Interfaces.AudioSessionState.AudioSessionStateInactive:
+                    return SessionState.Inactive;
+                case NAudio.CoreAudioApi.Interfaces.AudioSessionState.AudioSessionStateExpired:
+                    return SessionState.Expired;
+                default:
+                    return SessionState.Expired;
             }
         }
         private float GetVolume()
         {
-            lock (locker)
-            {
-                using (var volumeObject = new SimpleAudioVolume(BasePtr))
-                {
-                    return volumeObject.MasterVolume;
-                }
-            }
+            //using (var volumeObject = new SimpleAudioVolume(BasePtr))
+            //{
+            //return volumeObject.MasterVolume;
+            //}
+            return ASC.SimpleAudioVolume.Volume;
         }
         private void SetVolume(float value)
         {
-            lock (locker)
-            {
-                using (var volumeObject = new SimpleAudioVolume(BasePtr))
-                {
-                    volumeObject.MasterVolume = value;
-                }
-            }
+            //using (var volumeObject = new SimpleAudioVolume(BasePtr))
+            //{
+            //volumeObject.MasterVolume = value;
+            //}
+            ASC.SimpleAudioVolume.Volume = value;
         }
         private float GetPeak()
         {
-            lock (locker)
-            {
-                using (var peakObject = new AudioMeterInformation(BasePtr))
-                {
-                    return peakObject.PeakValue;
-                }
-            }
+            //using (var peakObject = new AudioMeterInformation(BasePtr))
+            //{
+            //return peakObject.PeakValue;
+            //}
+            return ASC.AudioMeterInformation.MasterPeakValue;
         }
-
+        */
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 
@@ -137,9 +107,7 @@ namespace Wale.CoreAudio
                 {
                     // TODO: dispose managed state (managed objects).
                 }
-                //if (asc != null) System.Runtime.InteropServices.Marshal.ReleaseComObject(asc);
-                //if (volumeObject != null) System.Runtime.InteropServices.Marshal.ReleaseComObject(volumeObject);
-                //if (peakObject != null) System.Runtime.InteropServices.Marshal.ReleaseComObject(peakObject);
+                //if (ASC != null) System.Runtime.InteropServices.Marshal.ReleaseComObject(ASC);
                 // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
                 // TODO: set large fields to null.
 
@@ -148,7 +116,7 @@ namespace Wale.CoreAudio
         }
 
         // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-        //~Session2() {
+        //~Session3() {
             // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
             //Dispose(false);
         //}
@@ -162,5 +130,5 @@ namespace Wale.CoreAudio
             //GC.SuppressFinalize(this);
         }
         #endregion
-    }//End class Session2
+    }
 }

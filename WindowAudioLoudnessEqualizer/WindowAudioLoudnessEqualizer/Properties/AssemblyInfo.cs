@@ -33,6 +33,6 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 //
-// Using Revision to pre-release option, 0=release, 1=beta, 2=alpha, >2=pre-alpha
-[assembly: System.Reflection.AssemblyVersion("0.1.4.1")]
-[assembly: System.Reflection.AssemblyFileVersion("0.1.4.1")]
+// Using Revision to pre-release option, 3>=release, 2=beta, 1=alpha, 0=pre-alpha
+[assembly: System.Reflection.AssemblyVersion("0.1.5.1")]
+[assembly: System.Reflection.AssemblyFileVersion("0.1.5.1")]

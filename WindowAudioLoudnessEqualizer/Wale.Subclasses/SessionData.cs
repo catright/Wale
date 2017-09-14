@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CSCore.CoreAudioAPI;
 
 namespace Wale.CoreAudio
 {
-    public class Session2:IDisposable
+    public class SessionData : IDisposable
     {
         private object locker = new object();
         //private AudioSessionControl2 asc;
@@ -20,32 +19,20 @@ namespace Wale.CoreAudio
         public double AveragePeak { get; private set; }
         public bool AutoIncluded = true, Averaging = true;
 
-        public SessionState State { get => GetState(); }
+        public SessionState State { get; set; }
 
         public string Name { get; private set; }
         private int pid;
         public uint PID { get => (uint)pid; set => pid = (int)value; }
         public string Identifier { get; private set; }
-        public float Volume { get => GetVolume(); set => SetVolume(value); }
-        public float Peak { get => GetPeak(); }
+        public float Volume { get; set; }
+        public float Peak { get; set; }
 
-        public Session2(IntPtr basePtr)
+        public SessionData(int pid, string ident)
         {
-            this.BasePtr = basePtr;
-            lock (locker)
-            {
-                using (var asc = new AudioSessionControl2(basePtr))
-                {
-                    this.pid = asc.ProcessID;
-                    this.Identifier = asc.SessionIdentifier;
-                    this.Name = MakeName(asc.SessionIdentifier);
-                }
-                //ASC = asc;
-                //Name = MakeName(asc.SessionIdentifier);
-
-                //volumeObject = new SimpleAudioVolume(asc.BasePtr);
-                //peakObject = new AudioMeterInformation(asc.BasePtr);
-            }
+            this.pid = (int)pid;
+            this.Identifier = ident;
+            this.Name = MakeName(ident);
         }
         private string MakeName(string name)
         {
@@ -74,58 +61,7 @@ namespace Wale.CoreAudio
             AveragePeak = Peaks.Average();
             //Console.WriteLine($"Av={AveragePeak}, PC={Peaks.Count}, AvT={AvTime}");
         }
-
-        private SessionState GetState()
-        {
-            lock (locker)
-            {
-                using (var asc = new AudioSessionControl2(BasePtr))
-                {
-                    switch (asc.SessionState)
-                    {
-                        case AudioSessionState.AudioSessionStateActive:
-                            return SessionState.Active;
-                        case AudioSessionState.AudioSessionStateInactive:
-                            return SessionState.Inactive;
-                        case AudioSessionState.AudioSessionStateExpired:
-                            return SessionState.Expired;
-                        default:
-                            return SessionState.Expired;
-                    }
-                }
-            }
-        }
-        private float GetVolume()
-        {
-            lock (locker)
-            {
-                using (var volumeObject = new SimpleAudioVolume(BasePtr))
-                {
-                    return volumeObject.MasterVolume;
-                }
-            }
-        }
-        private void SetVolume(float value)
-        {
-            lock (locker)
-            {
-                using (var volumeObject = new SimpleAudioVolume(BasePtr))
-                {
-                    volumeObject.MasterVolume = value;
-                }
-            }
-        }
-        private float GetPeak()
-        {
-            lock (locker)
-            {
-                using (var peakObject = new AudioMeterInformation(BasePtr))
-                {
-                    return peakObject.PeakValue;
-                }
-            }
-        }
-
+        
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 
@@ -149,8 +85,8 @@ namespace Wale.CoreAudio
 
         // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
         //~Session2() {
-            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-            //Dispose(false);
+        // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+        //Dispose(false);
         //}
 
         // This code added to correctly implement the disposable pattern.

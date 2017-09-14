@@ -67,14 +67,10 @@ namespace Wale.WinForm
         List<Task> _updateTasks;
         object _closelock = new object(), _activelock = new object(), _ntvlock = new object();
         volatile bool _realClose = false, _activated = false, _numberToVol = true;
-        bool debug = false, mouseWheelDebug = false, audioDebug = false, updateVolumeDebug = false, updateSessionDebug = true;
+        bool debug = false, mouseWheelDebug = false, audioDebug = false, updateVolumeDebug = false, updateSessionDebug = false;
         bool bAllowPaintMaster = true, bAllowPaintSession = true, bAllowPaintLog = true;
         #endregion
-
-        #region Public Vatiables
-
-        #endregion
-
+        
         public MainWindow()
         {
             InitializeComponent();
@@ -498,7 +494,7 @@ namespace Wale.WinForm
                         List<MeterSet> expired = new List<MeterSet>(); //expired tabSession.controls buffer
                         lock (Lockers.Sessions)
                         {
-                            foreach (Wale.CoreAudio.Session2 sc in Audio.Sessions)
+                            foreach (var sc in Audio.Sessions)
                             {//check and insert new session data as meterset to tabSession.controls
                                 if (sc.State != Wale.CoreAudio.SessionState.Expired)
                                 {
@@ -515,7 +511,7 @@ namespace Wale.WinForm
                             foreach (MeterSet item in tabSession.Controls)
                             {//check expired session and update not expired session
                                 if (Audio.Sessions.GetSession(item.ID) == null) { expired.Add(item); reAlign = true; break; }
-                                Wale.CoreAudio.Session2 session = Audio.Sessions.GetSession(item.ID);
+                                var session = Audio.Sessions.GetSession(item.ID);
                                 if (session.State == Wale.CoreAudio.SessionState.Expired) { expired.Add(item); reAlign = true; }
                                 else// if (session.Active)
                                 {
