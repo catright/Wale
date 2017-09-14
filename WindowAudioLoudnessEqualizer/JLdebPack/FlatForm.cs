@@ -87,7 +87,7 @@ namespace JDPack
             this.titleLabel.Margin = new System.Windows.Forms.Padding(0);
             this.titleLabel.Name = "titleLabel";
             this.titleLabel.Padding = new System.Windows.Forms.Padding(15, 11, 15, 11);
-            this.titleLabel.Size = new System.Drawing.Size(124, 54);
+            this.titleLabel.Size = new System.Drawing.Size(142, 61);
             this.titleLabel.TabIndex = 0;
             this.titleLabel.Text = "WALE";
             this.titleLabel.MouseDown += new System.Windows.Forms.MouseEventHandler(this.titlePanel_MouseDown);

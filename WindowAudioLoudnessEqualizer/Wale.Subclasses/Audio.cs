@@ -11,6 +11,7 @@ using CSCore.CoreAudioAPI;
 
 namespace Wale.CoreAudio
 {
+    public enum DeviceState { Active, Disabled, UnPlugged, NotPresent, Unknown }
     public enum SessionState { Active, Inactive, Expired }
     public class Audio : IDisposable
     {
@@ -78,11 +79,22 @@ namespace Wale.CoreAudio
             GetMasterVolume();
             GetMasterPeak();
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public List<DeviceData> GetDeviceList() { return EnumerateWasapiDevices(); }
 
-        public void UpdateSession()
-        {
-            GetSession();
-        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public void UpdateSession() { GetSession(); }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="session"></param>
+        /// <param name="volume"></param>
+        public void SetSessionVolume(SessionData session, float volume) { setSessionVolume(session, volume); }
         #endregion
 
 
@@ -93,6 +105,7 @@ namespace Wale.CoreAudio
         {
             using (var defaultDevice = GetDefaultDevice())
             {
+                if (defaultDevice == null) { JDPack.FileLog.Log("GetMasterVolume: Fail to get master device."); return -1; }
                 Guid IID_IAudioEndpointVolume = typeof(AudioEndpointVolume).GUID;
                 IntPtr i = defaultDevice.Activate(IID_IAudioEndpointVolume, 0, IntPtr.Zero);
                 using (var aev = new AudioEndpointVolume(i))
@@ -106,6 +119,7 @@ namespace Wale.CoreAudio
         {
             using (var defaultDevice = GetDefaultDevice())
             {
+                if (defaultDevice == null) { JDPack.FileLog.Log("SetMasterVolume: Fail to get master device."); return; }
                 Guid IID_IAudioEndpointVolume = typeof(AudioEndpointVolume).GUID;
                 IntPtr i = defaultDevice.Activate(IID_IAudioEndpointVolume, 0, IntPtr.Zero);
                 using (var aev = new AudioEndpointVolume(i))
@@ -122,6 +136,7 @@ namespace Wale.CoreAudio
         {
             using (var defaultDevice = GetDefaultDevice())
             {
+                if (defaultDevice == null) { JDPack.FileLog.Log("GetMasterPeak: Fail to get master device."); return -1; }
                 Guid IID_IAudioMeterInformation = typeof(AudioMeterInformation).GUID;
                 IntPtr ip = defaultDevice.Activate(IID_IAudioMeterInformation, 0, IntPtr.Zero);
                 using (var ami = new AudioMeterInformation(ip))
@@ -137,19 +152,100 @@ namespace Wale.CoreAudio
         //Master Device Items
         private MMDevice GetDefaultDevice()
         {
-            using (var obj = new CSCore.CoreAudioAPI.MMDeviceEnumerator())
-            //using (var obj = new NAudio.CoreAudioApi.MMDeviceEnumerator())
+            try
             {
-                return obj.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
+                using (var obj = new CSCore.CoreAudioAPI.MMDeviceEnumerator())
+                {
+                    MMDevice device = obj.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
+                    if(device == null) JDPack.FileLog.Log("GetSessionData: Fail to get master device.");
+                    return device;
+                }
             }
+            catch (Exception e){ JDPack.FileLog.Log(e.ToString()); return null; }
         }
         //private IEnumerable<MMDevice> deviceList;
-        private void EnumerateWasapiDevices()
+        private List<DeviceData> EnumerateWasapiDevices()
         {
-            //using (CSCore.CoreAudioAPI.MMDeviceEnumerator enumerator = new CSCore.CoreAudioAPI.MMDeviceEnumerator())
-            //{
-            //    deviceList = enumerator.EnumAudioEndpoints(DataFlow.Render, DeviceState.Active);
-            //}
+            try
+            {
+                using (var obj = new CSCore.CoreAudioAPI.MMDeviceEnumerator())
+                {
+                    IEnumerable<MMDevice> devices = obj.EnumAudioEndpoints(DataFlow.Render, CSCore.CoreAudioAPI.DeviceState.Active | CSCore.CoreAudioAPI.DeviceState.Disabled | CSCore.CoreAudioAPI.DeviceState.UnPlugged);
+                    if (devices == null) { JDPack.FileLog.Log("EnumerateWasapiDevices: Fail to get device collection."); return null; }
+
+                    List<DeviceData> list = new List<DeviceData>();
+                    foreach (MMDevice d in devices)
+                    {
+                        try
+                        {
+                            //Console.WriteLine($"{d.FriendlyName}, {d.DeviceState}, {d.DeviceID}");
+                            DeviceState state;
+                            switch (d.DeviceState)
+                            {
+                                case CSCore.CoreAudioAPI.DeviceState.Active:
+                                    state = DeviceState.Active;
+                                    break;
+                                case CSCore.CoreAudioAPI.DeviceState.Disabled:
+                                    state = DeviceState.Disabled;
+                                    break;
+                                case CSCore.CoreAudioAPI.DeviceState.UnPlugged:
+                                    state = DeviceState.UnPlugged;
+                                    break;
+                                default:
+                                    state = DeviceState.Unknown;
+                                    break;
+                            }
+
+                            List<SessionData> slist = null;
+                            try
+                            {
+                                using (var asm = (d != null ? AudioSessionManager2.FromMMDevice(d) : null))
+                                using (var ase = (asm?.GetSessionEnumerator()))
+                                {
+                                    if (ase != null)
+                                    {
+                                        slist = new List<SessionData>();
+                                        foreach (AudioSessionControl asc in ase)
+                                        {
+                                            using (var session2 = asc.QueryInterface<AudioSessionControl2>())
+                                            using (var simpleAudioVolume = asc.QueryInterface<SimpleAudioVolume>())
+                                            using (var audioMeterInformation = asc.QueryInterface<AudioMeterInformation>())
+                                            {
+                                                SessionState sstate = SessionState.Expired;
+                                                switch (asc.SessionState)
+                                                {
+                                                    case AudioSessionState.AudioSessionStateActive:
+                                                        sstate = SessionState.Active;
+                                                        break;
+                                                    case AudioSessionState.AudioSessionStateInactive:
+                                                        sstate = SessionState.Inactive;
+                                                        break;
+                                                    case AudioSessionState.AudioSessionStateExpired:
+                                                        sstate = SessionState.Expired;
+                                                        break;
+                                                }
+                                                slist.Add(new SessionData(session2.ProcessID, session2.SessionIdentifier) { State = sstate });
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            catch { }
+
+                            list.Add(new DeviceData()
+                            {
+                                DeviceId = d.DeviceID,
+                                Name = d.FriendlyName,
+                                State = state,
+                                Sessions = slist
+                            });
+                        }
+                        catch (NullReferenceException) { }
+                    }
+                    return list;
+                }
+            }
+            catch (Exception e) { JDPack.FileLog.Log(e.ToString()); return null; }
         }
         #endregion
 
@@ -167,43 +263,43 @@ namespace Wale.CoreAudio
             try
             {
                 using (var defaultDevice = GetDefaultDevice())
-                using (var asm = AudioSessionManager2.FromMMDevice(defaultDevice))
+                using (var asm = (defaultDevice != null ? AudioSessionManager2.FromMMDevice(defaultDevice) : null))
+                using (var ase = (asm?.GetSessionEnumerator()))
                 {
-                    if (asm == null) return;
-                    using (var ase = asm.GetSessionEnumerator())
+                    if (defaultDevice == null) { JDPack.FileLog.Log("GetSessionData: Fail to get master device."); return; }
+
+                    sessionList.Clear();
+                    foreach (AudioSessionControl asc in ase)
                     {
-                        sessionList.Clear();
-                        foreach (AudioSessionControl asc in ase)
+                        using (var session2 = asc.QueryInterface<AudioSessionControl2>())
+                        using (var simpleAudioVolume = asc.QueryInterface<SimpleAudioVolume>())
+                        using (var audioMeterInformation = asc.QueryInterface<AudioMeterInformation>())
                         {
-                            using (var session2 = asc.QueryInterface<AudioSessionControl2>())
-                            using (var simpleAudioVolume = asc.QueryInterface<SimpleAudioVolume>())
-                            using (var audioMeterInformation = asc.QueryInterface<AudioMeterInformation>())
+                            SessionState state = SessionState.Expired;
+                            switch (asc.SessionState)
                             {
-                                SessionData session = new SessionData(session2.ProcessID, session2.SessionIdentifier);
-                                session.Volume = simpleAudioVolume.MasterVolume;
-                                session.Peak = audioMeterInformation.PeakValue;
-                                switch (asc.SessionState)
-                                {
-                                    case AudioSessionState.AudioSessionStateActive:
-                                        session.State = SessionState.Active;
-                                        break;
-                                    case AudioSessionState.AudioSessionStateInactive:
-                                        session.State = SessionState.Inactive;
-                                        break;
-                                    case AudioSessionState.AudioSessionStateExpired:
-                                        session.State = SessionState.Expired;
-                                        break;
-                                    default:
-                                        session.State = SessionState.Expired;
-                                        break;
-                                }
-                                sessionList.Add(session);
+                                case AudioSessionState.AudioSessionStateActive:
+                                    state = SessionState.Active;
+                                    break;
+                                case AudioSessionState.AudioSessionStateInactive:
+                                    state = SessionState.Inactive;
+                                    break;
+                                case AudioSessionState.AudioSessionStateExpired:
+                                    state = SessionState.Expired;
+                                    break;
                             }
+                            sessionList.Add(new SessionData(session2.ProcessID, session2.SessionIdentifier)
+                            {
+                                Volume = simpleAudioVolume.MasterVolume,
+                                Peak = audioMeterInformation.PeakValue,
+                                State = state
+                            });
                         }
                     }
+
                 }
             }
-            catch (Exception e) { JDPack.FileLog.Log($"Getting session data Error: {e.Message}"); }
+            catch (Exception e) { JDPack.FileLog.Log($"Error(GetSessionData): {e.ToString()}"); }
             //sessionList.ForEach(s => Console.WriteLine($"{s.PID}"));
         }
         private void GetSession2()
@@ -235,13 +331,14 @@ namespace Wale.CoreAudio
                 }
             }*/
         }
-        
-        public void GetState(SessionData session)
+
+        private void GetState(SessionData session)
         {
             using (var defaultDevice = GetDefaultDevice())
-            using (var asm = AudioSessionManager2.FromMMDevice(defaultDevice))
-            using (var ase = asm.GetSessionEnumerator())
+            using (var asm = (defaultDevice != null ? AudioSessionManager2.FromMMDevice(defaultDevice) : null))
+            using (var ase = (asm?.GetSessionEnumerator()))
             {
+                if (defaultDevice == null) { JDPack.FileLog.Log("GetState: Fail to get master device."); return; }
                 foreach (var asc in ase)
                 {
                     using (var session2 = asc.QueryInterface<AudioSessionControl2>())
@@ -269,12 +366,13 @@ namespace Wale.CoreAudio
                 }
             }
         }
-        public void GetSessionVolume(SessionData session)
+        private void GetSessionVolume(SessionData session)
         {
             using (var defaultDevice = GetDefaultDevice())
-            using (var asm = AudioSessionManager2.FromMMDevice(defaultDevice))
-            using (var ase = asm.GetSessionEnumerator())
+            using (var asm = (defaultDevice != null ? AudioSessionManager2.FromMMDevice(defaultDevice) : null))
+            using (var ase = (asm?.GetSessionEnumerator()))
             {
+                if (defaultDevice == null) { JDPack.FileLog.Log("GetSessionVolume: Fail to get master device."); return; }
                 foreach (var asc in ase)
                 {
                     using (var session2 = asc.QueryInterface<AudioSessionControl2>())
@@ -285,28 +383,34 @@ namespace Wale.CoreAudio
                 }
             }
         }
-        public void SetSessionVolume(SessionData session, float volume)
+        private void setSessionVolume(SessionData session, float volume)
         {
-            using (var defaultDevice = GetDefaultDevice())
-            using (var asm = AudioSessionManager2.FromMMDevice(defaultDevice))
-            using (var ase = asm.GetSessionEnumerator())
+            try
             {
-                foreach (var asc in ase)
+                using (var defaultDevice = GetDefaultDevice())
+                using (var asm = (defaultDevice != null ? AudioSessionManager2.FromMMDevice(defaultDevice) : null))
+                using (var ase = (asm?.GetSessionEnumerator()))
                 {
-                    using (var session2 = asc.QueryInterface<AudioSessionControl2>())
-                    using (var simpleAudioVolume = asc.QueryInterface<SimpleAudioVolume>())
+                    if (defaultDevice == null) { JDPack.FileLog.Log("SetSessionVolume: Fail to get master device."); return; }
+                    foreach (var asc in ase)
                     {
-                        if (session2.ProcessID == session.PID) simpleAudioVolume.MasterVolume = volume;
+                        using (var session2 = asc.QueryInterface<AudioSessionControl2>())
+                        using (var simpleAudioVolume = asc.QueryInterface<SimpleAudioVolume>())
+                        {
+                            if (session2.ProcessID == session.PID) simpleAudioVolume.MasterVolume = volume;
+                        }
                     }
                 }
             }
+            catch (Exception e) { JDPack.FileLog.Log($"Error(setSessionVolume): {e.ToString()}"); }
         }
-        public void GetSessionPeak(SessionData session)
+        private void GetSessionPeak(SessionData session)
         {
             using (var defaultDevice = GetDefaultDevice())
-            using (var asm = AudioSessionManager2.FromMMDevice(defaultDevice))
-            using (var ase = asm.GetSessionEnumerator())
+            using (var asm = (defaultDevice != null ? AudioSessionManager2.FromMMDevice(defaultDevice) : null))
+            using (var ase = (asm?.GetSessionEnumerator()))
             {
+                if (defaultDevice == null) { JDPack.FileLog.Log("GetSessionPeak: Fail to get master device."); return; }
                 foreach (var asc in ase)
                 {
                     using (var session2 = asc.QueryInterface<AudioSessionControl2>())

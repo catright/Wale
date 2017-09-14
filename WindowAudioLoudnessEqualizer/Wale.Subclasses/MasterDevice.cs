@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
-using Vannatech.CoreAudio.Interfaces;
-using Vannatech.CoreAudio.Enumerations;
+//using Vannatech.CoreAudio.Interfaces;
+//using Vannatech.CoreAudio.Enumerations;
 
 namespace Wale.CoreAudio
-{
+{/*
     public class MasterDevice
     {
         public float MasterPeak { get => GetMasterPeak(); }
@@ -162,4 +162,5 @@ namespace Wale.CoreAudio
         public static object MMDeviceEnumerator = new object();
     }
     #endregion
+    */
 }

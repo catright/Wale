@@ -103,7 +103,7 @@ namespace Wale
         //private void Autocon(bool val) { lock (_autoconlock) { _AutoControl = val; } }
         #endregion
 
-
+        public List<DeviceData> GetDeviceMap() { return audio.GetDeviceList(); }
         #region Master Volume controls
         public void SetBaseTo(double bVol)
         {
@@ -145,8 +145,11 @@ namespace Wale
             DP.DML(string.Format("SessionTo:{0:n6}", v));
             using (SessionData s = Sessions.GetSession(id))
             {
-                s.Volume = (float)v;
-                audio.SetSessionVolume(s, (float)v);
+                if (s != null)
+                {
+                    s.Volume = (float)v;
+                    audio.SetSessionVolume(s, (float)v);
+                }
             }
             //Sessions.GetSession(id).SetVolume((float)v);
         }
@@ -268,18 +271,23 @@ namespace Wale
                 //bool auto = Autocon();
                 if (settings.AutoControl)
                 {
-                    Sessions.ForEach(s => {
-                        aas.Add(new Task(new Action(() =>
+                    try
+                    {
+                        Sessions.ForEach(s =>
                         {
-                            SessionState state = s.State;
-                            if (state != SessionState.Active && s.Volume != 0.01)
+                            aas.Add(new Task(new Action(() =>
                             {
-                                SetSessionVolume(s.PID, 0.01);
-                                s.ResetAverage();
-                            }
-                        })));
-                    });
-                    aas.ForEach(t => t.Start());
+                                SessionState state = s.State;
+                                if (state != SessionState.Active && s.Volume != 0.01)
+                                {
+                                    SetSessionVolume(s.PID, 0.01);
+                                    s.ResetAverage();
+                                }
+                            })));
+                        });
+                        aas.ForEach(t => t.Start());
+                    }
+                    catch (InvalidOperationException e){ JDPack.FileLog.Log($"Error(ControllerCleanTask): Session collection was modified.\r\n\t{e.ToString()}"); }
                 }/**/
                 
                 await Task.Delay(settings.GCInterval);

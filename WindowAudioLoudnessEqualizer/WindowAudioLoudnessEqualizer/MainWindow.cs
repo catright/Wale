@@ -123,6 +123,11 @@ namespace Wale.WinForm
         {
             Wale.Transformation.SetBaseLevel(settings.BaseLevel);
             Audio = new AudioControl(settings.BaseLevel);
+            while (Audio.MasterVolume == -1)
+            {
+                Audio.Dispose();
+                Audio = new AudioControl(settings.BaseLevel);
+            }
             Audio.Start(audioDebug);
             //Audio.AutoControl = Properties.Settings.Default.autoControl;
             //UpdateConnectTask();
@@ -407,9 +412,8 @@ namespace Wale.WinForm
         private void deviceMapToolStripMenuItem_Click(object sender, EventArgs e)
         {
             DP.DM("DeviceMap");
-            DeviceMap form = new DeviceMap();
+            DeviceMap form = new DeviceMap(Audio.GetDeviceMap());
             form.Location = FWP.PointFromMouse(-(form.Width / 2), -form.Height, JDPack.FormPack.PointMode.AboveTaskbar);
-
             form.ShowDialog();
         }
         
@@ -432,7 +436,7 @@ namespace Wale.WinForm
         #endregion
 
 
-
+        #region Update Tasks
         //Device master volume update.
         private void UpdateVolumeTask()
         {
@@ -567,7 +571,7 @@ namespace Wale.WinForm
             }/**/
             Log("End UpdateSessionTask");
         }
-
+        #endregion
 
 
         #region Funcion delegates for unsafe UI update
