@@ -155,7 +155,7 @@ namespace Wale
                 if (peak > settings.MinPeak)
                 {
                     double tVol, UpLimit;
-                    if (s.Averaging) s.SetAverage(peak);
+                    if (s.Averaging) { lock (Lockers.Sessions) { audio.SetSessionAverage(s.PID, peak); } }
                     if (s.Averaging && peak <= s.AveragePeak) tVol = baseLvSquare / s.AveragePeak;
                     else tVol = baseLvSquare / peak;
                     if (!Enum.TryParse(settings.VFunc, out VFunction.Func func)) { JDPack.FileLog.Log("Invalid function for session control"); return; }
@@ -186,7 +186,7 @@ namespace Wale
         }
         private void Refresh(bool first = false)
         {
-            lock (Lockers.Sessions) { audio.UpdateSession(); }
+            lock (Lockers.Sessions) { audio.UpdateSession(); audio.UpdateAvTimeAll(settings.AverageTime, settings.AutoControlInterval); }
             //lock (Lockers.Sessions) { Sessions = audio.Sessions; }
             /*lock (AClocker)
             {
