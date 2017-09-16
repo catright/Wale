@@ -12,11 +12,15 @@ namespace Wale.CoreAudio
         public SessionData GetSession(uint id)
         {
             try { return this.Find(sc => sc.PID == id); }
-            catch (ArgumentNullException e)
+            catch (ArgumentNullException)
             {
-                JDPack.FileLog.Log($"Error(GetSession): {e.ToString()}");
+                JDPack.FileLog.Log($"Error(GetSession): ArgumentNullException");
             }
-            catch (NullReferenceException e)
+            catch (NullReferenceException)
+            {
+                JDPack.FileLog.Log($"Error(GetSession): NullReferenceException");
+            }
+            catch (Exception e)
             {
                 JDPack.FileLog.Log($"Error(GetSession): {e.ToString()}");
             }
@@ -25,7 +29,11 @@ namespace Wale.CoreAudio
         public double GetRelative(uint id)
         {
             try { return GetSession(id).Relative; }
-            catch (NullReferenceException e)
+            catch (NullReferenceException)
+            {
+                JDPack.FileLog.Log($"Error(GetRelative): NullReferenceException");
+            }
+            catch (Exception e)
             {
                 JDPack.FileLog.Log($"Error(GetRelative): {e.ToString()}");
             }

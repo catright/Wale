@@ -132,7 +132,7 @@ namespace Wale
         #region Session Control
         private void ResetAllSessionVolume()
         {
-            audio.Sessions.ForEach(s => s.Volume = 0.01f);
+            lock (Lockers.Sessions) { audio.SetAllSessions(0.01f); }
             //uint[] ids = Wale.Subclasses.Audio.GetApplicationIDs();
             //for (int i = 0; i < ids.Count(); i++) { SetSessionVolume(ids[i], 0.01); }
         }
@@ -143,15 +143,7 @@ namespace Wale
             else if (v > 1) v = 1;
 
             DP.DML(string.Format("SessionTo:{0:n6}", v));
-            using (SessionData s = Sessions.GetSession(id))
-            {
-                if (s != null)
-                {
-                    s.Volume = (float)v;
-                    audio.SetSessionVolume(s, (float)v);
-                }
-            }
-            //Sessions.GetSession(id).SetVolume((float)v);
+            lock (Lockers.Sessions) { audio.SetSessionVolume(id, (float)v); }
         }
         private void SessionControl(SessionData s)
         {
@@ -228,11 +220,15 @@ namespace Wale
                 
                 if (settings.AutoControl)
                 {
-                    lock (Lockers.Sessions)
+                    try
                     {
-                        Sessions.ForEach(s => aas.Add(new Task(() => SessionControl(s))));
+                        lock (Lockers.Sessions)
+                        {
+                            Sessions.ForEach(s => aas.Add(new Task(() => SessionControl(s))));
+                        }
+                        aas.ForEach(t => t.Start());
                     }
-                    aas.ForEach(t => t.Start());
+                    catch (InvalidOperationException e) { JDPack.FileLog.Log($"Error(AudioControlTask): Session collection was modified.\r\n\t{e.ToString()}"); }
                 }/**/
 
                 await Task.Delay(settings.AutoControlInterval);
@@ -287,7 +283,7 @@ namespace Wale
                         });
                         aas.ForEach(t => t.Start());
                     }
-                    catch (InvalidOperationException e){ JDPack.FileLog.Log($"Error(ControllerCleanTask): Session collection was modified.\r\n\t{e.ToString()}"); }
+                    catch (InvalidOperationException e) { JDPack.FileLog.Log($"Error(ControllerCleanTask): Session collection was modified.\r\n\t{e.ToString()}"); }
                 }/**/
                 
                 await Task.Delay(settings.GCInterval);

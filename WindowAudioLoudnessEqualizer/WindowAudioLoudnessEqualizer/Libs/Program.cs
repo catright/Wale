@@ -34,6 +34,8 @@ namespace Wale.WinForm
                 GC.KeepAlive(mutex);
             }
             catch (Exception e) { JDPack.FileLog.Log(e.ToString()); MessageBox.Show(e.ToString()); }
+
+            JDPack.FileLog.Log("Program Stopped.");
         }
 
     }
