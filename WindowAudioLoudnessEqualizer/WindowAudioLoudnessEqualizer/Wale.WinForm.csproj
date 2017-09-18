@@ -66,7 +66,7 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Icon\speaker-white.ico</ApplicationIcon>
+    <ApplicationIcon>Icon\WaleIconOn.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -141,20 +141,20 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-    </Compile>
     <None Include="Properties\DataSources\Wale.WinForm.ColorSet.datasource" />
     <None Include="Properties\DataSources\Wale.WinForm.Properties.Settings.datasource" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
@@ -166,12 +166,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Icon\speaker-white.ico" />
-    <None Include="Icon\speaker-gray.ico" />
-    <None Include="Icon\speaker-black.ico" />
-    <Content Include="Icon\speaker-black.png" />
-    <Content Include="Icon\speaker-gray.png" />
-    <Content Include="Icon\speaker-white.png" />
+    <None Include="Icon\WaleIconOn.ico" />
+    <None Include="Icon\WaleIconOff.ico" />
+    <None Include="Icon\WaleIconOn.png" />
+    <None Include="Icon\WaleIconOff.png" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5.2">

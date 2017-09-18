@@ -83,7 +83,7 @@ namespace Wale.WinForm
         #region initializing
         private void MakeComponents()
         {
-            NI.Icon = this.Icon = Properties.Resources.speaker_white1;
+            NI.Icon = this.Icon = Icon.FromHandle(Properties.Resources.WaleIconOn.GetHicon());
             Point p = new Point();
             p.X = (int)(Screen.PrimaryScreen.WorkingArea.Width - Width);
             p.Y = (int)(Screen.PrimaryScreen.WorkingArea.Height - Height);
@@ -391,7 +391,7 @@ namespace Wale.WinForm
         private void ConfigToolStripMenuItem_Click(object sender, EventArgs e)
         {
             DP.DM("Settings");
-            Config form = new Config();
+            Config form = new Config() { Icon = this.Icon };
             form.Location = FWP.PointFromMouse(-(form.Width / 2), -form.Height, JDPack.FormPack.PointMode.AboveTaskbar);
             form.FormClosed += Config_FormClosed;
             form.Show();
@@ -412,7 +412,7 @@ namespace Wale.WinForm
         private void deviceMapToolStripMenuItem_Click(object sender, EventArgs e)
         {
             DP.DM("DeviceMap");
-            DeviceMap form = new DeviceMap(Audio.GetDeviceMap());
+            DeviceMap form = new DeviceMap(Audio.GetDeviceMap()) { Icon = this.Icon };
             form.Location = FWP.PointFromMouse(-(form.Width / 2), -form.Height, JDPack.FormPack.PointMode.AboveTaskbar);
             form.ShowDialog();
         }
@@ -420,7 +420,7 @@ namespace Wale.WinForm
         private void helpToolStripMenuItem_Click(object sender, EventArgs e)
         {
             DP.DM("Help");
-            Help form = new Help();
+            Help form = new Help() { Icon = this.Icon };
             form.Location = FWP.PointFromMouse(-(form.Width / 2), -form.Height, JDPack.FormPack.PointMode.AboveTaskbar);
 
             form.ShowDialog();
@@ -428,7 +428,7 @@ namespace Wale.WinForm
         private void licensesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             DP.DM("Licenses");
-            Licenses form = new Licenses();
+            Licenses form = new Licenses { Icon = this.Icon };
             form.Location = FWP.PointFromMouse(-(form.Width / 2), -form.Height, JDPack.FormPack.PointMode.AboveTaskbar);
             
             form.ShowDialog();

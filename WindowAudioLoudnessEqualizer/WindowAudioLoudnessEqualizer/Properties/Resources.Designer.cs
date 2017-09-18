@@ -63,60 +63,20 @@ namespace Wale.WinForm.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap speaker_black {
+        internal static System.Drawing.Bitmap WaleIconOff {
             get {
-                object obj = ResourceManager.GetObject("speaker_black", resourceCulture);
+                object obj = ResourceManager.GetObject("WaleIconOff", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
-        /// </summary>
-        internal static System.Drawing.Icon speaker_black1 {
-            get {
-                object obj = ResourceManager.GetObject("speaker_black1", resourceCulture);
-                return ((System.Drawing.Icon)(obj));
             }
         }
         
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap speaker_gray {
+        internal static System.Drawing.Bitmap WaleIconOn {
             get {
-                object obj = ResourceManager.GetObject("speaker_gray", resourceCulture);
+                object obj = ResourceManager.GetObject("WaleIconOn", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
-        /// </summary>
-        internal static System.Drawing.Icon speaker_gray1 {
-            get {
-                object obj = ResourceManager.GetObject("speaker_gray1", resourceCulture);
-                return ((System.Drawing.Icon)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap speaker_white {
-            get {
-                object obj = ResourceManager.GetObject("speaker_white", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
-        /// </summary>
-        internal static System.Drawing.Icon speaker_white1 {
-            get {
-                object obj = ResourceManager.GetObject("speaker_white1", resourceCulture);
-                return ((System.Drawing.Icon)(obj));
             }
         }
     }
