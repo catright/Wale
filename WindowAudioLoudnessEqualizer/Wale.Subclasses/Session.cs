@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
-using Vannatech.CoreAudio.Interfaces;
-using Vannatech.CoreAudio.Enumerations;
+//using Vannatech.CoreAudio.Interfaces;
+//using Vannatech.CoreAudio.Enumerations;
 
-namespace Wale.Subclasses
-{
+namespace Wale.CoreAudio
+{/*
     public class Session : IDisposable
     {
         public float Relative = 0;
@@ -114,7 +114,7 @@ namespace Wale.Subclasses
             //Console.WriteLine($"session {this.ProcessName}({this.ProcessId}) refresh time={sw.ElapsedMilliseconds}");
         }
         public void SetVolume(float volume) { SetApplicationVolume(volume); }
-        public void GetSession() { /*MakeControlObject(); MakePeakObject(); MakeVolumeObject();*/ }
+        public void GetSession() { /*MakeControlObject(); MakePeakObject(); MakeVolumeObject();* }
 
         public Session(uint pid)
         {
@@ -715,5 +715,5 @@ namespace Wale.Subclasses
             AveragePeak = Peaks.Average();
             //Console.WriteLine($"Av={AveragePeak}, PC={Peaks.Count}, AvT={AvTime}");
         }
-    }
-}
+    }//End class Session*/
+}//End namespace Wale.Subclasses

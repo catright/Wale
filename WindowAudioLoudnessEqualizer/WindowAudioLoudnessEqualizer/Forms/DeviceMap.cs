@@ -10,21 +10,18 @@ using System.Windows.Forms;
 
 namespace Wale.WinForm
 {
-    public partial class DeviceMap : Form
+    public partial class DeviceMap : JDPack.FlatForm
     {
         Properties.Settings settings = Properties.Settings.Default;
+        private List<Wale.CoreAudio.DeviceData> data;
 
-        public DeviceMap()
+        public DeviceMap(List<Wale.CoreAudio.DeviceData> data)
         {
+            this.data = data;
             InitializeComponent();
-
-            Make();
+            SetTitle("Wale - Device Map");
             ColorBindings();
-        }
-
-        private void Make()
-        {
-            this.TopMost = settings.AlwaysTop;
+            DrawMap();
         }
         private void ColorBindings()
         {
@@ -34,47 +31,56 @@ namespace Wale.WinForm
             titlePanel.BackColor = ColorSet.MainColor;
             treeView1.BackColor = this.BackColor;
         }
-        
-        #region title panel control, location and size check events
-        private bool titleDrag = false;
-        private Point titlePosition;
-        private void titlePanel_MouseDown(object sender, MouseEventArgs e) { titleDrag = true; titlePosition = e.Location; }
-        private void titlePanel_MouseMove(object sender, MouseEventArgs e)
+
+        private void DrawMap()
         {
-            if (titleDrag)
+            if (data == null) { MessageBox.Show("There is no data."); return; }
+
+            treeView1.Nodes.Clear();
+            foreach (Wale.CoreAudio.DeviceData dd in data)
             {
-                //MessageBox.Show($"L={Screen.AllScreens[0].WorkingArea.Left} R={Screen.AllScreens[0].WorkingArea.Right}, T={Screen.AllScreens[0].WorkingArea.Top} B={Screen.AllScreens[0].WorkingArea.Bottom}");
-                int x = Location.X + e.Location.X - titlePosition.X;
-                if (x + this.Width >= Screen.AllScreens[0].WorkingArea.Right) x = Screen.AllScreens[0].WorkingArea.Right - this.Width;
-                else if (x <= Screen.AllScreens[0].WorkingArea.Left) x = Screen.AllScreens[0].WorkingArea.Left;
-
-                int y = Location.Y + e.Location.Y - titlePosition.Y;
-                if (y + this.Height >= Screen.AllScreens[0].WorkingArea.Bottom) y = Screen.AllScreens[0].WorkingArea.Bottom - this.Height;
-                else if (y <= Screen.AllScreens[0].WorkingArea.Top) y = Screen.AllScreens[0].WorkingArea.Top;
-                //MessageBox.Show($"x={x} y={y}");
-                Location = new Point(x, y);
+                TreeNode node = new TreeNode(dd.Name);
+                switch (dd.State)
+                {
+                    case CoreAudio.DeviceState.Active:
+                        node.BackColor = ColorSet.MainColor;
+                        break;
+                    case CoreAudio.DeviceState.Disabled:
+                        node.BackColor = ColorSet.AverageColor;
+                        break;
+                    case CoreAudio.DeviceState.UnPlugged:
+                        node.BackColor = ColorSet.PeakColor;
+                        break;
+                    default:
+                        break;
+                }
+                if (dd.Sessions != null)
+                {
+                    foreach (Wale.CoreAudio.SessionData ss in dd.Sessions)
+                    {
+                        TreeNode childNode = new TreeNode(ss.Name);
+                        switch (ss.State)
+                        {
+                            case CoreAudio.SessionState.Active:
+                                childNode.BackColor = ColorSet.MainColor;
+                                break;
+                            case CoreAudio.SessionState.Inactive:
+                                childNode.BackColor = ColorSet.AverageColor;
+                                break;
+                            case CoreAudio.SessionState.Expired:
+                                childNode.BackColor = ColorSet.PeakColor;
+                                break;
+                            default:
+                                break;
+                        }
+                        node.Nodes.Add(childNode);
+                    }
+                }
+                treeView1.Nodes.Add(node);
             }
+
+            treeView1.ExpandAll();
         }
-        private void titlePanel_MouseUp(object sender, MouseEventArgs e) { titleDrag = false; }
-        private void MainWindow_LocationAndSizeChanged(object sender, EventArgs e)
-        {
-            if ((this.Left + this.Width) > Screen.AllScreens[0].Bounds.Width)
-                this.Left = Screen.AllScreens[0].Bounds.Width - this.Width;
-
-            if (this.Left < Screen.AllScreens[0].Bounds.Left)
-                this.Left = Screen.AllScreens[0].Bounds.Left;
-
-            if ((this.Top + this.Height) > Screen.AllScreens[0].Bounds.Height)
-                this.Top = Screen.AllScreens[0].Bounds.Height - this.Height;
-
-            if (this.Top < Screen.AllScreens[0].Bounds.Top)
-                this.Top = Screen.AllScreens[0].Bounds.Top;
-        }
-
-
-
-        #endregion
-
 
 
         private void closeButton_Click(object sender, EventArgs e)
@@ -84,17 +90,11 @@ namespace Wale.WinForm
         }
         private void updateButton_Click(object sender, EventArgs e)
         {
-
+            data = new Wale.CoreAudio.Audio().GetDeviceList();
+            DrawMap();
         }
 
-
-
-        private void GetAllDevices()
-        {
-            //Wale.Subclasses.Audio.GetDevices();
-        }
-
-
+        
 
     }//End class DeviceMap
 }//End namespace Wale.Winform

@@ -6,7 +6,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{F8E000BB-D867-4FB1-B8A8-2D52347ED60D}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>Wale</RootNamespace>
+    <RootNamespace>Wale.WinForm</RootNamespace>
     <AssemblyName>Wale</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -66,7 +66,7 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Icon\speaker-white.ico</ApplicationIcon>
+    <ApplicationIcon>Icon\WaleIconOn.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -81,35 +81,33 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
-    <Reference Include="Vannatech.CoreAudio">
-      <HintPath>..\..\..\..\GenericSWs(Priv.)\WindowAudioLoudnessEqualizer\WindowAudioLoudnessEqualizer\Libs\Vannatech.CoreAudio.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Config.cs">
+    <Compile Include="Libs\AppVersion.cs" />
+    <Compile Include="Forms\Config.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Config.Designer.cs">
+    <Compile Include="Forms\Config.Designer.cs">
       <DependentUpon>Config.cs</DependentUpon>
     </Compile>
-    <Compile Include="DeviceMap.cs">
+    <Compile Include="Forms\DeviceMap.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="DeviceMap.Designer.cs">
+    <Compile Include="Forms\DeviceMap.Designer.cs">
       <DependentUpon>DeviceMap.cs</DependentUpon>
     </Compile>
-    <Compile Include="Help.cs">
+    <Compile Include="Forms\Help.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Help.Designer.cs">
+    <Compile Include="Forms\Help.Designer.cs">
       <DependentUpon>Help.cs</DependentUpon>
     </Compile>
     <Compile Include="Libs\AudioControl.cs" />
     <Compile Include="Libs\ColorSet.cs" />
-    <Compile Include="Licenses.cs">
+    <Compile Include="Forms\Licenses.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Licenses.Designer.cs">
+    <Compile Include="Forms\Licenses.Designer.cs">
       <DependentUpon>Licenses.cs</DependentUpon>
     </Compile>
     <Compile Include="MainWindow.cs">
@@ -118,18 +116,24 @@
     <Compile Include="MainWindow.Designer.cs">
       <DependentUpon>MainWindow.cs</DependentUpon>
     </Compile>
-    <Compile Include="Program.cs" />
+    <Compile Include="Libs\MeterSet.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Libs\MeterSet.Designer.cs">
+      <DependentUpon>MeterSet.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Libs\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="Config.resx">
+    <EmbeddedResource Include="Forms\Config.resx">
       <DependentUpon>Config.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="DeviceMap.resx">
+    <EmbeddedResource Include="Forms\DeviceMap.resx">
       <DependentUpon>DeviceMap.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Help.resx">
+    <EmbeddedResource Include="Forms\Help.resx">
       <DependentUpon>Help.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Licenses.resx">
+    <EmbeddedResource Include="Forms\Licenses.resx">
       <DependentUpon>Licenses.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainWindow.resx">
@@ -137,20 +141,20 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-    </Compile>
     <None Include="Properties\DataSources\Wale.WinForm.ColorSet.datasource" />
     <None Include="Properties\DataSources\Wale.WinForm.Properties.Settings.datasource" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
@@ -162,12 +166,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Icon\speaker-white.ico" />
-    <None Include="Icon\speaker-gray.ico" />
-    <None Include="Icon\speaker-black.ico" />
-    <Content Include="Icon\speaker-black.png" />
-    <Content Include="Icon\speaker-gray.png" />
-    <Content Include="Icon\speaker-white.png" />
+    <None Include="Icon\WaleIconOn.ico" />
+    <None Include="Icon\WaleIconOff.ico" />
+    <None Include="Icon\WaleIconOn.png" />
+    <None Include="Icon\WaleIconOff.png" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5.2">
@@ -186,9 +188,13 @@
       <Project>{8d37648e-0b49-41cc-886a-5b373a7b3a58}</Project>
       <Name>JDPack</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Wale.Subclasses\Wale.Subclasses.csproj">
+    <ProjectReference Include="..\Wale.Subclasses\Wale.CoreAudio.csproj">
       <Project>{fc52a648-3e05-47fd-8d6d-5c1222ff62b4}</Project>
-      <Name>Wale.Subclasses</Name>
+      <Name>Wale.CoreAudio</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Wale\Wale.csproj">
+      <Project>{88d9419d-58b9-4b5c-be56-9762bae0c670}</Project>
+      <Name>Wale</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

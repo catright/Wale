@@ -8,14 +8,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Win32;
-using Wale.Subclasses;
+using Wale.CoreAudio;
 
 namespace Wale.WinForm
 {
-    public partial class Config : Form
+    public partial class Config : JDPack.FlatForm
     {
         RegistryKey rkApp = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
-        Wale.Properties.Settings settings = Wale.Properties.Settings.Default;
+        Wale.WinForm.Properties.Settings settings = Wale.WinForm.Properties.Settings.Default;
         System.Windows.Forms.DataVisualization.Charting.Chart chart = new System.Windows.Forms.DataVisualization.Charting.Chart();
         System.Windows.Forms.DataVisualization.Charting.TextAnnotation myText1 = new System.Windows.Forms.DataVisualization.Charting.TextAnnotation(), myText2 = new System.Windows.Forms.DataVisualization.Charting.TextAnnotation();
         bool loaded = false;
@@ -24,8 +24,8 @@ namespace Wale.WinForm
         public Config()
         {
             InitializeComponent();
-            if (string.IsNullOrWhiteSpace(Version.Option)) label3.Text = $"WALE - CONFIG v{Version.LongVersion}";
-            else label3.Text = $"WALE - CONFIG v{Version.LongVersion}-{Version.Option}";
+            if (string.IsNullOrWhiteSpace(AppVersion.Option)) SetTitle($"WALE - CONFIG v{AppVersion.LongVersion}");
+            else SetTitle($"WALE - CONFIG v{AppVersion.LongVersion}-{AppVersion.Option}");
             titlePanel.BackColor = ColorSet.MainColor;
             GraphPanel.Controls.Add(chart);
             chart.Dock = DockStyle.Fill;
@@ -104,43 +104,7 @@ namespace Wale.WinForm
 
             Activate();
         }
-
-        //title panel control
-        private bool titleDrag = false;
-        private Point titlePosition;
-        private void titlePanel_MouseDown(object sender, MouseEventArgs e) { titleDrag = true; titlePosition = e.Location; }
-        private void titlePanel_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (titleDrag)
-            {
-                //MessageBox.Show($"L={Screen.AllScreens[0].WorkingArea.Left} R={Screen.AllScreens[0].WorkingArea.Right}, T={Screen.AllScreens[0].WorkingArea.Top} B={Screen.AllScreens[0].WorkingArea.Bottom}");
-                int x = Location.X + e.Location.X - titlePosition.X;
-                if (x + this.Width >= Screen.AllScreens[0].WorkingArea.Right) x = Screen.AllScreens[0].WorkingArea.Right - this.Width;
-                else if (x <= Screen.AllScreens[0].WorkingArea.Left) x = Screen.AllScreens[0].WorkingArea.Left;
-
-                int y = Location.Y + e.Location.Y - titlePosition.Y;
-                if (y + this.Height >= Screen.AllScreens[0].WorkingArea.Bottom) y = Screen.AllScreens[0].WorkingArea.Bottom - this.Height;
-                else if (y <= Screen.AllScreens[0].WorkingArea.Top) y = Screen.AllScreens[0].WorkingArea.Top;
-                //MessageBox.Show($"x={x} y={y}");
-                Location = new Point(x, y);
-            }
-        }
-        private void titlePanel_MouseUp(object sender, MouseEventArgs e) { titleDrag = false; }
-        private void Config_LocationChanged(object sender, EventArgs e)
-        {
-            if ((this.Left + this.Width) > Screen.AllScreens[0].Bounds.Width)
-                this.Left = Screen.AllScreens[0].Bounds.Width - this.Width;
-
-            if (this.Left < Screen.AllScreens[0].Bounds.Left)
-                this.Left = Screen.AllScreens[0].Bounds.Left;
-
-            if ((this.Top + this.Height) > Screen.AllScreens[0].Bounds.Height)
-                this.Top = Screen.AllScreens[0].Bounds.Height - this.Height;
-
-            if (this.Top < Screen.AllScreens[0].Bounds.Top)
-                this.Top = Screen.AllScreens[0].Bounds.Top;
-        }
-
+        
 
         private void Makes()
         {
@@ -291,7 +255,7 @@ namespace Wale.WinForm
                 settings.MinPeak = Convert.ToDouble(textBox8.Text);
                 settings.VFunc = comboBox1.SelectedValue.ToString();
             }
-            catch { success = false; JDPack.Debug.Log("Error: Config - Convert failure"); }
+            catch { success = false; JDPack.FileLog.Log("Error: Config - Convert failure"); }
             finally { settings.AutoControl = auto; }
             //Console.WriteLine("Convert End");
             return success;
@@ -313,7 +277,7 @@ namespace Wale.WinForm
                     if (rkApp.GetValue("WALEWindowAudioLoudnessEqualizer") != null) rkApp.DeleteValue("WALEWindowAudioLoudnessEqualizer", false);
                 }
             }
-            catch { success = false; JDPack.Debug.Log("Error: Config - Register failure"); }
+            catch { success = false; JDPack.FileLog.Log("Error: Config - Register failure"); }
             //Console.WriteLine("resister End");
             return success;
         }
@@ -409,7 +373,7 @@ namespace Wale.WinForm
             {
                 settings.Reset();
                 Makes();
-                JDPack.Debug.Log("All configs are reset.");
+                JDPack.FileLog.Log("All configs are reset.");
             }
         }
         private void Submit_Click(object sender, EventArgs e)

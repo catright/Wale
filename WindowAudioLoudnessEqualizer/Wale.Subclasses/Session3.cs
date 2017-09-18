@@ -3,36 +3,31 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+//using NAudio.CoreAudioApi;
 
 namespace Wale.CoreAudio
 {
-    public class SessionData : IDisposable
-    {
-        private object locker = new object();
-        //private AudioSessionControl2 asc;
-        //private SimpleAudioVolume volumeObject;
-        //private AudioMeterInformation peakObject;
-
-        public IntPtr BasePtr { get; private set; }
-
+    public class Session3 : IDisposable
+    {/*
+        private AudioSessionControl ASC;
         public float Relative = 0;
         public double AveragePeak { get; private set; }
         public bool AutoIncluded = true, Averaging = true;
 
-        public SessionState State { get; set; }
+        public SessionState State { get => GetState(); }
 
-        public string Name { get; private set; }
-        private int pid;
-        public uint PID { get => (uint)pid; set => pid = (int)value; }
+        public uint PID { get; private set; }
         public string Identifier { get; private set; }
-        public float Volume { get; set; }
-        public float Peak { get; set; }
+        public string Name { get; private set; }
+        public float Volume { get => GetVolume(); set => SetVolume(value); }
+        public float Peak { get => GetPeak(); }
 
-        public SessionData(int pid, string ident)
+        public Session3(AudioSessionControl asc)
         {
-            this.pid = (int)pid;
-            this.Identifier = ident;
-            this.Name = MakeName(ident);
+            this.ASC = asc;
+            this.PID = asc.GetProcessID;
+            this.Identifier = asc.GetSessionIdentifier;
+            this.Name = MakeName(asc.GetSessionIdentifier);
         }
         private string MakeName(string name)
         {
@@ -61,7 +56,46 @@ namespace Wale.CoreAudio
             AveragePeak = Peaks.Average();
             //Console.WriteLine($"Av={AveragePeak}, PC={Peaks.Count}, AvT={AvTime}");
         }
-        
+
+        private SessionState GetState()
+        {
+            switch (ASC.State)
+            {
+                case NAudio.CoreAudioApi.Interfaces.AudioSessionState.AudioSessionStateActive:
+                    return SessionState.Active;
+                case NAudio.CoreAudioApi.Interfaces.AudioSessionState.AudioSessionStateInactive:
+                    return SessionState.Inactive;
+                case NAudio.CoreAudioApi.Interfaces.AudioSessionState.AudioSessionStateExpired:
+                    return SessionState.Expired;
+                default:
+                    return SessionState.Expired;
+            }
+        }
+        private float GetVolume()
+        {
+            //using (var volumeObject = new SimpleAudioVolume(BasePtr))
+            //{
+            //return volumeObject.MasterVolume;
+            //}
+            return ASC.SimpleAudioVolume.Volume;
+        }
+        private void SetVolume(float value)
+        {
+            //using (var volumeObject = new SimpleAudioVolume(BasePtr))
+            //{
+            //volumeObject.MasterVolume = value;
+            //}
+            ASC.SimpleAudioVolume.Volume = value;
+        }
+        private float GetPeak()
+        {
+            //using (var peakObject = new AudioMeterInformation(BasePtr))
+            //{
+            //return peakObject.PeakValue;
+            //}
+            return ASC.AudioMeterInformation.MasterPeakValue;
+        }
+        */
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 
@@ -73,9 +107,7 @@ namespace Wale.CoreAudio
                 {
                     // TODO: dispose managed state (managed objects).
                 }
-                //if (asc != null) System.Runtime.InteropServices.Marshal.ReleaseComObject(asc);
-                //if (volumeObject != null) System.Runtime.InteropServices.Marshal.ReleaseComObject(volumeObject);
-                //if (peakObject != null) System.Runtime.InteropServices.Marshal.ReleaseComObject(peakObject);
+                //if (ASC != null) System.Runtime.InteropServices.Marshal.ReleaseComObject(ASC);
                 // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
                 // TODO: set large fields to null.
 
@@ -84,9 +116,9 @@ namespace Wale.CoreAudio
         }
 
         // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-        //~Session2() {
-        // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-        //Dispose(false);
+        //~Session3() {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            //Dispose(false);
         //}
 
         // This code added to correctly implement the disposable pattern.
@@ -98,5 +130,5 @@ namespace Wale.CoreAudio
             //GC.SuppressFinalize(this);
         }
         #endregion
-    }//End class Session2
+    }
 }

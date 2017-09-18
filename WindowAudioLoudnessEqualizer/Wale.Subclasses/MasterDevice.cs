@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
-using Vannatech.CoreAudio.Interfaces;
-using Vannatech.CoreAudio.Enumerations;
+//using Vannatech.CoreAudio.Interfaces;
+//using Vannatech.CoreAudio.Enumerations;
 
-namespace Wale.Subclasses
-{
+namespace Wale.CoreAudio
+{/*
     public class MasterDevice
     {
         public float MasterPeak { get => GetMasterPeak(); }
@@ -147,4 +147,20 @@ namespace Wale.Subclasses
             }
         }
     }
+
+
+
+    #region Abstracted COM interfaces from Windows CoreAudio API
+    [ComImport, Guid("BCDE0395-E52F-467C-8E3D-C4579291692E")]
+    internal class MMDeviceEnumerator
+    {
+    }
+
+    
+    internal static class Locker
+    {
+        public static object MMDeviceEnumerator = new object();
+    }
+    #endregion
+    */
 }

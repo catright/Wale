@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
-using Vannatech.CoreAudio.Interfaces;
-using Vannatech.CoreAudio.Enumerations;
+//using Vannatech.CoreAudio.Interfaces;
+//using Vannatech.CoreAudio.Enumerations;
 
-namespace Wale.Subclasses
+namespace Wale.CoreAudio
 {
-    public class Sessions : List<Session>
+    /*public class Sessions : List<Session>
     {
         public void RefreshSessions()
         {
@@ -100,5 +100,5 @@ namespace Wale.Subclasses
                 if (deviceEnumerator != null) Marshal.ReleaseComObject(deviceEnumerator);
             }
         }
-    }
-}
+    }//End class Sessions*/
+}//End namespace Wale.CoreAudio

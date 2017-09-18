@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{8D37648E-0B49-41CC-886A-5B373A7B3A58}</ProjectGuid>
+    <ProjectGuid>{FC52A648-3E05-47FD-8D6D-5C1222FF62B4}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>JDPack</RootNamespace>
-    <AssemblyName>JDPack</AssemblyName>
+    <RootNamespace>Wale.CoreAudio</RootNamespace>
+    <AssemblyName>Wale.CoreAudio</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SccProjectName>SAK</SccProjectName>
@@ -34,10 +34,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CSCore">
+      <HintPath>..\..\..\..\3rdPartyLibrary\CSCore.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -46,33 +47,27 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Debug.cs" />
-    <Compile Include="DebugPack.cs" />
-    <Compile Include="FlatForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="FormPack.cs" />
-    <Compile Include="FormPack2.cs" />
-    <Compile Include="FileLog.cs" />
-    <Compile Include="NotifyPropertyChanged.cs" />
-    <Compile Include="ProgressBarColored.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="ProgressBarColored.Designer.cs">
-      <DependentUpon>ProgressBarColored.cs</DependentUpon>
-    </Compile>
+    <Compile Include="Audio.cs" />
+    <Compile Include="DeviceData.cs" />
+    <Compile Include="MasterDevice.cs" />
+    <Compile Include="Session.cs" />
+    <Compile Include="Session2.cs" />
+    <Compile Include="Session3.cs" />
+    <Compile Include="SessionData.cs" />
+    <Compile Include="SessionDatas.cs" />
+    <Compile Include="Sessions.cs" />
+    <Compile Include="Sessions2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TabControlRepaired.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="TabControlRepaired.Designer.cs">
-      <DependentUpon>TabControlRepaired.cs</DependentUpon>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="FlatForm.resx">
-      <DependentUpon>FlatForm.cs</DependentUpon>
-    </EmbeddedResource>
+    <ProjectReference Include="..\JLdebPack\JDPack.csproj">
+      <Project>{8d37648e-0b49-41cc-886a-5b373a7b3a58}</Project>
+      <Name>JDPack</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Wale\Wale.csproj">
+      <Project>{88d9419d-58b9-4b5c-be56-9762bae0c670}</Project>
+      <Name>Wale</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
