@@ -83,7 +83,7 @@ namespace Wale.WinForm
         #region initializing
         private void MakeComponents()
         {
-            NI.Icon = this.Icon = Icon.FromHandle(Properties.Resources.WaleIconOn.GetHicon());
+            NI.Icon = this.Icon = Properties.Resources.WaleIconOn1;
             Point p = new Point();
             p.X = (int)(Screen.PrimaryScreen.WorkingArea.Width - Width);
             p.Y = (int)(Screen.PrimaryScreen.WorkingArea.Height - Height);
