@@ -25,7 +25,7 @@ namespace Wale
         #endregion
 
         #region global variables
-        public Wale.CoreAudio.SessionDatas Sessions
+        public Wale.CoreAudio.SessionDataList Sessions
         {
             get
             {
@@ -35,13 +35,6 @@ namespace Wale
         }
         //public bool AutoControl { get => Autocon(); set { Autocon(value); if (!Autocon()) ResetAllSessionVolume(); } }
         public bool Debug { get => DP.DebugMode; set => DP.DebugMode = value; }
-        //public double MasterPeak { get { if (masterDevice != null) return masterDevice.MasterPeak; else return 0; } }
-        /*public double MasterVolume
-        {
-            get { if (masterDevice != null) return masterDevice.MasterVolume; else return 0; }
-            set { if (masterDevice != null) masterDevice.MasterVolume = (float)value;
-}
-        }/**/
         public double MasterPeak { get { if (audio != null) return audio.MasterPeak; else return 0; } }
         public double MasterVolume { get { if (audio != null) return audio.MasterVolume; else return 0; } }
         public double UpRate { get => upRate; set { upRate = (value * settings.AutoControlInterval / 1000); } }

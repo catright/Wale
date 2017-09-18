@@ -4,14 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
-//using CSCore;
-//using CSCore.SoundOut;
 using CSCore.CoreAudioAPI;
-//using NAudio.CoreAudioApi;
 
 namespace Wale.CoreAudio
 {
+    /// <summary>
+    /// Custom device state equivalent of DeviceState of CoreAudioAPI.
+    /// </summary>
     public enum DeviceState { Active, Disabled, UnPlugged, NotPresent, Unknown }
+    /// <summary>
+    /// Custom session state equivalent of SessionState of CoreAudioAPI.
+    /// </summary>
     public enum SessionState { Active, Inactive, Expired }
     public class Audio : IDisposable
     {
@@ -51,14 +54,23 @@ namespace Wale.CoreAudio
         #endregion
 
         #region Public Items
+        /// <summary>
+        /// Volume of default device.
+        /// </summary>
         public float MasterVolume { get => GetMasterVolume(); set => SetMasterVolume(value); }
+        /// <summary>
+        /// Peak level of default device.
+        /// </summary>
         public float MasterPeak { get => GetMasterPeak(); }
-        public SessionDatas Sessions { get => sessionList; }
+        /// <summary>
+        /// Session data list of sessions in default device.
+        /// </summary>
+        public SessionDataList Sessions { get => sessionList; }
 
         public Audio() { }
         /// <summary>
         /// Instantiate new instance of Audio class.
-        /// Automatically do UpdateDevice when <paramref name="autoStart"/> is true.
+        /// Automatically do UpdateDevice and UpdateSession when <paramref name="autoStart"/> is true.
         /// </summary>
         /// <param name="autoStart"></param>
         public Audio(bool autoStart)
@@ -80,20 +92,21 @@ namespace Wale.CoreAudio
             GetMasterPeak();
         }
         /// <summary>
-        /// 
+        /// Get a list of all devices and their sessions.
         /// </summary>
         /// <returns></returns>
         public List<DeviceData> GetDeviceList() { return EnumerateWasapiDevices(); }
 
         /// <summary>
-        /// 
+        /// Update all sessions in default device and session list.
         /// </summary>
         public void UpdateSession() { GetSession(); }
         /// <summary>
-        /// 
+        /// Set volume level of the session that has <paramref name="pid"/> for ProcessId.
+        /// <para>Log($"Error(SetSessionVolume): {e.ToString()}") when Exception.</para>
         /// </summary>
-        /// <param name="pid"></param>
-        /// <param name="volume"></param>
+        /// <param name="pid">ProcessId</param>
+        /// <param name="volume">Volume level you want to set</param>
         public void SetSessionVolume(uint pid, float volume)
         {
             try
@@ -106,6 +119,11 @@ namespace Wale.CoreAudio
             }
             catch (Exception e) { JDPack.FileLog.Log($"Error(SetSessionVolume): {e.ToString()}"); }
         }
+        /// <summary>
+        /// Set all sessions' volume.
+        /// <para>Log($"Error(SetAllSessions): {e.ToString()}") when Exception.</para>
+        /// </summary>
+        /// <param name="volume">Volume level you want to set</param>
         public void SetAllSessions(float volume)
         {
             try
@@ -310,10 +328,10 @@ namespace Wale.CoreAudio
 
         #region Private Session Items
         //Session Control Items
-        private SessionDatas sessionList;
+        private SessionDataList sessionList;
         private void GetSession()
         {
-            if (sessionList == null) { sessionList = new SessionDatas(); }
+            if (sessionList == null) { sessionList = new SessionDataList(); }
             GetSessionData();
         }
         private void GetSessionData()
@@ -327,36 +345,7 @@ namespace Wale.CoreAudio
                     using (var ase = (asm?.GetSessionEnumerator()))
                     {
                         if (defaultDevice == null) { JDPack.FileLog.Log("GetSessionData: Fail to get master device."); return; }
-
-                        /*sessionList.Clear();
-                        foreach (AudioSessionControl asc in ase)
-                        {
-                            using (var asc2 = asc.QueryInterface<AudioSessionControl2>())
-                            using (var simpleAudioVolume = asc.QueryInterface<SimpleAudioVolume>())
-                            using (var audioMeterInformation = asc.QueryInterface<AudioMeterInformation>())
-                            {
-                                SessionState state = SessionState.Expired;
-                                switch (asc.SessionState)
-                                {
-                                    case AudioSessionState.AudioSessionStateActive:
-                                        state = SessionState.Active;
-                                        break;
-                                    case AudioSessionState.AudioSessionStateInactive:
-                                        state = SessionState.Inactive;
-                                        break;
-                                    case AudioSessionState.AudioSessionStateExpired:
-                                        state = SessionState.Expired;
-                                        break;
-                                }
-                                sessionList.Add(new SessionData(asc2.ProcessID, asc2.SessionIdentifier)
-                                {
-                                    Volume = simpleAudioVolume.MasterVolume,
-                                    Peak = audioMeterInformation.PeakValue,
-                                    State = state
-                                });
-                            }
-                        }*/
-
+                        
                         foreach (AudioSessionControl asc in ase)
                         {
                             using (var asc2 = asc.QueryInterface<AudioSessionControl2>())
@@ -422,35 +411,6 @@ namespace Wale.CoreAudio
             }
             catch (Exception e) { JDPack.FileLog.Log($"Error(GetSessionData): {e.ToString()}"); }
             //sessionList.ForEach(s => Console.WriteLine($"{s.PID}"));
-        }
-        private void GetSession2()
-        {/*
-            using (var defaultDevice = GetDefaultDevice())
-            using (var asm = AudioSessionManager2.FromMMDevice(defaultDevice))
-            {
-                if (asm == null) return;
-                using (var ase = asm.GetSessionEnumerator())
-                {
-                    sessionList.Clear();
-                    foreach (AudioSessionControl asc in ase)
-                    {
-                        sessionList.Add(new Session2(asc.BasePtr));
-                    }
-                }
-            }/**/
-            //sessionList.ForEach(s => Console.WriteLine($"{s.PID}"));
-        }
-        private void GetSession3()
-        {
-            /*if (defaultDevice != null)
-            {
-                defaultDevice.AudioSessionManager.RefreshSessions();
-                sessionList.Clear();
-                for (int i = 0; i < defaultDevice.AudioSessionManager.Sessions.Count; i++)
-                {
-                    sessionList.Add(new Session3(defaultDevice.AudioSessionManager.Sessions[i]));
-                }
-            }*/
         }
 
         private void GetState(SessionData session)

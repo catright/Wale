@@ -51,12 +51,9 @@
     <Compile Include="DeviceData.cs" />
     <Compile Include="MasterDevice.cs" />
     <Compile Include="Session.cs" />
-    <Compile Include="Session2.cs" />
-    <Compile Include="Session3.cs" />
     <Compile Include="SessionData.cs" />
-    <Compile Include="SessionDatas.cs" />
+    <Compile Include="SessionDataList.cs" />
     <Compile Include="Sessions.cs" />
-    <Compile Include="Sessions2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
