@@ -167,7 +167,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Icon\WaleIconOn.ico" />
-    <None Include="Icon\WaleIconOff.ico" />
     <None Include="Icon\WaleIconOn.png" />
     <None Include="Icon\WaleIconOff.png" />
   </ItemGroup>
