@@ -27,20 +27,20 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_73A5FA8F345DC49E773A6B721B5116D3"
+        "OwnerKey" = "8:_282A65388CC9440B9BA483693E475610"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_73A5FA8F345DC49E773A6B721B5116D3"
+        "OwnerKey" = "8:_6DD23A497E14C63C27A15775FB4D0A13"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_89473E276A40AE866B70D06B8C0F01CC"
         "OwnerKey" = "8:_282A65388CC9440B9BA483693E475610"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_9751E4DB92081D76700318393B477E0D"
-        "OwnerKey" = "8:_282A65388CC9440B9BA483693E475610"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_9751E4DB92081D76700318393B477E0D"
-        "OwnerKey" = "8:_6DD23A497E14C63C27A15775FB4D0A13"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -64,7 +64,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_A3857F7E51E6DB9A13C47EB9F4D0A2F5"
+        "OwnerKey" = "8:_282A65388CC9440B9BA483693E475610"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -82,19 +82,19 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_73A5FA8F345DC49E773A6B721B5116D3"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_DC741CA2367E0F8CC694CD466F9C5F01"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_282A65388CC9440B9BA483693E475610"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_9751E4DB92081D76700318393B477E0D"
+        "OwnerKey" = "8:_A3857F7E51E6DB9A13C47EB9F4D0A2F5"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -115,6 +115,14 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+            }
         }
         "Release"
         {
@@ -131,6 +139,14 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+            }
         }
     }
     "Deployable"
@@ -191,20 +207,20 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_89473E276A40AE866B70D06B8C0F01CC"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_73A5FA8F345DC49E773A6B721B5116D3"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:WaleBase, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:CSCore, Version=1.1.6245.30570, Culture=neutral, PublicKeyToken=5a08f2b6f4415dea, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_89473E276A40AE866B70D06B8C0F01CC"
+                    "_73A5FA8F345DC49E773A6B721B5116D3"
                     {
-                    "Name" = "8:WaleBase.dll"
+                    "Name" = "8:CSCore.dll"
                     "Attributes" = "3:512"
                     }
                 }
-            "SourcePath" = "8:WaleBase.dll"
+            "SourcePath" = "8:CSCore.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_ED4481670FD544FA90E18B4E8692C976"
@@ -222,20 +238,20 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_9751E4DB92081D76700318393B477E0D"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_89473E276A40AE866B70D06B8C0F01CC"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:CSCore, Version=1.1.6245.30570, Culture=neutral, PublicKeyToken=5a08f2b6f4415dea, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:WaleBase, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_9751E4DB92081D76700318393B477E0D"
+                    "_89473E276A40AE866B70D06B8C0F01CC"
                     {
-                    "Name" = "8:CSCore.dll"
+                    "Name" = "8:WaleBase.dll"
                     "Attributes" = "3:512"
                     }
                 }
-            "SourcePath" = "8:CSCore.dll"
+            "SourcePath" = "8:WaleBase.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_ED4481670FD544FA90E18B4E8692C976"
@@ -388,7 +404,7 @@
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
-        "DetectNewerInstalledVersion" = "11:TRUE"
+        "DetectNewerInstalledVersion" = "11:FALSE"
         "InstallAllUsers" = "11:FALSE"
         "ProductVersion" = "8:0.2.1"
         "Manufacturer" = "8:JongtaePark"
