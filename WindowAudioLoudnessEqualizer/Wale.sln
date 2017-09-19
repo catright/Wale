@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JDPack", "JLdebPack\JDPack.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wale", "Wale\Wale.csproj", "{88D9419D-58B9-4B5C-BE56-9762BAE0C670}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "WaleSetup", "WaleSetup\WaleSetup.vdproj", "{25891719-14B5-4ABA-B997-BC480379C382}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,8 @@ Global
 		{88D9419D-58B9-4B5C-BE56-9762BAE0C670}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{88D9419D-58B9-4B5C-BE56-9762BAE0C670}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{88D9419D-58B9-4B5C-BE56-9762BAE0C670}.Release|Any CPU.Build.0 = Release|Any CPU
+		{25891719-14B5-4ABA-B997-BC480379C382}.Debug|Any CPU.ActiveCfg = Debug
+		{25891719-14B5-4ABA-B997-BC480379C382}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
