@@ -140,6 +140,11 @@ namespace Wale.CoreAudio
             }
             catch (Exception e) { JDPack.FileLog.Log($"Error(SetAllSessions): {e.ToString()}"); }
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pid"></param>
+        /// <param name="peak"></param>
         public void SetSessionAverage(uint pid, double peak)
         {
             try
@@ -162,6 +167,11 @@ namespace Wale.CoreAudio
             }
             catch (Exception e) { JDPack.FileLog.Log($"Error(UpdateAvData): {e.ToString()}"); }
         }
+        /// <summary>
+        /// Update averaging time for all sessions.
+        /// </summary>
+        /// <param name="AVTime">Total time to stack peaks for average</param>
+        /// <param name="ACInterval">Internal of automatic control task</param>
         public void UpdateAvTimeAll(double AVTime, double ACInterval)
         {
             try
