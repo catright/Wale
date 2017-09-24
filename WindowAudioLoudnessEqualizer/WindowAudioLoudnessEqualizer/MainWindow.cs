@@ -83,7 +83,7 @@ namespace Wale.WinForm
         #region initializing
         private void MakeComponents()
         {
-            NI.Icon = this.Icon = Properties.Resources.WaleIconOn1;
+            NI.Icon = this.Icon = Properties.Resources.WaleLeftOn;
             Point p = new Point();
             p.X = (int)(Screen.PrimaryScreen.WorkingArea.Width - Width);
             p.Y = (int)(Screen.PrimaryScreen.WorkingArea.Height - Height);
@@ -132,6 +132,7 @@ namespace Wale.WinForm
             //Audio.AutoControl = Properties.Settings.Default.autoControl;
             //UpdateConnectTask();
             _updateTasks = new List<Task>();
+            _updateTasks.Add(new Task(UpdateStateTask));
             _updateTasks.Add(new Task(UpdateVolumeTask));
             _updateTasks.Add(new Task(UpdateSessionTask));
             _updateTasks.ForEach(t => t.Start());
@@ -412,7 +413,7 @@ namespace Wale.WinForm
         private void deviceMapToolStripMenuItem_Click(object sender, EventArgs e)
         {
             DP.DM("DeviceMap");
-            DeviceMap form = new DeviceMap(Audio.GetDeviceMap()) { Icon = this.Icon };
+            DeviceMap form = new DeviceMap() { Icon = this.Icon };
             form.Location = FWP.PointFromMouse(-(form.Width / 2), -form.Height, JDPack.FormPack.PointMode.AboveTaskbar);
             form.ShowDialog();
         }
@@ -437,6 +438,35 @@ namespace Wale.WinForm
 
 
         #region Update Tasks
+        //Check device state.
+        private void UpdateStateTask()
+        {
+            Log("Start UpdateStateTask");
+            bool On = true;
+            //Console.WriteLine($"V={Audio.MasterVolume}, I={NI.Icon.Equals(Properties.Resources.WaleLeftOn)}");
+            while (!Rclose())
+            {
+                //Console.WriteLine($"V={Audio.MasterVolume}, I={NI.Icon.GetHashCode()}");
+                //Console.WriteLine("USTask");
+                if (Audio.MasterVolume < 0 && On)
+                {
+                    //Console.WriteLine("InsideErrorState");
+                    On = false;
+                    NI.Icon = Properties.Resources.WaleLeftOff;
+                    //MessageBox.Show("IconOff");
+                }
+                else if (Audio.MasterPeak >= 0 && !On)
+                {
+                    //Console.WriteLine("InsideGoodState");
+                    On = true;
+                    NI.Icon = Properties.Resources.WaleLeftOn;
+                    //MessageBox.Show("IconOn");
+                }
+
+                System.Threading.Thread.Sleep(settings.UIUpdateInterval);
+            }
+            Log("End UpdateStateTask");
+        }
         //Device master volume update.
         private void UpdateVolumeTask()
         {
@@ -575,6 +605,39 @@ namespace Wale.WinForm
 
 
         #region Funcion delegates for unsafe UI update
+        /*delegate void FormIconConsumer(Form control, Icon value);
+        private void SetIcon(Form control, Icon value)
+        {
+            try
+            {
+                if (control.InvokeRequired)
+                {
+                    if (control != null) control.Invoke(new FormIconConsumer(SetIcon), new object[] { control, value });  // invoking itself
+                }
+                else
+                {
+                    control.Icon = value;      // the "functional part", executing only on the main thread
+                }
+            }
+            catch { DP.CML($"fail to invoke {control.Name}"); }
+        }/**/
+        /*delegate void NotifyIconIconConsumer(NotifyIcon control, Icon value);
+        private void SetIcon(NotifyIcon control, Icon value)
+        {
+            try
+            {
+                if (control.InvokeRequired)
+                {
+                    if (control != null) control.Invoke(new NotifyIconIconConsumer(SetIcon), new object[] { control, value });  // invoking itself
+                }
+                else
+                {
+                    control.Icon = value;      // the "functional part", executing only on the main thread
+                }
+            }
+            catch { DP.CML($"fail to invoke {control.Name}"); }
+        }/**/
+
         delegate void ControlSizeConsumer(Control control, Size value);
         private void SetSize(Control control, Size value)
         {

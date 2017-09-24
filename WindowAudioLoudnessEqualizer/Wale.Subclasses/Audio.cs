@@ -55,6 +55,10 @@ namespace Wale.CoreAudio
 
         #region Public Items
         /// <summary>
+        /// True when there is no device that can use.
+        /// </summary>
+        public bool NoDevice = false;
+        /// <summary>
         /// Volume of default device.
         /// </summary>
         public float MasterVolume { get => GetMasterVolume(); set => SetMasterVolume(value); }
@@ -180,47 +184,58 @@ namespace Wale.CoreAudio
         //Master Volume Items
         private float GetMasterVolume()
         {
-            using (var defaultDevice = GetDefaultDevice())
+            try
             {
-                if (defaultDevice == null) { JDPack.FileLog.Log("GetMasterVolume: Fail to get master device."); return -1; }
-                Guid IID_IAudioEndpointVolume = typeof(AudioEndpointVolume).GUID;
-                IntPtr i = defaultDevice.Activate(IID_IAudioEndpointVolume, 0, IntPtr.Zero);
-                using (var aev = new AudioEndpointVolume(i))
+                using (var defaultDevice = GetDefaultDevice())
                 {
-                    return aev.MasterVolumeLevelScalar;
+                    if (defaultDevice == null) { JDPack.FileLog.Log("GetMasterVolume: Fail to get master device."); return -1; }
+                    Guid IID_IAudioEndpointVolume = typeof(AudioEndpointVolume).GUID;
+                    IntPtr i = defaultDevice.Activate(IID_IAudioEndpointVolume, 0, IntPtr.Zero);
+                    using (var aev = new AudioEndpointVolume(i))
+                    {
+                        return aev.MasterVolumeLevelScalar;
+                    }
                 }
             }
+            catch (Exception e) { JDPack.FileLog.Log($"Error(GetMasterVolume): {e.ToString()}"); return -2; }
             //return defaultDevice.AudioEndpointVolume.MasterVolumeLevelScalar;
         }
         private void SetMasterVolume(float volume)
         {
-            using (var defaultDevice = GetDefaultDevice())
+            try
             {
-                if (defaultDevice == null) { JDPack.FileLog.Log("SetMasterVolume: Fail to get master device."); return; }
-                Guid IID_IAudioEndpointVolume = typeof(AudioEndpointVolume).GUID;
-                IntPtr i = defaultDevice.Activate(IID_IAudioEndpointVolume, 0, IntPtr.Zero);
-                using (var aev = new AudioEndpointVolume(i))
+                using (var defaultDevice = GetDefaultDevice())
                 {
-                    aev.MasterVolumeLevelScalar = volume;
+                    if (defaultDevice == null) { JDPack.FileLog.Log("SetMasterVolume: Fail to get master device."); return; }
+                    Guid IID_IAudioEndpointVolume = typeof(AudioEndpointVolume).GUID;
+                    IntPtr i = defaultDevice.Activate(IID_IAudioEndpointVolume, 0, IntPtr.Zero);
+                    using (var aev = new AudioEndpointVolume(i))
+                    {
+                        aev.MasterVolumeLevelScalar = volume;
+                    }
                 }
             }
+            catch (Exception e) { JDPack.FileLog.Log($"Error(SetMasterVolume): {e.ToString()}"); return; }
             //defaultDevice.AudioEndpointVolume.MasterVolumeLevelScalar = volume;
         }
 
         //Master Peak Items
         private float GetMasterPeak()
         {
-            using (var defaultDevice = GetDefaultDevice())
+            try
             {
-                if (defaultDevice == null) { JDPack.FileLog.Log("GetMasterPeak: Fail to get master device."); return -1; }
-                Guid IID_IAudioMeterInformation = typeof(AudioMeterInformation).GUID;
-                IntPtr ip = defaultDevice.Activate(IID_IAudioMeterInformation, 0, IntPtr.Zero);
-                using (var ami = new AudioMeterInformation(ip))
+                using (var defaultDevice = GetDefaultDevice())
                 {
-                    return ami.PeakValue;
+                    if (defaultDevice == null) { JDPack.FileLog.Log("GetMasterPeak: Fail to get master device."); return -1; }
+                    Guid IID_IAudioMeterInformation = typeof(AudioMeterInformation).GUID;
+                    IntPtr ip = defaultDevice.Activate(IID_IAudioMeterInformation, 0, IntPtr.Zero);
+                    using (var ami = new AudioMeterInformation(ip))
+                    {
+                        return ami.PeakValue;
+                    }
                 }
             }
-            
+            catch (Exception e) { JDPack.FileLog.Log($"Error(GetMasterPeak): {e.ToString()}"); return -2; }
 
             //return defaultDevice.AudioMeterInformation.MasterPeakValue;
         }
@@ -234,10 +249,11 @@ namespace Wale.CoreAudio
                 {
                     MMDevice device = obj.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
                     if(device == null) JDPack.FileLog.Log("GetSessionData: Fail to get master device.");
+                    NoDevice = false;
                     return device;
                 }
             }
-            catch (Exception e){ JDPack.FileLog.Log(e.ToString()); return null; }
+            catch (Exception e){ JDPack.FileLog.Log(e.ToString()); NoDevice = true; return null; }
         }
         //private IEnumerable<MMDevice> deviceList;
         private List<DeviceData> EnumerateWasapiDevices()

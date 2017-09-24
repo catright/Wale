@@ -66,7 +66,7 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Icon\WaleIconOn.ico</ApplicationIcon>
+    <ApplicationIcon>Icon\WaleLeftOn.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -198,6 +198,18 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Icon\WaleLeftOff.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Icon\WaleLeftOn.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Icon\WaleRightOff.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Icon\WaleRighton.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

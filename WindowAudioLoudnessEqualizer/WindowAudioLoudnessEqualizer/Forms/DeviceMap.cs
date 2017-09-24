@@ -15,6 +15,12 @@ namespace Wale.WinForm
         Properties.Settings settings = Properties.Settings.Default;
         private List<Wale.CoreAudio.DeviceData> data;
 
+        public DeviceMap()
+        {
+            InitializeComponent();
+            SetTitle("Wale - Device Map");
+            ColorBindings();
+        }
         public DeviceMap(List<Wale.CoreAudio.DeviceData> data)
         {
             this.data = data;
@@ -31,6 +37,7 @@ namespace Wale.WinForm
             titlePanel.BackColor = ColorSet.MainColor;
             treeView1.BackColor = this.BackColor;
         }
+        
 
         private void DrawMap()
         {
@@ -94,7 +101,9 @@ namespace Wale.WinForm
             DrawMap();
         }
 
-        
-
+        private void DeviceMap_Shown(object sender, EventArgs e)
+        {
+            updateButton_Click(sender, e);
+        }
     }//End class DeviceMap
 }//End namespace Wale.Winform

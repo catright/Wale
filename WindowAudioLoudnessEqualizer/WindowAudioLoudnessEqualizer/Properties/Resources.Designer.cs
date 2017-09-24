@@ -89,5 +89,45 @@ namespace Wale.WinForm.Properties {
                 return ((System.Drawing.Icon)(obj));
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        internal static System.Drawing.Icon WaleLeftOff {
+            get {
+                object obj = ResourceManager.GetObject("WaleLeftOff", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        internal static System.Drawing.Icon WaleLeftOn {
+            get {
+                object obj = ResourceManager.GetObject("WaleLeftOn", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        internal static System.Drawing.Icon WaleRightOff {
+            get {
+                object obj = ResourceManager.GetObject("WaleRightOff", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        internal static System.Drawing.Icon WaleRighton {
+            get {
+                object obj = ResourceManager.GetObject("WaleRighton", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
     }
 }

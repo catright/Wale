@@ -127,4 +127,16 @@
   <data name="WaleIconOn1" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icon\WaleIconOn.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="WaleLeftOff" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icon\WaleLeftOff.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="WaleLeftOn" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icon\WaleLeftOn.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="WaleRightOff" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icon\WaleRightOff.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="WaleRighton" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icon\WaleRighton.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
 </root>

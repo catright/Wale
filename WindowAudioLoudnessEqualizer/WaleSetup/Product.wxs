@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<Product Id="f8e000bb-d867-4fb1-b8a8-2d52347ed60d" Name="Wale" Language="1033" Version="0.2.2.2" Manufacturer="Jongtae Park" UpgradeCode="7286072b-aa45-40bc-a835-88de5243a963">
+		<Package InstallerVersion="405" Compressed="yes" InstallScope="perMachine" Description="Windows Audio Loudness Equalizer" Manufacturer="Jongtae Park"/>
+
+		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+		<MediaTemplate EmbedCab="yes" />
+    
+    <Icon Id="Waleicon.ico" SourceFile="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\WindowAudioLoudnessEqualizer\Icon\WaleLeftOn.ico" />
+    
+		<Feature Id="ProductFeature" Title="Wale" Level="1">
+			<ComponentGroupRef Id="ProductComponents" />
+      <ComponentGroupRef Id="StartMenuFolderComponents" />
+		</Feature>
+	</Product>
+
+	<Fragment>
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="ProgramFilesFolder">
+				<Directory Id="INSTALLFOLDER" Name="Wale" />
+			</Directory>
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="StartDir" Name="Wale" />
+      </Directory>
+		</Directory>
+	</Fragment>
+
+	<Fragment>
+		<ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+			<!-- TODO: Remove the comments around this Component element and the ComponentRef below in order to add resources to this installer. -->
+			<Component Id="ProductComponent">
+				<!-- TODO: Insert files, registry keys, and other resources here. -->
+        <RegistryValue Root='HKCU' Key='Software\[ProductName]' Type='string' Value='' KeyPath='yes' />
+        <RemoveRegistryKey Root='HKCU' Key='Software\[ProductName]' Action='removeOnUninstall' />
+        <RemoveFolder Id='INSTALLFOLDER' On='uninstall' />
+			</Component>
+      
+      <Component Id="MainExecutable">
+        <File Id="WaleEXE" Name="Wale.exe" Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\WindowAudioLoudnessEqualizer\bin\Release\Wale.exe" KeyPath="yes">
+          
+        </File>
+      </Component>
+      
+      <Component Id="WaleBaseComp">
+        <File Id="WaleBase" Name="WaleBase.dll" Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\WindowAudioLoudnessEqualizer\bin\Release\WaleBase.dll" KeyPath="yes" />
+      </Component>
+      
+      <Component Id="WaleCoreAudioComp">
+        <File Id="WaleCoreAudio" Name="Wale.CoreAudio.dll" Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\WindowAudioLoudnessEqualizer\bin\Release\Wale.CoreAudio.dll" KeyPath="yes" />
+      </Component>
+      
+      <Component Id="JDPackComp">
+        <File Id="JDPack" Name="JDPack.dll" Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\WindowAudioLoudnessEqualizer\bin\Release\JDPack.dll" KeyPath="yes" />
+      </Component>
+      
+      <Component Id="CSCoreComp">
+        <File Id="CSCore" Name="CSCore.dll" Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\WindowAudioLoudnessEqualizer\bin\Release\CSCore.dll" KeyPath="yes" />
+      </Component>
+		</ComponentGroup>
+    <ComponentGroup Id="StartMenuFolderComponents" Directory="StartDir">
+      <Component Id="RemoveStartDiratUninstall">
+        <Shortcut Id="StartMenuShortCut" Directory="StartDir" Name="Wale" Target="[INSTALLFOLDER]\Wale.Exe" WorkingDirectory="INSTALLFOLDER" Icon="Waleicon.ico" IconIndex="0" />
+        <RegistryValue Root='HKCU' Key='Software\[ProductName]\StartMenu' Type='string' Value='' KeyPath='yes' />
+        <RemoveRegistryKey Root='HKCU' Key='Software\[ProductName]\StartMenu' Action='removeOnUninstall' />
+        <RemoveFolder Id='StartDir' On='uninstall' />
+      </Component>
+    </ComponentGroup>
+	</Fragment>
+</Wix>

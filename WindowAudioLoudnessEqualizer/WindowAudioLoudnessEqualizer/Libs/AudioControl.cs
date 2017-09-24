@@ -35,8 +35,24 @@ namespace Wale
         }
         //public bool AutoControl { get => Autocon(); set { Autocon(value); if (!Autocon()) ResetAllSessionVolume(); } }
         public bool Debug { get => DP.DebugMode; set => DP.DebugMode = value; }
-        public double MasterPeak { get { if (audio != null) return audio.MasterPeak; else return 0; } }
-        public double MasterVolume { get { if (audio != null) return audio.MasterVolume; else return 0; } }
+        public double MasterPeak
+        {
+            get
+            {
+                if (audio != null && !audio.NoDevice) { return audio.MasterPeak; }
+                else if (audio != null && audio.NoDevice) { return -2; }
+                else return 0;
+            }
+        }
+        public double MasterVolume
+        {
+            get
+            {
+                if (audio != null && !audio.NoDevice) { return audio.MasterVolume; }
+                else if (audio != null && audio.NoDevice) { return -2; }
+                else return 0;
+            }
+        }
         public double UpRate { get => upRate; set { upRate = (value * settings.AutoControlInterval / 1000); } }
         public double Kurtosis { get => kurtosis; set => kurtosis = value; }
         #endregion

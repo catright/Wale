@@ -94,6 +94,7 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "DeviceMap";
             this.TopMost = global::Wale.WinForm.Properties.Settings.Default.AlwaysTop;
+            this.Shown += new System.EventHandler(this.DeviceMap_Shown);
             this.ResumeLayout(false);
 
         }
