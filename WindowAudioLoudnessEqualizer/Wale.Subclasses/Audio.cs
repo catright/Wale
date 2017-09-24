@@ -70,7 +70,10 @@ namespace Wale.CoreAudio
         /// Session data list of sessions in default device.
         /// </summary>
         public SessionDataList Sessions { get => sessionList; }
-
+        
+        /// <summary>
+        /// Instantiate new instance of Audio class.
+        /// </summary>
         public Audio() { }
         /// <summary>
         /// Instantiate new instance of Audio class.
@@ -396,6 +399,7 @@ namespace Wale.CoreAudio
                                     }
                                     if (!exists)
                                     {
+                                        simpleAudioVolume.MasterVolume = 0.01f;
                                         sessionList.Add(new SessionData(asc2.ProcessID, asc2.SessionIdentifier)
                                         {
                                             Volume = simpleAudioVolume.MasterVolume,

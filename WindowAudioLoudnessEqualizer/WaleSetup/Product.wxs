@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-	<Product Id="f8e000bb-d867-4fb1-b8a8-2d52347ed60d" Name="Wale" Language="1033" Version="0.2.2.2" Manufacturer="Jongtae Park" UpgradeCode="7286072b-aa45-40bc-a835-88de5243a963">
+	<Product Id="f8e000bb-d867-4fb1-b8a8-2d52347ed60d" Name="Wale" Language="1033" Version="0.2.3.0" Manufacturer="Jongtae Park" UpgradeCode="7286072b-aa45-40bc-a835-88de5243a963">
 		<Package InstallerVersion="405" Compressed="yes" InstallScope="perMachine" Description="Windows Audio Loudness Equalizer" Manufacturer="Jongtae Park"/>
 
 		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
@@ -59,7 +59,7 @@
 		</ComponentGroup>
     <ComponentGroup Id="StartMenuFolderComponents" Directory="StartDir">
       <Component Id="RemoveStartDiratUninstall">
-        <Shortcut Id="StartMenuShortCut" Directory="StartDir" Name="Wale" Target="[INSTALLFOLDER]\Wale.Exe" WorkingDirectory="INSTALLFOLDER" Icon="Waleicon.ico" IconIndex="0" />
+        <Shortcut Id="StartMenuShortCut" Directory="StartDir" Name="Wale" Target="[INSTALLFOLDER]\Wale.exe" WorkingDirectory="INSTALLFOLDER" Icon="Waleicon.ico" IconIndex="0" />
         <RegistryValue Root='HKCU' Key='Software\[ProductName]\StartMenu' Type='string' Value='' KeyPath='yes' />
         <RemoveRegistryKey Root='HKCU' Key='Software\[ProductName]\StartMenu' Action='removeOnUninstall' />
         <RemoveFolder Id='StartDir' On='uninstall' />
