@@ -157,7 +157,7 @@ namespace Wale
         private void SessionControl(SessionData s)
         {
             string dm = $"AutoVolume:{s.Name}({s.PID}), inc={s.AutoIncluded}";
-            if (s.State == SessionState.Active && s.AutoIncluded)
+            if (s.State == SessionState.Active && s.AutoIncluded && !audio.ExcludeList.Contains(s.Name))
             {
                 double peak = s.Peak, volume = s.Volume;
                 dm += $" P:{peak:n3} V:{volume:n3}";
@@ -282,11 +282,14 @@ namespace Wale
                         {
                             aas.Add(new Task(new Action(() =>
                             {
-                                SessionState state = s.State;
-                                if (state != SessionState.Active && s.Volume != 0.01)
+                                if (s.AutoIncluded && !audio.ExcludeList.Contains(s.Name))
                                 {
-                                    SetSessionVolume(s.PID, 0.01);
-                                    s.ResetAverage();
+                                    SessionState state = s.State;
+                                    if (state != SessionState.Active && s.Volume != 0.01)
+                                    {
+                                        SetSessionVolume(s.PID, 0.01);
+                                        s.ResetAverage();
+                                    }
                                 }
                             })));
                         });

@@ -23,6 +23,7 @@ namespace Wale.WinForm
 
         public Config()
         {
+            base.InitializeComponent();
             InitializeComponent();
             if (string.IsNullOrWhiteSpace(AppVersion.Option)) SetTitle($"WALE - CONFIG v{AppVersion.LongVersion}");
             else SetTitle($"WALE - CONFIG v{AppVersion.LongVersion}-{AppVersion.Option}");

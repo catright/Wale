@@ -14,6 +14,7 @@ namespace Wale.WinForm
     {
         public Licenses()
         {
+            base.InitializeComponent();
             InitializeComponent();
             SetTitle("Wale - Licenses");
             ColorBindings();

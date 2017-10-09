@@ -14,6 +14,7 @@ namespace Wale.WinForm
     {
         public Help()
         {
+            base.InitializeComponent();
             InitializeComponent();
             SetTitle("Wale - Help");
             ColorBindings();

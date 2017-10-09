@@ -17,6 +17,7 @@ namespace Wale.WinForm
 
         public DeviceMap()
         {
+            base.InitializeComponent();
             InitializeComponent();
             SetTitle("Wale - Device Map");
             ColorBindings();
@@ -39,6 +40,10 @@ namespace Wale.WinForm
         }
         
 
+        private Task GetData()
+        {
+            return Task.Run(() => { data = new Wale.CoreAudio.Audio().GetDeviceList(); });
+        }
         private void DrawMap()
         {
             if (data == null) { MessageBox.Show("There is no data."); return; }
@@ -46,7 +51,7 @@ namespace Wale.WinForm
             treeView1.Nodes.Clear();
             foreach (Wale.CoreAudio.DeviceData dd in data)
             {
-                TreeNode node = new TreeNode(dd.Name);
+                TreeNode node = new TreeNode(dd.Name) { ToolTipText = dd.DeviceId };
                 switch (dd.State)
                 {
                     case CoreAudio.DeviceState.Active:
@@ -83,10 +88,33 @@ namespace Wale.WinForm
                         node.Nodes.Add(childNode);
                     }
                 }
+                node.ContextMenuStrip = new ContextMenuStrip();
+                node.ContextMenuStrip.Items.Add("Enable", null, OnEnableDevice);
+                node.ContextMenuStrip.Items.Add("Disable", null, OnDisableDevice);
+                node.ContextMenuStrip.Items.Add("Re-Enable", null, OnReEnableDevice);
                 treeView1.Nodes.Add(node);
             }
 
             treeView1.ExpandAll();
+        }
+        private void OnEnableDevice(object sender, EventArgs e)
+        {
+            ///TreeNode node = sender as TreeNode;//data.Find(dd => dd.Name == node.Name);
+            Wale.CoreAudio.Audio audio = new CoreAudio.Audio();
+            audio.EnableAudioDevice(treeView1.SelectedNode.ToolTipText);
+        }
+        private void OnDisableDevice(object sender, EventArgs e)
+        {
+            //TreeNode node = sender as TreeNode;//data.Find(dd => dd.Name == node.Name);
+            Wale.CoreAudio.Audio audio = new CoreAudio.Audio();
+            audio.DisableAudioDevice(treeView1.SelectedNode.ToolTipText);
+        }
+        private void OnReEnableDevice(object sender, EventArgs e)
+        {
+            //TreeNode node = sender as TreeNode;//data.Find(dd => dd.Name == node.Name);
+            Wale.CoreAudio.Audio audio = new CoreAudio.Audio();
+            audio.DisableAudioDevice(treeView1.SelectedNode.ToolTipText);
+            audio.EnableAudioDevice(treeView1.SelectedNode.ToolTipText);
         }
 
 
@@ -95,15 +123,20 @@ namespace Wale.WinForm
             this.DialogResult = DialogResult.OK;
             Close();
         }
-        private void updateButton_Click(object sender, EventArgs e)
+        private async void updateButton_Click(object sender, EventArgs e)
         {
-            data = new Wale.CoreAudio.Audio().GetDeviceList();
+            await GetData();
             DrawMap();
         }
 
         private void DeviceMap_Shown(object sender, EventArgs e)
         {
             updateButton_Click(sender, e);
+        }
+
+        private void treeView1_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            treeView1.SelectedNode = e.Node;
         }
     }//End class DeviceMap
 }//End namespace Wale.Winform

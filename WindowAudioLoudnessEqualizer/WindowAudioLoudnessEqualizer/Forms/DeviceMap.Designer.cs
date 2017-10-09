@@ -28,7 +28,6 @@
         /// </summary>
         public override void InitializeComponent()
         {
-            base.InitializeComponent();
             this.treeView1 = new System.Windows.Forms.TreeView();
             this.updateButton = new System.Windows.Forms.Button();
             this.closeButton = new System.Windows.Forms.Button();
@@ -40,20 +39,21 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.treeView1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.treeView1.Location = new System.Drawing.Point(11, 74);
-            this.treeView1.Margin = new System.Windows.Forms.Padding(4);
+            this.treeView1.Location = new System.Drawing.Point(6, 40);
+            this.treeView1.Margin = new System.Windows.Forms.Padding(2);
             this.treeView1.Name = "treeView1";
-            this.treeView1.Size = new System.Drawing.Size(728, 361);
+            this.treeView1.Size = new System.Drawing.Size(394, 178);
             this.treeView1.TabIndex = 16;
+            this.treeView1.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.treeView1_NodeMouseClick);
             // 
             // updateButton
             // 
             this.updateButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.updateButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.updateButton.Location = new System.Drawing.Point(14, 443);
-            this.updateButton.Margin = new System.Windows.Forms.Padding(4);
+            this.updateButton.Location = new System.Drawing.Point(8, 222);
+            this.updateButton.Margin = new System.Windows.Forms.Padding(2);
             this.updateButton.Name = "updateButton";
-            this.updateButton.Size = new System.Drawing.Size(392, 43);
+            this.updateButton.Size = new System.Drawing.Size(211, 22);
             this.updateButton.TabIndex = 17;
             this.updateButton.Text = "Update";
             this.updateButton.UseVisualStyleBackColor = true;
@@ -64,10 +64,10 @@
             this.closeButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.closeButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.closeButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.closeButton.Location = new System.Drawing.Point(502, 443);
-            this.closeButton.Margin = new System.Windows.Forms.Padding(4);
+            this.closeButton.Location = new System.Drawing.Point(270, 222);
+            this.closeButton.Margin = new System.Windows.Forms.Padding(2);
             this.closeButton.Name = "closeButton";
-            this.closeButton.Size = new System.Drawing.Size(234, 43);
+            this.closeButton.Size = new System.Drawing.Size(126, 22);
             this.closeButton.TabIndex = 18;
             this.closeButton.Text = "Close";
             this.closeButton.UseVisualStyleBackColor = true;
@@ -75,18 +75,18 @@
             // 
             // DeviceMap
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 24F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.CancelButton = this.closeButton;
-            this.ClientSize = new System.Drawing.Size(750, 500);
+            this.ClientSize = new System.Drawing.Size(404, 250);
             this.ControlBox = false;
             this.Controls.Add(this.closeButton);
             this.Controls.Add(this.updateButton);
             this.Controls.Add(this.treeView1);
             this.DataBindings.Add(new System.Windows.Forms.Binding("TopMost", global::Wale.WinForm.Properties.Settings.Default, "AlwaysTop", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-            this.Margin = new System.Windows.Forms.Padding(4);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "DeviceMap";

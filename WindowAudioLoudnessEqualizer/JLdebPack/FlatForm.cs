@@ -22,14 +22,14 @@ namespace JDPack
         {
             if (titleDrag)
             {
-                //MessageBox.Show($"L={Screen.AllScreens[0].WorkingArea.Left} R={Screen.AllScreens[0].WorkingArea.Right}, T={Screen.AllScreens[0].WorkingArea.Top} B={Screen.AllScreens[0].WorkingArea.Bottom}");
+                //MessageBox.Show($"L={Screen.PrimaryScreen.WorkingArea.Left} R={Screen.PrimaryScreen.WorkingArea.Right}, T={Screen.PrimaryScreen.WorkingArea.Top} B={Screen.PrimaryScreen.WorkingArea.Bottom}");
                 int x = Location.X + e.Location.X - titlePosition.X;
-                if (x + this.Width >= Screen.AllScreens[0].WorkingArea.Right) x = Screen.AllScreens[0].WorkingArea.Right - this.Width;
-                else if (x <= Screen.AllScreens[0].WorkingArea.Left) x = Screen.AllScreens[0].WorkingArea.Left;
+                if (x + this.Width >= Screen.PrimaryScreen.WorkingArea.Right) x = Screen.PrimaryScreen.WorkingArea.Right - this.Width;
+                else if (x <= Screen.PrimaryScreen.WorkingArea.Left) x = Screen.PrimaryScreen.WorkingArea.Left;
 
                 int y = Location.Y + e.Location.Y - titlePosition.Y;
-                if (y + this.Height >= Screen.AllScreens[0].WorkingArea.Bottom) y = Screen.AllScreens[0].WorkingArea.Bottom - this.Height;
-                else if (y <= Screen.AllScreens[0].WorkingArea.Top) y = Screen.AllScreens[0].WorkingArea.Top;
+                if (y + this.Height >= Screen.PrimaryScreen.WorkingArea.Bottom) y = Screen.PrimaryScreen.WorkingArea.Bottom - this.Height;
+                else if (y <= Screen.PrimaryScreen.WorkingArea.Top) y = Screen.PrimaryScreen.WorkingArea.Top;
                 //MessageBox.Show($"x={x} y={y}");
                 Location = new Point(x, y);
             }
@@ -37,17 +37,17 @@ namespace JDPack
         protected void titlePanel_MouseUp(object sender, MouseEventArgs e) { titleDrag = false; }
         protected void Form_LocationChanged(object sender, EventArgs e)
         {
-            if ((this.Left + this.Width) > Screen.AllScreens[0].Bounds.Width)
-                this.Left = Screen.AllScreens[0].Bounds.Width - this.Width;
+            if ((this.Left + this.Width) > Screen.PrimaryScreen.Bounds.Width)
+                this.Left = Screen.PrimaryScreen.Bounds.Width - this.Width;
 
-            if (this.Left < Screen.AllScreens[0].Bounds.Left)
-                this.Left = Screen.AllScreens[0].Bounds.Left;
+            if (this.Left < Screen.PrimaryScreen.Bounds.Left)
+                this.Left = Screen.PrimaryScreen.Bounds.Left;
 
-            if ((this.Top + this.Height) > Screen.AllScreens[0].Bounds.Height)
-                this.Top = Screen.AllScreens[0].Bounds.Height - this.Height;
+            if ((this.Top + this.Height) > Screen.PrimaryScreen.Bounds.Height)
+                this.Top = Screen.PrimaryScreen.Bounds.Height - this.Height;
 
-            if (this.Top < Screen.AllScreens[0].Bounds.Top)
-                this.Top = Screen.AllScreens[0].Bounds.Top;
+            if (this.Top < Screen.PrimaryScreen.Bounds.Top)
+                this.Top = Screen.PrimaryScreen.Bounds.Top;
         }
 
         public void SetTitle(string t) { this.titleLabel.Text = t; }
@@ -68,10 +68,10 @@ namespace JDPack
             this.titlePanel.ForeColor = System.Drawing.SystemColors.ControlText;
             this.titlePanel.Location = new System.Drawing.Point(0, 0);
             this.titlePanel.Margin = new System.Windows.Forms.Padding(0);
-            this.titlePanel.MaximumSize = new System.Drawing.Size(0, 55);
-            this.titlePanel.MinimumSize = new System.Drawing.Size(0, 55);
+            this.titlePanel.MaximumSize = new System.Drawing.Size(0, 35);
+            this.titlePanel.MinimumSize = new System.Drawing.Size(0, 35);
             this.titlePanel.Name = "titlePanel";
-            this.titlePanel.Size = new System.Drawing.Size(276, 55);
+            this.titlePanel.Size = new System.Drawing.Size(276, 35);
             this.titlePanel.TabIndex = 15;
             this.titlePanel.MouseDown += new System.Windows.Forms.MouseEventHandler(this.titlePanel_MouseDown);
             this.titlePanel.MouseMove += new System.Windows.Forms.MouseEventHandler(this.titlePanel_MouseMove);
@@ -86,8 +86,8 @@ namespace JDPack
             this.titleLabel.Location = new System.Drawing.Point(0, 0);
             this.titleLabel.Margin = new System.Windows.Forms.Padding(0);
             this.titleLabel.Name = "titleLabel";
-            this.titleLabel.Padding = new System.Windows.Forms.Padding(15, 11, 15, 11);
-            this.titleLabel.Size = new System.Drawing.Size(142, 61);
+            this.titleLabel.Padding = new System.Windows.Forms.Padding(12, 8, 12, 8);
+            this.titleLabel.Size = new System.Drawing.Size(82, 36);
             this.titleLabel.TabIndex = 0;
             this.titleLabel.Text = "WALE";
             this.titleLabel.MouseDown += new System.Windows.Forms.MouseEventHandler(this.titlePanel_MouseDown);

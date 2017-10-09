@@ -281,14 +281,14 @@ namespace Wale.WinForm
         {
             if (titleDrag)
             {
-                //MessageBox.Show($"L={Screen.AllScreens[0].WorkingArea.Left} R={Screen.AllScreens[0].WorkingArea.Right}, T={Screen.AllScreens[0].WorkingArea.Top} B={Screen.AllScreens[0].WorkingArea.Bottom}");
+                //MessageBox.Show($"L={Screen.PrimaryScreen.WorkingArea.Left} R={Screen.PrimaryScreen.WorkingArea.Right}, T={Screen.PrimaryScreen.WorkingArea.Top} B={Screen.PrimaryScreen.WorkingArea.Bottom}");
                 int x = Location.X + e.Location.X - titlePosition.X;
-                if (x + this.Width >= Screen.AllScreens[0].WorkingArea.Right) x = Screen.AllScreens[0].WorkingArea.Right - this.Width;
-                else if (x <= Screen.AllScreens[0].WorkingArea.Left) x = Screen.AllScreens[0].WorkingArea.Left;
+                if (x + this.Width >= Screen.PrimaryScreen.WorkingArea.Right) x = Screen.PrimaryScreen.WorkingArea.Right - this.Width;
+                else if (x <= Screen.PrimaryScreen.WorkingArea.Left) x = Screen.PrimaryScreen.WorkingArea.Left;
 
                 int y = Location.Y + e.Location.Y - titlePosition.Y;
-                if (y + this.Height >= Screen.AllScreens[0].WorkingArea.Bottom) y = Screen.AllScreens[0].WorkingArea.Bottom - this.Height;
-                else if (y <= Screen.AllScreens[0].WorkingArea.Top) y = Screen.AllScreens[0].WorkingArea.Top;
+                if (y + this.Height >= Screen.PrimaryScreen.WorkingArea.Bottom) y = Screen.PrimaryScreen.WorkingArea.Bottom - this.Height;
+                else if (y <= Screen.PrimaryScreen.WorkingArea.Top) y = Screen.PrimaryScreen.WorkingArea.Top;
                 //MessageBox.Show($"x={x} y={y}");
                 Location = new Point(x, y);
             }
@@ -296,17 +296,18 @@ namespace Wale.WinForm
         private void titlePanel_MouseUp(object sender, MouseEventArgs e) { titleDrag = false; }
         private void MainWindow_LocationAndSizeChanged(object sender, EventArgs e)
         {
-            if ((this.Left + this.Width) > Screen.AllScreens[0].Bounds.Width)
-                this.Left = Screen.AllScreens[0].Bounds.Width - this.Width;
+            if ((this.Left + this.Width) > Screen.PrimaryScreen.Bounds.Width)
+                this.Left = Screen.PrimaryScreen.Bounds.Width - this.Width;
 
-            if (this.Left < Screen.AllScreens[0].Bounds.Left)
-                this.Left = Screen.AllScreens[0].Bounds.Left;
+            if (this.Left < Screen.PrimaryScreen.Bounds.Left)
+                this.Left = Screen.PrimaryScreen.Bounds.Left;
+            
 
-            if ((this.Top + this.Height) > Screen.AllScreens[0].Bounds.Height)
-                this.Top = Screen.AllScreens[0].Bounds.Height - this.Height;
+            if ((this.Top + this.Height) > Screen.PrimaryScreen.Bounds.Height)
+                this.Top = Screen.PrimaryScreen.Bounds.Height - this.Height;
 
-            if (this.Top < Screen.AllScreens[0].Bounds.Top)
-                this.Top = Screen.AllScreens[0].Bounds.Top;
+            if (this.Top < Screen.PrimaryScreen.Bounds.Top)
+                this.Top = Screen.PrimaryScreen.Bounds.Top;
         }
         #endregion
 
@@ -452,7 +453,7 @@ namespace Wale.WinForm
                 {
                     //Console.WriteLine("InsideErrorState");
                     On = false;
-                    NI.Icon = Properties.Resources.WaleLeftOff;
+                    NI.Icon = Properties.Resources.WaleRightOff;
                     //MessageBox.Show("IconOff");
                 }
                 else if (Audio.MasterPeak >= 0 && !On)

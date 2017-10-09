@@ -70,6 +70,10 @@ namespace Wale.CoreAudio
         /// Session data list of sessions in default device.
         /// </summary>
         public SessionDataList Sessions { get => sessionList; }
+        /// <summary>
+        /// A list of excluded sessions for automatic control
+        /// </summary>
+        public List<string> ExcludeList = new List<string> { "amddvr", "ShellExperienceHost" };
         
         /// <summary>
         /// Instantiate new instance of Audio class.
@@ -103,6 +107,9 @@ namespace Wale.CoreAudio
         /// </summary>
         /// <returns></returns>
         public List<DeviceData> GetDeviceList() { return EnumerateWasapiDevices(); }
+
+        public void EnableAudioDevice(string deviceId) { EnableDevice(deviceId); }
+        public void DisableAudioDevice(string deviceId) { DisableDevice(deviceId); }
 
         /// <summary>
         /// Update all sessions in default device and session list.
@@ -193,7 +200,7 @@ namespace Wale.CoreAudio
         #endregion
 
 
-        #region Private Master Items
+        #region Private Audio Device Items
         //Master Volume Items
         private float GetMasterVolume()
         {
@@ -352,6 +359,58 @@ namespace Wale.CoreAudio
             }
             catch (Exception e) { JDPack.FileLog.Log(e.ToString()); return null; }
         }
+        
+        //Device Items
+        private MMDevice GetDevice(string deviceId)
+        {
+            try
+            {
+                using (var obj = new CSCore.CoreAudioAPI.MMDeviceEnumerator())
+                {
+                    MMDevice device = obj.GetDevice(deviceId);
+                    if (device == null) JDPack.FileLog.Log("GetSessionData: Fail to get master device.");
+                    NoDevice = false;
+                    return device;
+                }
+            }
+            catch (Exception e) { JDPack.FileLog.Log(e.ToString()); NoDevice = true; return null; }
+        }
+        private void EnableDevice(string deviceId)
+        {
+            try
+            {
+                using (var device = GetDevice(deviceId))
+                {
+                    if (device == null) { JDPack.FileLog.Log("EnableDevice: Fail to get specific device."); return; }
+                    
+                    Guid IID_IAudioEndpointVolume = typeof(AudioClient).GUID;
+                    IntPtr i = device.Activate(IID_IAudioEndpointVolume, 0, IntPtr.Zero);
+                    using (var aev = new AudioClient(i))
+                    {
+                        aev.Start();
+                    }
+                }
+            }
+            catch (Exception e) { JDPack.FileLog.Log($"Error(EnableDevice): {e.ToString()}"); return; }
+        }
+        private void DisableDevice(string deviceId)
+        {
+            try
+            {
+                using (var device = GetDevice(deviceId))
+                {
+                    if (device == null) { JDPack.FileLog.Log("EnableDevice: Fail to get specific device."); return; }
+
+                    Guid IID_IAudioEndpointVolume = typeof(AudioClient).GUID;
+                    IntPtr i = device.Activate(IID_IAudioEndpointVolume, 0, IntPtr.Zero);
+                    using (var aev = new AudioClient(i))
+                    {
+                        aev.Stop();
+                    }
+                }
+            }
+            catch (Exception e) { JDPack.FileLog.Log($"Error(EnableDevice): {e.ToString()}"); return; }
+        }
         #endregion
 
 
@@ -399,7 +458,8 @@ namespace Wale.CoreAudio
                                     }
                                     if (!exists)
                                     {
-                                        simpleAudioVolume.MasterVolume = 0.01f;
+                                        //Console.WriteLine($"    {MakeName(asc2.SessionIdentifier)}: {ExcludeList.Contains(MakeName(asc2.SessionIdentifier))}");
+                                        if (!ExcludeList.Contains(MakeName(asc2.SessionIdentifier))) { simpleAudioVolume.MasterVolume = 0.01f; }
                                         sessionList.Add(new SessionData(asc2.ProcessID, asc2.SessionIdentifier)
                                         {
                                             Volume = simpleAudioVolume.MasterVolume,
@@ -441,6 +501,19 @@ namespace Wale.CoreAudio
             }
             catch (Exception e) { JDPack.FileLog.Log($"Error(GetSessionData): {e.ToString()}"); }
             //sessionList.ForEach(s => Console.WriteLine($"{s.PID}"));
+        }
+        private string MakeName(string name)
+        {
+            int startidx = name.IndexOf("|"), endidx = name.IndexOf("%b");
+            name = name.Substring(startidx, endidx - startidx + 2);
+            if (name == "|#%b") name = "System";
+            else
+            {
+                startidx = name.LastIndexOf("\\") + 1; endidx = name.IndexOf("%b");
+                name = name.Substring(startidx, endidx - startidx);
+                if (name.EndsWith(".exe")) name = name.Substring(0, name.LastIndexOf(".exe"));
+            }
+            return name;
         }
 
         private void GetState(SessionData session)

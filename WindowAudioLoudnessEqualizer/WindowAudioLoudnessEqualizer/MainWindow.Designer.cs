@@ -84,13 +84,13 @@
             this.licensesToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.NICMstrip.Name = "NICMstrip";
-            this.NICMstrip.Size = new System.Drawing.Size(267, 270);
+            this.NICMstrip.Size = new System.Drawing.Size(165, 142);
             // 
             // cmsAutoControl
             // 
             this.cmsAutoControl.Enabled = false;
             this.cmsAutoControl.Name = "cmsAutoControl";
-            this.cmsAutoControl.Size = new System.Drawing.Size(266, 36);
+            this.cmsAutoControl.Size = new System.Drawing.Size(164, 22);
             this.cmsAutoControl.Text = "&AutoControl(On)";
             this.cmsAutoControl.Visible = false;
             this.cmsAutoControl.Click += new System.EventHandler(this.AutoControlMenuItem_Click);
@@ -98,40 +98,40 @@
             // settingsToolStripMenuItem
             // 
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
-            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(266, 36);
+            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
             this.settingsToolStripMenuItem.Text = "&Configuration";
             this.settingsToolStripMenuItem.Click += new System.EventHandler(this.ConfigToolStripMenuItem_Click);
             // 
             // deviceMapToolStripMenuItem
             // 
             this.deviceMapToolStripMenuItem.Name = "deviceMapToolStripMenuItem";
-            this.deviceMapToolStripMenuItem.Size = new System.Drawing.Size(266, 36);
+            this.deviceMapToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
             this.deviceMapToolStripMenuItem.Text = "DeviceMap";
             this.deviceMapToolStripMenuItem.Click += new System.EventHandler(this.deviceMapToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(263, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(161, 6);
             // 
             // helpToolStripMenuItem
             // 
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-            this.helpToolStripMenuItem.Size = new System.Drawing.Size(266, 36);
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
             this.helpToolStripMenuItem.Text = "Help";
             this.helpToolStripMenuItem.Click += new System.EventHandler(this.helpToolStripMenuItem_Click);
             // 
             // licensesToolStripMenuItem
             // 
             this.licensesToolStripMenuItem.Name = "licensesToolStripMenuItem";
-            this.licensesToolStripMenuItem.Size = new System.Drawing.Size(266, 36);
+            this.licensesToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
             this.licensesToolStripMenuItem.Text = "Licenses";
             this.licensesToolStripMenuItem.Click += new System.EventHandler(this.licensesToolStripMenuItem_Click);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(266, 36);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
             this.exitToolStripMenuItem.Text = "E&xit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.NI_Exit_Click);
             // 
@@ -141,7 +141,7 @@
             this.label1.ForeColor = System.Drawing.Color.LightGray;
             this.label1.Location = new System.Drawing.Point(6, 29);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(79, 24);
+            this.label1.Size = new System.Drawing.Size(44, 12);
             this.label1.TabIndex = 1;
             this.label1.Text = "Master";
             // 
@@ -151,7 +151,7 @@
             this.tbVolume.Location = new System.Drawing.Point(48, 50);
             this.tbVolume.MaxLength = 5;
             this.tbVolume.Name = "tbVolume";
-            this.tbVolume.Size = new System.Drawing.Size(55, 35);
+            this.tbVolume.Size = new System.Drawing.Size(55, 21);
             this.tbVolume.TabIndex = 2;
             this.tbVolume.Enter += new System.EventHandler(this.textBox_Enter);
             this.tbVolume.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tbVolume_KeyDown);
@@ -165,7 +165,7 @@
             this.lVolume.ForeColor = System.Drawing.Color.CadetBlue;
             this.lVolume.Location = new System.Drawing.Point(69, 29);
             this.lVolume.Name = "lVolume";
-            this.lVolume.Size = new System.Drawing.Size(23, 24);
+            this.lVolume.Size = new System.Drawing.Size(11, 12);
             this.lVolume.TabIndex = 5;
             this.lVolume.Text = "0";
             this.lVolume.Click += new System.EventHandler(this.lVolume_Click);
@@ -195,7 +195,7 @@
             this.label2.ForeColor = System.Drawing.Color.LightGray;
             this.label2.Location = new System.Drawing.Point(6, 6);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(60, 24);
+            this.label2.Size = new System.Drawing.Size(34, 12);
             this.label2.TabIndex = 8;
             this.label2.Text = "Base";
             // 
@@ -205,7 +205,7 @@
             this.lBaseVolume.ForeColor = System.Drawing.Color.LightGray;
             this.lBaseVolume.Location = new System.Drawing.Point(69, 6);
             this.lBaseVolume.Name = "lBaseVolume";
-            this.lBaseVolume.Size = new System.Drawing.Size(23, 24);
+            this.lBaseVolume.Size = new System.Drawing.Size(11, 12);
             this.lBaseVolume.TabIndex = 9;
             this.lBaseVolume.Text = "0";
             // 
@@ -224,7 +224,7 @@
             this.tbInterval.Location = new System.Drawing.Point(8, 50);
             this.tbInterval.MaxLength = 5;
             this.tbInterval.Name = "tbInterval";
-            this.tbInterval.Size = new System.Drawing.Size(36, 35);
+            this.tbInterval.Size = new System.Drawing.Size(36, 21);
             this.tbInterval.TabIndex = 11;
             this.tbInterval.Enter += new System.EventHandler(this.textBox_Enter);
             this.tbInterval.Leave += new System.EventHandler(this.textBox_Leave);
@@ -233,17 +233,16 @@
             // 
             // titlePanel
             // 
-            this.titlePanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
             this.titlePanel.BackColor = System.Drawing.Color.CadetBlue;
             this.titlePanel.ContextMenuStrip = this.NICMstrip;
             this.titlePanel.Controls.Add(this.label3);
+            this.titlePanel.Dock = System.Windows.Forms.DockStyle.Top;
             this.titlePanel.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.titlePanel.Location = new System.Drawing.Point(5, 5);
+            this.titlePanel.Location = new System.Drawing.Point(0, 0);
             this.titlePanel.Margin = new System.Windows.Forms.Padding(0);
-            this.titlePanel.MinimumSize = new System.Drawing.Size(220, 30);
+            this.titlePanel.MinimumSize = new System.Drawing.Size(220, 35);
             this.titlePanel.Name = "titlePanel";
-            this.titlePanel.Size = new System.Drawing.Size(221, 30);
+            this.titlePanel.Size = new System.Drawing.Size(231, 35);
             this.titlePanel.TabIndex = 13;
             this.titlePanel.MouseDown += new System.Windows.Forms.MouseEventHandler(this.titlePanel_MouseDown);
             this.titlePanel.MouseMove += new System.Windows.Forms.MouseEventHandler(this.titlePanel_MouseMove);
@@ -255,8 +254,10 @@
             this.label3.Font = new System.Drawing.Font("Algerian", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label3.ForeColor = System.Drawing.SystemColors.WindowText;
             this.label3.Location = new System.Drawing.Point(12, 5);
+            this.label3.Margin = new System.Windows.Forms.Padding(0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(122, 42);
+            this.label3.Padding = new System.Windows.Forms.Padding(5, 3, 5, 3);
+            this.label3.Size = new System.Drawing.Size(71, 27);
             this.label3.TabIndex = 0;
             this.label3.Text = "WALE";
             this.label3.MouseDown += new System.Windows.Forms.MouseEventHandler(this.titlePanel_MouseDown);
@@ -306,9 +307,9 @@
             this.tabMain.Controls.Add(this.lBaseVolume);
             this.tabMain.Controls.Add(this.pbBaseLevel);
             this.tabMain.Controls.Add(this.tbVolume);
-            this.tabMain.Location = new System.Drawing.Point(5, 5);
+            this.tabMain.Location = new System.Drawing.Point(1, 1);
             this.tabMain.Name = "tabMain";
-            this.tabMain.Size = new System.Drawing.Size(210, 112);
+            this.tabMain.Size = new System.Drawing.Size(218, 133);
             this.tabMain.TabIndex = 0;
             this.tabMain.Text = "Master(F3)";
             // 
@@ -322,7 +323,7 @@
             this.cbAlwaysTop.ForeColor = System.Drawing.Color.LightGray;
             this.cbAlwaysTop.Location = new System.Drawing.Point(8, 77);
             this.cbAlwaysTop.Name = "cbAlwaysTop";
-            this.cbAlwaysTop.Size = new System.Drawing.Size(192, 28);
+            this.cbAlwaysTop.Size = new System.Drawing.Size(108, 16);
             this.cbAlwaysTop.TabIndex = 14;
             this.cbAlwaysTop.Text = "AlwaysTop(F7)";
             this.cbAlwaysTop.UseVisualStyleBackColor = true;
@@ -336,7 +337,7 @@
             this.cbStayOn.ForeColor = System.Drawing.Color.LightGray;
             this.cbStayOn.Location = new System.Drawing.Point(8, 99);
             this.cbStayOn.Name = "cbStayOn";
-            this.cbStayOn.Size = new System.Drawing.Size(155, 28);
+            this.cbStayOn.Size = new System.Drawing.Size(85, 16);
             this.cbStayOn.TabIndex = 12;
             this.cbStayOn.Text = "StayOn(F8)";
             this.cbStayOn.UseVisualStyleBackColor = true;
@@ -345,9 +346,9 @@
             // 
             this.tabSession.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.tabSession.ContextMenuStrip = this.NICMstrip;
-            this.tabSession.Location = new System.Drawing.Point(5, 5);
+            this.tabSession.Location = new System.Drawing.Point(1, 1);
             this.tabSession.Name = "tabSession";
-            this.tabSession.Size = new System.Drawing.Size(210, 112);
+            this.tabSession.Size = new System.Drawing.Size(218, 133);
             this.tabSession.TabIndex = 1;
             this.tabSession.Text = "Session(F4)";
             // 
@@ -355,10 +356,10 @@
             // 
             this.tabLog.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.tabLog.Controls.Add(this.Logs);
-            this.tabLog.Location = new System.Drawing.Point(5, 5);
+            this.tabLog.Location = new System.Drawing.Point(1, 1);
             this.tabLog.Name = "tabLog";
             this.tabLog.Padding = new System.Windows.Forms.Padding(3);
-            this.tabLog.Size = new System.Drawing.Size(210, 112);
+            this.tabLog.Size = new System.Drawing.Size(218, 133);
             this.tabLog.TabIndex = 2;
             this.tabLog.Text = "Log";
             // 
@@ -374,7 +375,7 @@
             this.Logs.Name = "Logs";
             this.Logs.ReadOnly = true;
             this.Logs.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.Logs.Size = new System.Drawing.Size(204, 106);
+            this.Logs.Size = new System.Drawing.Size(212, 127);
             this.Logs.TabIndex = 0;
             this.Logs.VisibleChanged += new System.EventHandler(this.Logs_VisibleChanged);
             // 
