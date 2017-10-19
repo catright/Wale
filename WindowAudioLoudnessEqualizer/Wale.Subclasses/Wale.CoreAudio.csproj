@@ -37,6 +37,9 @@
     <Reference Include="CSCore">
       <HintPath>..\..\..\..\3rdPartyLibrary\CSCore.dll</HintPath>
     </Reference>
+    <Reference Include="JDPack">
+      <HintPath>..\..\..\..\JLLibrary\JDPack.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -57,10 +60,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\JLdebPack\JDPack.csproj">
-      <Project>{8d37648e-0b49-41cc-886a-5b373a7b3a58}</Project>
-      <Name>JDPack</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Wale\Wale.csproj">
       <Project>{88d9419d-58b9-4b5c-be56-9762bae0c670}</Project>
       <Name>Wale</Name>
