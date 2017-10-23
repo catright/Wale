@@ -15,8 +15,6 @@
 *.lnk
 *.png
 *.ico
-*.zip
-*.msi
 
 # Build results
 [Dd]ebug/
