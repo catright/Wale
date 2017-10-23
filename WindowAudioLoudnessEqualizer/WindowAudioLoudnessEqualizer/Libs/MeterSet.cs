@@ -58,8 +58,8 @@ namespace Wale.WinForm
             //LastPeaks = new List<double>();
             //for (int i = 0; i < 10; i++) { LastPeaks.Add(0); }
 
-            this.AutoSize = false;
-            this.Size = new Size(186, 24);
+            this.AutoSize = true;
+            this.Size = new Size(265, 24);
             this.Padding = new Padding(0, 2, 0, 2);
             //this.BorderStyle = BorderStyle.FixedSingle;
         }
@@ -77,7 +77,7 @@ namespace Wale.WinForm
             cbAutoIncluded.Show();
             lSessionNameLabel = new Label();
             lSessionNameLabel.AutoSize = false;
-            lSessionNameLabel.Size = new Size(70, 12);
+            lSessionNameLabel.Size = new Size(100, 12);
             lSessionNameLabel.Margin = new Padding(0);
             lSessionNameLabel.ForeColor = foreColor;
             lSessionNameLabel.Enabled = true;
@@ -90,7 +90,7 @@ namespace Wale.WinForm
             lVolume.Enabled = true;
             lVolume.Show();
             lVolumeBar = new JDPack.ProgressBarColored();
-            lVolumeBar.Size = new Size(74, 10);
+            lVolumeBar.Size = new Size(104, 10);
             lVolumeBar.Margin = new Padding(0);
             lVolumeBar.ForeColor = mainColor;
             lVolumeBar.Maximum = 100;
@@ -104,7 +104,7 @@ namespace Wale.WinForm
             lVolumeBar.Enabled = true;
             lVolumeBar.Show();
             lLevelBar = new JDPack.ProgressBarColored();
-            lLevelBar.Size = new Size(74, 10);
+            lLevelBar.Size = new Size(104, 10);
             lLevelBar.Margin = new Padding(0);
             lLevelBar.ForeColor = peakColor;
             lLevelBar.Maximum = 100;
@@ -137,9 +137,9 @@ namespace Wale.WinForm
             DP.DM(" - ItemLocations");
             cbAutoIncluded.Location = new Point(0, 3);
             lSessionNameLabel.Location = new Point(13, 4);
-            lVolume.Location = new Point(82, 4);
-            lVolumeBar.Location = new Point(118, 0);
-            lLevelBar.Location = new Point(118, 10);
+            lVolume.Location = new Point(120, 4);
+            lVolumeBar.Location = new Point(155, 0);
+            lLevelBar.Location = new Point(155, 10);
         }
         private void DetailedItems()
         {
@@ -191,6 +191,7 @@ namespace Wale.WinForm
             this.Controls.Add(dlAvPeak);
             this.Enabled = true;
             this.Show();
+            Console.WriteLine($"{lLevelBar.Size}");
         }
         /*~MeterSet() { Dispose(false); }
         public void Dispose() { Dispose(true); GC.SuppressFinalize(this); }

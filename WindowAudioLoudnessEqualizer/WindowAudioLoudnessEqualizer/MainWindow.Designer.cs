@@ -148,10 +148,10 @@
             // tbVolume
             // 
             this.tbVolume.AcceptsReturn = true;
-            this.tbVolume.Location = new System.Drawing.Point(48, 50);
+            this.tbVolume.Location = new System.Drawing.Point(50, 50);
             this.tbVolume.MaxLength = 5;
             this.tbVolume.Name = "tbVolume";
-            this.tbVolume.Size = new System.Drawing.Size(55, 21);
+            this.tbVolume.Size = new System.Drawing.Size(65, 21);
             this.tbVolume.TabIndex = 2;
             this.tbVolume.Enter += new System.EventHandler(this.textBox_Enter);
             this.tbVolume.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tbVolume_KeyDown);
@@ -163,7 +163,7 @@
             // 
             this.lVolume.AutoSize = true;
             this.lVolume.ForeColor = System.Drawing.Color.CadetBlue;
-            this.lVolume.Location = new System.Drawing.Point(69, 29);
+            this.lVolume.Location = new System.Drawing.Point(80, 29);
             this.lVolume.Name = "lVolume";
             this.lVolume.Size = new System.Drawing.Size(11, 12);
             this.lVolume.TabIndex = 5;
@@ -173,9 +173,9 @@
             // bVolumeSet
             // 
             this.bVolumeSet.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.bVolumeSet.Location = new System.Drawing.Point(109, 49);
+            this.bVolumeSet.Location = new System.Drawing.Point(120, 50);
             this.bVolumeSet.Name = "bVolumeSet";
-            this.bVolumeSet.Size = new System.Drawing.Size(90, 23);
+            this.bVolumeSet.Size = new System.Drawing.Size(150, 21);
             this.bVolumeSet.TabIndex = 6;
             this.bVolumeSet.Text = "Set Volume";
             this.bVolumeSet.UseVisualStyleBackColor = true;
@@ -183,10 +183,10 @@
             // 
             // pbBaseLevel
             // 
-            this.pbBaseLevel.Location = new System.Drawing.Point(109, 6);
+            this.pbBaseLevel.Location = new System.Drawing.Point(120, 6);
             this.pbBaseLevel.MarqueeAnimationSpeed = 10;
             this.pbBaseLevel.Name = "pbBaseLevel";
-            this.pbBaseLevel.Size = new System.Drawing.Size(90, 10);
+            this.pbBaseLevel.Size = new System.Drawing.Size(150, 10);
             this.pbBaseLevel.TabIndex = 7;
             // 
             // label2
@@ -203,7 +203,7 @@
             // 
             this.lBaseVolume.AutoSize = true;
             this.lBaseVolume.ForeColor = System.Drawing.Color.LightGray;
-            this.lBaseVolume.Location = new System.Drawing.Point(69, 6);
+            this.lBaseVolume.Location = new System.Drawing.Point(80, 6);
             this.lBaseVolume.Name = "lBaseVolume";
             this.lBaseVolume.Size = new System.Drawing.Size(11, 12);
             this.lBaseVolume.TabIndex = 9;
@@ -212,11 +212,11 @@
             // pbMasterVolume
             // 
             this.pbMasterVolume.ForeColor = System.Drawing.Color.CornflowerBlue;
-            this.pbMasterVolume.Location = new System.Drawing.Point(109, 24);
+            this.pbMasterVolume.Location = new System.Drawing.Point(120, 24);
             this.pbMasterVolume.Margin = new System.Windows.Forms.Padding(3, 3, 3, 0);
             this.pbMasterVolume.MarqueeAnimationSpeed = 10;
             this.pbMasterVolume.Name = "pbMasterVolume";
-            this.pbMasterVolume.Size = new System.Drawing.Size(90, 10);
+            this.pbMasterVolume.Size = new System.Drawing.Size(150, 10);
             this.pbMasterVolume.TabIndex = 10;
             // 
             // tbInterval
@@ -224,7 +224,7 @@
             this.tbInterval.Location = new System.Drawing.Point(8, 50);
             this.tbInterval.MaxLength = 5;
             this.tbInterval.Name = "tbInterval";
-            this.tbInterval.Size = new System.Drawing.Size(36, 21);
+            this.tbInterval.Size = new System.Drawing.Size(40, 21);
             this.tbInterval.TabIndex = 11;
             this.tbInterval.Enter += new System.EventHandler(this.textBox_Enter);
             this.tbInterval.Leave += new System.EventHandler(this.textBox_Leave);
@@ -242,7 +242,7 @@
             this.titlePanel.Margin = new System.Windows.Forms.Padding(0);
             this.titlePanel.MinimumSize = new System.Drawing.Size(220, 35);
             this.titlePanel.Name = "titlePanel";
-            this.titlePanel.Size = new System.Drawing.Size(231, 35);
+            this.titlePanel.Size = new System.Drawing.Size(300, 35);
             this.titlePanel.TabIndex = 13;
             this.titlePanel.MouseDown += new System.Windows.Forms.MouseEventHandler(this.titlePanel_MouseDown);
             this.titlePanel.MouseMove += new System.Windows.Forms.MouseEventHandler(this.titlePanel_MouseMove);
@@ -267,11 +267,11 @@
             // pbMasterPeak
             // 
             this.pbMasterPeak.ForeColor = System.Drawing.Color.PaleVioletRed;
-            this.pbMasterPeak.Location = new System.Drawing.Point(109, 34);
+            this.pbMasterPeak.Location = new System.Drawing.Point(120, 34);
             this.pbMasterPeak.Margin = new System.Windows.Forms.Padding(3, 0, 3, 3);
             this.pbMasterPeak.MarqueeAnimationSpeed = 10;
             this.pbMasterPeak.Name = "pbMasterPeak";
-            this.pbMasterPeak.Size = new System.Drawing.Size(90, 10);
+            this.pbMasterPeak.Size = new System.Drawing.Size(150, 10);
             this.pbMasterPeak.TabIndex = 13;
             // 
             // tabControl1
@@ -285,10 +285,10 @@
             this.tabControl1.Controls.Add(this.tabSession);
             this.tabControl1.Controls.Add(this.tabLog);
             this.tabControl1.Location = new System.Drawing.Point(6, 40);
-            this.tabControl1.MinimumSize = new System.Drawing.Size(220, 155);
+            this.tabControl1.MinimumSize = new System.Drawing.Size(280, 155);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(220, 155);
+            this.tabControl1.Size = new System.Drawing.Size(289, 155);
             this.tabControl1.TabIndex = 15;
             // 
             // tabMain
@@ -309,7 +309,7 @@
             this.tabMain.Controls.Add(this.tbVolume);
             this.tabMain.Location = new System.Drawing.Point(1, 1);
             this.tabMain.Name = "tabMain";
-            this.tabMain.Size = new System.Drawing.Size(218, 133);
+            this.tabMain.Size = new System.Drawing.Size(287, 133);
             this.tabMain.TabIndex = 0;
             this.tabMain.Text = "Master(F3)";
             // 
@@ -348,7 +348,7 @@
             this.tabSession.ContextMenuStrip = this.NICMstrip;
             this.tabSession.Location = new System.Drawing.Point(1, 1);
             this.tabSession.Name = "tabSession";
-            this.tabSession.Size = new System.Drawing.Size(218, 133);
+            this.tabSession.Size = new System.Drawing.Size(287, 133);
             this.tabSession.TabIndex = 1;
             this.tabSession.Text = "Session(F4)";
             // 
@@ -359,7 +359,7 @@
             this.tabLog.Location = new System.Drawing.Point(1, 1);
             this.tabLog.Name = "tabLog";
             this.tabLog.Padding = new System.Windows.Forms.Padding(3);
-            this.tabLog.Size = new System.Drawing.Size(218, 133);
+            this.tabLog.Size = new System.Drawing.Size(287, 133);
             this.tabLog.TabIndex = 2;
             this.tabLog.Text = "Log";
             // 
@@ -375,14 +375,14 @@
             this.Logs.Name = "Logs";
             this.Logs.ReadOnly = true;
             this.Logs.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.Logs.Size = new System.Drawing.Size(212, 127);
+            this.Logs.Size = new System.Drawing.Size(281, 127);
             this.Logs.TabIndex = 0;
             this.Logs.VisibleChanged += new System.EventHandler(this.Logs_VisibleChanged);
             // 
             // MainWindow
             // 
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.ClientSize = new System.Drawing.Size(231, 200);
+            this.ClientSize = new System.Drawing.Size(300, 200);
             this.ControlBox = false;
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.titlePanel);
@@ -391,7 +391,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.MinimumSize = new System.Drawing.Size(230, 200);
+            this.MinimumSize = new System.Drawing.Size(300, 200);
             this.Name = "MainWindow";
             this.ShowIcon = false;
             this.ShowInTaskbar = false;

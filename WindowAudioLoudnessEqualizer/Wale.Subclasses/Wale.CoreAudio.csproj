@@ -53,6 +53,7 @@
     <Compile Include="Audio.cs" />
     <Compile Include="DeviceData.cs" />
     <Compile Include="MasterDevice.cs" />
+    <Compile Include="NameSet.cs" />
     <Compile Include="Session.cs" />
     <Compile Include="SessionData.cs" />
     <Compile Include="SessionDataList.cs" />

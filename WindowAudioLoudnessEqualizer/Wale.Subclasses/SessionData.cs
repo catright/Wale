@@ -16,14 +16,14 @@ namespace Wale.CoreAudio
         /// </summary>
         /// <param name="pid">ProcessId</param>
         /// <param name="ident">ProcessIdentifier</param>
-        public SessionData(int pid, string ident)
+        public SessionData(int pid, NameSet nameset)
         {
             this.pid = (int)pid;
-            this.Identifier = ident;
-            this.Name = MakeName(ident);
+            this.nameSet = nameset;
         }
 
         #region API Default Datas
+        private NameSet nameSet;
         /// <summary>
         /// Conveted from CoreAudioApi
         /// </summary>
@@ -32,29 +32,16 @@ namespace Wale.CoreAudio
         /// <summary>
         /// Human readable process name
         /// </summary>
-        public string Name { get; private set; }
+        public string Name { get => nameSet.Name; }
         private int pid;
         /// <summary>
         /// Process Id
         /// </summary>
         public uint PID { get => (uint)pid; set => pid = (int)value; }
-        public string Identifier { get; private set; }
+        public string Identifier { get => nameSet.SessionIdentifier; }
         public float Volume { get; set; }
         public float Peak { get; set; }
         
-        private string MakeName(string name)
-        {
-            int startidx = name.IndexOf("|"), endidx = name.IndexOf("%b");
-            name = name.Substring(startidx, endidx - startidx + 2);
-            if (name == "|#%b") name = "System";
-            else
-            {
-                startidx = name.LastIndexOf("\\") + 1; endidx = name.IndexOf("%b");
-                name = name.Substring(startidx, endidx - startidx);
-                if (name.EndsWith(".exe")) name = name.Substring(0, name.LastIndexOf(".exe"));
-            }
-            return name;
-        }
         #endregion
 
         #region Customized Datas

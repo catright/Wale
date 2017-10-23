@@ -73,7 +73,7 @@ namespace Wale.CoreAudio
         /// <summary>
         /// A list of excluded sessions for automatic control
         /// </summary>
-        public List<string> ExcludeList = new List<string> { "amddvr", "ShellExperienceHost" };
+        public List<string> ExcludeList = new List<string> { "amddvr", "ShellExperienceHost", "Windows Shell Experience Host" };
         
         /// <summary>
         /// Instantiate new instance of Audio class.
@@ -336,7 +336,13 @@ namespace Wale.CoreAudio
                                                         sstate = SessionState.Expired;
                                                         break;
                                                 }
-                                                slist.Add(new SessionData(session2.ProcessID, session2.SessionIdentifier) { State = sstate });
+                                                slist.Add(new SessionData(session2.ProcessID, new NameSet(session2.IsSystemSoundSession,
+                                                                      session2.Process.ProcessName,
+                                                                      session2.Process.MainWindowTitle,
+                                                                      session2.DisplayName,
+                                                                      session2.SessionIdentifier
+                                                                      ))
+                                                { State = sstate });
                                             }
                                         }
                                     }
@@ -459,8 +465,16 @@ namespace Wale.CoreAudio
                                     if (!exists)
                                     {
                                         //Console.WriteLine($"    {MakeName(asc2.SessionIdentifier)}: {ExcludeList.Contains(MakeName(asc2.SessionIdentifier))}");
-                                        if (!ExcludeList.Contains(MakeName(asc2.SessionIdentifier))) { simpleAudioVolume.MasterVolume = 0.01f; }
-                                        sessionList.Add(new SessionData(asc2.ProcessID, asc2.SessionIdentifier)
+                                        //Console.WriteLine($"\r\nNAME:{asc2.DisplayName}\r\nSID:{asc2.SessionIdentifier}\r\nSIID:{asc2.SessionInstanceIdentifier}");
+                                        //Console.WriteLine($"\r\nPNAME:{asc2.Process.ProcessName}\r\nPWTITLE:{asc2.Process.MainWindowTitle}\r\nSID:{asc2.Process.SessionId}");
+                                        NameSet nameSet = new NameSet(asc2.IsSystemSoundSession,
+                                                                      asc2.Process.ProcessName,
+                                                                      asc2.Process.MainWindowTitle,
+                                                                      asc2.DisplayName,
+                                                                      asc2.SessionIdentifier
+                                                                      );
+                                        if (!ExcludeList.Contains(nameSet.Name)) { simpleAudioVolume.MasterVolume = 0.01f; }
+                                        sessionList.Add(new SessionData(asc2.ProcessID, nameSet)
                                         {
                                             Volume = simpleAudioVolume.MasterVolume,
                                             Peak = audioMeterInformation.PeakValue,
@@ -501,19 +515,6 @@ namespace Wale.CoreAudio
             }
             catch (Exception e) { JDPack.FileLog.Log($"Error(GetSessionData): {e.ToString()}"); }
             //sessionList.ForEach(s => Console.WriteLine($"{s.PID}"));
-        }
-        private string MakeName(string name)
-        {
-            int startidx = name.IndexOf("|"), endidx = name.IndexOf("%b");
-            name = name.Substring(startidx, endidx - startidx + 2);
-            if (name == "|#%b") name = "System";
-            else
-            {
-                startidx = name.LastIndexOf("\\") + 1; endidx = name.IndexOf("%b");
-                name = name.Substring(startidx, endidx - startidx);
-                if (name.EndsWith(".exe")) name = name.Substring(0, name.LastIndexOf(".exe"));
-            }
-            return name;
         }
 
         private void GetState(SessionData session)
