@@ -199,6 +199,26 @@ namespace Wale.CoreAudio
         private object sessionLocker = new object();
         #endregion
 
+        #region Private Common Methods
+        private SessionState State(AudioSessionState sessionState)
+        {
+            SessionState state = SessionState.Expired;
+            switch (sessionState)
+            {
+                case AudioSessionState.AudioSessionStateActive:
+                    state = SessionState.Active;
+                    break;
+                case AudioSessionState.AudioSessionStateInactive:
+                    state = SessionState.Inactive;
+                    break;
+                case AudioSessionState.AudioSessionStateExpired:
+                    state = SessionState.Expired;
+                    break;
+            }
+            return state;
+        }
+        #endregion
+
 
         #region Private Audio Device Items
         //Master Volume Items
@@ -319,30 +339,25 @@ namespace Wale.CoreAudio
                                         slist = new List<SessionData>();
                                         foreach (AudioSessionControl asc in ase)
                                         {
-                                            using (var session2 = asc.QueryInterface<AudioSessionControl2>())
+                                            using (var asc2 = asc.QueryInterface<AudioSessionControl2>())
                                             using (var simpleAudioVolume = asc.QueryInterface<SimpleAudioVolume>())
                                             using (var audioMeterInformation = asc.QueryInterface<AudioMeterInformation>())
                                             {
-                                                SessionState sstate = SessionState.Expired;
-                                                switch (asc.SessionState)
+                                                SessionState sstate = State(asc.SessionState);
+                                                NameSet nameSet = null;
+                                                try
                                                 {
-                                                    case AudioSessionState.AudioSessionStateActive:
-                                                        sstate = SessionState.Active;
-                                                        break;
-                                                    case AudioSessionState.AudioSessionStateInactive:
-                                                        sstate = SessionState.Inactive;
-                                                        break;
-                                                    case AudioSessionState.AudioSessionStateExpired:
-                                                        sstate = SessionState.Expired;
-                                                        break;
+                                                    nameSet = new NameSet(
+                                                        asc2.ProcessID,
+                                                        asc2.IsSystemSoundSession,
+                                                        asc2.Process.ProcessName,
+                                                        asc2.Process.MainWindowTitle,
+                                                        asc.DisplayName,
+                                                        asc2.SessionIdentifier
+                                                    );
                                                 }
-                                                slist.Add(new SessionData(session2.ProcessID, new NameSet(session2.IsSystemSoundSession,
-                                                                      session2.Process.ProcessName,
-                                                                      session2.Process.MainWindowTitle,
-                                                                      session2.DisplayName,
-                                                                      session2.SessionIdentifier
-                                                                      ))
-                                                { State = sstate });
+                                                catch { }
+                                                slist.Add(new SessionData(nameSet) { State = sstate });
                                             }
                                         }
                                     }
@@ -442,58 +457,82 @@ namespace Wale.CoreAudio
                         
                         foreach (AudioSessionControl asc in ase)
                         {
-                            using (var asc2 = asc.QueryInterface<AudioSessionControl2>())
+                            bool goon = true, exists = false;
+                            if (asc.IsDisposed) { JDPack.FileLog.Log("GetSessionData: Session is disposed."); goon = false; }
+                            SessionState state = SessionState.Expired;
+                            NameSet nameSet = null;
+
+                            //check expired
+                            if (goon)
                             {
-                                bool exists = false;
-                                sessionList.ForEach(s => { if (s.PID == asc2.ProcessID) exists = true; });
+                                state = State(asc.SessionState);
+                                //Console.WriteLine($"{asc.SessionState}");
+                                if (state == SessionState.Expired) { JDPack.FileLog.Log("GetSessionData: Session is expired."); goon = false; }
+                            }
+
+                            //process check and make nameset
+                            if (goon)
+                            {
+                                using (var asc2 = asc.QueryInterface<AudioSessionControl2>())
+                                {
+                                    //Console.WriteLine($"{asc2}");
+                                    //Console.WriteLine($"DNAME:{asc.DisplayName}\r\nSID:{asc2.SessionIdentifier}\r\nSIID:{asc2.SessionInstanceIdentifier}");
+                                    //Console.WriteLine($"PNAME:{asc2.Process.ProcessName}\r\nPWTITLE:{asc2.Process.MainWindowTitle}\r\nSID:{asc2.Process.SessionId}");
+                                    try
+                                    {
+                                        nameSet = new NameSet(
+                                            asc2.ProcessID,
+                                            asc2.IsSystemSoundSession,
+                                            asc2.Process.ProcessName,
+                                            asc2.Process.MainWindowTitle,
+                                            asc.DisplayName,
+                                            asc2.SessionIdentifier
+                                        );
+                                    }
+                                    //catch (NullReferenceException) { goon = false; }
+                                    catch { goon = false; }
+                                    //if (nameSet == null) { goon = false; }
+                                }
+                            }
+
+                            //new session check and update
+                            if (goon)
+                            {
+                                //Console.WriteLine($"NAME:{nameSet.Name}({asc2.ProcessID}), STATE:{state}");
+                                //Console.WriteLine($"1:{nameSet.IsSystemSoundSession},2:{nameSet.ProcessName},3:{nameSet.MainWindowTitle},4:{nameSet.DisplayName},5:{nameSet.SessionIdentifier}");
+                                sessionList.ForEach(s => { if (s.PID == nameSet.ProcessID) exists = true; });
+
                                 using (var simpleAudioVolume = asc.QueryInterface<SimpleAudioVolume>())
                                 using (var audioMeterInformation = asc.QueryInterface<AudioMeterInformation>())
                                 {
-                                    SessionState state = SessionState.Expired;
-                                    switch (asc.SessionState)
-                                    {
-                                        case AudioSessionState.AudioSessionStateActive:
-                                            state = SessionState.Active;
-                                            break;
-                                        case AudioSessionState.AudioSessionStateInactive:
-                                            state = SessionState.Inactive;
-                                            break;
-                                        case AudioSessionState.AudioSessionStateExpired:
-                                            state = SessionState.Expired;
-                                            break;
-                                    }
                                     if (!exists)
                                     {
-                                        //Console.WriteLine($"    {MakeName(asc2.SessionIdentifier)}: {ExcludeList.Contains(MakeName(asc2.SessionIdentifier))}");
-                                        //Console.WriteLine($"\r\nNAME:{asc2.DisplayName}\r\nSID:{asc2.SessionIdentifier}\r\nSIID:{asc2.SessionInstanceIdentifier}");
-                                        //Console.WriteLine($"\r\nPNAME:{asc2.Process.ProcessName}\r\nPWTITLE:{asc2.Process.MainWindowTitle}\r\nSID:{asc2.Process.SessionId}");
-                                        NameSet nameSet = new NameSet(asc2.IsSystemSoundSession,
-                                                                      asc2.Process.ProcessName,
-                                                                      asc2.Process.MainWindowTitle,
-                                                                      asc2.DisplayName,
-                                                                      asc2.SessionIdentifier
-                                                                      );
                                         if (!ExcludeList.Contains(nameSet.Name)) { simpleAudioVolume.MasterVolume = 0.01f; }
-                                        sessionList.Add(new SessionData(asc2.ProcessID, nameSet)
+                                        sessionList.Add(new SessionData()
                                         {
+                                            State = state,
+                                            nameSet = nameSet,
                                             Volume = simpleAudioVolume.MasterVolume,
-                                            Peak = audioMeterInformation.PeakValue,
-                                            State = state
+                                            Peak = audioMeterInformation.PeakValue
                                         });
                                     }
                                     else
                                     {
-                                        using (var s = sessionList.GetSession((uint)asc2.ProcessID))
+                                        using (var s = sessionList.GetSession((uint)nameSet.ProcessID))
                                         {
+                                            s.State = state;
+                                            s.nameSet = nameSet;
                                             s.Volume = simpleAudioVolume.MasterVolume;
                                             s.Peak = audioMeterInformation.PeakValue;
-                                            s.State = state;
                                         }
                                     }
                                 }
                             }
+                            
+                            //goon
                         }
 
+                        //expired check and remove session data
                         List<SessionData> expired = new List<SessionData>();
                         sessionList.ForEach(s =>
                         {
@@ -502,7 +541,7 @@ namespace Wale.CoreAudio
                             {
                                 using (var asc2 = asc.QueryInterface<AudioSessionControl2>())
                                 {
-                                    if (s.PID == asc2.ProcessID) exists = true;
+                                    if (s.PID == asc2.ProcessID && asc.SessionState != AudioSessionState.AudioSessionStateExpired) exists = true;
                                 }
                             }
                             if (!exists) expired.Add(s);
@@ -513,7 +552,7 @@ namespace Wale.CoreAudio
                     }
                 }
             }
-            catch (Exception e) { JDPack.FileLog.Log($"Error(GetSessionData): {e.ToString()}"); }
+            catch (Exception e) { JDPack.FileLog.Log($"Error(GetSessionData): {e.StackTrace}"); }
             //sessionList.ForEach(s => Console.WriteLine($"{s.PID}"));
         }
 

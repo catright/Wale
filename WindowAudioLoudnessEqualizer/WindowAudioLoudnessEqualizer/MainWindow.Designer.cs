@@ -58,6 +58,7 @@
             this.tabSession = new System.Windows.Forms.TabPage();
             this.tabLog = new System.Windows.Forms.TabPage();
             this.Logs = new System.Windows.Forms.TextBox();
+            this.openLogDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.NICMstrip.SuspendLayout();
             this.titlePanel.SuspendLayout();
             this.tabControl1.SuspendLayout();
@@ -79,18 +80,19 @@
             this.cmsAutoControl,
             this.settingsToolStripMenuItem,
             this.deviceMapToolStripMenuItem,
+            this.openLogDirectoryToolStripMenuItem,
             this.toolStripSeparator1,
             this.helpToolStripMenuItem,
             this.licensesToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.NICMstrip.Name = "NICMstrip";
-            this.NICMstrip.Size = new System.Drawing.Size(165, 142);
+            this.NICMstrip.Size = new System.Drawing.Size(178, 186);
             // 
             // cmsAutoControl
             // 
             this.cmsAutoControl.Enabled = false;
             this.cmsAutoControl.Name = "cmsAutoControl";
-            this.cmsAutoControl.Size = new System.Drawing.Size(164, 22);
+            this.cmsAutoControl.Size = new System.Drawing.Size(177, 22);
             this.cmsAutoControl.Text = "&AutoControl(On)";
             this.cmsAutoControl.Visible = false;
             this.cmsAutoControl.Click += new System.EventHandler(this.AutoControlMenuItem_Click);
@@ -98,40 +100,40 @@
             // settingsToolStripMenuItem
             // 
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
-            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
             this.settingsToolStripMenuItem.Text = "&Configuration";
             this.settingsToolStripMenuItem.Click += new System.EventHandler(this.ConfigToolStripMenuItem_Click);
             // 
             // deviceMapToolStripMenuItem
             // 
             this.deviceMapToolStripMenuItem.Name = "deviceMapToolStripMenuItem";
-            this.deviceMapToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+            this.deviceMapToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
             this.deviceMapToolStripMenuItem.Text = "DeviceMap";
             this.deviceMapToolStripMenuItem.Click += new System.EventHandler(this.deviceMapToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(161, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(174, 6);
             // 
             // helpToolStripMenuItem
             // 
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-            this.helpToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
             this.helpToolStripMenuItem.Text = "Help";
             this.helpToolStripMenuItem.Click += new System.EventHandler(this.helpToolStripMenuItem_Click);
             // 
             // licensesToolStripMenuItem
             // 
             this.licensesToolStripMenuItem.Name = "licensesToolStripMenuItem";
-            this.licensesToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+            this.licensesToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
             this.licensesToolStripMenuItem.Text = "Licenses";
             this.licensesToolStripMenuItem.Click += new System.EventHandler(this.licensesToolStripMenuItem_Click);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
             this.exitToolStripMenuItem.Text = "E&xit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.NI_Exit_Click);
             // 
@@ -379,6 +381,13 @@
             this.Logs.TabIndex = 0;
             this.Logs.VisibleChanged += new System.EventHandler(this.Logs_VisibleChanged);
             // 
+            // openLogDirectoryToolStripMenuItem
+            // 
+            this.openLogDirectoryToolStripMenuItem.Name = "openLogDirectoryToolStripMenuItem";
+            this.openLogDirectoryToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
+            this.openLogDirectoryToolStripMenuItem.Text = "Open Log Directory";
+            this.openLogDirectoryToolStripMenuItem.Click += new System.EventHandler(this.openLogDirectoryToolStripMenuItem_Click);
+            // 
             // MainWindow
             // 
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
@@ -446,6 +455,7 @@
         private System.Windows.Forms.ToolStripMenuItem licensesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem deviceMapToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem openLogDirectoryToolStripMenuItem;
     }
 }
 

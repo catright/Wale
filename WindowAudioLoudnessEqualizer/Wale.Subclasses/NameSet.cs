@@ -8,11 +8,13 @@ namespace Wale.CoreAudio
 {
     public class NameSet
     {
+        public int ProcessID;
         public string ProcessName, MainWindowTitle, DisplayName, SessionIdentifier, Name;
         public bool IsSystemSoundSession;
 
-        public NameSet(bool issystem, string pname, string mwtitle, string dispname, string sessider)
+        public NameSet(int pid, bool issystem, string pname, string mwtitle, string dispname, string sessider)
         {
+            ProcessID = pid;
             IsSystemSoundSession = issystem;
             ProcessName = pname;
             MainWindowTitle = mwtitle;
@@ -28,6 +30,7 @@ namespace Wale.CoreAudio
             else if (SessionIdentifier.EndsWith("{ABC33D23-135D-4C00-B1BF-A9FA4C7916D4}")) { return "Microsoft Edge"; }
             else if (!string.IsNullOrWhiteSpace(DisplayName)) { return DisplayName; }
             else { return ProcessName; }
+            
         }
     }
 }

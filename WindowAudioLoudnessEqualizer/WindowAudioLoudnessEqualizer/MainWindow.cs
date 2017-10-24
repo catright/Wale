@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
+using System.Diagnostics;
 
 namespace Wale.WinForm
 {//Main Form
@@ -434,6 +435,11 @@ namespace Wale.WinForm
             form.Location = FWP.PointFromMouse(-(form.Width / 2), -form.Height, JDPack.FormPack.PointMode.AboveTaskbar);
             
             form.ShowDialog();
+        }
+        
+        private void openLogDirectoryToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Process.Start("explorer", JDPack.FileLog.WorkDirectory.FullName);
         }
         #endregion
 

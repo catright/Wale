@@ -16,14 +16,11 @@ namespace Wale.CoreAudio
         /// </summary>
         /// <param name="pid">ProcessId</param>
         /// <param name="ident">ProcessIdentifier</param>
-        public SessionData(int pid, NameSet nameset)
-        {
-            this.pid = (int)pid;
-            this.nameSet = nameset;
-        }
+        public SessionData() { }
+        public SessionData(NameSet nameset) { this.nameSet = nameset; }
 
         #region API Default Datas
-        private NameSet nameSet;
+        public NameSet nameSet;
         /// <summary>
         /// Conveted from CoreAudioApi
         /// </summary>
@@ -33,11 +30,10 @@ namespace Wale.CoreAudio
         /// Human readable process name
         /// </summary>
         public string Name { get => nameSet.Name; }
-        private int pid;
         /// <summary>
         /// Process Id
         /// </summary>
-        public uint PID { get => (uint)pid; set => pid = (int)value; }
+        public uint PID { get => (uint)nameSet.ProcessID; }
         public string Identifier { get => nameSet.SessionIdentifier; }
         public float Volume { get; set; }
         public float Peak { get; set; }
