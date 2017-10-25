@@ -18,6 +18,16 @@ namespace Wale.CoreAudio
         /// <param name="ident">ProcessIdentifier</param>
         public SessionData() { }
         public SessionData(NameSet nameset) { this.nameSet = nameset; }
+        public SessionData(int pid, bool issystem, string pname, string mwtitle, string dispname, string sessider)
+        {
+            ProcessID = pid;
+            IsSystemSoundSession = issystem;
+            ProcessName = pname;
+            MainWindowTitle = mwtitle;
+            DisplayName = dispname;
+            SessionIdentifier = sessider;
+            //name = MakeName();
+        }
 
         #region API Default Datas
         public NameSet nameSet;
@@ -25,19 +35,45 @@ namespace Wale.CoreAudio
         /// Conveted from CoreAudioApi
         /// </summary>
         public SessionState State { get; set; }
+        private bool IsSystemSoundSession;
 
+        private string name;
         /// <summary>
         /// Human readable process name
         /// </summary>
-        public string Name { get => nameSet.Name; }
+        public string Name { get { if (nameSet != null) return nameSet.Name; return name; } set => name = value; }
+        private int ProcessID;
         /// <summary>
         /// Process Id
         /// </summary>
-        public uint PID { get => (uint)nameSet.ProcessID; }
-        public string Identifier { get => nameSet.SessionIdentifier; }
+        public uint PID { get { if (nameSet != null) return (uint)nameSet.ProcessID; return (uint)ProcessID; } set => ProcessID = (int)value; }
+        private string DisplayName, ProcessName, MainWindowTitle;
+        public string SessionIdentifier { get; private set; }
         public float Volume { get; set; }
         public float Peak { get; set; }
-        
+
+        private string MakeName()
+        {
+            if (IsSystemSoundSession) { return "System Sound"; }
+            else if (SessionIdentifier.EndsWith("{5E081B13-649D-48BC-9F67-4DBF51759BD8}")) { return "Windows Shell Experience Host"; }
+            else if (SessionIdentifier.EndsWith("{ABC33D23-135D-4C00-B1BF-A9FA4C7916D4}")) { return "Microsoft Edge"; }
+            else if (!string.IsNullOrWhiteSpace(DisplayName)) { return DisplayName; }
+            else if (!string.IsNullOrWhiteSpace(ProcessName)) { return ProcessName; }
+            else
+            {
+                string name = SessionIdentifier;
+                int startidx = name.IndexOf("|"), endidx = name.IndexOf("%b");
+                name = name.Substring(startidx, endidx - startidx + 2);
+                if (name == "|#%b") name = "System";
+                else
+                {
+                    startidx = name.LastIndexOf("\\") + 1; endidx = name.IndexOf("%b");
+                    name = name.Substring(startidx, endidx - startidx);
+                    if (name.EndsWith(".exe")) name = name.Substring(0, name.LastIndexOf(".exe"));
+                }
+                return name;
+            }
+        }
         #endregion
 
         #region Customized Datas

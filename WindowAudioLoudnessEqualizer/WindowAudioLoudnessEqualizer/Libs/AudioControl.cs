@@ -157,7 +157,7 @@ namespace Wale
         private void SessionControl(SessionData s)
         {
             string dm = $"AutoVolume:{s.Name}({s.PID}), inc={s.AutoIncluded}";
-            if (s.State == SessionState.Active && s.AutoIncluded && !audio.ExcludeList.Contains(s.Name))
+            if (!audio.ExcludeList.Contains(s.Name) && s.AutoIncluded && s.State == SessionState.Active)
             {
                 double peak = s.Peak, volume = s.Volume;
                 dm += $" P:{peak:n3} V:{volume:n3}";
