@@ -501,6 +501,20 @@ namespace Wale.CoreAudio
                                     //Console.WriteLine($"NAME:{nameSet.Name}({asc2.ProcessID}), STATE:{state}");
                                     //Console.WriteLine($"1:{nameSet.IsSystemSoundSession},2:{nameSet.ProcessName},3:{nameSet.MainWindowTitle},4:{nameSet.DisplayName},5:{nameSet.SessionIdentifier}");
 
+                                    float peak = 0;
+                                    if (audioMeterInformation.MeteringChannelCount > 1)
+                                    {
+                                        float[] peaks = audioMeterInformation.GetChannelsPeakValues();
+                                        //Console.Write($"{asc2.ProcessID}({audioMeterInformation.MeteringChannelCount}):[{audioMeterInformation.PeakValue},{peaks.Average()}]");
+                                        //foreach (float p in peaks) { Console.Write($",{p.ToString()}"); }
+                                        //Console.WriteLine();
+                                        peak = peaks.Average();
+                                    }
+                                    else if (audioMeterInformation.MeteringChannelCount == 0 || audioMeterInformation.MeteringChannelCount == 1)
+                                    {
+                                        peak = audioMeterInformation.PeakValue;
+                                    }
+
                                     if (!exists)
                                     {
                                         if (!ExcludeList.Contains(nameSet.Name)) { simpleAudioVolume.MasterVolume = 0.01f; }
@@ -509,7 +523,7 @@ namespace Wale.CoreAudio
                                             State = state,
                                             nameSet = nameSet,
                                             Volume = simpleAudioVolume.MasterVolume,
-                                            Peak = audioMeterInformation.PeakValue
+                                            Peak = peak
                                         });
                                     }
                                     else
@@ -519,7 +533,7 @@ namespace Wale.CoreAudio
                                             s.State = state;
                                             s.nameSet = nameSet;
                                             s.Volume = simpleAudioVolume.MasterVolume;
-                                            s.Peak = audioMeterInformation.PeakValue;
+                                            s.Peak = peak;
                                         }
                                     }
                                 }
@@ -666,6 +680,38 @@ namespace Wale.CoreAudio
             }
             catch (Exception e) { JDPack.FileLog.Log($"Error(GetSessionPeak): {e.ToString()}"); }
         }
+        private void GetSessionPeakTotal(SessionData session)
+        {
+            try
+            {
+                lock (sessionLocker)
+                {
+                    using (var defaultDevice = GetDefaultDevice())
+                    using (var asm = (defaultDevice != null ? AudioSessionManager2.FromMMDevice(defaultDevice) : null))
+                    using (var ase = (asm?.GetSessionEnumerator()))
+                    {
+                        if (defaultDevice == null) { JDPack.FileLog.Log("GetSessionPeak: Fail to get master device."); return; }
+                        foreach (var asc in ase)
+                        {
+                            using (var session2 = asc.QueryInterface<AudioSessionControl2>())
+                            using (var audioMeterInformation = asc.QueryInterface<AudioMeterInformation>())
+                            {
+                                if (session2.ProcessID == session.PID)
+                                {
+                                    float[] peaks = audioMeterInformation.GetChannelsPeakValues();
+                                    Console.Write($"{session.PID}({audioMeterInformation.MeteringChannelCount}):[{peaks.Average()}]");
+                                    foreach (float p in peaks) { Console.Write($",{p.ToString()}"); }
+                                    Console.WriteLine();
+                                    session.Peak = peaks.Average();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception e) { JDPack.FileLog.Log($"Error(GetSessionPeak): {e.ToString()}"); }
+        }
+
         private void SetSessionAvTime(SessionData session, double AVTime, double ACInterval)
         {
             try

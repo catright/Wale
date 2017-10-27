@@ -16,6 +16,7 @@ namespace Wale.WinForm
         private CheckBox cbAutoIncluded;
         private Label lSessionNameLabel, lVolume;
         private Label dlReletive, dlAvPeak, dlPeak;
+        private ToolTip toolTip;
         private JDPack.ProgressBarColored lVolumeBar, lLevelBar;
         private Color foreColor = ColorSet.ForeColor, mainColor = ColorSet.MainColor, peakColor = ColorSet.PeakColor, averageColor = ColorSet.AverageColor;
         private enum LabelMode { Relative, Volume, Peak, AveragePeak };
@@ -24,6 +25,7 @@ namespace Wale.WinForm
         private int _relative = 0;
         private bool _Updated, detailed;//, _disposed = false;
         private LabelMode labelMode = LabelMode.Volume;
+        private string lastName;
 
         //public variables
         //public List<double> LastPeaks;
@@ -77,7 +79,9 @@ namespace Wale.WinForm
             cbAutoIncluded.Show();
             lSessionNameLabel = new Label();
             lSessionNameLabel.AutoSize = false;
-            lSessionNameLabel.Size = new Size(100, 12);
+            lSessionNameLabel.Size = new Size(110, 12);
+            lSessionNameLabel.MaximumSize = new Size(110, 12);
+            lSessionNameLabel.AutoEllipsis = true;
             lSessionNameLabel.Margin = new Padding(0);
             lSessionNameLabel.ForeColor = foreColor;
             lSessionNameLabel.Enabled = true;
@@ -90,7 +94,7 @@ namespace Wale.WinForm
             lVolume.Enabled = true;
             lVolume.Show();
             lVolumeBar = new JDPack.ProgressBarColored();
-            lVolumeBar.Size = new Size(104, 10);
+            lVolumeBar.Size = new Size(94, 10);
             lVolumeBar.Margin = new Padding(0);
             lVolumeBar.ForeColor = mainColor;
             lVolumeBar.Maximum = 100;
@@ -104,7 +108,7 @@ namespace Wale.WinForm
             lVolumeBar.Enabled = true;
             lVolumeBar.Show();
             lLevelBar = new JDPack.ProgressBarColored();
-            lLevelBar.Size = new Size(104, 10);
+            lLevelBar.Size = new Size(94, 10);
             lLevelBar.Margin = new Padding(0);
             lLevelBar.ForeColor = peakColor;
             lLevelBar.Maximum = 100;
@@ -137,9 +141,9 @@ namespace Wale.WinForm
             DP.DM(" - ItemLocations");
             cbAutoIncluded.Location = new Point(0, 3);
             lSessionNameLabel.Location = new Point(13, 4);
-            lVolume.Location = new Point(120, 4);
-            lVolumeBar.Location = new Point(155, 0);
-            lLevelBar.Location = new Point(155, 10);
+            lVolume.Location = new Point(130, 4);
+            lVolumeBar.Location = new Point(165, 0);
+            lLevelBar.Location = new Point(165, 10);
         }
         private void DetailedItems()
         {
@@ -180,6 +184,13 @@ namespace Wale.WinForm
             DP.DML(" - SetFinalMake");
             //SetText(lSessionNameLabel, name);
             lSessionNameLabel.Text = name;
+            toolTip = new ToolTip();
+            toolTip.AutoPopDelay = 10000;
+            toolTip.InitialDelay = 500;
+            toolTip.ReshowDelay = 0;
+            toolTip.ShowAlways = true;
+
+            toolTip.SetToolTip(lSessionNameLabel, name);
 
             this.Controls.Add(cbAutoIncluded);
             this.Controls.Add(lSessionNameLabel);
@@ -207,7 +218,7 @@ namespace Wale.WinForm
             }
         }/**/
 
-
+        
         //Item events
         private void LSessionNameLabel_Click(object sender, EventArgs e) { cbAutoIncluded.Checked = !cbAutoIncluded.Checked; }
         private void LVolume_Click(object sender, EventArgs e)
@@ -245,7 +256,7 @@ namespace Wale.WinForm
         //public functions
         public void UpdateLocation(Point p) { SetLocation(this, p); }
         public void ResetUpdate() { _Updated = false; }
-        public void UpdateData(double vol, double level, double Avl)
+        public void UpdateData(double vol, double level, double Avl, string name)
         {
             _Updated = true;
             switch (labelMode)
@@ -277,6 +288,12 @@ namespace Wale.WinForm
             SetBar(lLevelBar, (int)lbuf);
             //lLevelBar.Increment((int)(((vbuf != null) ? vbuf : 1) * level * 100) - lLevelBar.Value);
             //SetBar2(pot, (int)(((vbuf != null) ? vbuf : 1) * level * 100));
+            if (lastName != name)
+            {
+                SetText(lSessionNameLabel, name);
+                SetTooltip(lSessionNameLabel, name);
+            }
+            lastName = name;
             //this.Refresh();
         }
 
@@ -382,6 +399,21 @@ namespace Wale.WinForm
             }
             catch { DP.CML($"fail to invoke {control.Name}"); }
         }/**/
+        private void SetTooltip(Control control, string text)
+        {
+            try
+            {
+                if (control.InvokeRequired)
+                {
+                    if (control != null) control.Invoke(new ControlStringConsumer(SetTooltip), new object[] { control, text });  // invoking itself
+                }
+                else
+                {
+                    toolTip.SetToolTip(control, text);// the "functional part", executing only on the main thread
+                }
+            }
+            catch { DP.CML($"fail to invoke {control.Name}"); }
+        }
         delegate void ControlIntConsumer(ProgressBar control, int value);
         private void SetBar(ProgressBar control, int value)
         {

@@ -559,7 +559,7 @@ namespace Wale.WinForm
                                     if (settings.DetailedView) item.DetailOn();
                                     else item.DetailOff();
                                     if (item.detailChanged) { reAlign = true; item.detailChanged = false; }
-                                    item.UpdateData(session.Volume, session.Peak, session.AveragePeak);
+                                    item.UpdateData(session.Volume, session.Peak, session.AveragePeak, session.Name);
                                     session.Relative = (float)item.Relative;
                                     session.AutoIncluded = item.AutoIncluded;
                                 }

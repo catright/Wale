@@ -34,5 +34,5 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("1.0.*")]
 //
 // Using Revision to pre-release option, 3>=release, 2=beta, 1=alpha, 0=pre-alpha
-[assembly: System.Reflection.AssemblyVersion("0.2.9.2")]
-[assembly: System.Reflection.AssemblyFileVersion("0.2.9.2")]
+[assembly: System.Reflection.AssemblyVersion("0.2.10.1")]
+[assembly: System.Reflection.AssemblyFileVersion("0.2.10.1")]
