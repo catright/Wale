@@ -246,8 +246,8 @@ namespace Wale.WinForm
         private void MeterSet_MouseWheel(object sender, MouseEventArgs e)
         {
             DP.DM($"{SessionName}({_ID}) MeterSet_MouseWheel {e.Delta}");
-            if (e.Delta > 0) { _relative++; if (_relative > 100) _relative = 100; }
-            else if (e.Delta < 0) { _relative--; if (_relative < -100) _relative = -100; }
+            //if (e.Delta > 0) { _relative++; if (_relative > 100) _relative = 100; }
+            //else if (e.Delta < 0) { _relative--; if (_relative < -100) _relative = -100; }
             DP.DML($", {Relative}");
         }
 

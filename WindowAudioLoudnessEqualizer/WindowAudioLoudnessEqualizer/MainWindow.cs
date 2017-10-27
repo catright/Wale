@@ -94,7 +94,8 @@ namespace Wale.WinForm
             tbInterval.Text = settings.MasterVolumeInterval.ToString();
             tabSession.AutoScroll = true;
             this.TopMost = cbAlwaysTop.Checked;
-            this.MouseWheel += MainWindow_MouseWheel;
+            //this.MouseWheel += MainWindow_MouseWheel;
+            tabMain.MouseWheel += MainWindow_MouseWheel;
             settings.PropertyChanged += Settings_PropertyChanged;
             DP = new JDPack.DebugPack(debug);
             FWP = new JDPack.FormPack();
