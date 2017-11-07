@@ -31,6 +31,14 @@
     <Compile Include="Product.wxs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Wale.WPF\Wale.WPF.csproj">
+      <Name>Wale.WPF</Name>
+      <Project>{c3f50d2f-2ce1-4828-870b-45f3d4f0b44f}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
     <ProjectReference Include="..\WindowAudioLoudnessEqualizer\Wale.WinForm.csproj">
       <Name>Wale.WinForm</Name>
       <Project>{f8e000bb-d867-4fb1-b8a8-2d52347ed60d}</Project>

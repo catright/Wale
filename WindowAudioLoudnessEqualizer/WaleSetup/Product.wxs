@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
 	<Product Id="*" Name="Wale" Language="1033" Manufacturer="Jongtae Park"
-           UpgradeCode="7286072b-aa45-40bc-a835-88de5243a963" Version="0.2.11.1">
+           UpgradeCode="7286072b-aa45-40bc-a835-88de5243a963" Version="0.3.0.2">
 		<Package Id="*" Keywords="Installer" InstallerVersion="405" InstallScope="perMachine" Compressed="yes" Languages="1033"
              Description="Windows Audio Loudness Equalizer" Manufacturer="Jongtae Park" Comments="Copyright @ Jongtae Park." />
 
@@ -62,7 +62,7 @@
       
       <Component Id="MainExecutable">
         <File Id="WaleEXE" Name="Wale.exe"
-              Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\WindowAudioLoudnessEqualizer\bin\Release\Wale.exe"
+              Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Release\Wale.exe"
               KeyPath="yes">
         </File>
       </Component>
@@ -88,6 +88,18 @@
       <Component Id="CSCoreComp">
         <File Id="CSCore" Name="CSCore.dll"
               Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\WindowAudioLoudnessEqualizer\bin\Release\CSCore.dll"
+              KeyPath="yes" />
+      </Component>
+      
+      <Component Id="OxyComp">
+        <File Id="Oxy" Name="OxyPlot.dll"
+              Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\packages\OxyPlot.Core.1.0.0\lib\net45\OxyPlot.dll"
+              KeyPath="yes" />
+      </Component>
+      
+      <Component Id="OxyWpfComp">
+        <File Id="OxyWpf" Name="OxyPlot.Wpf.dll"
+              Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\packages\OxyPlot.Wpf.1.0.0\lib\net45\OxyPlot.Wpf.dll"
               KeyPath="yes" />
       </Component>
 		</ComponentGroup>

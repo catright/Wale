@@ -156,6 +156,7 @@ namespace Wale.WPF
             //else chart.ChartAreas["Area"].AxisY.LabelStyle.Format = "#.#E0";
             //myText1.Y = chart.ChartAreas["Area"].AxisY.Maximum;
             //myText2.Y = chart.ChartAreas["Area"].AxisY.Maximum * 0.92;
+            plotView.InvalidatePlot();
         }
         private void DrawBase()
         {
@@ -164,6 +165,7 @@ namespace Wale.WPF
             lineSeries1.Points.Add(new DataPoint(settings.BaseLevel, 1));
             lineSeries1.Color = Color(ColorSet.BaseColor);
             plotView.Model.Series.Add(lineSeries1);
+            plotView.InvalidatePlot();
         }
         private void DrawDevideLine()
         {
@@ -172,6 +174,7 @@ namespace Wale.WPF
             lineSeries1.Points.Add(new DataPoint(1, 1));
             lineSeries1.Color = Color(ColorSet.ForeColor);
             plotView.Model.Series.Add(lineSeries1);
+            plotView.InvalidatePlot();
         }
         private OxyColor Color(Color color) { return OxyColor.FromArgb(color.A, color.R, color.G, color.B); }
         #endregion
