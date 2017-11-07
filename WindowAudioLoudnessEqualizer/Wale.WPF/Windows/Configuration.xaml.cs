@@ -29,7 +29,10 @@ namespace Wale.WPF
         public Configuration()
         {
             InitializeComponent();
-            
+
+            if (string.IsNullOrWhiteSpace(AppVersion.Option)) this.Title = ($"WALE - CONFIG v{AppVersion.LongVersion}");
+            else this.Title = ($"WALE - CONFIG v{AppVersion.LongVersion}-{AppVersion.Option}");
+
             Makes();
             MakeOriginals();
             loaded = true;
@@ -44,8 +47,17 @@ namespace Wale.WPF
             DrawGraph("Original");
             DrawBase();
             DrawNew();
-            
+
+            settings.PropertyChanged += Settings_PropertyChanged;
+
             Activate();
+        }
+
+        private void Settings_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (!loaded) return;
+            DrawBase();
+            DrawNew();
         }
 
         #region Drawing
@@ -80,6 +92,11 @@ namespace Wale.WPF
         private void DrawNew() { DrawGraph("Graph"); }
         private void DrawGraph(string graphName)
         {
+            List<Series> exc = new List<Series>();
+            foreach (Series s in plotView.Model.Series) { if (s.Title == graphName) exc.Add(s); }
+            foreach (Series s in exc) { plotView.Model.Series.Remove(s); }
+            exc.Clear();
+            
             VFunction.Func f;
             Enum.TryParse<VFunction.Func>(FunctionSelector.SelectedItem.ToString(), out f);
 
@@ -160,7 +177,13 @@ namespace Wale.WPF
         }
         private void DrawBase()
         {
+            List<Series> exc = new List<Series>();
+            foreach (Series s in plotView.Model.Series) { if (s.Title == "Base") exc.Add(s); }
+            foreach (Series s in exc) { plotView.Model.Series.Remove(s); }
+            exc.Clear();
+
             LineSeries lineSeries1 = new LineSeries();
+            lineSeries1.Title = "Base";
             lineSeries1.Points.Add(new DataPoint(settings.BaseLevel, 0));
             lineSeries1.Points.Add(new DataPoint(settings.BaseLevel, 1));
             lineSeries1.Color = Color(ColorSet.BaseColor);
