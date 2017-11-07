@@ -1,0 +1,82 @@
+﻿<Window x:Class="Wale.WPF.Configuration" x:Name="window"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:oxy="http://oxyplot.org/wpf"
+        xmlns:local="clr-namespace:Wale.WPF"
+        xmlns:prop="clr-namespace:Wale.WPF.Properties"
+        mc:Ignorable="d"
+        Height="440" Width="480" WindowStyle="None" LocationChanged="Window_LocationAndSizeChanged" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" Topmost="{Binding Path=AlwaysTop, Source={x:Static prop:Settings.Default}}" PreviewKeyDown="Window_PreviewKeyDown" ResizeMode="NoResize">
+    <Grid>
+        <Grid x:Name="TitleGrid" Height="35" VerticalAlignment="Top" Background="{Binding Source={x:Static local:ColorSet.MainColorBrush}}" MouseMove="titlePanel_MouseMove" MouseDown="titlePanel_MouseDown">
+            <TextBlock x:Name="TitleBlock" Text="Wale" FontSize="20" Padding="10, 3" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+        </Grid>
+        <Grid Margin="0,35,0,0">
+        <GroupBox Header="Audio" Height="270" VerticalAlignment="Top" Padding="5">
+            <Grid>
+                <Grid Width="220" Height="20" HorizontalAlignment="Left" VerticalAlignment="Top">
+                    <Label Content="UI Update [ms]" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="0" Foreground="{Binding Foreground, ElementName=window}"/>
+                    <Label Content="{Binding Path=(local:LastValues.UIUpdate), Mode=TwoWay}" HorizontalAlignment="Left" Margin="120,0,0,0" VerticalAlignment="Top" Padding="0" Foreground="{Binding Foreground, ElementName=window}"/>
+                    <TextBox HorizontalAlignment="Left" Height="20" Margin="160,0,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" Padding="0" Text="{Binding Path=UIUpdateInterval, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
+                </Grid>
+                <Grid Width="220" Height="20" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,22,0,0">
+                    <Label Content="Auto Control [ms]" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="0" Foreground="{Binding Foreground, ElementName=window}"/>
+                    <Label Content="{Binding Path=(local:LastValues.AutoControlInterval), Mode=TwoWay}" HorizontalAlignment="Left" Margin="120,0,0,0" VerticalAlignment="Top" Padding="0" Foreground="{Binding Foreground, ElementName=window}"/>
+                    <TextBox HorizontalAlignment="Left" Height="20" Margin="160,0,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" Padding="0" Text="{Binding Path=AutoControlInterval, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
+                </Grid>
+                <Grid Width="220" Height="20" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,44,0,0">
+                    <Label Content="GC Interval [ms]" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="0" Foreground="{Binding Foreground, ElementName=window}"/>
+                    <Label Content="{Binding Path=(local:LastValues.GCInterval), Mode=TwoWay}" HorizontalAlignment="Left" Margin="120,0,0,0" VerticalAlignment="Top" Padding="0" Foreground="{Binding Foreground, ElementName=window}"/>
+                    <TextBox HorizontalAlignment="Left" Height="20" Margin="160,0,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" Padding="0" Text="{Binding Path=GCInterval, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
+                </Grid>
+                <Grid Width="220" Height="20" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,66,0,0">
+                    <Label Content="Base Level" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="0" Foreground="{Binding Source={x:Static local:ColorSet.BaseColorBrush}}"/>
+                    <Label Content="{Binding Path=(local:LastValues.BaseLevel), Mode=TwoWay}" HorizontalAlignment="Left" Margin="120,0,0,0" VerticalAlignment="Top" Padding="0" Foreground="{Binding Foreground, ElementName=window}"/>
+                    <TextBox HorizontalAlignment="Left" Height="20" Margin="160,0,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" Padding="0" Text="{Binding Path=BaseLevel, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" TextChanged="BaseLevel_Changed"/>
+                </Grid>
+                <Grid Width="220" Height="20" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,88,0,0">
+                    <Label Content="Up Rate" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="0" Foreground="{Binding Foreground, ElementName=window}"/>
+                    <Label Content="{Binding Path=(local:LastValues.UpRate), Mode=TwoWay}" HorizontalAlignment="Left" Margin="120,0,0,0" VerticalAlignment="Top" Padding="0" Foreground="{Binding Foreground, ElementName=window}"/>
+                    <TextBox HorizontalAlignment="Left" Height="20" Margin="160,0,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" Padding="0" Text="{Binding Path=UpRate, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" TextChanged="UpRate_Changed"/>
+                </Grid>
+                <Grid Width="220" Height="20" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,110,0,0">
+                    <Label Content="Kurtosis" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="0" Foreground="{Binding Foreground, ElementName=window}"/>
+                    <Label Content="{Binding Path=(local:LastValues.Kurtosis), Mode=TwoWay}" HorizontalAlignment="Left" Margin="120,0,0,0" VerticalAlignment="Top" Padding="0" Foreground="{Binding Foreground, ElementName=window}"/>
+                    <TextBox x:Name="KurtosisBox" HorizontalAlignment="Left" Height="20" Margin="160,0,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" Padding="0" Text="{Binding Path=Kurtosis, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" TextChanged="Kurtosis_Changed"/>
+                </Grid>
+                <Grid Width="220" Height="40" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,132,0,0">
+                    <Label Content="Function" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="0" Foreground="{Binding Foreground, ElementName=window}"/>
+                    <Label Content="{Binding Path=(local:LastValues.VFunc), Mode=TwoWay}" HorizontalAlignment="Left" Margin="60,20,0,0" VerticalAlignment="Top" Padding="0" Foreground="{Binding Foreground, ElementName=window}"/>
+                    <ComboBox x:Name="FunctionSelector" HorizontalAlignment="Left" Margin="60,0,0,0" VerticalAlignment="Top" Width="150" Height="20" SelectionChanged="Function_Changed"/>
+                </Grid>
+                <Grid Width="220" Height="20" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,174,0,0">
+                    <Label Content="Average Time [ms]" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="0" Foreground="{Binding Foreground, ElementName=window}"/>
+                    <Label Content="{Binding Path=(local:LastValues.AverageTime), Mode=TwoWay}" HorizontalAlignment="Left" Margin="120,0,0,0" VerticalAlignment="Top" Padding="0" Foreground="{Binding Foreground, ElementName=window}"/>
+                    <TextBox HorizontalAlignment="Left" Height="20" Margin="160,0,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" Padding="0" Text="{Binding Path=AverageTime, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
+                </Grid>
+                <Grid Width="220" Height="20" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,196,0,0">
+                    <Label Content="Min Peak Level" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="0" Foreground="{Binding Foreground, ElementName=window}"/>
+                    <Label Content="{Binding Path=(local:LastValues.MinPeak), Mode=TwoWay}" HorizontalAlignment="Left" Margin="120,0,0,0" VerticalAlignment="Top" Padding="0" Foreground="{Binding Foreground, ElementName=window}"/>
+                    <TextBox HorizontalAlignment="Left" Height="20" Margin="160,0,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" Padding="0" Text="{Binding Path=MinPeak, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
+                </Grid>
+
+                <oxy:PlotView x:Name="plotView" Margin="225,0,0,0" BorderThickness="1" BorderBrush="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" Background="{Binding Background, ElementName=window}" Height="170" VerticalAlignment="Top"/>
+
+                <CheckBox Content="Average Enabled" HorizontalAlignment="Left" Margin="225,175,0,0" VerticalAlignment="Top" Foreground="{Binding Foreground, ElementName=window}" IsChecked="{Binding Path=Averaging, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
+                <CheckBox Content="Auto Control Enabled" HorizontalAlignment="Left" Margin="225,197,0,0" VerticalAlignment="Top" Foreground="{Binding Foreground, ElementName=window}" IsChecked="{Binding Path=AutoControl, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
+            </Grid>
+        </GroupBox>
+        <GroupBox Header="Window" Height="92" Margin="0,0,0,35" VerticalAlignment="Bottom" Padding="5">
+            <Grid>
+                <CheckBox x:Name="runAtWindowsStartup" Content="RunAtWindowsStartup" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Foreground="{Binding Foreground, ElementName=window}"/>
+                <CheckBox Content="Detailed View" HorizontalAlignment="Left" Margin="200,0,0,0" VerticalAlignment="Top" Foreground="{Binding Foreground, ElementName=window}" IsChecked="{Binding Path=DetailedView, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
+                <CheckBox Content="Detailed Log" HorizontalAlignment="Left" Margin="0,20,0,0" VerticalAlignment="Top" Foreground="{Binding Foreground, ElementName=window}"/>
+            </Grid>
+        </GroupBox>
+        <Button Content="Cancel" HorizontalAlignment="Left" Margin="10,0,0,10" VerticalAlignment="Bottom" Width="130" Click="Cancel_Click" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+            <Button Content="Return to Default" HorizontalAlignment="Left" Margin="170,0,0,10" VerticalAlignment="Bottom" Width="130" Click="resetToDafault_Click" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+            <Button Content="Submit" HorizontalAlignment="Right" Margin="0,0,10,10" Width="130" Height="20" VerticalAlignment="Bottom" Click="Submit_Click" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+        </Grid>
+    </Grid>
+</Window>

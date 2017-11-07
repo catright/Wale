@@ -1,0 +1,19 @@
+﻿<Window x:Class="Wale.WPF.DeviceMap"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Wale.WPF"
+        mc:Ignorable="d"
+        Height="300" Width="400" WindowStyle="None" LocationChanged="Window_LocationAndSizeChanged" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" PreviewKeyDown="Window_PreviewKeyDown" ContentRendered="Window_ContentRendered">
+    <Grid>
+        <Grid x:Name="TitleGrid" Height="35" VerticalAlignment="Top" Background="{Binding Source={x:Static local:ColorSet.MainColorBrush}}" MouseMove="titlePanel_MouseMove" MouseDown="titlePanel_MouseDown">
+            <TextBlock x:Name="TitleBlock" Text="Wale Device Map" FontSize="20" Padding="10, 3" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+        </Grid>
+        <Grid x:Name="ContentGrid" Margin="0,35,0,0">
+            <TreeView x:Name="View" Margin="10,10,10,35" Background="Transparent" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+            <Button Content="Update" Margin="10,0,0,10" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="100" Click="Update_Click" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+            <Button Content="Close" Margin="0,0,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="55" Click="Close_Click" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+        </Grid>
+    </Grid>
+</Window>

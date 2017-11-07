@@ -17,6 +17,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wale", "Wale\Wale.csproj", 
 EndProject
 Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "WaleSetup", "WaleSetup\WaleSetup.wixproj", "{49777F8D-857B-4285-9C05-7CAD964A62D6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wale.WPF", "Wale.WPF\Wale.WPF.csproj", "{C3F50D2F-2CE1-4828-870B-45F3D4F0B44F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EqualizerTest", "EqualizerTest\EqualizerTest.csproj", "{818CB3C8-F49B-42A0-BA0B-7A8615F7B4A8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +59,22 @@ Global
 		{49777F8D-857B-4285-9C05-7CAD964A62D6}.Release|Any CPU.ActiveCfg = Release|x86
 		{49777F8D-857B-4285-9C05-7CAD964A62D6}.Release|x86.ActiveCfg = Release|x86
 		{49777F8D-857B-4285-9C05-7CAD964A62D6}.Release|x86.Build.0 = Release|x86
+		{C3F50D2F-2CE1-4828-870B-45F3D4F0B44F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C3F50D2F-2CE1-4828-870B-45F3D4F0B44F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C3F50D2F-2CE1-4828-870B-45F3D4F0B44F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C3F50D2F-2CE1-4828-870B-45F3D4F0B44F}.Debug|x86.Build.0 = Debug|Any CPU
+		{C3F50D2F-2CE1-4828-870B-45F3D4F0B44F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C3F50D2F-2CE1-4828-870B-45F3D4F0B44F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C3F50D2F-2CE1-4828-870B-45F3D4F0B44F}.Release|x86.ActiveCfg = Release|Any CPU
+		{C3F50D2F-2CE1-4828-870B-45F3D4F0B44F}.Release|x86.Build.0 = Release|Any CPU
+		{818CB3C8-F49B-42A0-BA0B-7A8615F7B4A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{818CB3C8-F49B-42A0-BA0B-7A8615F7B4A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{818CB3C8-F49B-42A0-BA0B-7A8615F7B4A8}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{818CB3C8-F49B-42A0-BA0B-7A8615F7B4A8}.Debug|x86.Build.0 = Debug|Any CPU
+		{818CB3C8-F49B-42A0-BA0B-7A8615F7B4A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{818CB3C8-F49B-42A0-BA0B-7A8615F7B4A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{818CB3C8-F49B-42A0-BA0B-7A8615F7B4A8}.Release|x86.ActiveCfg = Release|Any CPU
+		{818CB3C8-F49B-42A0-BA0B-7A8615F7B4A8}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

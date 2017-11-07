@@ -314,7 +314,7 @@ namespace Wale.WinForm
         #endregion
 
 
-        #region Volume control methods and events
+        #region Master Volume control methods and events
         private void NI_Up_Click(object sender, EventArgs e)
         {
             DP.DM("Up ");

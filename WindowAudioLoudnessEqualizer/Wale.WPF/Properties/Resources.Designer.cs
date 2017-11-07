@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Wale.WinForm.Properties {
+namespace Wale.WPF.Properties {
     using System;
     
     
@@ -22,7 +22,7 @@ namespace Wale.WinForm.Properties {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    public class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,10 +36,10 @@ namespace Wale.WinForm.Properties {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Wale.WinForm.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Wale.WPF.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -51,7 +51,7 @@ namespace Wale.WinForm.Properties {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -70,7 +70,7 @@ namespace Wale.WinForm.Properties {
         ///  Check AlwaysTop checkbox to set a form always visible.
         ///  Check StayOn checkbox to  [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string Help {
+        public static string Help {
             get {
                 return ResourceManager.GetString("Help", resourceCulture);
             }
@@ -90,7 +90,7 @@ namespace Wale.WinForm.Properties {
         ///
         ///A &quot;contributor&quot; is any person [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string LicenseCSCore {
+        public static string LicenseCSCore {
             get {
                 return ResourceManager.GetString("LicenseCSCore", resourceCulture);
             }
@@ -105,7 +105,7 @@ namespace Wale.WinForm.Properties {
         ///
         ///T [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string LicenseMathDotNet {
+        public static string LicenseMathDotNet {
             get {
                 return ResourceManager.GetString("LicenseMathDotNet", resourceCulture);
             }
@@ -121,7 +121,7 @@ namespace Wale.WinForm.Properties {
         ///
         ///Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &quot;Software&quot;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/o [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string LicenseWale {
+        public static string LicenseWale {
             get {
                 return ResourceManager.GetString("LicenseWale", resourceCulture);
             }
@@ -130,7 +130,7 @@ namespace Wale.WinForm.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
-        internal static System.Drawing.Icon WaleLeftOff {
+        public static System.Drawing.Icon WaleLeftOff {
             get {
                 object obj = ResourceManager.GetObject("WaleLeftOff", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
@@ -140,7 +140,7 @@ namespace Wale.WinForm.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
-        internal static System.Drawing.Icon WaleLeftOn {
+        public static System.Drawing.Icon WaleLeftOn {
             get {
                 object obj = ResourceManager.GetObject("WaleLeftOn", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
@@ -150,7 +150,7 @@ namespace Wale.WinForm.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
-        internal static System.Drawing.Icon WaleRightOff {
+        public static System.Drawing.Icon WaleRightOff {
             get {
                 object obj = ResourceManager.GetObject("WaleRightOff", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
@@ -160,9 +160,9 @@ namespace Wale.WinForm.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
-        internal static System.Drawing.Icon WaleRighton {
+        public static System.Drawing.Icon WaleRightoOn {
             get {
-                object obj = ResourceManager.GetObject("WaleRighton", resourceCulture);
+                object obj = ResourceManager.GetObject("WaleRightoOn", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
             }
         }

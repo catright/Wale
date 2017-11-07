@@ -1,0 +1,31 @@
+﻿<Window x:Class="Wale.WPF.License"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Wale.WPF"
+        xmlns:prop="clr-namespace:Wale.WPF.Properties"
+        mc:Ignorable="d"
+        Height="350" Width="450" WindowStyle="None" LocationChanged="Window_LocationAndSizeChanged" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" PreviewKeyDown="Window_PreviewKeyDown">
+    <Grid>
+        <Grid x:Name="TitleGrid" Height="35" VerticalAlignment="Top" Background="{Binding Source={x:Static local:ColorSet.MainColorBrush}}" MouseMove="titlePanel_MouseMove" MouseDown="titlePanel_MouseDown">
+            <TextBlock x:Name="TitleBlock" Text="Wale" FontSize="20" Padding="10, 3" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+        </Grid>
+        <Grid x:Name="ContentGrid" Margin="0,35,0,0">
+            <TabControl Background="Transparent" Margin="0,0,0,10" TabStripPlacement="Bottom">
+                <TabItem Header="Wale" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorAltBrush}}">
+                    <ScrollViewer>
+                        <TextBlock Text="{Binding Source={x:Static prop:Resources.LicenseWale}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" TextWrapping="Wrap"/>
+                    </ScrollViewer>
+                </TabItem>
+                <TabItem Header="CSCore" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorAltBrush}}">
+                    <ScrollViewer>
+                        <TextBlock Text="{Binding Source={x:Static prop:Resources.LicenseCSCore}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" TextWrapping="Wrap"/>
+                    </ScrollViewer>
+                </TabItem>
+            </TabControl>
+
+            <Button Content="Close" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom" Width="74" Click="Button_Click" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+        </Grid>
+    </Grid>
+</Window>

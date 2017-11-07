@@ -1,0 +1,93 @@
+﻿<Window x:Name="window" x:Class="Wale.WPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Wale.WPF"
+        xmlns:prop="clr-namespace:Wale.WPF.Properties"
+        mc:Ignorable="d" Height="200" Width="350" ShowInTaskbar="False" WindowStyle="None" Topmost="{Binding Path=AlwaysTop, Source={x:Static prop:Settings.Default}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" MouseLeave="Window_MouseLeave" LostFocus="Window_LostFocus" Icon="Icon/WaleLeftOn.ico" MinWidth="350" MinHeight="200" MaxWidth="350" ResizeMode="NoResize">
+    <Window.ContextMenu>
+        <ContextMenu>
+            <MenuItem Header="Configuration" Click="ConfigToolStripMenuItem_Click"/>
+            <MenuItem Header="Device Map" Click="deviceMapToolStripMenuItem_Click"/>
+            <MenuItem Header="Open Log" Click="openLogDirectoryToolStripMenuItem_Click"/>
+            <Separator/>
+            <MenuItem Header="Help" Click="helpToolStripMenuItem_Click"/>
+            <MenuItem Header="License" Click="licensesToolStripMenuItem_Click"/>
+            <MenuItem Header="Exit" Click="OnProgramShutdown"/>
+        </ContextMenu>
+    </Window.ContextMenu>
+    <Window.CommandBindings>
+        <CommandBinding Command="{x:Static local:ShortcutCommands.SCMasterTab}" Executed="ShiftToMasterTab"/>
+        <CommandBinding Command="{x:Static local:ShortcutCommands.SCSessionTab}" Executed="ShiftToSessionTab"/>
+        <CommandBinding Command="{x:Static local:ShortcutCommands.SCAlwaysTop}" Executed="ChangeAlwaysTop"/>
+        <CommandBinding Command="{x:Static local:ShortcutCommands.SCStayOn}" Executed="ChangeStayOn"/>
+    </Window.CommandBindings>
+
+    <Grid Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}">
+        <Grid Height="36" VerticalAlignment="Top" Background="{Binding Source={x:Static local:ColorSet.MainColorBrush}}" MouseDown="titlePanel_MouseDown" MouseMove="titlePanel_MouseMove">
+            <Image HorizontalAlignment="Left" Height="26" Margin="10,5,0,5" VerticalAlignment="Top" Width="26" Source="{Binding Icon, ElementName=window}"/>
+            <TextBlock HorizontalAlignment="Left" Margin="46,5,0,0" TextWrapping="Wrap" Text="WALE" VerticalAlignment="Top" FontSize="20"/>
+        </Grid>
+
+        <TabControl x:Name="Tabs" TabStripPlacement="Bottom" Margin="0,36,0,0" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}">
+            <TabItem Header="Master(F3)" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorAltBrush}}">
+                <Grid Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" MouseWheel="MasterTab_MouseWheel">
+                    <Label Content="Base" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5,5,0,0" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+                    <Label Content="Master" HorizontalAlignment="Left" Margin="5,31,0,0" VerticalAlignment="Top" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+                    <ProgressBar x:Name="BaseBar" HorizontalAlignment="Left" Height="16" Margin="162,10,0,0" VerticalAlignment="Top" Width="164" Value="{Binding Path=BaseLevel, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Foreground="{Binding Source={x:Static local:ColorSet.BaseColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" BorderBrush="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Maximum="1" LargeChange="0.1" SmallChange="0.01"/>
+                    <ProgressBar x:Name="MasterVolumeBar" HorizontalAlignment="Left" Height="8" Margin="162,37,0,0" VerticalAlignment="Top" Width="164" Foreground="{Binding Source={x:Static local:ColorSet.MainColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" BorderBrush="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Maximum="1"/>
+                    <ProgressBar x:Name="MasterPeakBar" HorizontalAlignment="Left" Height="9" Margin="162,45,0,0" VerticalAlignment="Top" Width="164" Foreground="{Binding Source={x:Static local:ColorSet.PeakColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" BorderBrush="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Maximum="1"/>
+                    <Label x:Name="BaseLabel" HorizontalAlignment="Left" Margin="95,5,0,0" VerticalAlignment="Top" Content="{Binding Path=BaseLevel, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+                    <Label x:Name="MasterLabel" HorizontalAlignment="Left" Margin="95,26,0,0" VerticalAlignment="Top" Content="0" Foreground="{Binding Source={x:Static local:ColorSet.MainColorBrush}}"/>
+                    <Label x:Name="MasterPeakLabel" HorizontalAlignment="Left" Margin="95,39,0,0" VerticalAlignment="Top" Content="0" Foreground="{Binding Source={x:Static local:ColorSet.PeakColorBrush}}"/>
+                    <TextBox x:Name="VolumeIntervalBox" HorizontalAlignment="Left" Height="23" Margin="10,62,0,0" TextWrapping="Wrap" Text="{Binding Path=MasterVolumeInterval, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" VerticalAlignment="Top" Width="52" Background="Transparent" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+
+                    <TextBox x:Name="TargetVolumeBox" HorizontalAlignment="Left" Height="23" Margin="67,62,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="90" KeyDown="TargetVolumeBox_KeyDown">
+                        <TextBox.Style>
+                            <Style TargetType="TextBox" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+                                <Style.Resources>
+                                    <VisualBrush x:Key="CueBannerBrush" AlignmentX="Left" AlignmentY="Center" Stretch="None">
+                                        <VisualBrush.Visual>
+                                            <Label Content="Target Volume" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorAltBrush}}"/>
+                                        </VisualBrush.Visual>
+                                    </VisualBrush>
+                                </Style.Resources>
+                                <Style.Triggers>
+                                    <Trigger Property="Text" Value="{x:Static sys:String.Empty}">
+                                        <Setter Property="Background" Value="{StaticResource CueBannerBrush}" />
+                                    </Trigger>
+                                    <Trigger Property="Text" Value="{x:Null}">
+                                        <Setter Property="Background" Value="{StaticResource CueBannerBrush}" />
+                                    </Trigger>
+                                    <Trigger Property="IsKeyboardFocused" Value="True">
+                                        <Setter Property="Background" Value="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBox.Style>
+                    </TextBox>
+
+                    <Button Content="Set Volume" HorizontalAlignment="Left" Margin="162,62,0,0" VerticalAlignment="Top" Width="164" Height="23" Background="Transparent" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+                    <CheckBox Content="AlwaysTop(F7)" HorizontalAlignment="Left" Margin="10,90,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=AlwaysTop, Source={x:Static prop:Settings.Default}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+                    <CheckBox Content="StayOn(F8)" HorizontalAlignment="Left" Margin="110,90,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=StayOn, Source={x:Static prop:Settings.Default}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+                    <CheckBox Content="DetailView" HorizontalAlignment="Left" Margin="192,90,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=DetailedView, Source={x:Static prop:Settings.Default}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Session(F4)" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorAltBrush}}">
+                <Grid x:Name="SessionGrid" ShowGridLines="True" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}">
+                    <!--WrapPanel x:Name="SessionPanel"/-->
+
+                </Grid>
+            </TabItem>
+            <TabItem Header="Log" HorizontalAlignment="Left" Height="20" VerticalAlignment="Top" Width="54" GotFocus="Logs_VisibleChanged" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorAltBrush}}">
+                <Grid Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}">
+                    <ScrollViewer x:Name="LogScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <TextBlock x:Name="Logs" TextWrapping="Wrap" Text="" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+    </Grid>
+</Window>
