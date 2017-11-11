@@ -225,7 +225,7 @@ namespace Wale.WPF
             //Console.WriteLine("Convert End");
             return success;
         }
-        private bool Register()
+        private async Task<bool> Register()
         {
             //Console.WriteLine("Resister");
             bool success = true;
@@ -236,7 +236,7 @@ namespace Wale.WPF
                     // Add the value in the registry so that the application runs at startup
                     if (rkApp.GetValue("WALEWindowAudioLoudnessEqualizer") == null)
                     {
-                        rkApp.SetValue("WALEWindowAudioLoudnessEqualizer", System.Reflection.Assembly.GetExecutingAssembly().Location);
+                        await Task.Run(() => { rkApp.SetValue("WALEWindowAudioLoudnessEqualizer", System.Reflection.Assembly.GetExecutingAssembly().Location); });
                     }
                 }
                 else
@@ -373,15 +373,23 @@ namespace Wale.WPF
                 JDPack.FileLog.Log("All configs are reset.");
             }
         }
-        private void Submit_Click(object sender, RoutedEventArgs e)
+        private async void Submit_Click(object sender, RoutedEventArgs e)
         {
-            if (Converts() && Register())
+            this.IsEnabled = false;
+            this.Topmost = false;
+            this.WindowState = WindowState.Minimized;
+            if (Converts() && await Register())
             {
                 settings.Save();
                 this.DialogResult = true;
                 Close();
             }
             else { MessageBox.Show("Can not save Changes", "ERROR"); }
+            this.IsEnabled = true;
+            Binding topmostBinding = new Binding();
+            topmostBinding.Source = settings.AlwaysTop;
+            BindingOperations.SetBinding(this, Window.TopmostProperty, topmostBinding);
+            this.WindowState = WindowState.Normal;
         }
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {
