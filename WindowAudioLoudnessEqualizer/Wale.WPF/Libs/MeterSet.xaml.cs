@@ -159,7 +159,7 @@ namespace Wale.WPF
                 //SessionLabel.MouseDown -= LVolume_Click;
                 labelMode = LabelMode.Volume;
                 SetForeColor(SessionLabel, mainColor);
-                SetHeight(36);
+                SetHeight(AppDatas.SessionBlockHeightDetail);
                 ControlShowHide(RelLabel, Visibility.Visible);
                 ControlShowHide(PeakLabel, Visibility.Visible);
                 ControlShowHide(AvPeakLabel, Visibility.Visible);
@@ -175,7 +175,7 @@ namespace Wale.WPF
             if (detailed)
             {
                 //SessionLabel.MouseDown += LVolume_Click;
-                SetHeight(24);
+                SetHeight(AppDatas.SessionBlockHeightNormal);
                 ControlShowHide(RelLabel, Visibility.Hidden);
                 ControlShowHide(PeakLabel, Visibility.Hidden);
                 ControlShowHide(AvPeakLabel, Visibility.Hidden);

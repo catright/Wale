@@ -5,7 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Wale.WPF"
         xmlns:prop="clr-namespace:Wale.WPF.Properties"
-        mc:Ignorable="d" Height="200" Width="350" ShowInTaskbar="False" WindowStyle="None" Topmost="{Binding Path=AlwaysTop, Source={x:Static prop:Settings.Default}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" MouseLeave="Window_MouseLeave" LostFocus="Window_LostFocus" Icon="Icon/WaleLeftOn.ico" MinWidth="350" MinHeight="200" MaxWidth="350" ResizeMode="NoResize">
+        xmlns:wale="clr-namespace:Wale;assembly=WaleBase"
+        xmlns:oxy="http://oxyplot.org/wpf"
+        mc:Ignorable="d" Height="{Binding Source={x:Static wale:AppDatas.MainWindowHeightDefault}}" Width="480" ShowInTaskbar="False" WindowStyle="None" Topmost="{Binding Path=AlwaysTop, Source={x:Static prop:Settings.Default}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" MouseLeave="Window_MouseLeave" LostFocus="Window_LostFocus" Icon="Icon/WaleLeftOn.ico" MinWidth="480" MinHeight="{Binding Source={x:Static wale:AppDatas.MainWindowHeightDefault}}" MaxWidth="350" ResizeMode="NoResize" Deactivated="window_Deactivated">
     <Window.ContextMenu>
         <ContextMenu>
             <MenuItem Header="Configuration" Click="ConfigToolStripMenuItem_Click"/>
@@ -30,54 +32,128 @@
             <TextBlock HorizontalAlignment="Left" Margin="46,5,0,0" TextWrapping="Wrap" Text="WALE" VerticalAlignment="Top" FontSize="20"/>
         </Grid>
 
-        <TabControl x:Name="Tabs" TabStripPlacement="Bottom" Margin="0,36,0,0" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}">
-            <TabItem Header="Master(F3)" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorAltBrush}}">
+        <TabControl x:Name="Tabs" TabStripPlacement="Bottom" Margin="0,36,0,0" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" Padding="0">
+            <TabItem Header="View(F3)" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorAltBrush}}">
                 <Grid Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" MouseWheel="MasterTab_MouseWheel">
-                    <Label Content="Base" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5,5,0,0" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
-                    <Label Content="Master" HorizontalAlignment="Left" Margin="5,31,0,0" VerticalAlignment="Top" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
-                    <ProgressBar x:Name="BaseBar" HorizontalAlignment="Left" Height="16" Margin="162,10,0,0" VerticalAlignment="Top" Width="164" Value="{Binding Path=BaseLevel, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Foreground="{Binding Source={x:Static local:ColorSet.BaseColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" BorderBrush="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Maximum="1" LargeChange="0.1" SmallChange="0.01"/>
-                    <ProgressBar x:Name="MasterVolumeBar" HorizontalAlignment="Left" Height="8" Margin="162,37,0,0" VerticalAlignment="Top" Width="164" Foreground="{Binding Source={x:Static local:ColorSet.MainColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" BorderBrush="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Maximum="1"/>
-                    <ProgressBar x:Name="MasterPeakBar" HorizontalAlignment="Left" Height="9" Margin="162,45,0,0" VerticalAlignment="Top" Width="164" Foreground="{Binding Source={x:Static local:ColorSet.PeakColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" BorderBrush="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Maximum="1"/>
-                    <Label x:Name="BaseLabel" HorizontalAlignment="Left" Margin="95,5,0,0" VerticalAlignment="Top" Content="{Binding Path=BaseLevel, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
-                    <Label x:Name="MasterLabel" HorizontalAlignment="Left" Margin="95,26,0,0" VerticalAlignment="Top" Content="0" Foreground="{Binding Source={x:Static local:ColorSet.MainColorBrush}}"/>
-                    <Label x:Name="MasterPeakLabel" HorizontalAlignment="Left" Margin="95,39,0,0" VerticalAlignment="Top" Content="0" Foreground="{Binding Source={x:Static local:ColorSet.PeakColorBrush}}"/>
-                    <TextBox x:Name="VolumeIntervalBox" HorizontalAlignment="Left" Height="23" Margin="10,62,0,0" TextWrapping="Wrap" Text="{Binding Path=MasterVolumeInterval, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" VerticalAlignment="Top" Width="52" Background="Transparent" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+                    <Grid Margin="0,0,286,0">
+                        <Grid Height="30" VerticalAlignment="Top">
+                            <Label Content="Base" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" Padding="0"/>
+                            <Label x:Name="BaseLabel" HorizontalAlignment="Left" Margin="60,0,0,0" VerticalAlignment="Center" Content="{Binding Path=BaseLevel, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" Padding="0"/>
+                            <ProgressBar x:Name="BaseBar" HorizontalAlignment="Left" Height="16" Margin="102,7,0,7" VerticalAlignment="Center" Width="80" Value="{Binding Path=BaseLevel, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Foreground="{Binding Source={x:Static local:ColorSet.BaseColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" BorderBrush="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Maximum="1" LargeChange="0.1" SmallChange="0.01"/>
+                        </Grid>
+                        <Grid Margin="0,30,0,0" Height="30" VerticalAlignment="Top">
+                            <Label Content="Master" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" Padding="0"/>
+                            <Label x:Name="MasterLabel" HorizontalAlignment="Left" Margin="60,-10,0,0" VerticalAlignment="Center" Content="0" Foreground="{Binding Source={x:Static local:ColorSet.MainColorBrush}}" VerticalContentAlignment="Center" Padding="0"/>
+                            <Label x:Name="MasterPeakLabel" HorizontalAlignment="Left" Margin="60,10,0,0" VerticalAlignment="Center" Content="0" Foreground="{Binding Source={x:Static local:ColorSet.PeakColorBrush}}" VerticalContentAlignment="Center" Padding="0"/>
+                            <ProgressBar x:Name="MasterVolumeBar" HorizontalAlignment="Left" Height="8" Margin="102,-10,0,0" VerticalAlignment="Center" Width="80" Foreground="{Binding Source={x:Static local:ColorSet.MainColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" BorderBrush="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Maximum="1"/>
+                            <ProgressBar x:Name="MasterPeakBar" HorizontalAlignment="Left" Height="9" Margin="102,10,0,0" VerticalAlignment="Center" Width="80" Foreground="{Binding Source={x:Static local:ColorSet.PeakColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" BorderBrush="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Maximum="1"/>
+                        </Grid>
+                        <TextBox x:Name="VolumeIntervalBox" HorizontalAlignment="Left" Height="23" Margin="10,65,0,0" TextWrapping="Wrap" Text="{Binding Path=MasterVolumeInterval, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" VerticalAlignment="Top" Width="52" Background="Transparent" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
 
-                    <TextBox x:Name="TargetVolumeBox" HorizontalAlignment="Left" Height="23" Margin="67,62,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="90" KeyDown="TargetVolumeBox_KeyDown">
-                        <TextBox.Style>
-                            <Style TargetType="TextBox" xmlns:sys="clr-namespace:System;assembly=mscorlib">
-                                <Style.Resources>
-                                    <VisualBrush x:Key="CueBannerBrush" AlignmentX="Left" AlignmentY="Center" Stretch="None">
-                                        <VisualBrush.Visual>
-                                            <Label Content="Target Volume" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorAltBrush}}"/>
-                                        </VisualBrush.Visual>
-                                    </VisualBrush>
-                                </Style.Resources>
-                                <Style.Triggers>
-                                    <Trigger Property="Text" Value="{x:Static sys:String.Empty}">
-                                        <Setter Property="Background" Value="{StaticResource CueBannerBrush}" />
-                                    </Trigger>
-                                    <Trigger Property="Text" Value="{x:Null}">
-                                        <Setter Property="Background" Value="{StaticResource CueBannerBrush}" />
-                                    </Trigger>
-                                    <Trigger Property="IsKeyboardFocused" Value="True">
-                                        <Setter Property="Background" Value="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" />
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBox.Style>
-                    </TextBox>
+                        <TextBox x:Name="TargetVolumeBox" HorizontalAlignment="Left" Height="23" Margin="67,65,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="90" KeyDown="TargetVolumeBox_KeyDown">
+                            <TextBox.Style>
+                                <Style TargetType="TextBox" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+                                    <Style.Resources>
+                                        <VisualBrush x:Key="CueBannerBrush" AlignmentX="Left" AlignmentY="Center" Stretch="None">
+                                            <VisualBrush.Visual>
+                                                <Label Content="Target Volume" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorAltBrush}}"/>
+                                            </VisualBrush.Visual>
+                                        </VisualBrush>
+                                    </Style.Resources>
+                                    <Style.Triggers>
+                                        <Trigger Property="Text" Value="{x:Static sys:String.Empty}">
+                                            <Setter Property="Background" Value="{StaticResource CueBannerBrush}" />
+                                        </Trigger>
+                                        <Trigger Property="Text" Value="{x:Null}">
+                                            <Setter Property="Background" Value="{StaticResource CueBannerBrush}" />
+                                        </Trigger>
+                                        <Trigger Property="IsKeyboardFocused" Value="True">
+                                            <Setter Property="Background" Value="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
 
-                    <Button Content="Set Volume" HorizontalAlignment="Left" Margin="162,62,0,0" VerticalAlignment="Top" Width="164" Height="23" Background="Transparent" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
-                    <CheckBox Content="AlwaysTop(F7)" HorizontalAlignment="Left" Margin="10,90,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=AlwaysTop, Source={x:Static prop:Settings.Default}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
-                    <CheckBox Content="StayOn(F8)" HorizontalAlignment="Left" Margin="110,90,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=StayOn, Source={x:Static prop:Settings.Default}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
-                    <CheckBox Content="DetailView" HorizontalAlignment="Left" Margin="192,90,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=DetailedView, Source={x:Static prop:Settings.Default}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+                        <Button Content="Set Volume" HorizontalAlignment="Left" Margin="67,93,0,0" VerticalAlignment="Top" Width="67" Height="23" Background="Transparent" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+                        <CheckBox Content="AlwaysTop(F7)" HorizontalAlignment="Left" Margin="10,121,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=AlwaysTop, Source={x:Static prop:Settings.Default}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+                        <CheckBox Content="StayOn(F8)" HorizontalAlignment="Left" Margin="10,141,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=StayOn, Source={x:Static prop:Settings.Default}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+                        <CheckBox Content="DetailView" HorizontalAlignment="Left" Margin="10,161,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=DetailedView, Source={x:Static prop:Settings.Default}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+                    </Grid>
+
+                    <Grid x:Name="SessionGrid" ShowGridLines="True" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" Margin="197,0,0,0">
+                        <!--WrapPanel x:Name="SessionPanel"/-->
+                    </Grid>
                 </Grid>
-            </TabItem>
-            <TabItem Header="Session(F4)" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorAltBrush}}">
-                <Grid x:Name="SessionGrid" ShowGridLines="True" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}">
-                    <!--WrapPanel x:Name="SessionPanel"/-->
 
+            </TabItem>
+            <TabItem Header="Config(F4)" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorAltBrush}}" GotFocus="ConfigTab_GotFocus" LostFocus="ConfigTab_LostFocus">
+                <Grid>
+                    <GroupBox Header="Audio" Height="270" VerticalAlignment="Top" Padding="5" Foreground="{Binding Foreground, ElementName=window}">
+                        <Grid>
+                            <Grid Width="220" Height="20" HorizontalAlignment="Left" VerticalAlignment="Top">
+                                <Label Content="UI Update [ms]" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="0" Foreground="{Binding Foreground, ElementName=window}"/>
+                                <Label Content="{Binding Path=(local:LastValues.UIUpdate), Mode=TwoWay}" HorizontalAlignment="Left" Margin="120,0,0,0" VerticalAlignment="Top" Padding="0" Foreground="{Binding Foreground, ElementName=window}"/>
+                                <TextBox HorizontalAlignment="Left" Height="20" Margin="160,0,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" Padding="0" Text="{Binding Path=UIUpdateInterval, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
+                            </Grid>
+                            <Grid Width="220" Height="20" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,22,0,0">
+                                <Label Content="Auto Control [ms]" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="0" Foreground="{Binding Foreground, ElementName=window}"/>
+                                <Label Content="{Binding Path=(local:LastValues.AutoControlInterval), Mode=TwoWay}" HorizontalAlignment="Left" Margin="120,0,0,0" VerticalAlignment="Top" Padding="0" Foreground="{Binding Foreground, ElementName=window}"/>
+                                <TextBox HorizontalAlignment="Left" Height="20" Margin="160,0,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" Padding="0" Text="{Binding Path=AutoControlInterval, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
+                            </Grid>
+                            <Grid Width="220" Height="20" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,44,0,0">
+                                <Label Content="GC Interval [ms]" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="0" Foreground="{Binding Foreground, ElementName=window}"/>
+                                <Label Content="{Binding Path=(local:LastValues.GCInterval), Mode=TwoWay}" HorizontalAlignment="Left" Margin="120,0,0,0" VerticalAlignment="Top" Padding="0" Foreground="{Binding Foreground, ElementName=window}"/>
+                                <TextBox HorizontalAlignment="Left" Height="20" Margin="160,0,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" Padding="0" Text="{Binding Path=GCInterval, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
+                            </Grid>
+                            <Grid Width="220" Height="20" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,66,0,0">
+                                <Label Content="Base Level" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="0" Foreground="{Binding Source={x:Static local:ColorSet.BaseColorBrush}}"/>
+                                <Label Content="{Binding Path=(local:LastValues.BaseLevel), Mode=TwoWay}" HorizontalAlignment="Left" Margin="120,0,0,0" VerticalAlignment="Top" Padding="0" Foreground="{Binding Foreground, ElementName=window}"/>
+                                <TextBox HorizontalAlignment="Left" Height="20" Margin="160,0,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" Padding="0" Text="{Binding Path=BaseLevel, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" TextChanged="BaseLevel_Changed"/>
+                            </Grid>
+                            <Grid Width="220" Height="20" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,88,0,0">
+                                <Label Content="Up Rate" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="0" Foreground="{Binding Foreground, ElementName=window}"/>
+                                <Label Content="{Binding Path=(local:LastValues.UpRate), Mode=TwoWay}" HorizontalAlignment="Left" Margin="120,0,0,0" VerticalAlignment="Top" Padding="0" Foreground="{Binding Foreground, ElementName=window}"/>
+                                <TextBox HorizontalAlignment="Left" Height="20" Margin="160,0,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" Padding="0" Text="{Binding Path=UpRate, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" TextChanged="UpRate_Changed"/>
+                            </Grid>
+                            <Grid Width="220" Height="20" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,110,0,0">
+                                <Label Content="Kurtosis" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="0" Foreground="{Binding Foreground, ElementName=window}"/>
+                                <Label Content="{Binding Path=(local:LastValues.Kurtosis), Mode=TwoWay}" HorizontalAlignment="Left" Margin="120,0,0,0" VerticalAlignment="Top" Padding="0" Foreground="{Binding Foreground, ElementName=window}"/>
+                                <TextBox x:Name="KurtosisBox" HorizontalAlignment="Left" Height="20" Margin="160,0,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" Padding="0" Text="{Binding Path=Kurtosis, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" TextChanged="Kurtosis_Changed"/>
+                            </Grid>
+                            <Grid Width="220" Height="40" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,132,0,0">
+                                <Label Content="Function" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="0" Foreground="{Binding Foreground, ElementName=window}"/>
+                                <Label Content="{Binding Path=(local:LastValues.VFunc), Mode=TwoWay}" HorizontalAlignment="Left" Margin="60,20,0,0" VerticalAlignment="Top" Padding="0" Foreground="{Binding Foreground, ElementName=window}"/>
+                                <ComboBox x:Name="FunctionSelector" HorizontalAlignment="Left" Margin="60,0,0,0" VerticalAlignment="Top" Width="150" Height="20" SelectionChanged="Function_Changed"/>
+                            </Grid>
+                            <Grid Width="220" Height="20" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,174,0,0">
+                                <Label Content="Average Time [ms]" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="0" Foreground="{Binding Foreground, ElementName=window}"/>
+                                <Label Content="{Binding Path=(local:LastValues.AverageTime), Mode=TwoWay}" HorizontalAlignment="Left" Margin="120,0,0,0" VerticalAlignment="Top" Padding="0" Foreground="{Binding Foreground, ElementName=window}"/>
+                                <TextBox HorizontalAlignment="Left" Height="20" Margin="160,0,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" Padding="0" Text="{Binding Path=AverageTime, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
+                            </Grid>
+                            <Grid Width="220" Height="20" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,196,0,0">
+                                <Label Content="Min Peak Level" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="0" Foreground="{Binding Foreground, ElementName=window}"/>
+                                <Label Content="{Binding Path=(local:LastValues.MinPeak), Mode=TwoWay}" HorizontalAlignment="Left" Margin="120,0,0,0" VerticalAlignment="Top" Padding="0" Foreground="{Binding Foreground, ElementName=window}"/>
+                                <TextBox HorizontalAlignment="Left" Height="20" Margin="160,0,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" Padding="0" Text="{Binding Path=MinPeak, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
+                            </Grid>
+
+                            <oxy:PlotView x:Name="plotView" Margin="225,0,0,0" BorderThickness="1" BorderBrush="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" Background="{Binding Background, ElementName=window}" Height="170" VerticalAlignment="Top"/>
+
+                            <CheckBox Content="Average Enabled" HorizontalAlignment="Left" Margin="225,175,0,0" VerticalAlignment="Top" Foreground="{Binding Foreground, ElementName=window}" IsChecked="{Binding Path=Averaging, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
+                            <CheckBox Content="Auto Control Enabled" HorizontalAlignment="Left" Margin="225,197,0,0" VerticalAlignment="Top" Foreground="{Binding Foreground, ElementName=window}" IsChecked="{Binding Path=AutoControl, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox Header="Window" Height="92" Margin="0,0,0,30" VerticalAlignment="Bottom" Padding="5" Foreground="{Binding Foreground, ElementName=window}">
+                        <Grid>
+                            <CheckBox x:Name="runAtWindowsStartup" Content="RunAtWindowsStartup" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Foreground="{Binding Foreground, ElementName=window}"/>
+                            <CheckBox Content="Detailed View" HorizontalAlignment="Left" Margin="200,0,0,0" VerticalAlignment="Top" Foreground="{Binding Foreground, ElementName=window}" IsChecked="{Binding Path=DetailedView, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
+                            <CheckBox Content="Detailed Log" HorizontalAlignment="Left" Margin="0,20,0,0" VerticalAlignment="Top" Foreground="{Binding Foreground, ElementName=window}"/>
+                        </Grid>
+                    </GroupBox>
+                    <Grid>
+                        <Button Content="Submit" HorizontalAlignment="Left" Margin="10,0,0,5" Width="130" Height="20" VerticalAlignment="Bottom" Click="Submit_Click" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+                        <Button Content="Return to Default" HorizontalAlignment="Right" Margin="0,0,10,5" VerticalAlignment="Bottom" Width="130" Click="resetToDafault_Click" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+                    </Grid>
                 </Grid>
             </TabItem>
             <TabItem Header="Log" HorizontalAlignment="Left" Height="20" VerticalAlignment="Top" Width="54" GotFocus="Logs_VisibleChanged" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorAltBrush}}">

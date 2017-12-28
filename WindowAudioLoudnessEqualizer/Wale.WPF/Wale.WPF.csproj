@@ -146,7 +146,6 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="packages.config" />
-    <None Include="Properties\DataSources\ColorSet.datasource" />
     <None Include="Properties\DataSources\Wale.WPF.Properties.Resources.datasource" />
     <None Include="Properties\DataSources\Wale.WPF.Properties.Settings.datasource" />
     <None Include="Properties\Settings.settings">

@@ -5,9 +5,10 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Wale.WPF"
              xmlns:prop="clr-namespace:Wale.WPF.Properties"
+             xmlns:wale="clr-namespace:Wale"
              mc:Ignorable="d" 
-             d:DesignHeight="24" d:DesignWidth="320" ScrollViewer.VerticalScrollBarVisibility="Disabled" MinWidth="320" MinHeight="24" HorizontalAlignment="Left" VerticalAlignment="Top" Width="320" Height="36">
-    <Grid MinWidth="320" MinHeight="24" MouseWheel="MeterSet_MouseWheel">
+             d:DesignHeight="24" d:DesignWidth="320" ScrollViewer.VerticalScrollBarVisibility="Disabled" MinWidth="280" MinHeight="24" HorizontalAlignment="Left" VerticalAlignment="Top" Width="280" Height="36">
+    <Grid MinWidth="280" MinHeight="24" MouseWheel="MeterSet_MouseWheel">
         <CheckBox x:Name="AutoIncludeCBox" HorizontalAlignment="Left" Margin="0,5,0,0" VerticalAlignment="Top" Width="14" Height="14" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
         <Label x:Name="NameLabel" HorizontalAlignment="Left" Margin="17,3,0,0" VerticalAlignment="Top" Width="145" Height="17" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" MouseDown="LSessionNameLabel_Click" Content="TEST" Padding="0">
             <Label.ToolTip>
@@ -15,8 +16,8 @@
             </Label.ToolTip>
         </Label>
         <Label x:Name="SessionLabel" HorizontalAlignment="Left" Margin="170,3,0,0" VerticalAlignment="Top" Width="35" Height="17" Foreground="{Binding Source={x:Static local:ColorSet.MainColorBrush}}" MouseDown="LSessionLabel_Click" Content="TEST" Padding="0"/>
-        <ProgressBar x:Name="VolumeBar" HorizontalAlignment="Left" Margin="215,2,0,0" VerticalAlignment="Top" Width="95" Height="10" Foreground="{Binding Source={x:Static local:ColorSet.MainColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" BorderBrush="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Value="50" Maximum="1"/>
-        <ProgressBar x:Name="LevelBar" HorizontalAlignment="Left" Margin="215,12,0,0" VerticalAlignment="Top" Width="95" Height="10" Foreground="{Binding Source={x:Static local:ColorSet.PeakColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" BorderBrush="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Value="50" Maximum="1"/>
+        <ProgressBar x:Name="VolumeBar" Margin="215,2,10,0" VerticalAlignment="Top" Height="10" Foreground="{Binding Source={x:Static local:ColorSet.MainColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" BorderBrush="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Value="50" Maximum="1"/>
+        <ProgressBar x:Name="LevelBar" Margin="215,12,10,0" VerticalAlignment="Top" Height="10" Foreground="{Binding Source={x:Static local:ColorSet.PeakColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" BorderBrush="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Value="50" Maximum="1"/>
 
         <Label x:Name="PeakLabel" HorizontalAlignment="Left" Margin="170,17,0,0" VerticalAlignment="Top" Width="35" Height="17" Foreground="{Binding Source={x:Static local:ColorSet.PeakColorBrush}}" MouseDown="LSessionLabel_Click" Content="TEST" Padding="0"/>
         <Label x:Name="AvPeakLabel" HorizontalAlignment="Left" Margin="135,17,0,0" VerticalAlignment="Top" Width="35" Height="17" Foreground="{Binding Source={x:Static local:ColorSet.AverageColorBrush}}" MouseDown="LSessionLabel_Click" Content="TEST" Padding="0"/>
