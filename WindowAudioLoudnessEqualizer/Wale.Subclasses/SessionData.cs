@@ -11,11 +11,6 @@ namespace Wale.CoreAudio
     /// </summary>
     public class SessionData : IDisposable
     {
-        /// <summary>
-        /// Automatically generate human readable Name property
-        /// </summary>
-        /// <param name="pid">ProcessId</param>
-        /// <param name="ident">ProcessIdentifier</param>
         public SessionData() { }
         public SessionData(NameSet nameset) { this.nameSet = nameset; }
         public SessionData(int pid, bool issystem, string pname, string mwtitle, string dispname, string sessider)
@@ -32,7 +27,7 @@ namespace Wale.CoreAudio
         #region API Default Datas
         public NameSet nameSet;
         /// <summary>
-        /// Conveted from CoreAudioApi
+        /// Converted from CoreAudioApi
         /// </summary>
         public SessionState State { get; set; }
         private bool IsSystemSoundSession;

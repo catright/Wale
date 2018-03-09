@@ -200,6 +200,11 @@ namespace Wale.CoreAudio
         #endregion
 
         #region Private Common Methods
+        /// <summary>
+        /// Return converted sesstion state from audio session state <paramref name="sessionState"/> of CoreAPI
+        /// </summary>
+        /// <param name="sessionState">audio session state of CoreAPI</param>
+        /// <returns>Session state is converted for Wale from CoreAPI</returns>
         private SessionState State(AudioSessionState sessionState)
         {
             SessionState state = SessionState.Expired;
@@ -217,6 +222,11 @@ namespace Wale.CoreAudio
             }
             return state;
         }
+        /// <summary>
+        /// Get process has <paramref name="processId"/> as its id
+        /// </summary>
+        /// <param name="processId"></param>
+        /// <returns>null or process object has <paramref name="processId"/> as its id if the process is present</returns>
         private System.Diagnostics.Process Process(int processId)
         {
             System.Diagnostics.Process p = null;

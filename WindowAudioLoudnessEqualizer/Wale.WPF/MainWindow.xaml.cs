@@ -70,6 +70,9 @@ namespace Wale.WPF
             DP = new JDPack.DebugPack(debug);
             Log("OK1"); DP.DML("OK1");
         }
+        /// <summary>
+        /// Initialization when window is poped up. Read all setting values, store all values as original, draw all graphs.
+        /// </summary>
         private void MakeConfigs()
         {
             if (string.IsNullOrWhiteSpace(AppVersion.Option)) this.Title = ($"WALE v{AppVersion.LongVersion}");
@@ -97,6 +100,9 @@ namespace Wale.WPF
             settings.PropertyChanged += Settings_PropertyChanged;
 
         }
+        /// <summary>
+        /// Read necessary setting values and start audio controller and all tasks
+        /// </summary>
         private void StartApp()
         {
             Wale.Transformation.SetBaseLevel(settings.BaseLevel);
@@ -177,7 +183,9 @@ namespace Wale.WPF
             }
             Log("End UpdateStateTask");
         }
-        //Device master volume update.
+        /// <summary>
+        /// Update task for master output level of a device is currently used
+        /// </summary>
         private void UpdateVolumeTask()
         {
             Log("Start UpdateVolumeTask");
@@ -215,6 +223,9 @@ namespace Wale.WPF
             Log("End UpdateVolumeTask");
         }
         //making UIs for all sessions.
+        /// <summary>
+        /// Update task to make UIs of all sessions
+        /// </summary>
         private void UpdateSessionTask()
         {
             Log("Start UpdateSessionTask");

@@ -64,6 +64,10 @@ namespace Wale
             Transformation.ChangeTransformMethod(tmode);
             SetBaseTo(bVol);
         }
+        /// <summary>
+        /// Start audio controller
+        /// </summary>
+        /// <param name="debug">True when enable debug mode</param>
         public void Start(bool debug = false)
         {
             Debug = debug;
@@ -111,7 +115,7 @@ namespace Wale
         //private bool Autocon() { bool val; lock (_autoconlock) { val = _AutoControl; } return val; }
         //private void Autocon(bool val) { lock (_autoconlock) { _AutoControl = val; } }
         #endregion
-
+        
         public List<DeviceData> GetDeviceMap() { return audio.GetDeviceList(); }
         #region Master Volume controls
         public void SetBaseTo(double bVol)

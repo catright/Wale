@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Wale
 {
+    /// <summary>
+    /// Objects for Lock states of asychronous tasks
+    /// </summary>
     public static class Lockers
     {
         public static object Sessions = new object();

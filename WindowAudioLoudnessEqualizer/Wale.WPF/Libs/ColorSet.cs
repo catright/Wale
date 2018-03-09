@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Wale.WPF
 {
+    /// <summary>
+    /// Colors for app visualization
+    /// </summary>
     public static class ColorSet
     {
         public static System.Windows.Media.Color MainColor = System.Windows.Media.Colors.SteelBlue;

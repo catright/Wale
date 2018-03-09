@@ -26,6 +26,9 @@ namespace Wale.WPF
         bool loaded = false;
         double originalMax;
 
+        /// <summary>
+        /// Initialization when window is poped up. Read all setting values, store all values as original, draw all graphs.
+        /// </summary>
         public Configuration()
         {
             InitializeComponent();
@@ -61,6 +64,9 @@ namespace Wale.WPF
         }
 
         #region Drawing
+        /// <summary>
+        /// Get setting values are not stored in properties.settings from registry or app at runtime.
+        /// </summary>
         private void Makes()
         {
             if (rkApp.GetValue("WALEWindowAudioLoudnessEqualizer") == null)
@@ -77,6 +83,9 @@ namespace Wale.WPF
             FunctionSelector.ItemsSource = Enum.GetValues(typeof(VFunction.Func));
             if (Enum.TryParse(settings.VFunc, out VFunction.Func f)) FunctionSelector.SelectedItem = f;
         }
+        /// <summary>
+        /// Store original setting values
+        /// </summary>
         private void MakeOriginals()
         {
             LastValues.UIUpdate = settings.UIUpdateInterval;
@@ -89,7 +98,14 @@ namespace Wale.WPF
             LastValues.MinPeak = settings.MinPeak;
             LastValues.VFunc = settings.VFunc;
         }
+        /// <summary>
+        /// Draw new present graph
+        /// </summary>
         private void DrawNew() { DrawGraph("Graph"); }
+        /// <summary>
+        /// Draw a graph of decrement function
+        /// </summary>
+        /// <param name="graphName">Unique identification of a visual graph</param>
         private void DrawGraph(string graphName)
         {
             List<Series> exc = new List<Series>();
@@ -175,6 +191,9 @@ namespace Wale.WPF
             //myText2.Y = chart.ChartAreas["Area"].AxisY.Maximum * 0.92;
             plotView.InvalidatePlot();
         }
+        /// <summary>
+        /// Draw a line of Base(standard) of output level
+        /// </summary>
         private void DrawBase()
         {
             List<Series> exc = new List<Series>();
@@ -190,6 +209,9 @@ namespace Wale.WPF
             plotView.Model.Series.Add(lineSeries1);
             plotView.InvalidatePlot();
         }
+        /// <summary>
+        /// Draw a line of boundary of section for sliced function
+        /// </summary>
         private void DrawDevideLine()
         {
             LineSeries lineSeries1 = new LineSeries();
@@ -225,6 +247,10 @@ namespace Wale.WPF
             //Console.WriteLine("Convert End");
             return success;
         }
+        /// <summary>
+        /// Write setting values to windows registry if it's necessary. Return (bool)true when success
+        /// </summary>
+        /// <returns></returns>
         private async Task<bool> Register()
         {
             //Console.WriteLine("Resister");

@@ -6,11 +6,24 @@ using System.Threading.Tasks;
 
 namespace Wale.CoreAudio
 {
+    /// <summary>
+    /// Identification of audio session
+    /// </summary>
     public class NameSet
     {
-        public int ProcessID;
-        public string ProcessName, MainWindowTitle, DisplayName, SessionIdentifier, Name;
-        public bool IsSystemSoundSession;
+        /// <summary>
+        /// True if the session is system sound
+        /// </summary>
+        public bool IsSystemSoundSession { get; set; }
+        public int ProcessID { get; set; }
+        public string ProcessName { get; set; }
+        public string MainWindowTitle { get; set; }
+        public string DisplayName { get; set; }
+        public string SessionIdentifier { get; set; }
+        /// <summary>
+        /// A name for an audio session which can identify the session
+        /// </summary>
+        public string Name { get; set; }
 
         public NameSet(int pid, bool issystem, string pname, string mwtitle, string dispname, string sessider)
         {
@@ -23,6 +36,10 @@ namespace Wale.CoreAudio
             Name = MakeName();
         }
 
+        /// <summary>
+        /// Deside appropriate name for an audio session which can identify the session
+        /// </summary>
+        /// <returns>Appropriate name</returns>
         private string MakeName()
         {
             if (IsSystemSoundSession) { return "System Sound"; }

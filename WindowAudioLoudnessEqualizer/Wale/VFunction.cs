@@ -8,6 +8,9 @@ namespace Wale
 {
     public static class VFunction
     {
+        /// <summary>
+        /// Decrement function
+        /// </summary>
         public enum Func { None, Linear, SlicedLinear, Reciprocal, FixedReciprocal }
 
         public struct FactorsForSlicedLinear
