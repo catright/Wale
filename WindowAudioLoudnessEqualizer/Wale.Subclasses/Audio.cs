@@ -67,6 +67,10 @@ namespace Wale.CoreAudio
         /// </summary>
         public float MasterPeak { get => GetMasterPeak(); }
         /// <summary>
+        /// Base level for WALE
+        /// </summary>
+        public float TargetOutputLevel { get; set; }
+        /// <summary>
         /// Session data list of sessions in default device.
         /// </summary>
         public SessionDataList Sessions { get => sessionList; }
@@ -74,18 +78,25 @@ namespace Wale.CoreAudio
         /// A list of excluded sessions for automatic control
         /// </summary>
         public List<string> ExcludeList = new List<string> { "amddvr", "ShellExperienceHost", "Windows Shell Experience Host" };
-        
+
         /// <summary>
         /// Instantiate new instance of Audio class.
         /// </summary>
         public Audio() { }
         /// <summary>
         /// Instantiate new instance of Audio class.
+        /// </summary>
+        /// <param name="wBase">Target output level = base level of Wale</param>
+        public Audio(float wBase) { TargetOutputLevel = wBase; }
+        /// <summary>
+        /// Instantiate new instance of Audio class.
         /// Automatically do UpdateDevice and UpdateSession when <paramref name="autoStart"/> is true.
         /// </summary>
+        /// <param name="wBase">Target output level = base level of Wale</param>
         /// <param name="autoStart"></param>
-        public Audio(bool autoStart)
+        public Audio(float wBase, bool autoStart)
         {
+            TargetOutputLevel = wBase;
             if (autoStart)
             {
                 UpdateDevice();
@@ -527,7 +538,8 @@ namespace Wale.CoreAudio
 
                                     if (!exists)
                                     {
-                                        if (!ExcludeList.Contains(nameSet.Name)) { simpleAudioVolume.MasterVolume = 0.01f; }
+                                        if (ExcludeList.Contains(nameSet.Name)) { simpleAudioVolume.MasterVolume = TargetOutputLevel; }
+                                        else { simpleAudioVolume.MasterVolume = 0.01f; }
                                         sessionList.Add(new SessionData()
                                         {
                                             State = state,

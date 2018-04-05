@@ -72,7 +72,7 @@ namespace Wale
         {
             Debug = debug;
 
-            audio = new CoreAudio.Audio(true);
+            audio = new CoreAudio.Audio((float)baseLv, true);
             //masterDevice = new MasterDevice();
 
             //Sessions = new Sessions3();
@@ -123,7 +123,7 @@ namespace Wale
             if (bVol > 1) bVol = 1;
             else if (bVol < 0.01) bVol = 0.01;
             baseLv = bVol;
-
+            if (audio != null) { audio.TargetOutputLevel = (float)baseLv; }
             baseLvSquare = baseLv * baseLv;
             sliceFactors = VFunction.GetFactorsForSlicedLinear(UpRate, baseLv);
         }

@@ -298,7 +298,7 @@ namespace Wale.WPF
                                     else item.DetailOff();
                                     if (item.detailChanged) { reAlign = true; item.detailChanged = false; }
                                     item.UpdateData(session.Volume, session.Peak, session.AveragePeak, session.Name);
-                                    session.Relative = (float)item.Relative;
+                                    session.Relative = (float)(item.Relative / 100.0);
                                     session.AutoIncluded = item.AutoIncluded;
                                 }
                             }
