@@ -34,8 +34,8 @@
 
         <TabControl x:Name="Tabs" TabStripPlacement="Bottom" Margin="0,36,0,0" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" Padding="0">
             <TabItem Header="View(F3)" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorAltBrush}}">
-                <Grid Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" MouseWheel="MasterTab_MouseWheel">
-                    <StackPanel Margin="0,0,286,0">
+                <Grid Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}">
+                    <StackPanel Margin="0,0,286,0" MouseWheel="MasterTab_MouseWheel">
                         <StackPanel Height="30" Orientation="Horizontal">
                             <Label Content="Base" HorizontalAlignment="Left" VerticalAlignment="Center" Width="60" Margin="5,0,0,0" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" Padding="0"/>
                             <Label x:Name="BaseLabel" HorizontalAlignment="Left" VerticalAlignment="Center" Width="30" Margin="5,0,0,0" Content="{Binding Path=BaseLevel, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" Padding="0"/>
