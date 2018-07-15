@@ -49,6 +49,7 @@ namespace Wale.WPF
         {
             if (string.IsNullOrWhiteSpace(AppVersion.Option)) this.Title = ($"WALE v{AppVersion.LongVersion}");
             else this.Title = ($"WALE v{AppVersion.LongVersion}-{AppVersion.Option}");
+            settings.AppTitle = this.Title;
 
             //this.Visibility = Visibility.Hidden;
             NI = new System.Windows.Forms.NotifyIcon();

@@ -50,5 +50,8 @@
     <Setting Name="VFunc" Type="System.String" Scope="User">
       <Value Profile="(Default)">None</Value>
     </Setting>
+    <Setting Name="AppTitle" Type="System.String" Scope="User">
+      <Value Profile="(Default)">WALE</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
