@@ -29,7 +29,7 @@
     <Grid Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}">
         <Grid Height="36" VerticalAlignment="Top" Background="{Binding Source={x:Static local:ColorSet.MainColorBrush}}" MouseDown="titlePanel_MouseDown" MouseMove="titlePanel_MouseMove">
             <Image HorizontalAlignment="Left" Height="26" Margin="10,5,0,5" VerticalAlignment="Top" Width="26" Source="{Binding Icon, ElementName=window}"/>
-            <TextBlock HorizontalAlignment="Left" Margin="46,5,0,0" TextWrapping="Wrap" Text="WALE" VerticalAlignment="Top" FontSize="20"/>
+            <TextBlock x:Name="AppTitle" HorizontalAlignment="Left" Margin="46,5,0,0" TextWrapping="Wrap" Text="WALE" VerticalAlignment="Top" FontSize="20"/>
         </Grid>
 
         <TabControl x:Name="Tabs" TabStripPlacement="Bottom" Margin="0,36,0,0" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" Padding="0">

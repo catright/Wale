@@ -24,7 +24,7 @@
       <Value Profile="(Default)">0.25</Value>
     </Setting>
     <Setting Name="AverageTime" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">15000</Value>
+      <Value Profile="(Default)">8000</Value>
     </Setting>
     <Setting Name="Kurtosis" Type="System.Double" Scope="User">
       <Value Profile="(Default)">0.35</Value>

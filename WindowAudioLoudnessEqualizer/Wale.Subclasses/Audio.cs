@@ -77,7 +77,7 @@ namespace Wale.CoreAudio
         /// <summary>
         /// A list of excluded sessions for automatic control
         /// </summary>
-        public List<string> ExcludeList = new List<string> { "amddvr", "ShellExperienceHost", "Windows Shell Experience Host" };
+        public List<string> ExcludeList = new List<string> { "audacity", "obs64", "amddvr", "ShellExperienceHost", "Windows Shell Experience Host" };
 
         /// <summary>
         /// Instantiate new instance of Audio class.
@@ -538,7 +538,7 @@ namespace Wale.CoreAudio
 
                                     if (!exists)
                                     {
-                                        if (ExcludeList.Contains(nameSet.Name)) { simpleAudioVolume.MasterVolume = TargetOutputLevel; }
+                                        if (ExcludeList.Contains(nameSet.Name)) { /*simpleAudioVolume.MasterVolume = TargetOutputLevel;*/ }
                                         else { simpleAudioVolume.MasterVolume = 0.01f; }
                                         sessionList.Add(new SessionData()
                                         {
@@ -670,7 +670,11 @@ namespace Wale.CoreAudio
                             using (var session2 = asc.QueryInterface<AudioSessionControl2>())
                             using (var simpleAudioVolume = asc.QueryInterface<SimpleAudioVolume>())
                             {
-                                if (session2.ProcessID == session.PID) simpleAudioVolume.MasterVolume = volume;
+                                if (session2.ProcessID == session.PID)
+                                {
+                                    simpleAudioVolume.MasterVolume = volume;
+                                    System.Diagnostics.Debug.WriteLine($"{session.Name}({session.PID}): {volume}");
+                                }
                             }
                         }
                     }

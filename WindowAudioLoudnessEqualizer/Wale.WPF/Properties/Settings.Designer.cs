@@ -109,7 +109,7 @@ namespace Wale.WPF.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("15000")]
+        [global::System.Configuration.DefaultSettingValueAttribute("8000")]
         public double AverageTime {
             get {
                 return ((double)(this["AverageTime"]));
