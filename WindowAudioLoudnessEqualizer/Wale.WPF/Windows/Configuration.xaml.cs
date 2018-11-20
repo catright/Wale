@@ -427,6 +427,22 @@ namespace Wale.WPF
         {
             if (e.Key == Key.Escape) { this.Close(); }
         }
+
+        private void ProcessPriorityAboveNormal_Unchecked(object sender, RoutedEventArgs e)
+        {
+            using (System.Diagnostics.Process p = System.Diagnostics.Process.GetCurrentProcess())
+            {
+                p.PriorityClass = System.Diagnostics.ProcessPriorityClass.Normal;
+            }
+        }
+        private void ProcessPriorityAboveNormal_Checked(object sender, RoutedEventArgs e)
+        {
+            using (System.Diagnostics.Process p = System.Diagnostics.Process.GetCurrentProcess())
+            {
+                p.PriorityClass = System.Diagnostics.ProcessPriorityClass.AboveNormal;
+            }
+        }
+
     }
 
     public static class LastValues
@@ -449,7 +465,7 @@ namespace Wale.WPF
         public static double UpRate { get => _UpRate; set { _UpRate = value; OnStaticPropertyChanged("UpRate"); } }
         public static double Kurtosis { get => _Kurtosis; set { _Kurtosis = value; OnStaticPropertyChanged("Kurtosis"); } }
         public static double MinPeak { get => _MinPeak; set { _MinPeak = value; OnStaticPropertyChanged("MinPeak"); } }
-        public static string VFunc { get => _VFunc; set { _VFunc = value; OnStaticPropertyChanged("string"); } }
+        public static string VFunc { get => _VFunc; set { _VFunc = value; OnStaticPropertyChanged("VFunc"); } }
         
         public static int _UIUpdate, _AutoControlInterval, _GCInterval;
         public static double _BaseLevel, _AverageTime, _UpRate, _Kurtosis, _MinPeak;

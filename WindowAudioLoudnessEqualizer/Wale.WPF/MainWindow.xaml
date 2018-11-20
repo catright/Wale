@@ -151,8 +151,9 @@
                     <GroupBox Header="Window" Height="92" Margin="0,0,0,30" VerticalAlignment="Bottom" Padding="5" Foreground="{Binding Foreground, ElementName=window}">
                         <Grid>
                             <CheckBox x:Name="runAtWindowsStartup" Content="RunAtWindowsStartup" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Foreground="{Binding Foreground, ElementName=window}"/>
+                            <CheckBox Content="ProcessPriorityAboveNormal" HorizontalAlignment="Left" Margin="0,20,0,0" VerticalAlignment="Top" Foreground="{Binding Foreground, ElementName=window}" IsChecked="{Binding Path=ProcessPriorityAboveNormal, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Unchecked="ProcessPriorityAboveNormal_Unchecked" Checked="ProcessPriorityAboveNormal_Checked"/>
                             <CheckBox Content="Detailed View" HorizontalAlignment="Left" Margin="200,0,0,0" VerticalAlignment="Top" Foreground="{Binding Foreground, ElementName=window}" IsChecked="{Binding Path=DetailedView, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
-                            <CheckBox Content="Detailed Log" HorizontalAlignment="Left" Margin="0,20,0,0" VerticalAlignment="Top" Foreground="{Binding Foreground, ElementName=window}"/>
+                            <CheckBox Content="Detailed Log" HorizontalAlignment="Left" Margin="200,20,0,0" VerticalAlignment="Top" Foreground="{Binding Foreground, ElementName=window}" IsEnabled="False"/>
                         </Grid>
                     </GroupBox>
                     <Grid>

@@ -54,6 +54,7 @@ namespace Wale.CoreAudio
         #endregion
 
         #region Public Items
+        public bool Debug { get => _debug; set => _debug = value; }
         /// <summary>
         /// True when there is no device that can use.
         /// </summary>
@@ -207,6 +208,7 @@ namespace Wale.CoreAudio
         #endregion
 
         #region Private Common Variables
+        private bool _debug = false;
         private object sessionLocker = new object();
         #endregion
 
@@ -673,7 +675,7 @@ namespace Wale.CoreAudio
                                 if (session2.ProcessID == session.PID)
                                 {
                                     simpleAudioVolume.MasterVolume = volume;
-                                    System.Diagnostics.Debug.WriteLine($"{session.Name}({session.PID}): {volume}");
+                                    if (_debug) { System.Diagnostics.Debug.WriteLine($"{session.Name}({session.PID}): {volume}"); }
                                 }
                             }
                         }

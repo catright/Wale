@@ -53,5 +53,8 @@
     <Setting Name="AppTitle" Type="System.String" Scope="User">
       <Value Profile="(Default)">WALE</Value>
     </Setting>
+    <Setting Name="ProcessPriorityAboveNormal" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

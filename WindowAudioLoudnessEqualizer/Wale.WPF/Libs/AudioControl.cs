@@ -311,7 +311,7 @@ namespace Wale
                 }/**/
 
                 long mmc = GC.GetTotalMemory(true);
-                Console.WriteLine($"Total Memory: {mmc:n0}");
+                if (Debug) { Console.WriteLine($"Total Memory: {mmc:n0}"); }
                 if (logCounter > 1800000/settings.GCInterval)
                 {
                     JDPack.FileLog.Log($"Memory Cleaned, Total Memory: {mmc:n0}");

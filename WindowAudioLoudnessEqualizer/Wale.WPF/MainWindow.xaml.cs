@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Diagnostics;
 using OxyPlot;
 using OxyPlot.Series;
 
@@ -47,6 +48,15 @@ namespace Wale.WPF
         }
         private void MakeComponents()
         {
+            //set process priority
+            if (settings.ProcessPriorityAboveNormal)
+            {
+                using (Process p = Process.GetCurrentProcess())
+                {
+                    p.PriorityClass = ProcessPriorityClass.AboveNormal;
+                }
+            }
+
             if (string.IsNullOrWhiteSpace(AppVersion.Option)) this.Title = ($"WALE v{AppVersion.LongVersion}");
             else this.Title = ($"WALE v{AppVersion.LongVersion}-{AppVersion.Option}");
             settings.AppTitle = this.Title;
@@ -570,6 +580,7 @@ namespace Wale.WPF
         private double lastHeightForConfigTab, heightDeffForConfigTab;
         private void ConfigTab_GotFocus(object sender, RoutedEventArgs e)
         {
+            RemakeConf();
             lastHeightForConfigTab = this.Height;
             heightDeffForConfigTab = 450 - this.Height;
             Dispatcher.Invoke(new Action(() =>
@@ -586,7 +597,29 @@ namespace Wale.WPF
                 this.Height = lastHeightForConfigTab;
             }), System.Windows.Threading.DispatcherPriority.ContextIdle, null);
         }
-        
+        private void RemakeConf() {
+            Makes();
+            MakeOriginals();
+            DrawGraph("Original");
+            DrawNew();
+        }
+
+
+        private void ProcessPriorityAboveNormal_Unchecked(object sender, RoutedEventArgs e)
+        {
+            using (Process p = Process.GetCurrentProcess())
+            {
+                p.PriorityClass = ProcessPriorityClass.Normal;
+            }
+        }
+        private void ProcessPriorityAboveNormal_Checked(object sender, RoutedEventArgs e)
+        {
+            using (Process p = Process.GetCurrentProcess())
+            {
+                p.PriorityClass = ProcessPriorityClass.AboveNormal;
+            }
+        }
+
         #endregion
 
         #region Config Events
@@ -909,6 +942,11 @@ namespace Wale.WPF
         }/**/
 
         delegate void LabelStringConsumer(Label control, string text);
+        /// <summary>
+        /// Invoke delegate to change the Content of Label control object.
+        /// </summary>
+        /// <param name="control"></param>
+        /// <param name="text"></param>
         private void SetText(Label control, string text)
         {
             try
@@ -928,8 +966,13 @@ namespace Wale.WPF
             }
             catch { Log($"fail to invoke {control.Name}\n"); }
         }/**/
-        
+
         delegate void ProgressBardoubleConsumer(ProgressBar control, double value);
+        /// <summary>
+        /// Invoke delegate to change the Value of ProgressBar control object.
+        /// </summary>
+        /// <param name="control"></param>
+        /// <param name="value"></param>
         private void SetBar(ProgressBar control, double value)
         {
             try
@@ -998,6 +1041,12 @@ namespace Wale.WPF
         #endregion
 
         #region Logging
+
+        /// <summary>
+        /// Write log to log tab on main window. Always prefixed "hh:mm> ".
+        /// </summary>
+        /// <param name="msg">message to log</param>
+        /// <param name="newLine">flag for making newline after the end of the <paramref name="msg"/>.</param>
         private void Log(string msg, bool newLine = true)
         {
             JDPack.FileLog.Log(msg, newLine);
@@ -1007,6 +1056,11 @@ namespace Wale.WPF
             AppendText(Logs, content);
             //bAllowPaintLog = true;
         }
+        /// <summary>
+        /// Event to scroll down to end of the newest log.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Logs_VisibleChanged(object sender, RoutedEventArgs e)
         {
             if (Logs.IsVisible)
@@ -1016,6 +1070,7 @@ namespace Wale.WPF
                 //Logs.ScrollToCaret();
             }
         }
+        
         #endregion
     }
 }
