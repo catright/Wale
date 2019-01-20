@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
 	<Product Id="*" Name="Wale" Language="1033" Manufacturer="Jongtae Park"
-           UpgradeCode="7286072b-aa45-40bc-a835-88de5243a963" Version="0.3.12.0">
+           UpgradeCode="7286072b-aa45-40bc-a835-88de5243a963" Version="0.4.0.0">
 		<Package Id="*" Keywords="Installer" InstallerVersion="405" InstallScope="perMachine" Compressed="yes" Languages="1033"
              Description="Windows Audio Loudness Equalizer" Manufacturer="Jongtae Park" Comments="Copyright @ Jongtae Park." />
 
@@ -12,7 +12,7 @@
                   />
 		<MediaTemplate EmbedCab="yes" />
     
-    <Icon Id="Waleicon.ico" SourceFile="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\WindowAudioLoudnessEqualizer\Icon\WaleLeftOn.ico" />
+    <Icon Id="Waleicon.ico" SourceFile="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\Icon\WaleLeftOn.ico" />
     <Property Id="ARPPRODUCTICON" Value="Waleicon.ico" />
     <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
     <WixVariable Id="WixUILicenseRtf" Value="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\WaleSetup\licence.rtf" />
@@ -69,25 +69,25 @@
       
       <Component Id="WaleBaseComp">
         <File Id="WaleBase" Name="WaleBase.dll"
-              Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\WindowAudioLoudnessEqualizer\bin\Release\WaleBase.dll"
+              Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Release\WaleBase.dll"
               KeyPath="yes" />
       </Component>
       
       <Component Id="WaleCoreAudioComp">
         <File Id="WaleCoreAudio" Name="Wale.CoreAudio.dll"
-              Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\WindowAudioLoudnessEqualizer\bin\Release\Wale.CoreAudio.dll"
+              Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Release\Wale.CoreAudio.dll"
               KeyPath="yes" />
       </Component>
       
       <Component Id="JDPackComp">
         <File Id="JDPack" Name="JDPack.dll"
-              Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\WindowAudioLoudnessEqualizer\bin\Release\JDPack.dll"
+              Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Release\JDPack.dll"
               KeyPath="yes" />
       </Component>
       
       <Component Id="CSCoreComp">
         <File Id="CSCore" Name="CSCore.dll"
-              Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\WindowAudioLoudnessEqualizer\bin\Release\CSCore.dll"
+              Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Release\CSCore.dll"
               KeyPath="yes" />
       </Component>
       
