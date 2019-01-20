@@ -77,7 +77,7 @@ namespace Wale.WPF
             Left = System.Windows.SystemParameters.WorkArea.Width - this.Width;
             Top = System.Windows.SystemParameters.WorkArea.Height - this.Height;
             DP = new JDPack.DebugPack(debug);
-            Log("OK1"); DP.DML("OK1");
+            Log("OK1"); DP.DMML("OK1");
         }
         /// <summary>
         /// Initialization when window is poped up. Read all setting values, store all values as original, draw all graphs.
@@ -130,7 +130,7 @@ namespace Wale.WPF
             _updateTasks.Add(new Task(UpdateVolumeTask));
             _updateTasks.Add(new Task(UpdateSessionTask));
             _updateTasks.ForEach(t => t.Start());
-            Log("OK2"); DP.DML("OK2");
+            Log("OK2"); DP.DMML("OK2");
         }
         #endregion
 
@@ -161,7 +161,7 @@ namespace Wale.WPF
                     this.Visibility = Visibility.Hidden;
                 }
             }
-            catch { DP.CML($"fail to invoke CheckFirstLoad"); }
+            catch { DP.DMML($"fail to invoke CheckFirstLoad"); }
         }
         //Check device state.
         private void UpdateStateTask()
@@ -205,7 +205,7 @@ namespace Wale.WPF
                 if (Active())
                 {
                     JDPack.DebugPack VDP = new JDPack.DebugPack(updateVolumeDebug);
-                    VDP.DML($"base={settings.BaseLevel} vol={Audio.MasterVolume}({Audio.MasterPeak})");
+                    VDP.DMML($"base={settings.BaseLevel} vol={Audio.MasterVolume}({Audio.MasterPeak})");
 
                     //lBaseVolume.Text = $"{Properties.Settings.Default.baseVolume:n}";
                     //pbBaseVolume.Increment((int)(Properties.Settings.Default.baseVolume * 100) - pbBaseVolume.Value);
@@ -265,13 +265,13 @@ namespace Wale.WPF
                 {
                     // the "functional part", executing only on the main thread
                     JDPack.DebugPack SDP = new JDPack.DebugPack(updateSessionDebug);
-                    SDP.DM("Getting Sessions");
+                    SDP.DMM("Getting Sessions");
                     int count = 0;
                     lock (Lockers.Sessions)
                     {
                         count = Audio.Sessions.Count; //all count
                     }
-                    SDP.DML("  Count:" + count);
+                    SDP.DMML("  Count:" + count);
                     if (count > 0)
                     {
                         bool reAlign = false; // re-alignment flag
@@ -325,7 +325,7 @@ namespace Wale.WPF
                             {
                                 MeterSet s = SessionGrid.Children[i] as MeterSet;
                                 s.UpdateLocation(new Thickness(0, spacing * i, 10, 0));
-                                SDP.DML($"MeterSet{s.ID,-5} {s.Margin} {s.Height} {s.SessionName}");
+                                SDP.DMML($"MeterSet{s.ID,-5} {s.Margin} {s.Height} {s.SessionName}");
                             }
                             double fsgHeight = (double)(SessionGrid.Children.Count) * spacing + 60 + 2, dif = fsgHeight - lastHeight;
                             if (fsgHeight < this.MinHeight) { fsgHeight = AppDatas.MainWindowHeightDefault; dif = fsgHeight - lastHeight; }
@@ -339,7 +339,7 @@ namespace Wale.WPF
 
                 }
             }
-            catch { DP.CML($"fail to invoke UpdateSession"); }
+            catch { DP.DMML($"fail to invoke UpdateSession"); }
         }
         #endregion
 
@@ -361,7 +361,7 @@ namespace Wale.WPF
             MessageBoxResult dialogResult = MessageBox.Show("Are you sure to terminate Wale completely?", "Exit", MessageBoxButton.OKCancel);
             if (dialogResult == MessageBoxResult.OK)
             {
-                DP.DML("Exit");
+                DP.DMML("Exit");
                 Active(false);
                 Rclose(true);
                 NI.Visible = false;
@@ -369,14 +369,14 @@ namespace Wale.WPF
                 await Task.WhenAll(_updateTasks);
                 this.Close();
                 Audio.Dispose();
-                Log("Closed"); DP.DML("Closed");
+                Log("Closed"); DP.DMML("Closed");
             }
         }
 
         private void ConfigToolStripMenuItem_Click(object sender, EventArgs e) { ConfigToolStripMenuItem_Click(sender, new RoutedEventArgs()); }
         private void ConfigToolStripMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            DP.DM("Settings");
+            DP.DMM("Settings");
             JDPack.FormPack FWP = new JDPack.FormPack();
             Configuration form = new Configuration() { Icon = this.Icon };
             System.Drawing.Point p = FWP.PointFromMouse(-(int)(form.Width / 2), -(int)form.Height, JDPack.FormPack.PointMode.AboveTaskbar);
@@ -399,7 +399,7 @@ namespace Wale.WPF
 
         private void deviceMapToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            DP.DM("DeviceMap");
+            DP.DMM("DeviceMap");
             JDPack.FormPack FWP = new JDPack.FormPack();
             DeviceMap form = new DeviceMap() { Icon = this.Icon };
             System.Drawing.Point p = FWP.PointFromMouse(-(int)(form.Width / 2), -(int)form.Height, JDPack.FormPack.PointMode.AboveTaskbar);
@@ -409,7 +409,7 @@ namespace Wale.WPF
         }
         private void helpToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            DP.DM("Help");
+            DP.DMM("Help");
             JDPack.FormPack FWP = new JDPack.FormPack();
             Help form = new Help() { Icon = this.Icon };
             System.Drawing.Point p = FWP.PointFromMouse(-(int)(form.Width / 2), -(int)form.Height, JDPack.FormPack.PointMode.AboveTaskbar);
@@ -419,7 +419,7 @@ namespace Wale.WPF
         }
         private void licensesToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            DP.DM("Licenses");
+            DP.DMM("Licenses");
             JDPack.FormPack FWP = new JDPack.FormPack();
             License form = new License { Icon = this.Icon };
             System.Drawing.Point p = FWP.PointFromMouse(-(int)(form.Width / 2), -(int)form.Height, JDPack.FormPack.PointMode.AboveTaskbar);
@@ -437,7 +437,7 @@ namespace Wale.WPF
         #region Master Volume control methods and events
         private void Up_Click(object sender, EventArgs e)
         {
-            DP.DM("Up ");
+            DP.DMM("Up ");
             GetInterval();
             updateVolumeDebug = true;
             Audio.VolumeUp(CalcInterval());
@@ -445,7 +445,7 @@ namespace Wale.WPF
         }
         private void Down_Click(object sender, EventArgs e)
         {
-            DP.DM("Down ");
+            DP.DMM("Down ");
             GetInterval();
             updateVolumeDebug = true;
             Audio.VolumeDown(CalcInterval());
@@ -453,7 +453,7 @@ namespace Wale.WPF
         }
         private void VolumeSet_Click(object sender, EventArgs e)
         {
-            DP.DM("Set ");
+            DP.DMM("Set ");
             double? volume = null;
             try { volume = Convert.ToDouble(TargetVolumeBox.Text); } catch { Log("fail to convert master volume\n"); MessageBox.Show("Invalid Volume"); return; }
             if (volume != null)
@@ -470,16 +470,16 @@ namespace Wale.WPF
         //Calculate interval value for machine from user input.
         private double CalcInterval()
         {
-            DP.DM(" CalcInterval");
+            DP.DMM(" CalcInterval");
             double it = settings.MasterVolumeInterval;
             double? buf = Transformation.Transform(it, Transformation.TransFlow.IntervalUserToMachine);
             if (buf != null) it = (double)buf;
-            DP.DM($"={it} ");
+            DP.DMM($"={it} ");
             return it;
         }
         private void GetInterval()
         {
-            DP.DM(" GetInterval");
+            DP.DMM(" GetInterval");
             double it = 0;
             try
             {
@@ -497,7 +497,7 @@ namespace Wale.WPF
         #region NI events
         private void NI_MouseClick(object sender, System.Windows.Forms.MouseEventArgs e)
         {
-            if (e.Button == System.Windows.Forms.MouseButtons.Left) { DP.DML("IconLeftClick"); Active(true); this.Visibility = Visibility.Visible; this.Activate(); }
+            if (e.Button == System.Windows.Forms.MouseButtons.Left) { DP.DMML("IconLeftClick"); Active(true); this.Visibility = Visibility.Visible; this.Activate(); }
         }
         #endregion
 
@@ -548,7 +548,7 @@ namespace Wale.WPF
         }
         private void MasterTab_MouseWheel(object sender, MouseWheelEventArgs e)
         {
-            if (mouseWheelDebug) DP.DML($"MouseWheel Captured:{e.Delta}");
+            if (mouseWheelDebug) DP.DMML($"MouseWheel Captured:{e.Delta}");
             if (e.Delta > 0) Up_Click(sender, e);
             else if (e.Delta < 0) Down_Click(sender, e);
         }
@@ -945,7 +945,7 @@ namespace Wale.WPF
                 {
                     if (!Dispatcher.CheckAccess())
                     {
-                        DP.DML("Invoke Required - AppendText");
+                        DP.DMML("Invoke Required - AppendText");
                         Dispatcher.Invoke(new TextBlockStringConsumer(AppendText), new object[] { control, text });  // invoking itself
                     }
                     else
@@ -971,7 +971,7 @@ namespace Wale.WPF
                 {
                     if (!Dispatcher.CheckAccess())
                     {
-                        DP.DML("Invoke Required - MeterSet - SetText");
+                        DP.DMML("Invoke Required - MeterSet - SetText");
                         Dispatcher.Invoke(new LabelStringConsumer(SetText), new object[] { control, text });  // invoking itself
                     }
                     else
@@ -997,7 +997,7 @@ namespace Wale.WPF
                 {
                     if (!Dispatcher.CheckAccess())
                     {
-                        DP.DML("Invoke Required - MeterSet - SetBar");
+                        DP.DMML("Invoke Required - MeterSet - SetBar");
                         Dispatcher.Invoke(new ProgressBardoubleConsumer(SetBar), new object[] { control, value });  // invoking itself
                     }
                     else
@@ -1020,7 +1020,7 @@ namespace Wale.WPF
                 {
                     if (!Dispatcher.CheckAccess())
                     {
-                        DP.DML("Invoke Required - MeterSet - SetTabControl");
+                        DP.DMML("Invoke Required - MeterSet - SetTabControl");
                         Dispatcher.Invoke(new GridMeterSetConsumer(SetTabControl), new object[] { control, set, remove });  // invoking itself
                     }
                     else
@@ -1048,7 +1048,7 @@ namespace Wale.WPF
                     this.Height += difference;      // the "functional part", executing only on the main thread
                 }
             }
-            catch { DP.CML($"fail to invoke WindowSize"); }
+            catch { DP.DMML($"fail to invoke WindowSize"); }
         }/**/
 
         delegate void GridConsumer(Grid grid);//MeterSet Update Delegate
@@ -1070,7 +1070,7 @@ namespace Wale.WPF
             string content = $"{t.Hour:d2}:{t.Minute:d2}>{msg}";
             if (newLine) content += "\r\n";
             AppendText(Logs, content);
-            DP.CML(content);
+            DP.DMML(content);
             //bAllowPaintLog = true;
         }
         /// <summary>
