@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 using System.Diagnostics;
 using OxyPlot;
 using OxyPlot.Series;
+using System.Globalization;
 
 namespace Wale.WPF
 {
@@ -49,21 +50,15 @@ namespace Wale.WPF
         private void MakeComponents()
         {
             //set process priority
-            if (settings.ProcessPriorityAboveNormal)
-            {
-                using (Process p = Process.GetCurrentProcess())
-                {
-                    p.PriorityClass = ProcessPriorityClass.AboveNormal;
-                }
-            }
+            SetPriority(settings.ProcessPriority);
 
             if (string.IsNullOrWhiteSpace(AppVersion.Option)) this.Title = ($"WALE v{AppVersion.LongVersion}");
-            else this.Title = ($"WALE v{AppVersion.LongVersion}-{AppVersion.Option}");
+            else this.Title = ($"WALE v{AppVersion.LongVersion}");//-{AppVersion.Option}
             settings.AppTitle = this.Title;
 
             //this.Visibility = Visibility.Hidden;
             NI = new System.Windows.Forms.NotifyIcon();
-            NI.Text = "Wale";
+            NI.Text = $"WALE v{AppVersion.LongVersion}";
             NI.Icon = Properties.Resources.WaleLeftOn;
             NI.Visible = true;
 
@@ -620,6 +615,27 @@ namespace Wale.WPF
             }
         }
 
+        private void Priority_RadioButton_Click(object sender, RoutedEventArgs e)
+        {
+            RadioButton s = sender as RadioButton;
+            if ((bool)s.IsChecked) SetPriority(s.Content.ToString());
+        }
+        private void SetPriority(string priority)
+        {
+            settings.ProcessPriority = priority;
+            ProcessPriorityClass ppc = ProcessPriorityClass.Normal;
+            switch (priority)
+            {
+                case "High": ppc = ProcessPriorityClass.High; settings.ProcessPriorityHigh = true; settings.ProcessPriorityAboveNormal = false; settings.ProcessPriorityNormal = false; break;
+                case "Above Normal": ppc = ProcessPriorityClass.AboveNormal; settings.ProcessPriorityHigh = false; settings.ProcessPriorityAboveNormal = true; settings.ProcessPriorityNormal = false; break;
+                case "Normal": ppc = ProcessPriorityClass.Normal; settings.ProcessPriorityHigh = false; settings.ProcessPriorityAboveNormal = false; settings.ProcessPriorityNormal = true; break;
+            }
+            settings.Save();
+            using (Process p = Process.GetCurrentProcess())
+            {
+                p.PriorityClass = ppc;
+            }
+        }
         #endregion
 
         #region Config Events
@@ -1054,6 +1070,7 @@ namespace Wale.WPF
             string content = $"{t.Hour:d2}:{t.Minute:d2}>{msg}";
             if (newLine) content += "\r\n";
             AppendText(Logs, content);
+            DP.CML(content);
             //bAllowPaintLog = true;
         }
         /// <summary>
@@ -1073,4 +1090,51 @@ namespace Wale.WPF
         
         #endregion
     }
+    //wpf value converter
+    /*
+    public class PriorityNormalConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value?.ToString() == "Normal") return true;
+            else return false;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            //if ((bool)value == true) { return "Normal"; }
+            //else return "Normal";
+            return null;
+        }
+    }
+    public class PriorityAboveNormalConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value?.ToString() == "Above Normal") return true;
+            else return false;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            //if ((bool)value == true) { return "Above Normal"; }
+            //else return "Normal";
+            return null;
+        }
+    }
+    public class PriorityHighConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value?.ToString() == "High") return true;
+            else return false;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            //if ((bool)value == true) { return "High"; }
+            //else return "Normal";
+            return null;
+        }
+    }*/
 }

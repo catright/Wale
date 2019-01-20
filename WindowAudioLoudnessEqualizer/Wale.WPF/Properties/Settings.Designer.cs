@@ -169,7 +169,7 @@ namespace Wale.WPF.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("5000")]
+        [global::System.Configuration.DefaultSettingValueAttribute("30000")]
         public int GCInterval {
             get {
                 return ((int)(this["GCInterval"]));
@@ -193,7 +193,7 @@ namespace Wale.WPF.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("35")]
+        [global::System.Configuration.DefaultSettingValueAttribute("33")]
         public int AutoControlInterval {
             get {
                 return ((int)(this["AutoControlInterval"]));
@@ -236,6 +236,42 @@ namespace Wale.WPF.Properties {
             }
             set {
                 this["ProcessPriorityAboveNormal"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ProcessPriorityNormal {
+            get {
+                return ((bool)(this["ProcessPriorityNormal"]));
+            }
+            set {
+                this["ProcessPriorityNormal"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool ProcessPriorityHigh {
+            get {
+                return ((bool)(this["ProcessPriorityHigh"]));
+            }
+            set {
+                this["ProcessPriorityHigh"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("High")]
+        public string ProcessPriority {
+            get {
+                return ((string)(this["ProcessPriority"]));
+            }
+            set {
+                this["ProcessPriority"] = value;
             }
         }
     }

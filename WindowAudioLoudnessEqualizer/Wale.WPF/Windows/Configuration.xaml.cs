@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using OxyPlot;
 using OxyPlot.Series;
+using System.Diagnostics;
 
 namespace Wale.WPF
 {
@@ -443,6 +444,27 @@ namespace Wale.WPF
             }
         }
 
+        private void Priority_RadioButton_Click(object sender, RoutedEventArgs e)
+        {
+            RadioButton s = sender as RadioButton;
+            if ((bool)s.IsChecked) SetPriority(s.Content.ToString());
+        }
+        private void SetPriority(string priority)
+        {
+            settings.ProcessPriority = priority;
+            ProcessPriorityClass ppc = ProcessPriorityClass.Normal;
+            switch (priority)
+            {
+                case "High": ppc = ProcessPriorityClass.High; settings.ProcessPriorityHigh = true; settings.ProcessPriorityAboveNormal = false; settings.ProcessPriorityNormal = false; break;
+                case "Above Normal": ppc = ProcessPriorityClass.AboveNormal; settings.ProcessPriorityHigh = false; settings.ProcessPriorityAboveNormal = true; settings.ProcessPriorityNormal = false; break;
+                case "Normal": ppc = ProcessPriorityClass.Normal; settings.ProcessPriorityHigh = false; settings.ProcessPriorityAboveNormal = false; settings.ProcessPriorityNormal = true; break;
+            }
+            settings.Save();
+            using (Process p = Process.GetCurrentProcess())
+            {
+                p.PriorityClass = ppc;
+            }
+        }
     }
 
     public static class LastValues

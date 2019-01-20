@@ -39,13 +39,13 @@
       <Value Profile="(Default)">1</Value>
     </Setting>
     <Setting Name="GCInterval" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">5000</Value>
+      <Value Profile="(Default)">30000</Value>
     </Setting>
     <Setting Name="UIUpdateInterval" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">250</Value>
     </Setting>
     <Setting Name="AutoControlInterval" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">35</Value>
+      <Value Profile="(Default)">33</Value>
     </Setting>
     <Setting Name="VFunc" Type="System.String" Scope="User">
       <Value Profile="(Default)">None</Value>
@@ -55,6 +55,15 @@
     </Setting>
     <Setting Name="ProcessPriorityAboveNormal" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="ProcessPriorityNormal" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="ProcessPriorityHigh" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="ProcessPriority" Type="System.String" Scope="User">
+      <Value Profile="(Default)">High</Value>
     </Setting>
   </Settings>
 </SettingsFile>

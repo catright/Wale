@@ -540,8 +540,8 @@ namespace Wale.CoreAudio
 
                                     if (!exists)
                                     {
-                                        if (ExcludeList.Contains(nameSet.Name)) { /*simpleAudioVolume.MasterVolume = TargetOutputLevel;*/ }
-                                        else { simpleAudioVolume.MasterVolume = 0.01f; }
+                                        //if (ExcludeList.Contains(nameSet.Name)) { /*simpleAudioVolume.MasterVolume = TargetOutputLevel;*/ }
+                                        //else { simpleAudioVolume.MasterVolume = 0.01f; }
                                         sessionList.Add(new SessionData()
                                         {
                                             State = state,

@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26730.12
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wale.WinForm", "WindowAudioLoudnessEqualizer\Wale.WinForm.csproj", "{F8E000BB-D867-4FB1-B8A8-2D52347ED60D}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B7592C46-187C-45A4-B43D-95ABD62BFC09}"
 	ProjectSection(SolutionItems) = preProject
 		Performance1.psess = Performance1.psess
@@ -31,13 +29,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F8E000BB-D867-4FB1-B8A8-2D52347ED60D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F8E000BB-D867-4FB1-B8A8-2D52347ED60D}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{F8E000BB-D867-4FB1-B8A8-2D52347ED60D}.Debug|x86.Build.0 = Debug|Any CPU
-		{F8E000BB-D867-4FB1-B8A8-2D52347ED60D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F8E000BB-D867-4FB1-B8A8-2D52347ED60D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F8E000BB-D867-4FB1-B8A8-2D52347ED60D}.Release|x86.ActiveCfg = Release|Any CPU
-		{F8E000BB-D867-4FB1-B8A8-2D52347ED60D}.Release|x86.Build.0 = Release|Any CPU
 		{FC52A648-3E05-47FD-8D6D-5C1222FF62B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FC52A648-3E05-47FD-8D6D-5C1222FF62B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FC52A648-3E05-47FD-8D6D-5C1222FF62B4}.Debug|x86.ActiveCfg = Debug|Any CPU
