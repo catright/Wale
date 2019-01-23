@@ -455,11 +455,11 @@ namespace Wale.WPF
             ProcessPriorityClass ppc = ProcessPriorityClass.Normal;
             switch (priority)
             {
-                case "High": ppc = ProcessPriorityClass.High; settings.ProcessPriorityHigh = true; settings.ProcessPriorityAboveNormal = false; settings.ProcessPriorityNormal = false; break;
-                case "Above Normal": ppc = ProcessPriorityClass.AboveNormal; settings.ProcessPriorityHigh = false; settings.ProcessPriorityAboveNormal = true; settings.ProcessPriorityNormal = false; break;
+                case "High": ppc = ProcessPriorityClass.High; settings.ProcessPriorityHigh = true;break; settings.ProcessPriorityAboveNormal = false; settings.ProcessPriorityNormal = false; break;
+                case "Above Normal": ppc = ProcessPriorityClass.AboveNormal; settings.ProcessPriorityHigh = false; settings.ProcessPriorityAboveNormal = true;break; settings.ProcessPriorityNormal = false; break;
                 case "Normal": ppc = ProcessPriorityClass.Normal; settings.ProcessPriorityHigh = false; settings.ProcessPriorityAboveNormal = false; settings.ProcessPriorityNormal = true; break;
             }
-            settings.Save();
+            //settings.Save();
             using (Process p = Process.GetCurrentProcess())
             {
                 p.PriorityClass = ppc;

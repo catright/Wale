@@ -43,19 +43,29 @@ namespace Wale.WPF
         {
             InitializeComponent();
             MakeComponents();
+            MakeNI();
             MakeConfigs();
             StartApp();
             Log("AppStarted");
         }
         private void MakeComponents()
         {
+            DP = new JDPack.DebugPack(debug);
+            settings.PropertyChanged += Settings_PropertyChanged;
+
             //set process priority
-            SetPriority(settings.ProcessPriority);
+            //SetPriority(settings.ProcessPriority);
 
             if (string.IsNullOrWhiteSpace(AppVersion.Option)) this.Title = ($"WALE v{AppVersion.LongVersion}");
             else this.Title = ($"WALE v{AppVersion.LongVersion}");//-{AppVersion.Option}
             settings.AppTitle = this.Title;
 
+            Left = System.Windows.SystemParameters.WorkArea.Width - this.Width;
+            Top = System.Windows.SystemParameters.WorkArea.Height - this.Height;
+            Log("OK1");
+        }
+        private void MakeNI()
+        {
             //this.Visibility = Visibility.Hidden;
             NI = new System.Windows.Forms.NotifyIcon();
             NI.Text = $"WALE v{AppVersion.LongVersion}";
@@ -63,7 +73,7 @@ namespace Wale.WPF
             NI.Visible = true;
 
             List<System.Windows.Forms.MenuItem> items = new List<System.Windows.Forms.MenuItem>();
-            items.Add(new System.Windows.Forms.MenuItem("Configuration",ConfigToolStripMenuItem_Click));
+            items.Add(new System.Windows.Forms.MenuItem("Configuration", ConfigToolStripMenuItem_Click));
             items.Add(new System.Windows.Forms.MenuItem("Device Map", deviceMapToolStripMenuItem_Click));
             items.Add(new System.Windows.Forms.MenuItem("Open Log", openLogDirectoryToolStripMenuItem_Click));
             items.Add(new System.Windows.Forms.MenuItem("-"));
@@ -73,19 +83,14 @@ namespace Wale.WPF
             NI.ContextMenu = new System.Windows.Forms.ContextMenu(items.ToArray());
 
             this.NI.MouseClick += new System.Windows.Forms.MouseEventHandler(NI_MouseClick);
-
-            Left = System.Windows.SystemParameters.WorkArea.Width - this.Width;
-            Top = System.Windows.SystemParameters.WorkArea.Height - this.Height;
-            DP = new JDPack.DebugPack(debug);
-            Log("OK1"); DP.DMML("OK1");
         }
         /// <summary>
         /// Initialization when window is poped up. Read all setting values, store all values as original, draw all graphs.
         /// </summary>
         private void MakeConfigs()
         {
-            if (string.IsNullOrWhiteSpace(AppVersion.Option)) this.Title = ($"WALE v{AppVersion.LongVersion}");
-            else this.Title = ($"WALE v{AppVersion.LongVersion}-{AppVersion.Option}");
+            //if (string.IsNullOrWhiteSpace(AppVersion.Option)) this.Title = ($"WALE v{AppVersion.LongVersion}");
+            //else this.Title = ($"WALE v{AppVersion.LongVersion}-{AppVersion.Option}");
 
             Makes();
             MakeOriginals();
@@ -105,8 +110,6 @@ namespace Wale.WPF
             plotView.Model.TextColor = Color(ColorSet.ForeColor);
             plotView.Model.PlotAreaBorderColor = Color(ColorSet.ForeColorAlt);
             //plotView.InvalidateVisual();
-
-            settings.PropertyChanged += Settings_PropertyChanged;
 
         }
         /// <summary>
@@ -130,7 +133,7 @@ namespace Wale.WPF
             _updateTasks.Add(new Task(UpdateVolumeTask));
             _updateTasks.Add(new Task(UpdateSessionTask));
             _updateTasks.ForEach(t => t.Start());
-            Log("OK2"); DP.DMML("OK2");
+            Log("OK2");
         }
         #endregion
 
@@ -578,20 +581,34 @@ namespace Wale.WPF
             RemakeConf();
             lastHeightForConfigTab = this.Height;
             heightDeffForConfigTab = 450 - this.Height;
-            Dispatcher.Invoke(new Action(() =>
-            {
+            //Dispatcher.Invoke(new Action(() =>
+            //{
                 this.Height = 450;
                 this.Top -= heightDeffForConfigTab;
-            }), System.Windows.Threading.DispatcherPriority.ContextIdle, null);
+            //}), System.Windows.Threading.DispatcherPriority.ContextIdle, null);
         }
         private void ConfigTab_LostFocus(object sender, RoutedEventArgs e)
         {
-            Dispatcher.Invoke(new Action(() =>
-            {
+            
+            //Dispatcher.Invoke(new Action(() =>
+            //{
                 this.Top += heightDeffForConfigTab;
                 this.Height = lastHeightForConfigTab;
-            }), System.Windows.Threading.DispatcherPriority.ContextIdle, null);
+            //}), System.Windows.Threading.DispatcherPriority.ContextIdle, null);
         }
+        private bool nowConfig = false;
+        private void Tabs_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            foreach (TabItem tab in (sender as TabControl).Items)
+            {
+                if (tab.IsSelected)
+                {
+                    if (tab.Header.ToString().Contains("Config") && !nowConfig) { ConfigTab_GotFocus(sender, e); nowConfig = true; }
+                    else if (!tab.Header.ToString().Contains("Config") && nowConfig) { ConfigTab_LostFocus(sender, e); nowConfig = false; }
+                }
+            }
+        }
+
         private void RemakeConf() {
             Makes();
             MakeOriginals();
@@ -617,20 +634,22 @@ namespace Wale.WPF
 
         private void Priority_RadioButton_Click(object sender, RoutedEventArgs e)
         {
+            if (!loaded) { e.Handled = true; return; }
             RadioButton s = sender as RadioButton;
             if ((bool)s.IsChecked) SetPriority(s.Content.ToString());
         }
         private void SetPriority(string priority)
         {
+            Log($"Set process priority {priority}");
             settings.ProcessPriority = priority;
             ProcessPriorityClass ppc = ProcessPriorityClass.Normal;
             switch (priority)
             {
-                case "High": ppc = ProcessPriorityClass.High; settings.ProcessPriorityHigh = true; settings.ProcessPriorityAboveNormal = false; settings.ProcessPriorityNormal = false; break;
-                case "Above Normal": ppc = ProcessPriorityClass.AboveNormal; settings.ProcessPriorityHigh = false; settings.ProcessPriorityAboveNormal = true; settings.ProcessPriorityNormal = false; break;
+                case "High": ppc = ProcessPriorityClass.High; settings.ProcessPriorityHigh = true;break; settings.ProcessPriorityAboveNormal = false; settings.ProcessPriorityNormal = false; break;
+                case "Above Normal": ppc = ProcessPriorityClass.AboveNormal; settings.ProcessPriorityHigh = false; settings.ProcessPriorityAboveNormal = true;break; settings.ProcessPriorityNormal = false; break;
                 case "Normal": ppc = ProcessPriorityClass.Normal; settings.ProcessPriorityHigh = false; settings.ProcessPriorityAboveNormal = false; settings.ProcessPriorityNormal = true; break;
-            }
-            settings.Save();
+            }JDPack.Debug.CML($"SPP H={settings.ProcessPriorityHigh} A={settings.ProcessPriorityAboveNormal} N={settings.ProcessPriorityNormal}");
+            //settings.Save();
             using (Process p = Process.GetCurrentProcess())
             {
                 p.PriorityClass = ppc;
@@ -1071,6 +1090,7 @@ namespace Wale.WPF
             if (newLine) content += "\r\n";
             AppendText(Logs, content);
             DP.DMML(content);
+            DP.CMML(content);
             //bAllowPaintLog = true;
         }
         /// <summary>

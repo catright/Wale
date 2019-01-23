@@ -55,10 +55,10 @@
     <ApplicationIcon>Icon\WaleLeftOn.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
-    <SignManifests>false</SignManifests>
+    <SignManifests>true</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <SignAssembly>false</SignAssembly>
+    <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestCertificateThumbprint>93D7FFCC2D276BFD9CD403E43C153D31FBE9D533</ManifestCertificateThumbprint>

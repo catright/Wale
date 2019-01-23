@@ -37,7 +37,7 @@
             <TextBlock HorizontalAlignment="Left" Margin="46,5,0,0" TextWrapping="Wrap" Text="{Binding Path=AppTitle, Source={x:Static prop:Settings.Default}}" VerticalAlignment="Top" FontSize="20"/>
         </Grid>
 
-        <TabControl x:Name="Tabs" TabStripPlacement="Bottom" Margin="0,36,0,0" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" Padding="0">
+        <TabControl x:Name="Tabs" TabStripPlacement="Bottom" Margin="0,36,0,0" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" Padding="0" SelectionChanged="Tabs_SelectionChanged">
             <TabItem Header="View(F3)" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorAltBrush}}">
                 <Grid Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}">
                     <StackPanel Margin="0,0,286,0" MouseWheel="MasterTab_MouseWheel">
@@ -97,7 +97,7 @@
                 </Grid>
 
             </TabItem>
-            <TabItem Header="Config(F4)" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorAltBrush}}" GotFocus="ConfigTab_GotFocus" LostFocus="ConfigTab_LostFocus">
+            <TabItem Header="Config(F4)" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorAltBrush}}">
                 <Grid>
                     <GroupBox Header="Audio" Height="270" VerticalAlignment="Top" Padding="5" Foreground="{Binding Foreground, ElementName=window}">
                         <Grid>
