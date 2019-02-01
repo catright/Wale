@@ -7,20 +7,100 @@
              xmlns:prop="clr-namespace:Wale.WPF.Properties"
              xmlns:wale="clr-namespace:Wale"
              mc:Ignorable="d" 
-             d:DesignHeight="24" d:DesignWidth="320" ScrollViewer.VerticalScrollBarVisibility="Disabled" MinWidth="280" MinHeight="24" HorizontalAlignment="Left" VerticalAlignment="Top" Width="280" Height="36">
-    <Grid MinWidth="280" MinHeight="24" MouseWheel="MeterSet_MouseWheel">
-        <CheckBox x:Name="AutoIncludeCBox" HorizontalAlignment="Left" Margin="0,5,0,0" VerticalAlignment="Top" Width="14" Height="14" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
-        <Label x:Name="NameLabel" HorizontalAlignment="Left" Margin="17,3,0,0" VerticalAlignment="Top" Width="145" Height="17" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" MouseDown="LSessionNameLabel_Click" Content="TEST" Padding="0">
-            <Label.ToolTip>
-                <ToolTip x:Name="NameToolTip"></ToolTip>
-            </Label.ToolTip>
-        </Label>
-        <Label x:Name="SessionLabel" HorizontalAlignment="Left" Margin="170,3,0,0" VerticalAlignment="Top" Width="35" Height="17" Foreground="{Binding Source={x:Static local:ColorSet.MainColorBrush}}" MouseDown="LSessionLabel_Click" Content="TEST" Padding="0"/>
-        <ProgressBar x:Name="VolumeBar" Margin="215,2,10,0" VerticalAlignment="Top" Height="10" Foreground="{Binding Source={x:Static local:ColorSet.MainColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" BorderBrush="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Value="50" Maximum="1"/>
-        <ProgressBar x:Name="LevelBar" Margin="215,12,10,0" VerticalAlignment="Top" Height="10" Foreground="{Binding Source={x:Static local:ColorSet.PeakColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" BorderBrush="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Value="50" Maximum="1"/>
-
-        <Label x:Name="PeakLabel" HorizontalAlignment="Left" Margin="170,17,0,0" VerticalAlignment="Top" Width="35" Height="17" Foreground="{Binding Source={x:Static local:ColorSet.PeakColorBrush}}" MouseDown="LSessionLabel_Click" Content="TEST" Padding="0"/>
-        <Label x:Name="AvPeakLabel" HorizontalAlignment="Left" Margin="135,17,0,0" VerticalAlignment="Top" Width="35" Height="17" Foreground="{Binding Source={x:Static local:ColorSet.AverageColorBrush}}" MouseDown="LSessionLabel_Click" Content="TEST" Padding="0"/>
-        <Label x:Name="RelLabel" HorizontalAlignment="Left" Margin="100,17,0,0" VerticalAlignment="Top" Width="35" Height="17" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" MouseDown="LSessionLabel_Click" Content="TEST" Padding="0"/>
+             ScrollViewer.VerticalScrollBarVisibility="Disabled"
+             Height="42" MinHeight="27"
+             Width="280" MinWidth="{Binding Width, RelativeSource={RelativeSource Self}}"
+             VerticalAlignment="Top">
+    <UserControl.Resources>
+        <Style x:Key="PBarDef" TargetType="ProgressBar">
+            <Setter Property="Maximum" Value="1"/>
+            <Setter Property="Minimum" Value="0"/>
+            <Setter Property="LargeChange" Value="0.05"/>
+            <Setter Property="SmallChange" Value="0.01"/>
+            <Setter Property="Height" Value="5"/>
+            <Setter Property="Background" Value="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}"/>
+            <Setter Property="BorderBrush" Value="Black"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ProgressBar">
+                        <Grid Height="{TemplateBinding Height}" MinHeight="1" MinWidth="10">
+                            <Border Name="PART_Track" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" />
+                            <Border Name="PART_Indicator" Background="{TemplateBinding Foreground}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" HorizontalAlignment="Left"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="LNums" TargetType="Label">
+            <Setter Property="Width" Value="35"/>
+            <Setter Property="Padding" Value="2,0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Right"/>
+        </Style>
+        <Style x:Key="CBoxDef" TargetType="CheckBox">
+            <Setter Property="Background" Value="{Binding Source={x:Static local:ColorSet.BackColorBrush}}"/>
+            <Setter Property="Foreground" Value="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+            <Setter Property="ToolTip" Value="{Binding Name, RelativeSource={RelativeSource Self}}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <Border Margin="1" Padding="{TemplateBinding Padding}" Width="14" Height="13" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                            <Grid Width="12" Height="11" Background="{TemplateBinding Background}">
+                                <Path x:Name="Equis" Opacity="0" Stroke="{TemplateBinding Foreground}" Fill="Transparent" Stretch="UniformToFill" StrokeThickness="2" Data="M 0 0 M 110 100 M 6 50 L 48 83 L 102 7"/>
+                                <ContentPresenter Margin="0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Equis" Property="Opacity" Value="1"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="False">
+                                <Setter TargetName="Equis" Property="Opacity" Value="0"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="Content" Value="">
+                    <Setter Property="Height" Value="13"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="Foreground" Value="#40808080"/>
+                    <Setter Property="BorderBrush" Value="#40808080"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+    <!--MinWidth="{Binding MinWidth, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MeterSet}}}" MinHeight="{Binding MinHeight, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MeterSet}}}"-->
+    <Grid MouseWheel="MeterSet_MouseWheel">
+        <StackPanel Margin="2,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="99*"/>
+                    <ColumnDefinition Width="*" MinWidth="67"/>
+                </Grid.ColumnDefinitions>
+                <Label x:Name="NameLabel" Content="TEST" Padding="0" Grid.Column="0" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" MouseDown="LSessionNameLabel_Click">
+                    <Label.ToolTip>
+                        <ToolTip x:Name="NameToolTip"></ToolTip>
+                    </Label.ToolTip>
+                </Label>
+                <WrapPanel Grid.Column="1" HorizontalAlignment="Right">
+                    <CheckBox IsEnabled="False" x:Name="SoundOnCBox" ToolTip="Sound On" IsChecked="True" Style="{DynamicResource CBoxDef}"/>
+                    <CheckBox x:Name="AutoIncludeCBox" ToolTip="Auto Include" IsChecked="True" Foreground="{Binding Source={x:Static local:ColorSet.MainColorBrush}}" Style="{DynamicResource CBoxDef}"/>
+                    <Label x:Name="SessionLabel" Content="TEST" Foreground="{Binding Source={x:Static local:ColorSet.MainColorBrush}}" MouseDown="LSessionLabel_Click" Style="{DynamicResource LNums}"/>
+                </WrapPanel>
+            </Grid>
+            <StackPanel>
+                <ProgressBar x:Name="VolumeBar" Value=".5" Foreground="{Binding Source={x:Static local:ColorSet.MainColorBrush}}" Style="{DynamicResource PBarDef}"/>
+                <ProgressBar x:Name="LevelBar" Value=".5" Foreground="{Binding Source={x:Static local:ColorSet.PeakColorBrush}}" Style="{DynamicResource PBarDef}"/>
+            </StackPanel>
+            <WrapPanel HorizontalAlignment="Right">
+                <Label x:Name="RelLabel" Content="TEST" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" MouseDown="LSessionLabel_Click" Style="{DynamicResource LNums}"/>
+                <Label x:Name="AvPeakLabel" Content="TEST" Foreground="{Binding Source={x:Static local:ColorSet.AverageColorBrush}}" MouseDown="LSessionLabel_Click" Style="{DynamicResource LNums}"/>
+                <Label x:Name="PeakLabel" Content="TEST" Foreground="{Binding Source={x:Static local:ColorSet.PeakColorBrush}}" MouseDown="LSessionLabel_Click" Style="{DynamicResource LNums}"/>
+            </WrapPanel>
+        </StackPanel>
     </Grid>
 </UserControl>

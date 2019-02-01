@@ -11,14 +11,14 @@ namespace Wale
         /// <summary>
         /// Visual block of each session when normal view
         /// </summary>
-        public static double SessionBlockHeightNormal { get => 24; }
+        public static double SessionBlockHeightNormal { get => 27; }
         /// <summary>
         /// Visual block of each session when detailed view
         /// </summary>
-        public static double SessionBlockHeightDetail { get => 36; }
+        public static double SessionBlockHeightDetail { get => 42; }
         /// <summary>
         /// Default height of main visual window
         /// </summary>
-        public static double MainWindowHeightDefault { get => 250; }
+        public static double MainWindowHeightDefault { get => 260; }
     }
 }

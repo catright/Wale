@@ -7,7 +7,7 @@
         xmlns:prop="clr-namespace:Wale.WPF.Properties"
         xmlns:wale="clr-namespace:Wale;assembly=WaleBase"
         xmlns:oxy="http://oxyplot.org/wpf"
-        mc:Ignorable="d" Height="{Binding Source={x:Static wale:AppDatas.MainWindowHeightDefault}}" Width="480" ShowInTaskbar="False" WindowStyle="None" Topmost="{Binding Path=AlwaysTop, Source={x:Static prop:Settings.Default}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" MouseLeave="Window_MouseLeave" LostFocus="Window_LostFocus" Icon="Icon/WaleLeftOn.ico" MinWidth="480" MinHeight="{Binding Source={x:Static wale:AppDatas.MainWindowHeightDefault}}" MaxWidth="350" ResizeMode="NoResize" Deactivated="window_Deactivated">
+        mc:Ignorable="d" Icon="Icon/WaleLeftOn.ico" ShowInTaskbar="False" WindowStyle="None" ResizeMode="NoResize" Width="480" MinWidth="480" MaxWidth="480" Height="260" MinHeight="{Binding Source={x:Static wale:AppDatas.MainWindowHeightDefault}}" Topmost="{Binding Path=AlwaysTop, Source={x:Static prop:Settings.Default}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" MouseLeave="Window_MouseLeave" LostFocus="Window_LostFocus" Deactivated="window_Deactivated">
     <Window.ContextMenu>
         <ContextMenu>
             <MenuItem Header="Configuration" Click="ConfigToolStripMenuItem_Click"/>
@@ -16,88 +16,278 @@
             <Separator/>
             <MenuItem Header="Help" Click="helpToolStripMenuItem_Click"/>
             <MenuItem Header="License" Click="licensesToolStripMenuItem_Click"/>
-            <MenuItem Header="Exit" Click="OnProgramShutdown"/>
+            <MenuItem Header="E_xit" Click="OnProgramShutdown"/>
         </ContextMenu>
     </Window.ContextMenu>
     <Window.CommandBindings>
         <CommandBinding Command="{x:Static local:ShortcutCommands.SCMasterTab}" Executed="ShiftToMasterTab"/>
         <CommandBinding Command="{x:Static local:ShortcutCommands.SCSessionTab}" Executed="ShiftToSessionTab"/>
+        <CommandBinding Command="{x:Static local:ShortcutCommands.SCLogTab}" Executed="ShiftToLogTab"/>
         <CommandBinding Command="{x:Static local:ShortcutCommands.SCAlwaysTop}" Executed="ChangeAlwaysTop"/>
         <CommandBinding Command="{x:Static local:ShortcutCommands.SCStayOn}" Executed="ChangeStayOn"/>
+        <CommandBinding Command="{x:Static local:ShortcutCommands.SCDetail}" Executed="ChangeDetailView"/>
     </Window.CommandBindings>
-    <!--Window.Resources>
-        <local:PriorityNormalConverter x:Key="PNormalC"/>
-        <local:PriorityAboveNormalConverter x:Key="PAboveNormalC"/>
-        <local:PriorityHighConverter x:Key="PHighC"/>
-    </-->
+    <Window.Resources>
+        <Style x:Key="BaseSliderRight" TargetType="RepeatButton">
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="IsTabStop" Value="False"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RepeatButton">
+                        <Border Height="{TemplateBinding Height}" BorderThickness="1" BorderBrush="Black" Background="{TemplateBinding Background}"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="BaseSliderLeft" TargetType="RepeatButton">
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RepeatButton">
+                        <Border Height="{TemplateBinding Height}" BorderThickness="1" BorderBrush="Black" Background="{TemplateBinding Foreground}"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="BaseSliderThumb" TargetType="Thumb">
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="OverridesDefaultStyle" Value="True" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Thumb">
+                        <Ellipse Height="{TemplateBinding Height}" Width="{TemplateBinding Width}" StrokeThickness="1" Stroke="Black" Fill="{TemplateBinding Foreground}"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <ControlTemplate x:Key="BaseSliderTemplate" TargetType="Slider">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto" MinHeight="{TemplateBinding MinHeight}"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Track Grid.Row="1" x:Name="PART_Track">
+                    <Track.DecreaseRepeatButton>
+                        <RepeatButton Height="{TemplateBinding MinHeight}" Style="{StaticResource BaseSliderLeft}" Command="Slider.DecreaseLarge" Background="{TemplateBinding Background}" Foreground="{TemplateBinding Foreground}"/>
+                    </Track.DecreaseRepeatButton>
+                    <Track.Thumb>
+                        <Thumb Height="{TemplateBinding MinHeight}" Width="{TemplateBinding MinHeight}" Style="{StaticResource BaseSliderThumb}" Background="{TemplateBinding Background}" Foreground="{TemplateBinding Foreground}"/>
+                    </Track.Thumb>
+                    <Track.IncreaseRepeatButton>
+                        <RepeatButton Height="{TemplateBinding MinHeight}" Style="{StaticResource BaseSliderRight}" Command="Slider.IncreaseLarge" Background="{TemplateBinding Background}" Foreground="{TemplateBinding Foreground}"/>
+                    </Track.IncreaseRepeatButton>
+                </Track>
+            </Grid>
+        </ControlTemplate>
+        <Style x:Key="SliderBaseSlider" TargetType="Slider">
+            <Setter Property="Maximum" Value="1"/>
+            <Setter Property="Minimum" Value="0"/>
+            <Setter Property="LargeChange" Value="0.05"/>
+            <Setter Property="SmallChange" Value="0.01"/>
+            <Setter Property="TickFrequency" Value="0.01"/>
+            <Setter Property="IsSnapToTickEnabled" Value="True"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Style.Triggers>
+                <Trigger Property="Orientation" Value="Horizontal">
+                    <Setter Property="Height" Value="10"/>
+                    <Setter Property="MinHeight" Value="8"/>
+                    <Setter Property="MinWidth" Value="10"/>
+                    <Setter Property="Template" Value="{StaticResource BaseSliderTemplate}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        
+        <Style x:Key="PBarDef" TargetType="ProgressBar">
+            <Setter Property="Maximum" Value="1"/>
+            <Setter Property="Minimum" Value="0"/>
+            <Setter Property="LargeChange" Value="0.05"/>
+            <Setter Property="SmallChange" Value="0.01"/>
+            <Setter Property="Height" Value="9"/>
+            <Setter Property="Background" Value="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}"/>
+            <Setter Property="BorderBrush" Value="Black"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ProgressBar">
+                        <Grid Height="8" MinHeight="1" MinWidth="10">
+                            <Border Name="PART_Track" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" />
+                            <Border Name="PART_Indicator" Background="{TemplateBinding Foreground}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" HorizontalAlignment="Left"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="TBoxDef" TargetType="TextBox">
+            <Setter Property="Foreground" Value="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+        <Style x:Key="CboxDef" TargetType="CheckBox">
+            <Setter Property="Foreground" Value="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+            <Setter Property="Background" Value="{Binding Source={x:Static local:ColorSet.BackColorBrush}}"/>
+            <Setter Property="Margin" Value="0,0,0,0"/>
+            <Setter Property="Height" Value="15"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <WrapPanel>
+                            <Border Margin="1" Height="13" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}">
+                                <Grid Width="12" Height="11" Background="{TemplateBinding Background}">
+                                    <Path x:Name="Equis" Opacity="0" Stroke="{TemplateBinding Foreground}" Fill="Transparent" Stretch="UniformToFill" StrokeThickness="2" Data="M 0 0 M 110 100 M 6 50 L 48 83 L 102 7"/>
+                                </Grid>
+                            </Border>
+                            <TextBlock Text="{TemplateBinding ContentPresenter.Content}" Margin="2,-1,5,0"/>
+                        </WrapPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Equis" Property="Opacity" Value="1"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="False">
+                                <Setter TargetName="Equis" Property="Opacity" Value="0"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="Content" Value="">
+                    <Setter Property="Height" Value="13"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="Foreground" Value="#40808080"/>
+                    <Setter Property="BorderBrush" Value="#40808080"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="LDef" TargetType="Label">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Label">
+                        <Grid>
+                            <Label Padding="0"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="TItemDef" TargetType="TabItem">
+            <Setter Property="Background" Value="{Binding Source={x:Static local:ColorSet.BackColorBrush}}"/>
+            <Setter Property="Foreground" Value="{Binding Source={x:Static local:ColorSet.ForeColorAltBrush}}"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Height" Value="20"/>
+            <Setter Property="HeaderTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <Border x:Name="TItemDefBorder" BorderThickness="0" Padding="5,0">
+                            <ContentPresenter>
+                                <ContentPresenter.Content>
+                                    <TextBlock Text="{TemplateBinding Content}"/>
+                                </ContentPresenter.Content>
+                            </ContentPresenter>
+                        </Border>
+                        <DataTemplate.Triggers>
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type TabItem}},Path=IsSelected}" Value="True">
+                                
+                            </DataTrigger>
+                        </DataTemplate.Triggers>
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
 
-    <Grid Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}">
+    <Grid>
         <Grid Height="36" VerticalAlignment="Top" Background="{Binding Source={x:Static local:ColorSet.MainColorBrush}}" MouseDown="titlePanel_MouseDown" MouseMove="titlePanel_MouseMove">
             <Image HorizontalAlignment="Left" Height="26" Margin="10,5,0,5" VerticalAlignment="Top" Width="26" Source="{Binding Icon, ElementName=window}"/>
             <TextBlock HorizontalAlignment="Left" Margin="46,5,0,0" TextWrapping="Wrap" Text="{Binding Path=AppTitle, Source={x:Static prop:Settings.Default}}" VerticalAlignment="Top" FontSize="20"/>
         </Grid>
 
-        <TabControl x:Name="Tabs" TabStripPlacement="Bottom" Margin="0,36,0,0" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" Padding="0" SelectionChanged="Tabs_SelectionChanged">
-            <TabItem Header="View(F3)" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorAltBrush}}">
-                <Grid Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}">
-                    <StackPanel Margin="0,0,286,0" MouseWheel="MasterTab_MouseWheel">
-                        <StackPanel Height="30" Orientation="Horizontal">
-                            <Label Content="Base" HorizontalAlignment="Left" VerticalAlignment="Center" Width="60" Margin="5,0,0,0" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" Padding="0"/>
-                            <Label x:Name="BaseLabel" HorizontalAlignment="Left" VerticalAlignment="Center" Width="30" Margin="5,0,0,0" Content="{Binding Path=BaseLevel, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" Padding="0"/>
-                            <ProgressBar x:Name="BaseBar" HorizontalAlignment="Left" Height="16" Margin="5,0,0,0" VerticalAlignment="Center" Width="80" Value="{Binding Path=BaseLevel, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Foreground="{Binding Source={x:Static local:ColorSet.BaseColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" BorderBrush="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Maximum="1" LargeChange="0.1" SmallChange="0.01"/>
+        <TabControl x:Name="Tabs" TabStripPlacement="Bottom" Margin="0,36,0,0" Padding="0" SnapsToDevicePixels="True" Background="Transparent" SelectionChanged="Tabs_SelectionChanged" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+            <TabItem Header="View(F2)" Style="{DynamicResource TItemDef}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition MinWidth="195"/>
+                        <ColumnDefinition MinWidth="0"/>
+                        <ColumnDefinition MinWidth="280"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel MouseWheel="MasterTab_MouseWheel" Grid.Column="0">
+                        <StackPanel Margin="5,5,5,0">
+                            <Grid>
+                                <Label Content="Base" HorizontalAlignment="Left" Padding="0" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+                                <Label x:Name="BaseLabel" HorizontalAlignment="Right" Padding="0" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+                                <!--ProgressBar x:Name="BaseBar" HorizontalAlignment="Left" Height="16" Margin="5,0,0,0" VerticalAlignment="Center" Width="80" Value="{Binding Path=BaseLevel, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Foreground="{Binding Source={x:Static local:ColorSet.BaseColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" BorderBrush="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Maximum="1" LargeChange="0.1" SmallChange="0.01"/-->
+                            </Grid>
+                            <Slider x:Name="BaseSlider" Value="{Binding Path=BaseLevel, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Foreground="{Binding Source={x:Static local:ColorSet.BaseColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Style="{DynamicResource SliderBaseSlider}" ValueChanged="BaseSlider_ValueChanged"/>
                         </StackPanel>
-                        <StackPanel Height="30" Orientation="Horizontal">
-                            <Label Content="Master" HorizontalAlignment="Left" Width="60" Margin="5,0,0,0" VerticalAlignment="Center" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" Padding="0"/>
-                            <StackPanel Width="30" Margin="5,0,0,0" VerticalAlignment="Center">
-                                <Label x:Name="MasterLabel" Margin="0,-1" HorizontalAlignment="Left" VerticalAlignment="Center" VerticalContentAlignment="Center" Padding="0" Content="0" Foreground="{Binding Source={x:Static local:ColorSet.MainColorBrush}}"/>
-                                <Label x:Name="MasterPeakLabel" Margin="0,-1" HorizontalAlignment="Left" VerticalAlignment="Center" VerticalContentAlignment="Center" Padding="0" Content="0" Foreground="{Binding Source={x:Static local:ColorSet.PeakColorBrush}}"/>
-                            </StackPanel>
-                            <StackPanel Margin="5,0,0,0" VerticalAlignment="Center">
-                                <ProgressBar x:Name="MasterVolumeBar" HorizontalAlignment="Left" Height="8" Margin="0,1" VerticalAlignment="Center" Width="80" Foreground="{Binding Source={x:Static local:ColorSet.MainColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" BorderBrush="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Maximum="1"/>
-                                <ProgressBar x:Name="MasterPeakBar" HorizontalAlignment="Left" Height="8" Margin="0,1" VerticalAlignment="Center" Width="80" Foreground="{Binding Source={x:Static local:ColorSet.PeakColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" BorderBrush="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Maximum="1"/>
-                            </StackPanel>
+                        <StackPanel Margin="5,5,5,0">
+                            <Grid>
+                                <Label Content="Master" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" Padding="0"/>
+                                <WrapPanel HorizontalAlignment="Right">
+                                    <Label x:Name="MasterLabel" Width="35" Padding="0" Content="0" Foreground="{Binding Source={x:Static local:ColorSet.MainColorBrush}}" HorizontalContentAlignment="Right"/>
+                                    <Label x:Name="MasterPeakLabel" Width="35" Padding="0" Content="0" Foreground="{Binding Source={x:Static local:ColorSet.PeakColorBrush}}" HorizontalContentAlignment="Right"/>
+                                </WrapPanel>
+                            </Grid>
+                            <ProgressBar x:Name="MasterVolumeBar" Value="{Binding MasterVolume}" Foreground="{Binding Source={x:Static local:ColorSet.MainColorBrush}}" Style="{DynamicResource PBarDef}"/>
+                            <ProgressBar x:Name="MasterPeakBar" Value="{Binding MasterPeak}" Foreground="{Binding Source={x:Static local:ColorSet.PeakColorBrush}}" Style="{DynamicResource PBarDef}"/>
                         </StackPanel>
-                        <TextBox x:Name="VolumeIntervalBox" HorizontalAlignment="Left" Height="23" Margin="5,0,0,0" TextWrapping="Wrap" Text="{Binding Path=MasterVolumeInterval, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" VerticalAlignment="Top" Width="52" Background="Transparent" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBox x:Name="TargetVolumeBox" HorizontalAlignment="Left" Height="23" Margin="5,0,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="90" KeyDown="TargetVolumeBox_KeyDown">
+                        <Grid Margin="5,5,5,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*" MinWidth="35"/>
+                                <ColumnDefinition Width="99*" MinWidth="80"/>
+                                <ColumnDefinition Width="1*" MinWidth="66"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox x:Name="VolumeIntervalBox" Grid.Column="0" TextWrapping="Wrap" Text="{Binding Path=MasterVolumeInterval, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Style="{DynamicResource TBoxDef}"/>
+                            <TextBox x:Name="TargetVolumeBox" Grid.Column="1" TextWrapping="Wrap" KeyDown="TargetVolumeBox_KeyDown">
                                 <TextBox.Style>
-                                    <Style TargetType="TextBox" xmlns:sys="clr-namespace:System;assembly=mscorlib">
-                                        <Style.Resources>
-                                            <VisualBrush x:Key="CueBannerBrush" AlignmentX="Left" AlignmentY="Center" Stretch="None">
-                                                <VisualBrush.Visual>
-                                                    <Label Content="Target Volume" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorAltBrush}}"/>
-                                                </VisualBrush.Visual>
-                                            </VisualBrush>
-                                        </Style.Resources>
-                                        <Style.Triggers>
-                                            <Trigger Property="Text" Value="{x:Static sys:String.Empty}">
-                                                <Setter Property="Background" Value="{StaticResource CueBannerBrush}" />
-                                            </Trigger>
-                                            <Trigger Property="Text" Value="{x:Null}">
-                                                <Setter Property="Background" Value="{StaticResource CueBannerBrush}" />
-                                            </Trigger>
-                                            <Trigger Property="IsKeyboardFocused" Value="True">
-                                                <Setter Property="Background" Value="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" />
-                                            </Trigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBox.Style>
+                                        <Style TargetType="TextBox" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+                                            <Style.Resources>
+                                                <VisualBrush x:Key="CueBannerBrush" AlignmentX="Left" AlignmentY="Center" Stretch="None">
+                                                    <VisualBrush.Visual>
+                                                        <Label Content="Target Volume" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorAltBrush}}"/>
+                                                    </VisualBrush.Visual>
+                                                </VisualBrush>
+                                            </Style.Resources>
+                                            <Style.Triggers>
+                                                <Trigger Property="Text" Value="{x:Static sys:String.Empty}">
+                                                    <Setter Property="Background" Value="{StaticResource CueBannerBrush}" />
+                                                </Trigger>
+                                                <Trigger Property="Text" Value="{x:Null}">
+                                                    <Setter Property="Background" Value="{StaticResource CueBannerBrush}" />
+                                                </Trigger>
+                                                <Trigger Property="IsKeyboardFocused" Value="True">
+                                                    <Setter Property="Background" Value="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" />
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
                             </TextBox>
-                            <Button Content="Set Volume" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Top" Width="67" Height="23" Background="Transparent" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
-                        </StackPanel>
-
-                        <CheckBox Content="AlwaysTop(F7)" HorizontalAlignment="Left" Margin="5,1,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=AlwaysTop, Source={x:Static prop:Settings.Default}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
-                        <CheckBox Content="StayOn(F8)" HorizontalAlignment="Left" Margin="5,1,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=StayOn, Source={x:Static prop:Settings.Default}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
-                        <CheckBox Content="DetailView" HorizontalAlignment="Left" Margin="5,1,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=DetailedView, Source={x:Static prop:Settings.Default}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+                            <Button Content="Set Volume" Grid.Column="2" Padding="2,0" Background="Transparent" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}">
+                                <Button.Effect>
+                                    <DropShadowEffect ShadowDepth="2" BlurRadius="2"/>
+                                </Button.Effect>
+                            </Button>
+                        </Grid>
+                        <WrapPanel Margin="5,5,5,0">
+                            <CheckBox Content="AlwaysTop(F7)" IsChecked="{Binding Path=AlwaysTop, Source={x:Static prop:Settings.Default}}" Style="{DynamicResource CboxDef}"/>
+                            <CheckBox Content="StayOn(F8)" IsChecked="{Binding Path=StayOn, Source={x:Static prop:Settings.Default}}" Style="{DynamicResource CboxDef}"/>
+                            <CheckBox Content="DetailView(F9)" IsChecked="{Binding Path=DetailedView, Source={x:Static prop:Settings.Default}}" Style="{DynamicResource CboxDef}"/>
+                        </WrapPanel>
                     </StackPanel>
 
-                    <Grid x:Name="SessionGrid" ShowGridLines="True" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" Margin="197,0,0,0">
+                    <Grid x:Name="SessionGrid" Grid.Column="2">
                         <!--WrapPanel x:Name="SessionPanel"/-->
+                        <local:MeterSet/>
+                        <local:MeterSet Margin="0,40,0,0"/>
                     </Grid>
                 </Grid>
-
             </TabItem>
-            <TabItem Header="Config(F4)" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorAltBrush}}">
+            <TabItem Header="Config(F3)" Style="{DynamicResource TItemDef}">
                 <Grid>
                     <GroupBox Header="Audio" Height="270" VerticalAlignment="Top" Padding="5" Foreground="{Binding Foreground, ElementName=window}">
                         <Grid>
@@ -173,8 +363,8 @@
                     </Grid>
                 </Grid>
             </TabItem>
-            <TabItem Header="Log" HorizontalAlignment="Left" Height="20" VerticalAlignment="Top" Width="54" GotFocus="Logs_VisibleChanged" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorAltBrush}}">
-                <Grid Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}">
+            <TabItem Header="Log(F4)" Style="{DynamicResource TItemDef}" GotFocus="Logs_VisibleChanged">
+                <Grid>
                     <ScrollViewer x:Name="LogScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                         <TextBlock x:Name="Logs" TextWrapping="Wrap" Text="" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
                     </ScrollViewer>

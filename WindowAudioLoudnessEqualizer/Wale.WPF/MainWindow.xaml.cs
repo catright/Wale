@@ -16,6 +16,7 @@ using System.Diagnostics;
 using OxyPlot;
 using OxyPlot.Series;
 using System.Globalization;
+using System.ComponentModel;
 
 namespace Wale.WPF
 {
@@ -27,6 +28,7 @@ namespace Wale.WPF
         #region Variables
         Microsoft.Win32.RegistryKey rkApp = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
         Wale.WPF.Properties.Settings settings = Wale.WPF.Properties.Settings.Default;
+        Datalink DL = new Datalink();
         System.Windows.Forms.NotifyIcon NI;
         AudioControl Audio;
         JDPack.DebugPack DP;
@@ -50,11 +52,12 @@ namespace Wale.WPF
         }
         private void MakeComponents()
         {
+            this.DataContext = DL;
             DP = new JDPack.DebugPack(debug);
             settings.PropertyChanged += Settings_PropertyChanged;
 
             //set process priority
-            //SetPriority(settings.ProcessPriority);
+            SetPriority(settings.ProcessPriority);
 
             if (string.IsNullOrWhiteSpace(AppVersion.Option)) this.Title = ($"WALE v{AppVersion.LongVersion}");
             else this.Title = ($"WALE v{AppVersion.LongVersion}");//-{AppVersion.Option}
@@ -79,7 +82,7 @@ namespace Wale.WPF
             items.Add(new System.Windows.Forms.MenuItem("-"));
             items.Add(new System.Windows.Forms.MenuItem("Help", helpToolStripMenuItem_Click));
             items.Add(new System.Windows.Forms.MenuItem("License", licensesToolStripMenuItem_Click));
-            items.Add(new System.Windows.Forms.MenuItem("Exit", OnProgramShutdown));
+            items.Add(new System.Windows.Forms.MenuItem("E&xit", OnProgramShutdown));
             NI.ContextMenu = new System.Windows.Forms.ContextMenu(items.ToArray());
 
             this.NI.MouseClick += new System.Windows.Forms.MouseEventHandler(NI_MouseClick);
@@ -214,14 +217,16 @@ namespace Wale.WPF
                     //pbBaseVolume.Increment((int)(Properties.Settings.Default.baseVolume * 100) - pbBaseVolume.Value);
                     
                     double vbuf = /*(Audio.MasterVolume / settings.BaseLevel) */ Audio.MasterVolume;// Console.WriteLine($"{vbuf}");
-                    SetBar(MasterVolumeBar, vbuf);
+                    //SetBar(MasterVolumeBar, vbuf);
+                    DL.MasterVolume = vbuf;
 
                     double lbuf = (Audio.MasterVolume / settings.BaseLevel) * Audio.MasterPeak;// Console.WriteLine($"{lbuf}");
-                    SetBar(MasterPeakBar, lbuf);
+                    //SetBar(MasterPeakBar, lbuf);
+                    DL.MasterPeak = lbuf;
 
                     /*if (NTV())*/ SetText(MasterLabel, $"{vbuf:n3}");//Transformation.Transform(Audio.MasterVolume, Transformation.TransFlow.MachineToUser)
                     /*else*/ SetText(MasterPeakLabel, $"{lbuf:n3}");
-
+                    //Console.WriteLine($"{DL.MasterVolume:n3} {DL.MasterPeak:n3}");
                     //if (NTV()) lVolume.Text = $"{volume:n}";
                     //else lVolume.Text = $"{Audio.MasterPeak * volume:n}";
                     //pbMasterVolume.Increment((int)(Audio.MasterVolume * 100) - pbMasterVolume.Value);
@@ -241,6 +246,7 @@ namespace Wale.WPF
         private void UpdateSessionTask()
         {
             Log("Start UpdateSessionTask");
+            Dispatcher.Invoke(() => { SessionGrid.Children.Clear(); });
             while (!Rclose())
             {
                 //Task wait = Task.Delay(settings.UIUpdateInterval);
@@ -321,13 +327,12 @@ namespace Wale.WPF
                         if (reAlign)
                         {//re-align when there is(are) added or removed session(s)
                             Log("Re-aligning");
-                            double spacing = AppDatas.SessionBlockHeightNormal, lastHeight = this.Height;
-                            if (settings.DetailedView) spacing = AppDatas.SessionBlockHeightDetail;
-                            spacing += 0;
+                            double spacing = settings.DetailedView ? AppDatas.SessionBlockHeightDetail : AppDatas.SessionBlockHeightNormal, lastHeight = this.Height;
+                            //spacing += 0;
                             for (int i = 0; i < SessionGrid.Children.Count; i++)
                             {
                                 MeterSet s = SessionGrid.Children[i] as MeterSet;
-                                s.UpdateLocation(new Thickness(0, spacing * i, 10, 0));
+                                s.UpdateLocation(new Thickness(0, spacing * i, 0, 0));
                                 SDP.DMML($"MeterSet{s.ID,-5} {s.Margin} {s.Height} {s.SessionName}");
                             }
                             double fsgHeight = (double)(SessionGrid.Children.Count) * spacing + 60 + 2, dif = fsgHeight - lastHeight;
@@ -495,6 +500,14 @@ namespace Wale.WPF
             }
             catch { Log("fail to get master volume interval\n"); MessageBox.Show("Invalid Interval"); }
         }
+
+        private void BaseSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            Console.WriteLine($"{settings.BaseLevel}");
+            BaseLabel.Content = settings.BaseLevel.ToString();
+            //if (settings.BaseLevel.ToString().Length > 4) { settings.BaseLevel = Math.Round(settings.BaseLevel, 2); }
+            settings.Save();
+        }
         #endregion
 
         #region NI events
@@ -566,6 +579,11 @@ namespace Wale.WPF
             settings.StayOn = !settings.StayOn;
             settings.Save();
         }
+        private void ChangeDetailView(object sender, ExecutedRoutedEventArgs e)
+        {
+            settings.DetailedView = !settings.DetailedView;
+            settings.Save();
+        }
         private void ShiftToMasterTab(object sender, ExecutedRoutedEventArgs e)
         {
             Dispatcher.BeginInvoke((Action)(() => Tabs.SelectedIndex = 0));
@@ -574,7 +592,11 @@ namespace Wale.WPF
         {
             Dispatcher.BeginInvoke((Action)(() => Tabs.SelectedIndex = 1));
         }
-        
+        private void ShiftToLogTab(object sender, ExecutedRoutedEventArgs e)
+        {
+            Dispatcher.BeginInvoke((Action)(() => Tabs.SelectedIndex = 2));
+        }
+
         private double lastHeightForConfigTab, heightDeffForConfigTab;
         private void ConfigTab_GotFocus(object sender, RoutedEventArgs e)
         {
@@ -605,6 +627,7 @@ namespace Wale.WPF
                 {
                     if (tab.Header.ToString().Contains("Config") && !nowConfig) { ConfigTab_GotFocus(sender, e); nowConfig = true; }
                     else if (!tab.Header.ToString().Contains("Config") && nowConfig) { ConfigTab_LostFocus(sender, e); nowConfig = false; }
+                    if (tab.Header.ToString().Contains("Log")) { LogScroll.ScrollToEnd(); }
                 }
             }
         }
@@ -1157,4 +1180,17 @@ namespace Wale.WPF
             return null;
         }
     }*/
+    //Datalink for VM
+    class Datalink : INotifyPropertyChanged
+    {
+        private double _MasterVolume = 0;
+        public double MasterVolume { get => _MasterVolume; set { _MasterVolume = value; Notify("MasterVolume"); } }
+        
+        private double _MasterPeak = 0;
+        public double MasterPeak { get => _MasterPeak; set { _MasterPeak = value; Notify("MasterPeak"); } }
+
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void Notify(string Name) { PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(Name)); }
+    }
 }
