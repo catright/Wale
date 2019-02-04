@@ -61,14 +61,17 @@ namespace Wale.WPF.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Main
-        ///  you can read app log on log tab, detailed log on %userprofile%\Documents\WaleAudioControl
+        ///   Looks up a localized string similar to Latest usage is always updated on Github Wiki(https://github.com/catright/Wale/wiki) first
+        ///
+        ///
+        ///
+        ///Main
+        ///  you can read app log on log tab, detailed log on %appdata%\WaleAudioControl
         ///
         ///Master Control
         ///  Controls volume of current default render device with mouse wheel on anywhere of master tab. Control step is on small textbox which a left one of two of them.
         ///  Click ‘Set Volume’ button to set a volume of current default render device, target volume is on bigger textbox which a right one of two of them.
-        ///  Check AlwaysTop checkbox to set a form always visible.
-        ///  Check StayOn checkbox to  [rest of string was truncated]&quot;;.
+        ///  [rest of string was truncated]&quot;;.
         /// </summary>
         public static string Help {
             get {
@@ -112,14 +115,16 @@ namespace Wale.WPF.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to MIT License
+        ///   Looks up a localized string similar to Icons and 3rd party libraries are NOT included in this license. They are copyrighted on their right holders.
+        ///Icons are copyrighted on Hyein, Park.
+        ///
+        ///
+        ///
+        ///MIT License
         ///
         ///Copyright (c) 2017 Jongtae, Park (catright)
         ///
-        ///Icons and 3rd party libraries are NOT included in this license. They are copyrighted on their right holders.
-        ///Icons are copyrighted on Hyein, Park.
-        ///
-        ///Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &quot;Software&quot;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/o [rest of string was truncated]&quot;;.
+        ///Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &quot;Software&quot;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, a [rest of string was truncated]&quot;;.
         /// </summary>
         public static string LicenseWale {
             get {

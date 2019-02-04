@@ -15,7 +15,9 @@
             <ScrollViewer Margin="0,0,0,35" BorderBrush="{Binding Source={x:Static local:ColorSet.ForeColorAltBrush}}" BorderThickness="1">
                 <TextBlock Text="{Binding Source={x:Static prop:Resources.Help}}" TextWrapping="Wrap" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
             </ScrollViewer>
-            <TextBlock Text="https://github.com/catright/Wale/wiki" Margin="10,0,0,10" Height="18" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="267" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+
+            <TextBlock Text="Address copied to clipboard" Margin="10,0,0,10" Width="{Binding Width, ElementName=WikiLinkTBlock}" Height="18" VerticalAlignment="Bottom" HorizontalAlignment="Left" Foreground="{Binding ClipboardCopiedMessageBrush}"/>
+            <TextBlock x:Name="WikiLinkTBlock" Text="{Binding Wiki}" ToolTip="Ctrl+left click to open in browser&#x0a;Right click to copy to clipboard" Margin="10,0,0,10" Height="18" VerticalAlignment="Bottom" HorizontalAlignment="Left" Foreground="{Binding WikiLinkBrush}" MouseLeftButtonUp="WikiLinkTextBlock_MouseLeftButtonUp" MouseRightButtonUp="WikiLinkTextBlock_MouseRightButtonUp"/>
             <Button Content="Close" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom" Width="50" Click="Button_Click" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
         </Grid>
     </Grid>

@@ -36,6 +36,9 @@ namespace Wale.WPF
         bool debug = false, mouseWheelDebug = false, audioDebug = false, updateVolumeDebug = false, updateSessionDebug = false;
         object _closelock = new object(), _activelock = new object(), _ntvlock = new object();
         volatile bool FirstLoad = true, _realClose = false, _activated = false, _numberToVol = true;
+        bool Rclose { get { bool val; lock (_closelock) { val = _realClose; } return val; } set { lock (_closelock) { _realClose = value; } } }
+        bool Active { get { bool val; lock (_activelock) { val = _activated; } return val; } set { lock (_activelock) { _activated = value; } } }
+        bool NTV { get { bool val; lock (_ntvlock) { val = _numberToVol; } return val; } set { lock (_ntvlock) { _numberToVol = value; } } }
         bool loaded = false;
         double originalMax;
         #endregion
@@ -146,7 +149,7 @@ namespace Wale.WPF
         private void CheckFirstLoadTask()
         {
             Log("Start CheckFirstLoadTask");
-            while (!Rclose() && FirstLoad)
+            while (!Rclose && FirstLoad)
             {
                 if (this.Visibility == Visibility.Visible) CheckFirstLoad();
                 else FirstLoad = false;
@@ -175,7 +178,7 @@ namespace Wale.WPF
             Log("Start UpdateStateTask");
             bool On = true;
             //Console.WriteLine($"V={Audio.MasterVolume}, I={NI.Icon.Equals(Properties.Resources.WaleLeftOn)}");
-            while (!Rclose())
+            while (!Rclose)
             {
                 //Console.WriteLine($"V={Audio.MasterVolume}, I={NI.Icon.GetHashCode()}");
                 //Console.WriteLine("USTask");
@@ -204,11 +207,11 @@ namespace Wale.WPF
         private void UpdateVolumeTask()
         {
             Log("Start UpdateVolumeTask");
-            while (!Rclose())
+            while (!Rclose)
             {
                 //Task wait = Task.Delay(settings.UIUpdateInterval);
                 //if (updateVolumeDelay > 0) wait.Start();
-                if (Active())
+                if (Active)
                 {
                     JDPack.DebugPack VDP = new JDPack.DebugPack(updateVolumeDebug);
                     VDP.DMML($"base={settings.BaseLevel} vol={Audio.MasterVolume}({Audio.MasterPeak})");
@@ -247,11 +250,11 @@ namespace Wale.WPF
         {
             Log("Start UpdateSessionTask");
             Dispatcher.Invoke(() => { SessionGrid.Children.Clear(); });
-            while (!Rclose())
+            while (!Rclose)
             {
                 //Task wait = Task.Delay(settings.UIUpdateInterval);
                 //if (updateSessionDelay > 0) wait.Start();
-                if (Active()) //do when this.activated
+                if (Active) //do when this.activated
                 {
                     UpdateSession(SessionGrid);
                 }// activated check enclosure
@@ -327,7 +330,8 @@ namespace Wale.WPF
                         if (reAlign)
                         {//re-align when there is(are) added or removed session(s)
                             Log("Re-aligning");
-                            double spacing = settings.DetailedView ? AppDatas.SessionBlockHeightDetail : AppDatas.SessionBlockHeightNormal, lastHeight = this.Height;
+                            double spacing = AppDatas.SessionBlockHeightNormal, lastHeight = this.Height;
+                            if (settings.DetailedView) { spacing = AppDatas.SessionBlockHeightDetail; }
                             //spacing += 0;
                             for (int i = 0; i < SessionGrid.Children.Count; i++)
                             {
@@ -354,12 +358,12 @@ namespace Wale.WPF
 
 
         #region flag control methods
-        private bool Rclose() { bool val; lock (_closelock) { val = _realClose; } return val; }
-        private void Rclose(bool val) { lock (_closelock) { _realClose = val; } }
-        private bool Active() { bool val; lock (_activelock) { val = _activated; } return val; }
-        private void Active(bool val) { lock (_activelock) { _activated = val; } }
-        private bool NTV() { bool val; lock (_ntvlock) { val = _numberToVol; } return val; }
-        private void NTV(bool val) { lock (_ntvlock) { _numberToVol = val; } }
+        //private bool Rclose() { bool val; lock (_closelock) { val = _realClose; } return val; }
+        //private void Rclose(bool val) { lock (_closelock) { _realClose = val; } }
+        //private bool Active() { bool val; lock (_activelock) { val = _activated; } return val; }
+        //private void Active(bool val) { lock (_activelock) { _activated = val; } }
+        //private bool NTV() { bool val; lock (_ntvlock) { val = _numberToVol; } return val; }
+        //private void NTV(bool val) { lock (_ntvlock) { _numberToVol = val; } }
         #endregion
 
         #region Toolstrip menu events
@@ -370,8 +374,8 @@ namespace Wale.WPF
             if (dialogResult == MessageBoxResult.OK)
             {
                 DP.DMML("Exit");
-                Active(false);
-                Rclose(true);
+                Active = false;
+                Rclose = true;
                 NI.Visible = false;
                 NI.Dispose();
                 await Task.WhenAll(_updateTasks);
@@ -513,7 +517,7 @@ namespace Wale.WPF
         #region NI events
         private void NI_MouseClick(object sender, System.Windows.Forms.MouseEventArgs e)
         {
-            if (e.Button == System.Windows.Forms.MouseButtons.Left) { DP.DMML("IconLeftClick"); Active(true); this.Visibility = Visibility.Visible; this.Activate(); }
+            if (e.Button == System.Windows.Forms.MouseButtons.Left) { DP.DMML("IconLeftClick"); Active = true; this.Visibility = Visibility.Visible; this.Activate(); }
         }
         #endregion
 
@@ -530,7 +534,7 @@ namespace Wale.WPF
         {
             if (!settings.StayOn)
             {
-                Active(false);
+                Active = false;
                 this.Visibility = Visibility.Hidden;
             }
         }
@@ -557,9 +561,9 @@ namespace Wale.WPF
         }
         private void MasterLabel_Click(object sender, MouseButtonEventArgs e)
         {
-            bool now = NTV();
-            NTV(!now);
-            if (NTV()) MasterLabel.Foreground = ColorSet.MainColorBrush;//SetForeColor(lVolume, Color.FromArgb(224, 224, 224));
+            bool now = NTV;
+            NTV = !now;
+            if (NTV) MasterLabel.Foreground = ColorSet.MainColorBrush;//SetForeColor(lVolume, Color.FromArgb(224, 224, 224));
             else MasterLabel.Foreground = ColorSet.PeakColorBrush;//SetForeColor(lVolume, Color.PaleVioletRed);
         }
         private void MasterTab_MouseWheel(object sender, MouseWheelEventArgs e)
