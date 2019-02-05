@@ -24,19 +24,18 @@ namespace Wale.WPF
         private Brush foreColor = ColorSet.ForeColorBrush, mainColor = ColorSet.MainColorBrush, peakColor = ColorSet.PeakColorBrush, averageColor = ColorSet.AverageColorBrush;
         private enum LabelMode { Relative, Volume, Peak, AveragePeak };
 
-        private uint _ID;
         private int _relative = 0;
-        private bool _Updated, detailed;//, _disposed = false;
-        private LabelMode labelMode = LabelMode.Volume;
+        private bool detailed;//, _disposed = false;
+        private LabelMode labelMode = LabelMode.AveragePeak;
         private string lastName;
 
         //public variables
         //public List<double> LastPeaks;
-        public uint ID { get => _ID; }
+        public uint ID { get; }
         public string SessionName { get => NameLabel.Content.ToString(); }
         public double Relative { get => ((double)_relative / 100.0); }
         public bool AutoIncluded { get => AutoIncludeCBox.IsChecked.Value; private set => AutoIncludeCBox.IsChecked = value; }
-        public bool Updated { get => _Updated; }
+        public bool Updated { get; private set; }
         public bool Debug { get => DP.DebugMode; set => DP.DebugMode = value; }
         public bool detailChanged = false;
 
@@ -48,7 +47,7 @@ namespace Wale.WPF
         public MeterSet(uint id, string name, bool detail, bool autoinc, bool dbg = false)
         {
             InitializeComponent();
-            _ID = id;
+            ID = id;
             DP = new JDPack.DebugPack(dbg);
 
             Initialization(name);
@@ -102,7 +101,7 @@ namespace Wale.WPF
         }
         private void MeterSet_MouseWheel(object sender, MouseWheelEventArgs e)
         {
-            DP.DM($"{SessionName}({_ID}) MeterSet_MouseWheel {e.Delta}");
+            DP.DM($"{SessionName}({ID}) MeterSet_MouseWheel {e.Delta}");
             if (e.Delta > 0) { _relative++; if (_relative > 100) _relative = 100; }
             else if (e.Delta < 0) { _relative--; if (_relative < -100) _relative = -100; }
             DP.DML($", {Relative}");
@@ -112,10 +111,10 @@ namespace Wale.WPF
 
         //public functions
         public void UpdateLocation(Thickness p) { SetLocation(p); }
-        public void ResetUpdate() { _Updated = false; }
+        public void ResetUpdate() { Updated = false; }
         public void UpdateData(double vol, double level, double Avl, string name)
         {
-            _Updated = true;
+            Updated = true;
             switch (labelMode)
             {
                 case LabelMode.Relative:
@@ -133,14 +132,16 @@ namespace Wale.WPF
             }
             if (detailed)
             {
-                SetLabelText(RelLabel, $"{Relative:n3}");
+                SetLabelText(VolumeLabel, $"{vol:n3}");
                 SetLabelText(PeakLabel, $"{level:n3}");
                 SetLabelText(AvPeakLabel, $"{Avl:n3}");
+                SetLabelText(RelLabel, $"{Relative:n3}");
             }
             SetBar(VolumeBar, vol);
             //lVolumeBar.Increment((int)(vol * 100) - lVolumeBar.Value);
-            double lbuf = /*Wale.Transformation.Transform(vol, Wale.Transformation.TransFlow.MachineToUser) */ level;
-            SetBar(LevelBar, lbuf);
+            //double lbuf = /*Wale.Transformation.Transform(vol, Wale.Transformation.TransFlow.MachineToUser) */ level;
+            SetBar(LevelBar, level);
+            SetBar(AvLevelBar, Avl);
             //lLevelBar.Increment((int)(((vbuf != null) ? vbuf : 1) * level * 100) - lLevelBar.Value);
             //SetBar2(pot, (int)(((vbuf != null) ? vbuf : 1) * level * 100));
             if (lastName != name)
@@ -160,6 +161,7 @@ namespace Wale.WPF
                 labelMode = LabelMode.Volume;
                 SetForeColor(SessionLabel, mainColor);
                 SetHeight(AppDatas.SessionBlockHeightDetail);
+                ControlShowHide(SessionLabel, Visibility.Hidden);
                 ControlShowHide(RelLabel, Visibility.Visible);
                 ControlShowHide(PeakLabel, Visibility.Visible);
                 ControlShowHide(AvPeakLabel, Visibility.Visible);
@@ -175,7 +177,10 @@ namespace Wale.WPF
             if (detailed)
             {
                 //SessionLabel.MouseDown += LVolume_Click;
+                labelMode = LabelMode.AveragePeak;
+                SetForeColor(SessionLabel, averageColor);
                 SetHeight(AppDatas.SessionBlockHeightNormal);
+                ControlShowHide(SessionLabel, Visibility.Visible);
                 ControlShowHide(RelLabel, Visibility.Hidden);
                 ControlShowHide(PeakLabel, Visibility.Hidden);
                 ControlShowHide(AvPeakLabel, Visibility.Hidden);

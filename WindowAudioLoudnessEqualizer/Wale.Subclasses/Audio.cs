@@ -540,6 +540,7 @@ namespace Wale.CoreAudio
 
                                     if (!exists)
                                     {
+                                        bool include = ExcludeList.Contains(nameSet.Name) ? false : true;
                                         //if (ExcludeList.Contains(nameSet.Name)) { /*simpleAudioVolume.MasterVolume = TargetOutputLevel;*/ }
                                         //else { simpleAudioVolume.MasterVolume = 0.01f; }
                                         sessionList.Add(new SessionData()
@@ -547,7 +548,8 @@ namespace Wale.CoreAudio
                                             State = state,
                                             nameSet = nameSet,
                                             Volume = simpleAudioVolume.MasterVolume,
-                                            Peak = peak
+                                            Peak = peak,
+                                            AutoIncluded = include
                                         });
                                     }
                                     else

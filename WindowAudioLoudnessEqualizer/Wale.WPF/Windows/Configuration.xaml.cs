@@ -92,7 +92,7 @@ namespace Wale.WPF
             LastValues.UIUpdate = settings.UIUpdateInterval;
             LastValues.AutoControlInterval = settings.AutoControlInterval;
             LastValues.GCInterval = settings.GCInterval;
-            LastValues.BaseLevel = settings.BaseLevel;
+            LastValues.TargetLevel = settings.TargetLevel;
             LastValues.UpRate = settings.UpRate;
             LastValues.Kurtosis = settings.Kurtosis;
             LastValues.AverageTime = settings.AverageTime;
@@ -133,9 +133,9 @@ namespace Wale.WPF
                     }), 0, 1, 0.05, graphName);
                     break;
                 case VFunction.Func.SlicedLinear:
-                    VFunction.FactorsForSlicedLinear sliceFactors = VFunction.GetFactorsForSlicedLinear(settings.UpRate, settings.BaseLevel);
+                    VFunction.FactorsForSlicedLinear sliceFactors = VFunction.GetFactorsForSlicedLinear(settings.UpRate, settings.TargetLevel);
                     graph = new FunctionSeries(new Func<double, double>((x) => {
-                        double res = VFunction.SlicedLinear(x, settings.UpRate, settings.BaseLevel, sliceFactors.A, sliceFactors.B);// * 1000 / settings.AutoControlInterval;
+                        double res = VFunction.SlicedLinear(x, settings.UpRate, settings.TargetLevel, sliceFactors.A, sliceFactors.B);// * 1000 / settings.AutoControlInterval;
                         //if (res > 1) { res = 1; } else if (res < 0) { res = 0; }
                         return res;
                     }), 0, 1, 0.05, graphName);
@@ -204,9 +204,9 @@ namespace Wale.WPF
 
             LineSeries lineSeries1 = new LineSeries();
             lineSeries1.Title = "Base";
-            lineSeries1.Points.Add(new DataPoint(settings.BaseLevel, 0));
-            lineSeries1.Points.Add(new DataPoint(settings.BaseLevel, 1));
-            lineSeries1.Color = Color(ColorSet.BaseColor);
+            lineSeries1.Points.Add(new DataPoint(settings.TargetLevel, 0));
+            lineSeries1.Points.Add(new DataPoint(settings.TargetLevel, 1));
+            lineSeries1.Color = Color(ColorSet.TargetColor);
             plotView.Model.Series.Add(lineSeries1);
             plotView.InvalidatePlot();
         }
@@ -236,7 +236,7 @@ namespace Wale.WPF
                 //settings.UIUpdateInterval = Convert.ToInt16(textBox1.Text);
                 //settings.AutoControlInterval = Convert.ToInt16(textBox2.Text);
                 //settings.GCInterval = Convert.ToInt16(textBox3.Text);
-                //settings.BaseLevel = Convert.ToDouble(textBox4.Text);
+                //settings.TargetLevel = Convert.ToDouble(textBox4.Text);
                 //settings.UpRate = Convert.ToDouble(textBox5.Text);
                 //settings.Kurtosis = Convert.ToDouble(textBox6.Text);
                 //settings.AverageTime = Convert.ToDouble(textBox7.Text) * 1000;
@@ -330,7 +330,7 @@ namespace Wale.WPF
                 e.Handled = true;
             }
         }*/
-        private void BaseLevel_Changed(object sender, TextChangedEventArgs e)
+        private void TargetLevel_Changed(object sender, TextChangedEventArgs e)
         {
             if (!loaded) return;
             DrawBase();
@@ -400,7 +400,7 @@ namespace Wale.WPF
                 JDPack.FileLog.Log("All configs are reset.");
             }
         }
-        private async void Submit_Click(object sender, RoutedEventArgs e)
+        private async void ConfigSave_Click(object sender, RoutedEventArgs e)
         {
             this.IsEnabled = false;
             this.Topmost = false;
@@ -482,7 +482,7 @@ namespace Wale.WPF
         public static int UIUpdate { get => _UIUpdate; set { _UIUpdate = value; OnStaticPropertyChanged("UIUpdate"); } }
         public static int AutoControlInterval { get => _AutoControlInterval; set { _AutoControlInterval = value; OnStaticPropertyChanged("AutoControlInterval"); } }
         public static int GCInterval { get => _GCInterval; set { _GCInterval = value; OnStaticPropertyChanged("GCInterval"); } }
-        public static double BaseLevel { get => _BaseLevel; set { _BaseLevel = value; OnStaticPropertyChanged("BaseLevel"); } }
+        public static double TargetLevel { get => _TargetLevel; set { _TargetLevel = value; OnStaticPropertyChanged("TargetLevel"); } }
         public static double AverageTime { get => _AverageTime; set { _AverageTime = value; OnStaticPropertyChanged("AverageTime"); } }
         public static double UpRate { get => _UpRate; set { _UpRate = value; OnStaticPropertyChanged("UpRate"); } }
         public static double Kurtosis { get => _Kurtosis; set { _Kurtosis = value; OnStaticPropertyChanged("Kurtosis"); } }
@@ -490,11 +490,11 @@ namespace Wale.WPF
         public static string VFunc { get => _VFunc; set { _VFunc = value; OnStaticPropertyChanged("VFunc"); } }
         
         public static int _UIUpdate, _AutoControlInterval, _GCInterval;
-        public static double _BaseLevel, _AverageTime, _UpRate, _Kurtosis, _MinPeak;
+        public static double _TargetLevel, _AverageTime, _UpRate, _Kurtosis, _MinPeak;
         public static string _VFunc;
         /*
         public static int UIUpdate, AutoControlInterval, GCInterval;
-        public static double BaseLevel, AverageTime, UpRate, Kurtosis, MinPeak;
+        public static double TargetLevel, AverageTime, UpRate, Kurtosis, MinPeak;
         public static string VFunc;*/
     }
 }

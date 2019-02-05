@@ -98,12 +98,12 @@ namespace Wale.WPF.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0.25")]
-        public double BaseLevel {
+        public double TargetLevel {
             get {
-                return ((double)(this["BaseLevel"]));
+                return ((double)(this["TargetLevel"]));
             }
             set {
-                this["BaseLevel"] = value;
+                this["TargetLevel"] = value;
             }
         }
         

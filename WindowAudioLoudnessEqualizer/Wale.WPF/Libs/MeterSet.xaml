@@ -32,15 +32,37 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <Style x:Key="PBarInner" TargetType="ProgressBar">
+            <Setter Property="Maximum" Value="1"/>
+            <Setter Property="Minimum" Value="0"/>
+            <Setter Property="LargeChange" Value="0.05"/>
+            <Setter Property="SmallChange" Value="0.01"/>
+            <Setter Property="Height" Value="1"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Black"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ProgressBar">
+                        <Grid Height="{TemplateBinding Height}" MinHeight="1" MinWidth="10">
+                            <Border Name="PART_Track" Background="{TemplateBinding Background}" BorderBrush="Transparent" BorderThickness="0" />
+                            <Border Name="PART_Indicator" Background="{TemplateBinding Foreground}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1,0" HorizontalAlignment="Left"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
         <Style x:Key="LNums" TargetType="Label">
-            <Setter Property="Width" Value="35"/>
-            <Setter Property="Padding" Value="2,0"/>
+            <Setter Property="Content" Value="TEST"/>
+            <Setter Property="Padding" Value="3,0"/>
             <Setter Property="HorizontalContentAlignment" Value="Right"/>
         </Style>
         <Style x:Key="CBoxDef" TargetType="CheckBox">
+            <Setter Property="IsChecked" Value="True"/>
             <Setter Property="Background" Value="{Binding Source={x:Static local:ColorSet.BackColorBrush}}"/>
             <Setter Property="Foreground" Value="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
             <Setter Property="ToolTip" Value="{Binding Name, RelativeSource={RelativeSource Self}}"/>
+            <Setter Property="BorderBrush" Value="{Binding Foreground, RelativeSource={RelativeSource Self}}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="CheckBox">
@@ -81,25 +103,31 @@
                     <ColumnDefinition Width="99*"/>
                     <ColumnDefinition Width="*" MinWidth="67"/>
                 </Grid.ColumnDefinitions>
-                <Label x:Name="NameLabel" Content="TEST" Padding="0" Grid.Column="0" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" MouseDown="LSessionNameLabel_Click">
-                    <Label.ToolTip>
-                        <ToolTip x:Name="NameToolTip"></ToolTip>
-                    </Label.ToolTip>
-                </Label>
+                <WrapPanel Grid.Column="0">
+                    <Label x:Name="NameLabel" Content="TEST" Padding="0" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" MouseDown="LSessionNameLabel_Click">
+                        <Label.ToolTip>
+                            <ToolTip x:Name="NameToolTip"></ToolTip>
+                        </Label.ToolTip>
+                    </Label>
+                </WrapPanel>
                 <WrapPanel Grid.Column="1" HorizontalAlignment="Right">
-                    <CheckBox IsEnabled="False" x:Name="SoundOnCBox" ToolTip="Sound On" IsChecked="True" Style="{DynamicResource CBoxDef}"/>
-                    <CheckBox x:Name="AutoIncludeCBox" ToolTip="Auto Include" IsChecked="True" Foreground="{Binding Source={x:Static local:ColorSet.MainColorBrush}}" Style="{DynamicResource CBoxDef}"/>
-                    <Label x:Name="SessionLabel" Content="TEST" Foreground="{Binding Source={x:Static local:ColorSet.MainColorBrush}}" MouseDown="LSessionLabel_Click" Style="{DynamicResource LNums}"/>
+                    <Label x:Name="SessionLabel" Foreground="{Binding Source={x:Static local:ColorSet.AverageColorBrush}}" MouseDown="LSessionLabel_Click" Style="{DynamicResource LNums}"/>
+                    <CheckBox IsEnabled="False" x:Name="SoundOnCBox" ToolTip="Sound On" Style="{DynamicResource CBoxDef}"/>
+                    <CheckBox x:Name="AutoIncludeCBox" ToolTip="Auto Include" Foreground="{Binding Source={x:Static local:ColorSet.MainColorBrush}}" Style="{DynamicResource CBoxDef}"/>
                 </WrapPanel>
             </Grid>
             <StackPanel>
-                <ProgressBar x:Name="VolumeBar" Value=".5" Foreground="{Binding Source={x:Static local:ColorSet.MainColorBrush}}" Style="{DynamicResource PBarDef}"/>
-                <ProgressBar x:Name="LevelBar" Value=".5" Foreground="{Binding Source={x:Static local:ColorSet.PeakColorBrush}}" Style="{DynamicResource PBarDef}"/>
+                <ProgressBar x:Name="VolumeBar" Value=".5" Foreground="{Binding Source={x:Static local:ColorSet.VolumeColorBrush}}" Style="{DynamicResource PBarDef}"/>
+                <Grid>
+                    <ProgressBar x:Name="LevelBar" Margin="0,0,0,0" Value=".5" Foreground="{Binding Source={x:Static local:ColorSet.PeakColorBrush}}" Style="{DynamicResource PBarDef}"/>
+                    <ProgressBar x:Name="AvLevelBar" Opacity="1.75" Value=".25" Foreground="{Binding Source={x:Static local:ColorSet.AverageColorBrush}}" Style="{DynamicResource PBarInner}"/>
+                </Grid>
             </StackPanel>
             <WrapPanel HorizontalAlignment="Right">
-                <Label x:Name="RelLabel" Content="TEST" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" MouseDown="LSessionLabel_Click" Style="{DynamicResource LNums}"/>
-                <Label x:Name="AvPeakLabel" Content="TEST" Foreground="{Binding Source={x:Static local:ColorSet.AverageColorBrush}}" MouseDown="LSessionLabel_Click" Style="{DynamicResource LNums}"/>
-                <Label x:Name="PeakLabel" Content="TEST" Foreground="{Binding Source={x:Static local:ColorSet.PeakColorBrush}}" MouseDown="LSessionLabel_Click" Style="{DynamicResource LNums}"/>
+                <Label x:Name="VolumeLabel" Foreground="{Binding Source={x:Static local:ColorSet.VolumeColorBrush}}" MouseDown="LSessionLabel_Click" Style="{DynamicResource LNums}"/>
+                <Label x:Name="PeakLabel" Foreground="{Binding Source={x:Static local:ColorSet.PeakColorBrush}}" MouseDown="LSessionLabel_Click" Style="{DynamicResource LNums}"/>
+                <Label x:Name="AvPeakLabel" Foreground="{Binding Source={x:Static local:ColorSet.AverageColorBrush}}" MouseDown="LSessionLabel_Click" Style="{DynamicResource LNums}"/>
+                <Label x:Name="RelLabel" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" MouseDown="LSessionLabel_Click" Style="{DynamicResource LNums}"/>
             </WrapPanel>
         </StackPanel>
     </Grid>

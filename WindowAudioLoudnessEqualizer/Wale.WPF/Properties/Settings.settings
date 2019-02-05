@@ -20,7 +20,7 @@
     <Setting Name="DetailedView" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="BaseLevel" Type="System.Double" Scope="User">
+    <Setting Name="TargetLevel" Type="System.Double" Scope="User">
       <Value Profile="(Default)">0.25</Value>
     </Setting>
     <Setting Name="AverageTime" Type="System.Double" Scope="User">

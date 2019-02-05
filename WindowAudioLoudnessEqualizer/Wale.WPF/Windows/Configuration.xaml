@@ -31,9 +31,9 @@
                         <TextBox HorizontalAlignment="Left" Height="20" Margin="160,0,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" Padding="0" Text="{Binding Path=GCInterval, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
                     </Grid>
                     <Grid Width="220" Height="20" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,66,0,0">
-                        <Label Content="Base Level" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="0" Foreground="{Binding Source={x:Static local:ColorSet.BaseColorBrush}}"/>
-                        <Label Content="{Binding Path=(local:LastValues.BaseLevel), Mode=TwoWay}" HorizontalAlignment="Left" Margin="120,0,0,0" VerticalAlignment="Top" Padding="0" Foreground="{Binding Foreground, ElementName=window}"/>
-                        <TextBox HorizontalAlignment="Left" Height="20" Margin="160,0,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" Padding="0" Text="{Binding Path=BaseLevel, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" TextChanged="BaseLevel_Changed"/>
+                        <Label Content="Target Level" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="0" Foreground="{Binding Source={x:Static local:ColorSet.TargetColorBrush}}"/>
+                        <Label Content="{Binding Path=(local:LastValues.TargetLevel), Mode=TwoWay}" HorizontalAlignment="Left" Margin="120,0,0,0" VerticalAlignment="Top" Padding="0" Foreground="{Binding Foreground, ElementName=window}"/>
+                        <TextBox HorizontalAlignment="Left" Height="20" Margin="160,0,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" Padding="0" Text="{Binding Path=TargetLevel, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" TextChanged="TargetLevel_Changed"/>
                     </Grid>
                     <Grid Width="220" Height="20" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,88,0,0">
                         <Label Content="Up Rate" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="0" Foreground="{Binding Foreground, ElementName=window}"/>
@@ -83,7 +83,7 @@
             </GroupBox>
             <Button Content="Cancel" HorizontalAlignment="Left" Margin="10,0,0,10" VerticalAlignment="Bottom" Width="130" Click="Cancel_Click" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
             <Button Content="Return to Default" HorizontalAlignment="Left" Margin="170,0,0,10" VerticalAlignment="Bottom" Width="130" Click="resetToDafault_Click" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
-            <Button Content="Submit" HorizontalAlignment="Right" Margin="0,0,10,10" Width="130" Height="20" VerticalAlignment="Bottom" Click="Submit_Click" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+            <Button Content="Save and Close" HorizontalAlignment="Right" Margin="0,0,10,10" Width="130" Height="20" VerticalAlignment="Bottom" Click="ConfigSave_Click" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
         </Grid>
     </Grid>
 </Window>

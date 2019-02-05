@@ -55,6 +55,8 @@ namespace Wale.WPF
         }
         private void MakeComponents()
         {
+            LogScroll.Content = string.Empty;
+
             this.DataContext = DL;
             DP = new JDPack.DebugPack(debug);
             settings.PropertyChanged += Settings_PropertyChanged;
@@ -123,12 +125,12 @@ namespace Wale.WPF
         /// </summary>
         private void StartApp()
         {
-            Wale.Transformation.SetBaseLevel(settings.BaseLevel);
-            Audio = new AudioControl(settings.BaseLevel);
+            Wale.Transformation.SetBaseLevel(settings.TargetLevel);
+            Audio = new AudioControl(settings.TargetLevel);
             while (Audio.MasterVolume == -1)
             {
                 Audio.Dispose();
-                Audio = new AudioControl(settings.BaseLevel);
+                Audio = new AudioControl(settings.TargetLevel);
             }
             Audio.Start(audioDebug);
             //Audio.AutoControl = Properties.Settings.Default.autoControl;
@@ -214,7 +216,7 @@ namespace Wale.WPF
                 if (Active)
                 {
                     JDPack.DebugPack VDP = new JDPack.DebugPack(updateVolumeDebug);
-                    VDP.DMML($"base={settings.BaseLevel} vol={Audio.MasterVolume}({Audio.MasterPeak})");
+                    VDP.DMML($"base={settings.TargetLevel} vol={Audio.MasterVolume}({Audio.MasterPeak})");
 
                     //lBaseVolume.Text = $"{Properties.Settings.Default.baseVolume:n}";
                     //pbBaseVolume.Increment((int)(Properties.Settings.Default.baseVolume * 100) - pbBaseVolume.Value);
@@ -223,7 +225,7 @@ namespace Wale.WPF
                     //SetBar(MasterVolumeBar, vbuf);
                     DL.MasterVolume = vbuf;
 
-                    double lbuf = (Audio.MasterVolume / settings.BaseLevel) * Audio.MasterPeak;// Console.WriteLine($"{lbuf}");
+                    double lbuf = (Audio.MasterVolume / settings.TargetLevel) * Audio.MasterPeak;// Console.WriteLine($"{lbuf}");
                     //SetBar(MasterPeakBar, lbuf);
                     DL.MasterPeak = lbuf;
 
@@ -357,15 +359,6 @@ namespace Wale.WPF
 
 
 
-        #region flag control methods
-        //private bool Rclose() { bool val; lock (_closelock) { val = _realClose; } return val; }
-        //private void Rclose(bool val) { lock (_closelock) { _realClose = val; } }
-        //private bool Active() { bool val; lock (_activelock) { val = _activated; } return val; }
-        //private void Active(bool val) { lock (_activelock) { _activated = val; } }
-        //private bool NTV() { bool val; lock (_ntvlock) { val = _numberToVol; } return val; }
-        //private void NTV(bool val) { lock (_ntvlock) { _numberToVol = val; } }
-        #endregion
-
         #region Toolstrip menu events
         private void OnProgramShutdown(object sender, EventArgs e) { OnProgramShutdown(sender, new RoutedEventArgs()); }
         private async void OnProgramShutdown(object sender, RoutedEventArgs e)
@@ -402,8 +395,8 @@ namespace Wale.WPF
             Configuration form = sender as Configuration;
             if ((bool)form.DialogResult?.Equals(true))
             {
-                Transformation.SetBaseLevel(settings.BaseLevel);
-                Audio.SetBaseTo(settings.BaseLevel);
+                Transformation.SetBaseLevel(settings.TargetLevel);
+                Audio.SetBaseTo(settings.TargetLevel);
                 Audio.UpRate = settings.UpRate;
             }
             form.Closed -= Config_FormClosed;
@@ -505,10 +498,10 @@ namespace Wale.WPF
             catch { Log("fail to get master volume interval\n"); MessageBox.Show("Invalid Interval"); }
         }
 
-        private void BaseSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void TargetSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            Console.WriteLine($"{settings.BaseLevel}");
-            BaseLabel.Content = settings.BaseLevel.ToString();
+            Console.WriteLine($"{settings.TargetLevel}");
+            TargetLabel.Content = settings.TargetLevel.ToString();
             //if (settings.BaseLevel.ToString().Length > 4) { settings.BaseLevel = Math.Round(settings.BaseLevel, 2); }
             settings.Save();
         }
@@ -686,7 +679,7 @@ namespace Wale.WPF
 
         #region Config Events
 
-        private void BaseLevel_Changed(object sender, TextChangedEventArgs e)
+        private void TargetLevel_Changed(object sender, TextChangedEventArgs e)
         {
             if (!loaded) return;
             DrawBase();
@@ -724,7 +717,7 @@ namespace Wale.WPF
                 JDPack.FileLog.Log("All configs are reset.");
             }
         }
-        private async void Submit_Click(object sender, RoutedEventArgs e)
+        private async void ConfigSave_Click(object sender, RoutedEventArgs e)
         {
             //this.IsEnabled = false;
             //this.Topmost = false;
@@ -732,8 +725,8 @@ namespace Wale.WPF
             if (Converts() && await Register())
             {
                 settings.Save();
-                Transformation.SetBaseLevel(settings.BaseLevel);
-                Audio.SetBaseTo(settings.BaseLevel);
+                Transformation.SetBaseLevel(settings.TargetLevel);
+                Audio.SetBaseTo(settings.TargetLevel);
                 Audio.UpRate = settings.UpRate;
                 MakeOriginals();
                 //this.DialogResult = true;
@@ -822,7 +815,7 @@ namespace Wale.WPF
             LastValues.UIUpdate = settings.UIUpdateInterval;
             LastValues.AutoControlInterval = settings.AutoControlInterval;
             LastValues.GCInterval = settings.GCInterval;
-            LastValues.BaseLevel = settings.BaseLevel;
+            LastValues.TargetLevel = settings.TargetLevel;
             LastValues.UpRate = settings.UpRate;
             LastValues.Kurtosis = settings.Kurtosis;
             LastValues.AverageTime = settings.AverageTime;
@@ -856,9 +849,9 @@ namespace Wale.WPF
                     }), 0, 1, 0.05, graphName);
                     break;
                 case VFunction.Func.SlicedLinear:
-                    VFunction.FactorsForSlicedLinear sliceFactors = VFunction.GetFactorsForSlicedLinear(settings.UpRate, settings.BaseLevel);
+                    VFunction.FactorsForSlicedLinear sliceFactors = VFunction.GetFactorsForSlicedLinear(settings.UpRate, settings.TargetLevel);
                     graph = new FunctionSeries(new Func<double, double>((x) => {
-                        double res = VFunction.SlicedLinear(x, settings.UpRate, settings.BaseLevel, sliceFactors.A, sliceFactors.B);// * 1000 / settings.AutoControlInterval;
+                        double res = VFunction.SlicedLinear(x, settings.UpRate, settings.TargetLevel, sliceFactors.A, sliceFactors.B);// * 1000 / settings.AutoControlInterval;
                         //if (res > 1) { res = 1; } else if (res < 0) { res = 0; }
                         return res;
                     }), 0, 1, 0.05, graphName);
@@ -923,9 +916,9 @@ namespace Wale.WPF
 
             LineSeries lineSeries1 = new LineSeries();
             lineSeries1.Title = "Base";
-            lineSeries1.Points.Add(new DataPoint(settings.BaseLevel, 0));
-            lineSeries1.Points.Add(new DataPoint(settings.BaseLevel, 1));
-            lineSeries1.Color = Color(ColorSet.BaseColor);
+            lineSeries1.Points.Add(new DataPoint(settings.TargetLevel, 0));
+            lineSeries1.Points.Add(new DataPoint(settings.TargetLevel, 1));
+            lineSeries1.Color = Color(ColorSet.TargetColor);
             plotView.Model.Series.Add(lineSeries1);
             plotView.InvalidatePlot();
         }
@@ -980,8 +973,29 @@ namespace Wale.WPF
         }
 
         #endregion
-        
+
         #region Funcion delegates for unsafe UI update
+        delegate void ScrollViewerStringConsumer(ScrollViewer control, string text);
+        private void AppendText(ScrollViewer control, string text)
+        {
+            try
+            {
+                if (control != null)
+                {
+                    if (!Dispatcher.CheckAccess())
+                    {
+                        DP.DMML("Invoke Required - AppendText");
+                        Dispatcher.Invoke(new ScrollViewerStringConsumer(AppendText), new object[] { control, text });  // invoking itself
+                    }
+                    else
+                    {
+                        (control as ScrollViewer).Content += text;      // the "functional part", executing only on the main thread
+                    }
+                }
+            }
+            catch { Log($"fail to invoke {control.Name}\n"); }
+        }/**/
+
         delegate void TextBlockStringConsumer(TextBlock control, string text);
         private void AppendText(TextBlock control, string text)
         {
@@ -1115,7 +1129,7 @@ namespace Wale.WPF
             DateTime t = DateTime.Now.ToLocalTime();
             string content = $"{t.Hour:d2}:{t.Minute:d2}>{msg}";
             if (newLine) content += "\r\n";
-            AppendText(Logs, content);
+            AppendText(LogScroll, content);
             DP.DMML(content);
             DP.CMML(content);
             //bAllowPaintLog = true;
@@ -1127,7 +1141,7 @@ namespace Wale.WPF
         /// <param name="e"></param>
         private void Logs_VisibleChanged(object sender, RoutedEventArgs e)
         {
-            if (Logs.IsVisible)
+            if (LogScroll.IsVisible)
             {
                 LogScroll.ScrollToEnd();
                 //Logs.SelectionStart = Logs.TextLength;
