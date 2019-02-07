@@ -25,12 +25,12 @@ namespace Wale.CoreAudio
         }
 
         #region API Default Datas
-        public NameSet nameSet;
+        public NameSet nameSet { get; set; }
         /// <summary>
         /// Converted from CoreAudioApi
         /// </summary>
         public SessionState State { get; set; }
-        private bool IsSystemSoundSession;
+        private readonly bool IsSystemSoundSession;
 
         private string name;
         /// <summary>
@@ -42,7 +42,7 @@ namespace Wale.CoreAudio
         /// Process Id
         /// </summary>
         public uint PID { get { if (nameSet != null) return (uint)nameSet.ProcessID; return (uint)ProcessID; } set => ProcessID = (int)value; }
-        private string DisplayName, ProcessName, MainWindowTitle;
+        private readonly string DisplayName, ProcessName, MainWindowTitle;
         public string SessionIdentifier { get; private set; }
         public float Volume { get; set; }
         public float Peak { get; set; }
@@ -75,15 +75,15 @@ namespace Wale.CoreAudio
         /// <summary>
         /// This value would be added arithmetically when setting the volume for the session.
         /// </summary>
-        public float Relative = 0;
+        public float Relative { get; set; } = 0;
         /// <summary>
         /// The session is included to Auto controller when this flag is True. Default is True.
         /// </summary>
-        public bool AutoIncluded = true;
+        public bool AutoIncluded { get; set; } = true;
         /// <summary>
         /// Average Calculation is enabled when this flag is True. Default is True.
         /// </summary>
-        public bool Averaging = true;
+        public bool Averaging { get; set; } = true;
         #endregion
 
 
@@ -104,7 +104,7 @@ namespace Wale.CoreAudio
         /// </summary>
         /// <param name="averagingTime">Total stacking time.[ms](=AvTime)</param>
         /// <param name="unitTime">Passing time when calculate the average once.[ms]</param>
-        public void SetAvTime(double averagingTime, double unitTime) { AvCount = (int)(averagingTime / unitTime); AvTime = unitTime * (double)AvCount; }
+        public void SetAvTime(double averagingTime, double unitTime) { AvTime = averagingTime; AvCount = (int)(averagingTime / unitTime); ResetAverage(); }
         /// <summary>
         /// Clear all stacked peak values and set average to 0.
         /// </summary>

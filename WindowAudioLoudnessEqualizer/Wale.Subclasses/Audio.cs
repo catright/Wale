@@ -74,7 +74,8 @@ namespace Wale.CoreAudio
         /// <summary>
         /// Session data list of sessions in default device.
         /// </summary>
-        public SessionDataList Sessions { get => sessionList; }
+        //public SessionDataList Sessions { get => sessionList; }
+        public SessionList Sessions { get => ASClist; }
         /// <summary>
         /// A list of excluded sessions for automatic control
         /// </summary>
@@ -133,15 +134,16 @@ namespace Wale.CoreAudio
         /// </summary>
         /// <param name="pid">ProcessId</param>
         /// <param name="volume">Volume level you want to set</param>
-        public void SetSessionVolume(uint pid, float volume)
+        public void SetSessionVolume(int pid, float volume)
         {
             try
             {
-                using (var s = sessionList.GetSession(pid))
-                {
-                    SetSessionVolume(s, volume);
-                    s.Volume = volume;
-                }
+                //using (var s = sessionList.GetSession(pid))
+                //{
+                //SetSessionVolume(s, volume);
+                var s = Sessions.GetSession(pid);
+                    if (s != null) s.Volume = volume;
+                //}
             }
             catch (Exception e) { JDPack.FileLog.Log($"Error(SetSessionVolume): {e.ToString()}"); }
         }
@@ -167,14 +169,15 @@ namespace Wale.CoreAudio
         /// </summary>
         /// <param name="pid"></param>
         /// <param name="peak"></param>
-        public void SetSessionAverage(uint pid, double peak)
+        public void SetSessionAverage(int pid, double peak)
         {
             try
             {
-                using (var s = sessionList.GetSession(pid))
-                {
+                //using (var s = sessionList.GetSession(pid))
+                //{
+                var s = Sessions.GetSession(pid);
                     SetSessionAverage(s, peak);
-                }
+                //}
             }
             catch (Exception e) { JDPack.FileLog.Log($"Error(SetSessionAverage): {e.ToString()}"); }
         }
@@ -182,7 +185,7 @@ namespace Wale.CoreAudio
         {
             try
             {
-                using (var s = sessionList.GetSession(pid))
+                using (var s = Sessions.GetSession(pid))
                 {
                     SetSessionAvTime(s, AVTime, ACInterval);
                 }
@@ -198,13 +201,16 @@ namespace Wale.CoreAudio
         {
             try
             {
-                sessionList.ForEach(s =>
+                Sessions.ForEach(s =>
                 {
                     SetSessionAvTime(s, AVTime, ACInterval);
                 });
             }
             catch (Exception e) { JDPack.FileLog.Log($"Error(UpdateAvDataAll): {e.ToString()}"); }
         }
+
+        public double AverageTime { get; set; }
+        public double AverageInterval { get; set; }
         #endregion
 
         #region Private Common Variables
@@ -255,7 +261,8 @@ namespace Wale.CoreAudio
         {
             try
             {
-                using (var defaultDevice = GetDefaultDevice())
+                //using (var defaultDevice = GetDefaultDevice())
+                var defaultDevice = GetDefaultDevice();
                 {
                     if (defaultDevice == null) { JDPack.FileLog.Log("GetMasterVolume: Fail to get master device."); return -1; }
                     Guid IID_IAudioEndpointVolume = typeof(AudioEndpointVolume).GUID;
@@ -273,7 +280,8 @@ namespace Wale.CoreAudio
         {
             try
             {
-                using (var defaultDevice = GetDefaultDevice())
+                //using (var defaultDevice = GetDefaultDevice())
+                var defaultDevice = GetDefaultDevice();
                 {
                     if (defaultDevice == null) { JDPack.FileLog.Log("SetMasterVolume: Fail to get master device."); return; }
                     Guid IID_IAudioEndpointVolume = typeof(AudioEndpointVolume).GUID;
@@ -293,7 +301,8 @@ namespace Wale.CoreAudio
         {
             try
             {
-                using (var defaultDevice = GetDefaultDevice())
+                //using (var defaultDevice = GetDefaultDevice())
+                var defaultDevice = GetDefaultDevice();
                 {
                     if (defaultDevice == null) { JDPack.FileLog.Log("GetMasterPeak: Fail to get master device."); return -1; }
                     Guid IID_IAudioMeterInformation = typeof(AudioMeterInformation).GUID;
@@ -310,17 +319,22 @@ namespace Wale.CoreAudio
         }
         
         //Master Device Items
+        MMDevice DefDevice { get; set; }
         private MMDevice GetDefaultDevice()
         {
             try
             {
-                using (var obj = new CSCore.CoreAudioAPI.MMDeviceEnumerator())
+                if (DefDevice == null)
                 {
-                    MMDevice device = obj.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
-                    if(device == null) JDPack.FileLog.Log("GetSessionData: Fail to get master device.");
-                    NoDevice = false;
-                    return device;
+                    using (var obj = new CSCore.CoreAudioAPI.MMDeviceEnumerator())
+                    {
+                        //MMDevice device = obj.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
+                        DefDevice = obj.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
+                        if (DefDevice == null) JDPack.FileLog.Log("GetSessionData: Fail to get master device.");
+                        NoDevice = false;
+                    }
                 }
+                return DefDevice;
             }
             catch (Exception e){ JDPack.FileLog.Log(e.ToString()); NoDevice = true; return null; }
         }
@@ -452,7 +466,7 @@ namespace Wale.CoreAudio
             {
                 using (var device = GetDevice(deviceId))
                 {
-                    if (device == null) { JDPack.FileLog.Log("EnableDevice: Fail to get specific device."); return; }
+                    if (device == null) { JDPack.FileLog.Log("DisableDevice: Fail to get specific device."); return; }
 
                     Guid IID_IAudioEndpointVolume = typeof(AudioClient).GUID;
                     IntPtr i = device.Activate(IID_IAudioEndpointVolume, 0, IntPtr.Zero);
@@ -462,18 +476,92 @@ namespace Wale.CoreAudio
                     }
                 }
             }
-            catch (Exception e) { JDPack.FileLog.Log($"Error(EnableDevice): {e.ToString()}"); return; }
+            catch (Exception e) { JDPack.FileLog.Log($"Error(DisableDevice): {e.ToString()}"); return; }
         }
         #endregion
 
 
         #region Private Session Items
         //Session Control Items
+        AudioSessionManager2 ASM { get; set; }
+        SessionList ASClist { get; set; } = new SessionList();
+        public void GetSessionManager()
+        {
+            if (DefDevice == null) { JDPack.FileLog.Log("GetSessionData: Fail to get master device."); return; }
+            //Console.WriteLine(System.Threading.Thread.CurrentThread.GetApartmentState());
+            //System.Threading.Thread thread = new System.Threading.Thread(() => {
+            //ASM = (DefDevice != null ? AudioSessionManager2.FromMMDevice(DefDevice) : null);
+            //ASM.SessionCreated += Audio_SessionCreated;
+            //});
+
+            //var asn = new AudioSessionNotification();
+            //asn.SessionCreated += Audio_SessionCreated;
+
+            if (System.Threading.Thread.CurrentThread.GetApartmentState() == System.Threading.ApartmentState.MTA)
+            {
+                ASM = (DefDevice != null ? AudioSessionManager2.FromMMDevice(DefDevice) : null);
+                ASM.SessionCreated += Audio_SessionCreated;
+                //ASM.RegisterSessionNotification(asn);
+            }
+            else
+            {
+                using (System.Threading.ManualResetEvent waitHandle = new System.Threading.ManualResetEvent(false))
+                {
+                    System.Threading.ThreadPool.QueueUserWorkItem(
+                        (o) =>
+                        {
+                            try
+                            {
+                                ASM = (DefDevice != null ? AudioSessionManager2.FromMMDevice(DefDevice) : null);
+                                ASM.SessionCreated += Audio_SessionCreated;
+                                //ASM.RegisterSessionNotification(asn);
+                            }
+                            finally
+                            {
+                                waitHandle.Set();
+                            }
+                        });
+                    waitHandle.WaitOne();
+                }
+            }
+
+            //enumerate all sessions
+            ASM.GetSessionEnumerator().ToArray();
+
+            //thread.SetApartmentState(System.Threading.ApartmentState.MTA);
+            //thread.Start();
+            //thread.Join();
+            
+        }
+
+        private void Audio_SessionCreated(object sender, SessionCreatedEventArgs e)
+        {
+            Console.WriteLine("Session Create raised");
+            var asc2 = e.NewSession.QueryInterface<AudioSessionControl2>();
+            //var asn = new AudioSessionEvents();
+            //asn.StateChanged += Asn_StateChanged;
+            //asc2.RegisterAudioSessionNotification(asn);
+            asc2.StateChanged += Asn_StateChanged;
+            lock (sessionLocker) { ASClist.Add(new Session(asc2, ExcludeList, AverageTime, AverageInterval)); }
+        }
+        private void Asn_StateChanged(object sender, AudioSessionStateChangedEventArgs e)
+        {
+            Console.WriteLine("Session State change raised");
+            if (e.NewState == AudioSessionState.AudioSessionStateExpired)
+            {
+                //Console.WriteLine($"{sender.GetType()}");
+                //Console.WriteLine($"Session ExpiredE {(sender as Session).PID}");
+                //Sessions.RemoveAt(Sessions.FindIndex(s => s.PID == (sender as AudioSessionControl2).ProcessID));
+                //Sessions.Remove(sender as Session);
+            }
+        }
+
+
         private SessionDataList sessionList;
         private void GetSession()
         {
-            if (sessionList == null) { sessionList = new SessionDataList(); }
-            GetSessionData();
+            //if (sessionList == null) { sessionList = new SessionDataList(); }
+            //GetSessionData();
         }
         private void GetSessionData()
         {
@@ -481,65 +569,73 @@ namespace Wale.CoreAudio
             {
                 lock (sessionLocker)
                 {
-                    using (var defaultDevice = GetDefaultDevice())
+                    //using (var defaultDevice = GetDefaultDevice())
+                    var defaultDevice = GetDefaultDevice();
                     using (var asm = (defaultDevice != null ? AudioSessionManager2.FromMMDevice(defaultDevice) : null))
                     using (var ase = (asm?.GetSessionEnumerator()))
                     {
                         if (defaultDevice == null) { JDPack.FileLog.Log("GetSessionData: Fail to get master device."); return; }
+                        List<int> ExistSessionIDs = new List<int>();
 
                         foreach (AudioSessionControl asc in ase)
                         {
-                            //bool delete = false;
-                            using (var asc2 = asc.QueryInterface<AudioSessionControl2>())
-                            using (var simpleAudioVolume = asc.QueryInterface<SimpleAudioVolume>())
-                            using (var audioMeterInformation = asc.QueryInterface<AudioMeterInformation>())
+                            //check expired
+                            SessionState state = State(asc.SessionState);
+                            //Console.WriteLine($"{asc.SessionState}");
+                            if (!asc.IsDisposed && state != SessionState.Expired)//asc2.Process != null &&
                             {
-                                //check expired
-                                SessionState state = State(asc.SessionState);
-                                //Console.WriteLine($"{asc.SessionState}");
-
-
-                                //System.Diagnostics.Process process = Process(asc2.ProcessID);
-                                //System.Diagnostics.Process.GetProcessById(asc2.ProcessID);
-
-
-                                //process check and make nameset, new session check and update
-                                if (!asc.IsDisposed && state != SessionState.Expired)//asc2.Process != null && 
+                                //bool delete = false;
+                                using (var asc2 = asc.QueryInterface<AudioSessionControl2>())
+                                using (var simpleAudioVolume = asc2.QueryInterface<SimpleAudioVolume>())
+                                using (var audioMeterInformation = asc2.QueryInterface<AudioMeterInformation>())
                                 {
-                                    bool exists = false;
-                                    sessionList.ForEach(s => { if (s.PID == asc2.ProcessID) exists = true; });
+                                    ExistSessionIDs.Add(asc2.ProcessID);
+                                    //System.Diagnostics.Process process = Process(asc2.ProcessID);
+                                    //System.Diagnostics.Process.GetProcessById(asc2.ProcessID);
 
+
+                                    //process check and make nameset, new session check and update
+
+
+                                    //bool exists = false;
+                                    //sessionList.ForEach(s => { if (s.PID == asc2.ProcessID) exists = true; });
+                                    //exists = sessionList.FindIndex(s => s.PID == asc2.ProcessID) > -1 ? true : false;
+                                    int idx = sessionList.FindIndex(s => s.PID == asc2.ProcessID);
                                     //Console.WriteLine($"{asc2}");
                                     //Console.WriteLine($"DNAME:{asc.DisplayName}({asc2.ProcessID})\r\nSID:{asc2.SessionIdentifier}\r\nSIID:{asc2.SessionInstanceIdentifier}");
                                     //Console.WriteLine($"PNAME:{asc2.Process.ProcessName}\r\nPWTITLE:{asc2.Process.MainWindowTitle}\r\nSID:{asc2.Process.SessionId}");
 
-                                    NameSet nameSet = new NameSet(
-                                        asc2.ProcessID,
-                                        asc2.IsSystemSoundSession,
-                                        "",//asc2.Process.ProcessName
-                                        "",//asc2.Process.MainWindowTitle
-                                        asc.DisplayName,
-                                        asc2.SessionIdentifier
-                                        );
-                                    //Console.WriteLine($"NAME:{nameSet.Name}({asc2.ProcessID}), STATE:{state}");
-                                    //Console.WriteLine($"1:{nameSet.IsSystemSoundSession},2:{nameSet.ProcessName},3:{nameSet.MainWindowTitle},4:{nameSet.DisplayName},5:{nameSet.SessionIdentifier}");
-
-                                    float peak = 0;
-                                    if (audioMeterInformation.MeteringChannelCount > 1)
-                                    {
-                                        float[] peaks = audioMeterInformation.GetChannelsPeakValues();
+                                    //float peak = 0;
+                                    //if (audioMeterInformation.MeteringChannelCount > 1)
+                                    //{
+                                        //float[] peaks = audioMeterInformation.GetChannelsPeakValues();
                                         //Console.Write($"{asc2.ProcessID}({audioMeterInformation.MeteringChannelCount}):[{audioMeterInformation.PeakValue},{peaks.Average()}]");
                                         //foreach (float p in peaks) { Console.Write($",{p.ToString()}"); }
                                         //Console.WriteLine();
-                                        peak = peaks.Average();
-                                    }
-                                    else if (audioMeterInformation.MeteringChannelCount == 0 || audioMeterInformation.MeteringChannelCount == 1)
-                                    {
-                                        peak = audioMeterInformation.PeakValue;
-                                    }
+                                        //peak = peaks.Average();
+                                    //}
+                                    //else if (audioMeterInformation.MeteringChannelCount == 0 || audioMeterInformation.MeteringChannelCount == 1)
+                                    //{
+                                        //peak = audioMeterInformation.PeakValue;
+                                    //}
 
-                                    if (!exists)
+                                    if (idx < 0)
                                     {
+                                        //var asn = new AudioSessionEvents();
+                                        //asc2.StateChanged += Asn_StateChanged;
+                                        //asc2.RegisterAudioSessionNotification(asn);
+
+                                        NameSet nameSet = new NameSet(
+                                            asc2.ProcessID,
+                                            asc2.IsSystemSoundSession,
+                                            "",//asc2.Process.ProcessName
+                                            "",//asc2.Process.MainWindowTitle
+                                            asc2.DisplayName,
+                                            asc2.SessionIdentifier
+                                            );
+                                        //Console.WriteLine($"NAME:{nameSet.Name}({asc2.ProcessID}), STATE:{state}");
+                                        //Console.WriteLine($"1:{nameSet.IsSystemSoundSession},2:{nameSet.ProcessName},3:{nameSet.MainWindowTitle},4:{nameSet.DisplayName},5:{nameSet.SessionIdentifier}");
+
                                         bool include = ExcludeList.Contains(nameSet.Name) ? false : true;
                                         //if (ExcludeList.Contains(nameSet.Name)) { /*simpleAudioVolume.MasterVolume = TargetOutputLevel;*/ }
                                         //else { simpleAudioVolume.MasterVolume = 0.01f; }
@@ -548,30 +644,40 @@ namespace Wale.CoreAudio
                                             State = state,
                                             nameSet = nameSet,
                                             Volume = simpleAudioVolume.MasterVolume,
-                                            Peak = peak,
+                                            Peak = audioMeterInformation.MeteringChannelCount > 1 ? audioMeterInformation.GetChannelsPeakValues().Average() : audioMeterInformation.PeakValue,
                                             AutoIncluded = include
                                         });
                                     }
                                     else
                                     {
-                                        using (var s = sessionList.GetSession((uint)asc2.ProcessID))
+                                        //using (var s = sessionList.GetSession((uint)asc2.ProcessID))
+                                        using (var s = sessionList[idx])
                                         {
                                             s.State = state;
-                                            s.nameSet = nameSet;
+                                            //s.nameSet = nameSet;
                                             s.Volume = simpleAudioVolume.MasterVolume;
-                                            s.Peak = peak;
+                                            s.Peak = audioMeterInformation.MeteringChannelCount > 1 ? audioMeterInformation.GetChannelsPeakValues().Average() : audioMeterInformation.PeakValue;
                                         }
                                     }
+
+
+                                    //else if(process == null) { delete = true; }
+                                    //null process check, expired check
                                 }
-                                //else if(process == null) { delete = true; }
-                                //null process check, expired check
+                                //if (delete) { asc.Dispose(); }
+
                             }
-                            //if (delete) { asc.Dispose(); }
+                            else
+                            {
+                                Console.WriteLine($"Session Expired1 {asc.DisplayName}={state}");
+                                //SessionData session = sessionList.Find(s => s.PID == asc2.ProcessID);
+                                //if (session != null) { sessionList.Remove(session); }
+                            }/**/
                         }
 
                         //expired check and remove session data
                         List<SessionData> expired = new List<SessionData>();
-                        sessionList.ForEach(s =>
+                        /*sessionList.ForEach(s =>
                         {
                             bool exists = false;
                             foreach (AudioSessionControl asc in ase)
@@ -579,13 +685,16 @@ namespace Wale.CoreAudio
                                 using (var asc2 = asc.QueryInterface<AudioSessionControl2>())
                                 {
                                     if (s.PID == asc2.ProcessID && asc.SessionState != AudioSessionState.AudioSessionStateExpired) exists = true;
+                                    else if (s.PID == asc2.ProcessID && asc.SessionState == AudioSessionState.AudioSessionStateExpired) Console.WriteLine($"Session Expired2 {s.PID}");
                                 }
                             }
-                            if (!exists) expired.Add(s);
+                            if (!exists) { Console.WriteLine($"Session Expired3 {s.PID}"); expired.Add(s); }
+                        });/**/
+                        sessionList.ForEach(s => {
+                            if (ExistSessionIDs.FindIndex(id => id == s.PID) < 0) { Console.WriteLine($"Session ExpiredN {s.PID}"); expired.Add(s); }
                         });
                         expired.ForEach(s => sessionList.Remove(s));
-                        expired.Clear();
-                        
+                        expired.Clear();/**/
                     }
                 }
             }
@@ -599,7 +708,8 @@ namespace Wale.CoreAudio
             {
                 lock (sessionLocker)
                 {
-                    using (var defaultDevice = GetDefaultDevice())
+                    //using (var defaultDevice = GetDefaultDevice())
+                    var defaultDevice = GetDefaultDevice();
                     using (var asm = (defaultDevice != null ? AudioSessionManager2.FromMMDevice(defaultDevice) : null))
                     using (var ase = (asm?.GetSessionEnumerator()))
                     {
@@ -640,7 +750,8 @@ namespace Wale.CoreAudio
             {
                 lock (sessionLocker)
                 {
-                    using (var defaultDevice = GetDefaultDevice())
+                    //using (var defaultDevice = GetDefaultDevice())
+                    var defaultDevice = GetDefaultDevice();
                     using (var asm = (defaultDevice != null ? AudioSessionManager2.FromMMDevice(defaultDevice) : null))
                     using (var ase = (asm?.GetSessionEnumerator()))
                     {
@@ -664,7 +775,8 @@ namespace Wale.CoreAudio
             {
                 lock (sessionLocker)
                 {
-                    using (var defaultDevice = GetDefaultDevice())
+                    //using (var defaultDevice = GetDefaultDevice())
+                    var defaultDevice = GetDefaultDevice();
                     using (var asm = (defaultDevice != null ? AudioSessionManager2.FromMMDevice(defaultDevice) : null))
                     using (var ase = (asm?.GetSessionEnumerator()))
                     {
@@ -692,7 +804,8 @@ namespace Wale.CoreAudio
             {
                 lock (sessionLocker)
                 {
-                    using (var defaultDevice = GetDefaultDevice())
+                    //using (var defaultDevice = GetDefaultDevice())
+                    var defaultDevice = GetDefaultDevice();
                     using (var asm = (defaultDevice != null ? AudioSessionManager2.FromMMDevice(defaultDevice) : null))
                     using (var ase = (asm?.GetSessionEnumerator()))
                     {
@@ -716,7 +829,8 @@ namespace Wale.CoreAudio
             {
                 lock (sessionLocker)
                 {
-                    using (var defaultDevice = GetDefaultDevice())
+                    //using (var defaultDevice = GetDefaultDevice())
+                    var defaultDevice = GetDefaultDevice();
                     using (var asm = (defaultDevice != null ? AudioSessionManager2.FromMMDevice(defaultDevice) : null))
                     using (var ase = (asm?.GetSessionEnumerator()))
                     {
@@ -742,7 +856,7 @@ namespace Wale.CoreAudio
             catch (Exception e) { JDPack.FileLog.Log($"Error(GetSessionPeak): {e.ToString()}"); }
         }
 
-        private void SetSessionAvTime(SessionData session, double AVTime, double ACInterval)
+        private void SetSessionAvTime(Session session, double AVTime, double ACInterval)
         {
             try
             {
@@ -754,6 +868,17 @@ namespace Wale.CoreAudio
             catch (Exception e) { JDPack.FileLog.Log($"Error(SetSessionAvData): {e.ToString()}"); }
         }
         private void SetSessionAverage(SessionData session, double peak)
+        {
+            try
+            {
+                lock (sessionLocker)
+                {
+                    session.SetAverage(peak);
+                }
+            }
+            catch (Exception e) { JDPack.FileLog.Log($"Error(SetSessionAverage): {e.ToString()}"); }
+        }
+        private void SetSessionAverage(Session session, double peak)
         {
             try
             {

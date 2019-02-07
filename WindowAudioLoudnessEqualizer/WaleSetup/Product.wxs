@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
 	<Product Id="*" Name="Wale" Language="1033" Manufacturer="Jongtae Park"
-           UpgradeCode="7286072b-aa45-40bc-a835-88de5243a963" Version="0.4.4.0">
+           UpgradeCode="7286072b-aa45-40bc-a835-88de5243a963" Version="0.5.0.0">
 		<Package Id="*" Keywords="Installer" InstallerVersion="405" InstallScope="perMachine" Compressed="yes" Languages="1033"
              Description="Windows Audio Loudness Equalizer" Manufacturer="Jongtae Park" Comments="Copyright @ Jongtae Park." />
 

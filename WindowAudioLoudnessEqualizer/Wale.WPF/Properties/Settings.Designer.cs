@@ -109,7 +109,7 @@ namespace Wale.WPF.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("8000")]
+        [global::System.Configuration.DefaultSettingValueAttribute("3000")]
         public double AverageTime {
             get {
                 return ((double)(this["AverageTime"]));
@@ -170,9 +170,9 @@ namespace Wale.WPF.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("30000")]
-        public int GCInterval {
+        public double GCInterval {
             get {
-                return ((int)(this["GCInterval"]));
+                return ((double)(this["GCInterval"]));
             }
             set {
                 this["GCInterval"] = value;
@@ -181,10 +181,10 @@ namespace Wale.WPF.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("250")]
-        public int UIUpdateInterval {
+        [global::System.Configuration.DefaultSettingValueAttribute("100")]
+        public double UIUpdateInterval {
             get {
-                return ((int)(this["UIUpdateInterval"]));
+                return ((double)(this["UIUpdateInterval"]));
             }
             set {
                 this["UIUpdateInterval"] = value;
@@ -193,10 +193,10 @@ namespace Wale.WPF.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("33")]
-        public int AutoControlInterval {
+        [global::System.Configuration.DefaultSettingValueAttribute("3")]
+        public double AutoControlInterval {
             get {
-                return ((int)(this["AutoControlInterval"]));
+                return ((double)(this["AutoControlInterval"]));
             }
             set {
                 this["AutoControlInterval"] = value;

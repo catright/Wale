@@ -12,8 +12,10 @@ namespace Wale
     public class AudioControl : AudioControlInternal
     {
         private Wale.WPF.Properties.Settings settings = Wale.WPF.Properties.Settings.Default;
+        private Wale.WPF.Datalink DL;
         #region global variables
-        public Wale.CoreAudio.SessionDataList Sessions
+        //public Wale.CoreAudio.SessionDataList Sessions
+        public SessionList Sessions
         {
             get
             {
@@ -46,8 +48,9 @@ namespace Wale
         #endregion
 
         #region class loads
-        public AudioControl(double bVol, Transformation.TransMode tmode = Transformation.TransMode.Transform1)
+        public AudioControl(double bVol, WPF.Datalink dl,  Transformation.TransMode tmode = Transformation.TransMode.Transform1)
         {
+            DL = dl;
             DP = new JDPack.DebugPack(false);
             Transformation.ChangeTransformMethod(tmode);
             SetBaseTo(bVol);
@@ -61,10 +64,13 @@ namespace Wale
             Debug = debug;
 
             audio = new CoreAudio.Audio((float)baseLv, true);
+            audio.AverageTime = settings.AverageTime;
+            audio.AverageInterval = settings.AutoControlInterval;
+            audio.GetSessionManager();
             //masterDevice = new MasterDevice();
 
             //Sessions = new Sessions3();
-            Refresh();
+            //Refresh();
 
             controllerCleanTask = new Task(ControllerCleanTask);
             controllerCleanTask.Start();
@@ -104,17 +110,17 @@ namespace Wale
             //uint[] ids = Wale.Subclasses.Audio.GetApplicationIDs();
             //for (int i = 0; i < ids.Count(); i++) { SetSessionVolume(ids[i], 0.01); }
         }
-        private void SetSessionVolume(uint id, double v)
+        private void SetSessionVolume(int id, double v)
         {
-            v += Sessions.GetRelative(id);
-            v = v > 1 ? 1 : v < 0.01 ? 0.01 : v;
+            //v += Sessions.GetRelative(id);
+            //v = v > 1 ? 1 : v < 0.01 ? 0.01 : v;
 
             DP.DML($"SessionTo:{v:n6}");
             lock (Lockers.Sessions) { audio.SetSessionVolume(id, (float)v); }
         }
-        private void SessionControl(SessionData s)
+        private void SessionControl(Session s)
         {
-
+            
             StringBuilder dm = new StringBuilder().Append($"AutoVolume:{s.Name}({s.PID}), inc={s.AutoIncluded}");
             if (!audio.ExcludeList.Contains(s.Name) && s.AutoIncluded && s.State == SessionState.Active)
             {
@@ -123,7 +129,7 @@ namespace Wale
                 if (peak > settings.MinPeak)
                 {
                     double tVol, UpLimit;
-                    if (s.Averaging) { lock (Lockers.Sessions) { audio.SetSessionAverage(s.PID, peak); } }
+                    if (s.Averaging) { lock (Lockers.Sessions) { audio.SetSessionAverage(s.ProcessID, peak); } }
                     if (s.Averaging && peak <= s.AveragePeak) tVol = baseLvSquare / s.AveragePeak;
                     else tVol = baseLvSquare / peak;
                     if (!Enum.TryParse(settings.VFunc, out VFunction.Func func)) { JDPack.FileLog.Log("Invalid function for session control"); return; }
@@ -146,7 +152,7 @@ namespace Wale
                             break;
                     }
                     dm.Append($" T={tVol:n3} UL={UpLimit:n3}");//Console.WriteLine($" T={tVol:n3} UL={UpLimit:n3}");
-                    SetSessionVolume(s.PID, (tVol > UpLimit) ? UpLimit : tVol);
+                    SetSessionVolume(s.ProcessID, (tVol > UpLimit) ? UpLimit : tVol);
                 }
                 DP.DML(dm.ToString());
                 //Console.WriteLine(dm);
@@ -154,7 +160,7 @@ namespace Wale
         }
         private void Refresh(bool first = false)
         {
-            lock (Lockers.Sessions) { audio.UpdateSession(); audio.UpdateAvTimeAll(settings.AverageTime, settings.AutoControlInterval); }
+            lock (Lockers.Sessions) { audio.UpdateSession(); }
             //lock (Lockers.Sessions) { Sessions = audio.Sessions; }
             /*lock (AClocker)
             {
@@ -170,6 +176,7 @@ namespace Wale
             }/**/
             //DP.DML($"{Sessions.Count} ({System.DateTime.Now.Ticks})");
         }
+        public void UpdateAverageParam() { lock (Lockers.Sessions) { audio.UpdateAvTimeAll(settings.AverageTime, settings.AutoControlInterval); } }
         #endregion
 
         #region Automatic volume control
@@ -178,14 +185,15 @@ namespace Wale
             JDPack.FileLog.Log("Audio Control Task Start");
             List<Task> aas = new List<Task>();
             uint logCounter = 0, logCritical = 10000;
-            //System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-
+            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+            //List<long> elapsed = new List<long>(10);
+            //System.Timers.Timer timer = new System.Timers.Timer();
             while (!Terminate)
             {
-                //sw.Restart();
+                sw.Restart();
                 //Task wait = Task.Delay(settings.AutoControlInterval);
-                Refresh();
-                
+                //Refresh();
+                //aas.Add(Task.Delay(new TimeSpan((long)(settings.AutoControlInterval * 10000))));
                 if (settings.AutoControl)
                 {
                     try
@@ -194,30 +202,46 @@ namespace Wale
                         {
                             Sessions.ForEach(s => aas.Add(new Task(() => SessionControl(s))));
                         }
+                        if (logCounter > logCritical)
+                        {
+                            aas.Add(new Task(() => JDPack.FileLog.Log($"Auto control task passed for {logCritical} times.")));
+                            logCounter = 0;
+                        }
                         aas.ForEach(t => t.Start());
                     }
                     catch (InvalidOperationException e) { JDPack.FileLog.Log($"Error(AudioControlTask): Session collection was modified.\r\n\t{e.ToString()}"); }
                 }/**/
 
-                await Task.Delay(settings.AutoControlInterval);
+                //await Task.Delay(new TimeSpan((long)(settings.AutoControlInterval * 10000)));
                 //await wait;
                 //System.Threading.Thread.Sleep(settings.AutoControlInterval);
                 
-                if (settings.AutoControl)
-                {
+                //if (settings.AutoControl)
+                //{
                     await Task.WhenAll(aas);
                     aas.Clear();
-                }/**/
+                //}/**/
 
-                if (logCounter > logCritical)
+                /*if (logCounter > logCritical)
                 {
-                    JDPack.FileLog.Log($"Auto control task passed for {logCritical} times.");
+                    await JDPack.FileLog.LogAsync($"Auto control task passed for {logCritical} times.");
                     logCounter = 0;
-                }
+                }/**/
                 logCounter++;
-                
-                //sw.Stop();
-                //Console.WriteLine($"ACTaskElapsed={sw.ElapsedMilliseconds}");
+                sw.Stop();
+                TimeSpan el = sw.Elapsed;
+                sw.Start();
+                TimeSpan d = new TimeSpan((long)(settings.AutoControlInterval * 10000)).Subtract(el);
+                //Console.WriteLine($"ACTaskElapsed={sw.ElapsedMilliseconds}(-{d.Ticks / 10000:n3})[ms]");
+                DL.ACElapsed = (double)el.Ticks / 10000;
+                DL.ACEWdif = (double)d.Ticks / 10000;
+                if (d.Ticks > 0) { await Task.Delay(d); }
+                //await Task.Delay(new TimeSpan((long)(settings.AutoControlInterval * 10000)));
+                sw.Stop();
+                //Console.WriteLine($"ACTaskWaited ={(double)sw.ElapsedTicks / System.Diagnostics.Stopwatch.Frequency * 1000:n3}[ms]");// *10000000 T[100ns]
+                DL.ACWaited = (double)sw.ElapsedTicks / System.Diagnostics.Stopwatch.Frequency * 1000;
+                //if (elapsed.Count >= elapsed.Capacity) elapsed.RemoveAt(0);
+                //elapsed.Add(sw.ElapsedMilliseconds);
             }// end while loop
 
             JDPack.FileLog.Log("Audio Control Task End");
@@ -246,7 +270,7 @@ namespace Wale
                                     SessionState state = s.State;
                                     if (state != SessionState.Active && s.Volume != 0.01)
                                     {
-                                        SetSessionVolume(s.PID, 0.01);
+                                        SetSessionVolume(s.ProcessID, 0.01);
                                         s.ResetAverage();
                                     }
                                 }
@@ -257,7 +281,7 @@ namespace Wale
                     catch (InvalidOperationException e) { JDPack.FileLog.Log($"Error(ControllerCleanTask): Session collection was modified.\r\n\t{e.ToString()}"); }
                 }/**/
                 
-                await Task.Delay(settings.GCInterval);
+                await Task.Delay(new TimeSpan((long)(settings.GCInterval * 10000)));
 
                 if (settings.AutoControl)
                 {

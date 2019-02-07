@@ -20,6 +20,7 @@
         </ContextMenu>
     </Window.ContextMenu>
     <Window.CommandBindings>
+        <CommandBinding Command="{x:Static local:ShortcutCommands.SCDevView}" Executed="DevView_CommandBinding_Executed"/>
         <CommandBinding Command="{x:Static local:ShortcutCommands.SCMasterTab}" Executed="ShiftToMasterTab"/>
         <CommandBinding Command="{x:Static local:ShortcutCommands.SCSessionTab}" Executed="ShiftToSessionTab"/>
         <CommandBinding Command="{x:Static local:ShortcutCommands.SCLogTab}" Executed="ShiftToLogTab"/>
@@ -28,6 +29,7 @@
         <CommandBinding Command="{x:Static local:ShortcutCommands.SCDetail}" Executed="ChangeDetailView"/>
     </Window.CommandBindings>
     <Window.Resources>
+        <local:ACdataconverter x:Key="ACdataconverter"/>
         <Style x:Key="BaseSliderRight" TargetType="RepeatButton">
             <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Setter Property="OverridesDefaultStyle" Value="True"/>
@@ -457,8 +459,100 @@
                             <CheckBox Content="StayOn(F8)" IsChecked="{Binding Path=StayOn, Source={x:Static prop:Settings.Default}}" Style="{DynamicResource CboxDef}"/>
                             <CheckBox Content="DetailView(F9)" IsChecked="{Binding Path=DetailedView, Source={x:Static prop:Settings.Default}}" Style="{DynamicResource CboxDef}"/>
                         </WrapPanel>
+                        <Border Visibility="{Binding ACDebugShow}" Margin="0,2" Padding="0" BorderBrush="{Binding Source={x:Static local:ColorSet.ForeColorAltBrush}}" BorderThickness="1">
+                            <StackPanel Margin="0">
+                                <WrapPanel Margin="0">
+                                    <Label Content="AC Elapsed" Padding="10,0,0,0" Width="80" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+                                    <TextBlock Text="{Binding ACElapsed}" Padding="5,0,0,0" Width="50" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+                                    <Label Content="[ms]" Padding="0" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+                                </WrapPanel>
+                                <WrapPanel Margin="0">
+                                    <Label Content="AC E-W dif" Padding="10,0,0,0" Width="80">
+                                        <Label.Style>
+                                            <Style TargetType="Label">
+                                                <Setter Property="Foreground" Value="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding ACEWdif, Converter={StaticResource ACdataconverter}}" Value="True">
+                                                        <Setter Property="Foreground" Value="Red"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Label.Style>
+                                    </Label>
+                                    <TextBlock Text="{Binding ACEWdif}" Padding="5,0,0,0" Width="50">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Foreground" Value="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding ACEWdif, Converter={StaticResource ACdataconverter}}" Value="True">
+                                                        <Setter Property="Foreground" Value="Red"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                    <Label Content="[ms]" Padding="0">
+                                        <Label.Style>
+                                            <Style TargetType="Label">
+                                                <Setter Property="Foreground" Value="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding ACEWdif, Converter={StaticResource ACdataconverter}}" Value="True">
+                                                        <Setter Property="Foreground" Value="Red"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Label.Style>
+                                    </Label>
+                                </WrapPanel>
+                                <WrapPanel Margin="0">
+                                    <Label Content="AC Waited" Padding="10,0,0,0" Width="80">
+                                        <Label.Style>
+                                            <Style TargetType="Label">
+                                                <Setter Property="Foreground" Value="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding ACWaited, Converter={StaticResource ACdataconverter}}" Value="True">
+                                                        <Setter Property="Foreground" Value="Red"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Label.Style>
+                                    </Label>
+                                    <TextBlock Text="{Binding ACWaited}" Padding="5,0,0,0" Width="50">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Foreground" Value="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding ACWaited, Converter={StaticResource ACdataconverter}}" Value="True">
+                                                        <Setter Property="Foreground" Value="Red"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                    <Label Content="[ms]" Padding="0">
+                                        <Label.Style>
+                                            <Style TargetType="Label">
+                                                <Setter Property="Foreground" Value="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding ACWaited, Converter={StaticResource ACdataconverter}}" Value="True">
+                                                        <Setter Property="Foreground" Value="Red"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Label.Style>
+                                    </Label>
+                                </WrapPanel>
+                                <WrapPanel>
+                                    <Label Content="Cnt:" Padding="10,0,0,0" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+                                    <TextBlock Text="{Binding ACAvCnt}" Padding="5,0,0,0" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+                                    <Label Content="f:&lt;" Padding="10,0,0,0" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+                                    <TextBlock Text="{Binding ACHz}" Padding="0" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+                                    <Label Content="hz" Padding="0" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+                                    <Label Content="10ms:50hz" FontSize="9" Padding="2,0,0,0" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+                                </WrapPanel>
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
-
                     <Grid x:Name="SessionGrid" Grid.Column="2">
                         <!--WrapPanel x:Name="SessionPanel"/-->
                         <local:MeterSet/>

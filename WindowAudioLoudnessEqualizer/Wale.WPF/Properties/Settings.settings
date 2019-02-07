@@ -24,7 +24,7 @@
       <Value Profile="(Default)">0.25</Value>
     </Setting>
     <Setting Name="AverageTime" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">8000</Value>
+      <Value Profile="(Default)">3000</Value>
     </Setting>
     <Setting Name="Kurtosis" Type="System.Double" Scope="User">
       <Value Profile="(Default)">0.35</Value>
@@ -38,14 +38,14 @@
     <Setting Name="UpRate" Type="System.Double" Scope="User">
       <Value Profile="(Default)">1</Value>
     </Setting>
-    <Setting Name="GCInterval" Type="System.Int32" Scope="User">
+    <Setting Name="GCInterval" Type="System.Double" Scope="User">
       <Value Profile="(Default)">30000</Value>
     </Setting>
-    <Setting Name="UIUpdateInterval" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">250</Value>
+    <Setting Name="UIUpdateInterval" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">100</Value>
     </Setting>
-    <Setting Name="AutoControlInterval" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">33</Value>
+    <Setting Name="AutoControlInterval" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">3</Value>
     </Setting>
     <Setting Name="VFunc" Type="System.String" Scope="User">
       <Value Profile="(Default)">None</Value>

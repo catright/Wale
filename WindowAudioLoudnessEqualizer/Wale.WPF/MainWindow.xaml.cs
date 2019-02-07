@@ -25,6 +25,7 @@ namespace Wale.WPF
     /// </summary>
     public partial class MainWindow : Window
     {
+        private bool Dev = true;
         #region Variables
         Microsoft.Win32.RegistryKey rkApp = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
         Wale.WPF.Properties.Settings settings = Wale.WPF.Properties.Settings.Default;
@@ -56,7 +57,9 @@ namespace Wale.WPF
         private void MakeComponents()
         {
             LogScroll.Content = string.Empty;
-
+            //DL.ACDebugShow = Dev ? Visibility.Visible : Visibility.Hidden;
+            DL.ACHz = 1.0 / (2.0 * settings.AutoControlInterval / 1000.0);
+            DL.ACAvCnt = settings.AverageTime / settings.AutoControlInterval;
             this.DataContext = DL;
             DP = new JDPack.DebugPack(debug);
             settings.PropertyChanged += Settings_PropertyChanged;
@@ -126,11 +129,11 @@ namespace Wale.WPF
         private void StartApp()
         {
             Wale.Transformation.SetBaseLevel(settings.TargetLevel);
-            Audio = new AudioControl(settings.TargetLevel);
+            Audio = new AudioControl(settings.TargetLevel, DL);
             while (Audio.MasterVolume == -1)
             {
                 Audio.Dispose();
-                Audio = new AudioControl(settings.TargetLevel);
+                Audio = new AudioControl(settings.TargetLevel, DL);
             }
             Audio.Start(audioDebug);
             //Audio.AutoControl = Properties.Settings.Default.autoControl;
@@ -155,7 +158,7 @@ namespace Wale.WPF
             {
                 if (this.Visibility == Visibility.Visible) CheckFirstLoad();
                 else FirstLoad = false;
-                System.Threading.Thread.Sleep(settings.AutoControlInterval);
+                System.Threading.Thread.Sleep(new TimeSpan((long)(settings.AutoControlInterval * 10000)));
             }
             Log("End CheckFirstLoadTask");
         }
@@ -199,7 +202,7 @@ namespace Wale.WPF
                     //MessageBox.Show("IconOn");
                 }
 
-                System.Threading.Thread.Sleep(settings.UIUpdateInterval);
+                System.Threading.Thread.Sleep(new TimeSpan((long)(settings.UIUpdateInterval * 10000)));
             }
             Log("End UpdateStateTask");
         }
@@ -239,7 +242,7 @@ namespace Wale.WPF
                 }
                 //if (updateVolumeDelay > 0) await wait;
                 //bAllowPaintMaster = true;
-                System.Threading.Thread.Sleep(settings.UIUpdateInterval);
+                System.Threading.Thread.Sleep(new TimeSpan((long)(settings.UIUpdateInterval * 10000)));
                 //await wait;
             }
             Log("End UpdateVolumeTask");
@@ -262,7 +265,7 @@ namespace Wale.WPF
                 }// activated check enclosure
                  //if (updateSessionDelay > 0) await wait;
                 //bAllowPaintSession = true;
-                System.Threading.Thread.Sleep(settings.UIUpdateInterval);
+                System.Threading.Thread.Sleep(new TimeSpan((long)(settings.UIUpdateInterval * 10000)));
                 //await wait;
             }/**/
             Log("End UpdateSessionTask");
@@ -516,11 +519,22 @@ namespace Wale.WPF
 
         #region Window Events
 
+        private void DevView_CommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            if(Dev) DL.ACDebugShow = DL.ACDebugShow == Visibility.Visible ? Visibility.Hidden : Visibility.Visible;
+        }
         private void Settings_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (!loaded) return;
             DrawBase();
             DrawNew();
+            if (settings.AutoControlInterval != LastValues.AutoControlInterval || settings.AverageTime != LastValues.AverageTime)
+            {
+                Audio?.UpdateAverageParam();
+                Log($"Update Avr Param {settings.AverageTime:n3}ms({settings.AverageTime / settings.AutoControlInterval:n0}), {settings.AutoControlInterval:n3}ms");
+                DL.ACHz = 1.0 / (2.0 * settings.AutoControlInterval / 1000.0);
+                DL.ACAvCnt = settings.AverageTime / settings.AutoControlInterval;
+            }
         }
 
         private void window_Deactivated(object sender, EventArgs e)
@@ -1198,14 +1212,41 @@ namespace Wale.WPF
             return null;
         }
     }*/
+    public class ACdataconverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return (double)value > WPF.Properties.Settings.Default.AutoControlInterval * 1.1 || (double)value < 0;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
     //Datalink for VM
-    class Datalink : INotifyPropertyChanged
+    public class Datalink : INotifyPropertyChanged
     {
         private double _MasterVolume = 0;
         public double MasterVolume { get => _MasterVolume; set { _MasterVolume = value; Notify("MasterVolume"); } }
         
         private double _MasterPeak = 0;
         public double MasterPeak { get => _MasterPeak; set { _MasterPeak = value; Notify("MasterPeak"); } }
+
+
+        private Visibility _ACDebugShow = Visibility.Hidden;
+        public Visibility ACDebugShow { get => _ACDebugShow; set { _ACDebugShow = value; Notify("ACDebugShow"); } }
+        private double _ACElapsed = 0;
+        public double ACElapsed { get => _ACElapsed; set { _ACElapsed = Math.Round(value, 3); Notify("ACElapsed"); } }
+        private double _ACWaited = 0;
+        public double ACWaited { get => _ACWaited; set { _ACWaited = Math.Round(value, 3); Notify("ACWaited"); } }
+        private double _ACEWdif = 0;
+        public double ACEWdif { get => _ACEWdif; set { _ACEWdif = Math.Round(value, 3); Notify("ACEWdif"); } }
+
+        private double _ACAvCnt = 0;
+        public double ACAvCnt { get => _ACAvCnt; set { _ACAvCnt = Math.Round(value, 0); Notify("ACAvCnt"); } }
+        private double _ACHz = 0;
+        public double ACHz { get => _ACHz; set { _ACHz = Math.Round(value, 2); Notify("ACHz"); } }
 
 
         public event PropertyChangedEventHandler PropertyChanged;
