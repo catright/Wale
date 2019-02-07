@@ -184,9 +184,9 @@ namespace Wale
         {
             JDPack.FileLog.Log("Audio Control Task Start");
             List<Task> aas = new List<Task>();
-            uint logCounter = 0, logCritical = 10000;
+            uint logCounter = 0, logCritical = 10000, swCritical = (uint)(settings.UIUpdateInterval / settings.AutoControlInterval);
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-            //List<long> elapsed = new List<long>(10);
+            List<double> elapsed = new List<double>(), ewdif = new List<double>(), waited = new List<double>();
             //System.Timers.Timer timer = new System.Timers.Timer();
             while (!Terminate)
             {
@@ -233,13 +233,28 @@ namespace Wale
                 sw.Start();
                 TimeSpan d = new TimeSpan((long)(settings.AutoControlInterval * 10000)).Subtract(el);
                 //Console.WriteLine($"ACTaskElapsed={sw.ElapsedMilliseconds}(-{d.Ticks / 10000:n3})[ms]");
-                DL.ACElapsed = (double)el.Ticks / 10000;
-                DL.ACEWdif = (double)d.Ticks / 10000;
-                if (d.Ticks > 0) { await Task.Delay(d); }
+                elapsed.Add((double)el.Ticks / 10000);
+                ewdif.Add((double)d.Ticks / 10000);
+                if (d.Ticks > 0)
+                {
+                    //Timer = new System.Timers.Timer(d.TotalMilliseconds) { AutoReset = false };
+                    //Timer.Elapsed += Timer_Elapsed;
+                    //Timer.Start();
+                    //AccuTimerCTS = new System.Threading.CancellationTokenSource();
+                    //try { await Task.Delay(d, AccuTimerCTS.Token); } catch (OperationCanceledException) { }
+                    await Task.Delay(d);
+                }
+                //if (d.Ticks > 0) { await Task.Delay(d); }
                 //await Task.Delay(new TimeSpan((long)(settings.AutoControlInterval * 10000)));
                 sw.Stop();
                 //Console.WriteLine($"ACTaskWaited ={(double)sw.ElapsedTicks / System.Diagnostics.Stopwatch.Frequency * 1000:n3}[ms]");// *10000000 T[100ns]
-                DL.ACWaited = (double)sw.ElapsedTicks / System.Diagnostics.Stopwatch.Frequency * 1000;
+                waited.Add((double)sw.ElapsedTicks / System.Diagnostics.Stopwatch.Frequency * 1000);
+                if (waited.Count > swCritical)
+                {
+                    DL.ACElapsed = elapsed.Average(); DL.ACEWdif = elapsed.Average(); DL.ACWaited = waited.Average();
+                    elapsed.Clear(); ewdif.Clear(); waited.Clear();
+                    swCritical = 0;
+                }
                 //if (elapsed.Count >= elapsed.Capacity) elapsed.RemoveAt(0);
                 //elapsed.Add(sw.ElapsedMilliseconds);
             }// end while loop
@@ -313,13 +328,20 @@ namespace Wale
         protected JDPack.DebugPack DP;
         protected CoreAudio.Audio audio;
 
-        protected object terminatelock = new object(), autoconlock = new object(), AClocker = new object();
+        protected object terminatelock = new object(), autoconlock = new object(), AClocker = new object(), AccuTimerlock = new object();
         private bool _Terminate = false;
         protected bool Terminate { get { lock (terminatelock) { return _Terminate; } } set { lock (terminatelock) { _Terminate = value; } } }
+        //private bool _AccuTimer = false;
+        //protected bool AccuTimer { get { lock (AccuTimerlock) { return _AccuTimer; } } set { lock (AccuTimerlock) { _AccuTimer = value; } } }
+        protected System.Threading.CancellationTokenSource AccuTimerCTS;
         protected double baseLv, baseLvSquare, upRate = 0.02, kurtosis = 0.5;
         protected VFunction.FactorsForSlicedLinear sliceFactors;
         protected Task audioControlTask, controllerCleanTask;
         #endregion
+
+        protected System.Timers.Timer Timer;
+        protected void Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e) { if (!AccuTimerCTS.IsCancellationRequested) AccuTimerCTS.Cancel(); }
+
         #region Dispose
         private bool disposed = false;
         ~AudioControlInternal() { Dispose(false); }
@@ -345,6 +367,5 @@ namespace Wale
             }
         }
         #endregion
-
     }
 }//End Namespace WindowAudioLoudnessEqualizer

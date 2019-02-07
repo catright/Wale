@@ -62,11 +62,13 @@ namespace Wale.CoreAudio
         /// <summary>
         /// Volume of default device.
         /// </summary>
-        public float MasterVolume { get => GetMasterVolume(); set => SetMasterVolume(value); }
+        public float MasterVolume { get => MasterEPVolume.MasterVolumeLevelScalar; set => MasterEPVolume.MasterVolumeLevelScalar = value; }
+        //public float MasterVolume { get => MasterEPVolume.MasterVolumeLevelScalar; set => MasterEPVolume.MasterVolumeLevelScalar = value; }
         /// <summary>
         /// Peak level of default device.
         /// </summary>
-        public float MasterPeak { get => GetMasterPeak(); }
+        public float MasterPeak => MasterEPPeak.PeakValue;
+        //public float MasterPeak { get => GetMasterPeak(); }
         /// <summary>
         /// Base level for WALE
         /// </summary>
@@ -257,6 +259,7 @@ namespace Wale.CoreAudio
 
         #region Private Audio Device Items
         //Master Volume Items
+        private AudioEndpointVolume MasterEPVolume { get; set; }
         private float GetMasterVolume()
         {
             try
@@ -267,10 +270,11 @@ namespace Wale.CoreAudio
                     if (defaultDevice == null) { JDPack.FileLog.Log("GetMasterVolume: Fail to get master device."); return -1; }
                     Guid IID_IAudioEndpointVolume = typeof(AudioEndpointVolume).GUID;
                     IntPtr i = defaultDevice.Activate(IID_IAudioEndpointVolume, 0, IntPtr.Zero);
-                    using (var aev = new AudioEndpointVolume(i))
-                    {
-                        return aev.MasterVolumeLevelScalar;
-                    }
+                    //using (var aev = new AudioEndpointVolume(i))
+                    MasterEPVolume = new AudioEndpointVolume(i);
+                    //{
+                        return MasterEPVolume.MasterVolumeLevelScalar;
+                    //}
                 }
             }
             catch (Exception e) { JDPack.FileLog.Log($"Error(GetMasterVolume): {e.ToString()}"); return -2; }
@@ -286,10 +290,10 @@ namespace Wale.CoreAudio
                     if (defaultDevice == null) { JDPack.FileLog.Log("SetMasterVolume: Fail to get master device."); return; }
                     Guid IID_IAudioEndpointVolume = typeof(AudioEndpointVolume).GUID;
                     IntPtr i = defaultDevice.Activate(IID_IAudioEndpointVolume, 0, IntPtr.Zero);
-                    using (var aev = new AudioEndpointVolume(i))
-                    {
-                        aev.MasterVolumeLevelScalar = volume;
-                    }
+                    //using (var aev = new AudioEndpointVolume(i))
+                    //{
+                        //aev.MasterVolumeLevelScalar = volume;
+                    //}
                 }
             }
             catch (Exception e) { JDPack.FileLog.Log($"Error(SetMasterVolume): {e.ToString()}"); return; }
@@ -297,6 +301,7 @@ namespace Wale.CoreAudio
         }
 
         //Master Peak Items
+        private AudioMeterInformation MasterEPPeak { get; set; }
         private float GetMasterPeak()
         {
             try
@@ -307,10 +312,11 @@ namespace Wale.CoreAudio
                     if (defaultDevice == null) { JDPack.FileLog.Log("GetMasterPeak: Fail to get master device."); return -1; }
                     Guid IID_IAudioMeterInformation = typeof(AudioMeterInformation).GUID;
                     IntPtr ip = defaultDevice.Activate(IID_IAudioMeterInformation, 0, IntPtr.Zero);
-                    using (var ami = new AudioMeterInformation(ip))
-                    {
-                        return ami.PeakValue;
-                    }
+                    //using (var ami = new AudioMeterInformation(ip))
+                    MasterEPPeak = new AudioMeterInformation(ip);
+                    //{
+                        return MasterEPPeak.PeakValue;
+                    //}
                 }
             }
             catch (Exception e) { JDPack.FileLog.Log($"Error(GetMasterPeak): {e.ToString()}"); return -2; }
@@ -526,7 +532,15 @@ namespace Wale.CoreAudio
             }
 
             //enumerate all sessions
-            ASM.GetSessionEnumerator().ToArray();
+            foreach(var asc in ASM.GetSessionEnumerator().ToArray())
+            {
+                var asc2 = asc.QueryInterface<AudioSessionControl2>();
+                asc2.StateChanged += Asn_StateChanged;
+                //if (asc2.SessionState == AudioSessionState.AudioSessionStateActive)
+                //{
+                    lock (sessionLocker) { ASClist.Add(new Session(asc2, ExcludeList, AverageTime, AverageInterval)); }
+                //}
+            }
 
             //thread.SetApartmentState(System.Threading.ApartmentState.MTA);
             //thread.Start();

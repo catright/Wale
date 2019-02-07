@@ -64,14 +64,11 @@ namespace Wale.WPF.Properties {
         ///   Looks up a localized string similar to Latest usage is always updated on Github Wiki(https://github.com/catright/Wale/wiki) first
         ///
         ///
+        ///Usage
         ///
-        ///Main
-        ///  you can read app log on log tab, detailed log on %appdata%\WaleAudioControl
+        ///Wale will try to adjust all sound generating processes&apos; peak level to &apos;Target: yellow bar on View(F2) page&apos; level. You can change Target to your preferred level.
         ///
-        ///Master Control
-        ///  Controls volume of current default render device with mouse wheel on anywhere of master tab. Control step is on small textbox which a left one of two of them.
-        ///  Click ‘Set Volume’ button to set a volume of current default render device, target volume is on bigger textbox which a right one of two of them.
-        ///  [rest of string was truncated]&quot;;.
+        ///However, Wale uses windows volume system for now, which means the app only can control volume between 0.0~1.0. Hence, if you set Target to near 1.0, then Wale could not control volume, because all processes&apos; peak levels are always less than o [rest of string was truncated]&quot;;.
         /// </summary>
         public static string Help {
             get {
@@ -119,12 +116,11 @@ namespace Wale.WPF.Properties {
         ///Icons are copyrighted on Hyein, Park.
         ///
         ///
-        ///
         ///MIT License
         ///
         ///Copyright (c) 2017 Jongtae, Park (catright)
         ///
-        ///Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &quot;Software&quot;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, a [rest of string was truncated]&quot;;.
+        ///Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &quot;Software&quot;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and [rest of string was truncated]&quot;;.
         /// </summary>
         public static string LicenseWale {
             get {
