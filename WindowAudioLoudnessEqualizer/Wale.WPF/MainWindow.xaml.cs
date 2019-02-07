@@ -531,7 +531,7 @@ namespace Wale.WPF
             if (settings.AutoControlInterval != LastValues.AutoControlInterval || settings.AverageTime != LastValues.AverageTime)
             {
                 Audio?.UpdateAverageParam();
-                Log($"Update Avr Param {settings.AverageTime:n3}ms({settings.AverageTime / settings.AutoControlInterval:n0}), {settings.AutoControlInterval:n3}ms");
+                JDPack.FileLog.Log($"Update Avr Param {settings.AverageTime:n3}ms({settings.AverageTime / settings.AutoControlInterval:n0}), {settings.AutoControlInterval:n3}ms");
                 DL.ACHz = 1.0 / (2.0 * settings.AutoControlInterval / 1000.0);
                 DL.ACAvCnt = settings.AverageTime / settings.AutoControlInterval;
             }

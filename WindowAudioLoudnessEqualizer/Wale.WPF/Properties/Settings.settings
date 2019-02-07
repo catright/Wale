@@ -45,7 +45,7 @@
       <Value Profile="(Default)">100</Value>
     </Setting>
     <Setting Name="AutoControlInterval" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">3</Value>
+      <Value Profile="(Default)">15</Value>
     </Setting>
     <Setting Name="VFunc" Type="System.String" Scope="User">
       <Value Profile="(Default)">None</Value>
