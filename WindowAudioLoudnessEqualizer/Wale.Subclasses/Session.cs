@@ -4,21 +4,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
-//using Vannatech.CoreAudio.Interfaces;
-//using Vannatech.CoreAudio.Enumerations;
 
 namespace Wale.CoreAudio
 {
     /// <summary>
     /// Data container for audio session
     /// </summary>
-    public class Session : IDisposable//, CSCore.CoreAudioAPI.AudioSessionControl2
+    public class Session : IDisposable
     {
         private CSCore.CoreAudioAPI.AudioSessionControl2 asc2;
-        public Session(CSCore.CoreAudioAPI.AudioSessionControl2 asc2, List<string> ExcList, double AvTime, double AvInterval)
+        public Session(CSCore.CoreAudioAPI.AudioSessionControl2 asc2, List<string> ExcList, double AvgTime, double AcInterval)
         {
             this.asc2 = asc2;
-            nameSet = new NameSet(
+            NameSet = new NameSet(
                 asc2.ProcessID,
                 asc2.IsSystemSoundSession,
                 "",//asc2.Process.ProcessName
@@ -26,24 +24,11 @@ namespace Wale.CoreAudio
                 asc2.DisplayName,
                 asc2.SessionIdentifier
             );
-            AutoIncluded = ExcList.Contains(nameSet.Name) ? false : true;
-            SetAvTime(AvTime, AvInterval);
+            AutoIncluded = ExcList.Contains(NameSet.Name) ? false : true;
+            SetAvTime(AvgTime, AcInterval);
         }
-        /*public Session(CSCore.CoreAudioAPI.AudioSessionControl2 asc2, NameSet nameset) { this.asc2 = asc2; this.nameSet = nameset; }
-        public Session(CSCore.CoreAudioAPI.AudioSessionControl2 asc2, int pid, bool issystem, string pname, string mwtitle, string dispname, string sessider)
-        {
-            this.asc2 = asc2;
-            //ProcessID = pid;
-            //IsSystemSoundSession = issystem;
-            //ProcessName = pname;
-            //MainWindowTitle = mwtitle;
-            //DisplayName = dispname;
-            //SessionIdentifier = sessider;
-            //name = MakeName();
-        }*/
 
         #region API Default Datas
-        public NameSet nameSet { get; set; }
         /// <summary>
         /// Converted from CoreAudioApi
         /// </summary>
@@ -58,29 +43,33 @@ namespace Wale.CoreAudio
                 }
             }
         }
-        private bool IsSystemSoundSession => asc2.IsSystemSoundSession;
 
         private string name;
+        public NameSet NameSet { get; set; }
         /// <summary>
         /// Human readable process name
         /// </summary>
-        public string Name { get { if (nameSet != null) return nameSet.Name; return name; } set => name = value; }
-        public int ProcessID => asc2.ProcessID;
-        public uint PID { get => (uint)ProcessID; }
+        public string Name { get { if (NameSet != null) return NameSet.Name; return name; } set => name = value; }
         /// <summary>
-        /// Process Id
+        /// ProcessID
         /// </summary>
-        //public uint PID { get { if (nameSet != null) return (uint)nameSet.ProcessID; return (uint)ProcessID; } set => ProcessID = (int)value; }
-        //private readonly string DisplayName, ProcessName, MainWindowTitle;
+        public uint PID { get => (uint)ProcessID; }
+
+        public int ProcessID => asc2.ProcessID;
         private string DisplayName => asc2.DisplayName;
         private string ProcessName => asc2.Process.ProcessName;
         private string MainWindowTitle => asc2.Process.MainWindowTitle;
-        //public string SessionIdentifier { get; private set; }
         public string SessionIdentifier => asc2.SessionIdentifier;
+        private bool IsSystemSoundSession => asc2.IsSystemSoundSession;
+
+        /// <summary>
+        /// Read or write volume of audio session. Always use RV when write volume.
+        /// RV makes final volume = inputVolume * Pow(2, Reletive)
+        /// </summary>
         public float Volume
         {
             get { using (var v = asc2.QueryInterface<CSCore.CoreAudioAPI.SimpleAudioVolume>()) { return v.MasterVolume; } }
-            set { using (var v = asc2.QueryInterface<CSCore.CoreAudioAPI.SimpleAudioVolume>()) { v.MasterVolume = RV(value); } }
+            set { using (var v = asc2.QueryInterface<CSCore.CoreAudioAPI.SimpleAudioVolume>()) { v.MasterVolume = (value > 1 ? 1 : (value < -1 ? -1 : value)); } }
         }
         public float Peak
         {
@@ -92,20 +81,29 @@ namespace Wale.CoreAudio
                 }
             }
         }
-        
         #endregion
 
         #region Customized Datas
+        private float _Relative = 0f;
         /// <summary>
-        /// This value would be added arithmetically when setting the volume for the session.
+        /// Final volume would be multiplied by 2^Relative. This value is kept in -1~1.
         /// </summary>
-        public float Relative { get; set; } = 0f;
+        public float Relative { get => _Relative; set { _Relative = (value > 1) ? 1 : ((value < -1) ? -1 : value); } }
+        /// <summary>
+        /// Minimum volume. Session volume is kept above this value.
+        /// </summary>
         public float MinVol { get; set; } = 0.01f;
-        private float RV(float vol)
+        /// <summary>
+        /// Make final volume with Relative. final volume would be <paramref name="vol"/> * Pow(2, Reletive)
+        /// </summary>
+        /// <param name="vol"></param>
+        /// <returns>(float)Final volume</returns>
+        /*private float RV(float vol)
         {
-            float v = vol + Relative;
+            float r = (float)Math.Pow(2, Relative);
+            float v = vol * r;Console.WriteLine($"{vol:n5}, {v:n5}({r:n5},{Relative:n3})");
             return (v > 1) ? 1 : ((v < MinVol) ? MinVol : v);
-        }
+        }*/
         /// <summary>
         /// The session is included to Auto controller when this flag is True. Default is True.
         /// </summary>
@@ -113,7 +111,7 @@ namespace Wale.CoreAudio
         /// <summary>
         /// Average Calculation is enabled when this flag is True. Default is True.
         /// </summary>
-        public bool Averaging { get; set; } = true;
+        //public bool Averaging { get; set; } = true;
         #endregion
 
 
@@ -126,7 +124,7 @@ namespace Wale.CoreAudio
         /// Total stacking time for averaging.
         /// </summary>
         public double AvTime { get; private set; }//ms
-        private int AvCount = 0;
+        private uint AvCount = 0;
         private List<double> Peaks = new List<double>();
 
         /// <summary>
@@ -137,7 +135,7 @@ namespace Wale.CoreAudio
         public void SetAvTime(double averagingTime, double unitTime)
         {
             AvTime = averagingTime;
-            AvCount = (int)(averagingTime / unitTime);
+            AvCount = (uint)Convert.ToUInt32(averagingTime / unitTime);
             //Console.WriteLine($"Average Time Updated Cnt:{AvCount}");
             JDPack.FileLog.Log($"Average Time Updated Cnt:{AvCount}");
             ResetAverage();
@@ -195,18 +193,22 @@ namespace Wale.CoreAudio
         }
         #endregion
 
-    }//End class Session2
+    }//End class Session
     /// <summary>
-    /// List object of SessionData.
+    /// List object of SessionData. List&lt;Session&gt;
     /// </summary>
     public class SessionList : List<Session>
     {
         public SessionList() { this.Clear(); }
         /// <summary>
         /// Find session by its process id.
-        /// <para>Log($"Error(GetSession): ArgumentNullException") when ArgumentNullException. 
-        /// Log($"Error(GetSession): NullReferenceException") when NullReferenceException. 
-        /// Log($"Error(GetSession): {(Exception)e.ToString()}") when Exception</para>
+        /// <para>
+        /// <list type="bullet">
+        /// <item><description>Log($"Error(GetSession): ArgumentNullException") when ArgumentNullException.</description></item>
+        /// <item><description>Log($"Error(GetSession): NullReferenceException") when NullReferenceException.</description></item>
+        /// <item><description>Log($"Error(GetSession): {(Exception)e.ToString()}") when Exception</description></item>
+        /// </list>
+        /// </para>
         /// </summary>
         /// <param name="pid">ProcessId</param>
         /// <returns>SessionData when find SessionData successfully or null.</returns>

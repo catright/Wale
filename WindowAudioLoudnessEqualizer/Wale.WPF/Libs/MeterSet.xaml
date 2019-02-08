@@ -10,7 +10,9 @@
              ScrollViewer.VerticalScrollBarVisibility="Disabled"
              Height="42" MinHeight="27"
              Width="280" MinWidth="{Binding Width, RelativeSource={RelativeSource Self}}"
+             Margin="0" Padding="0"
              VerticalAlignment="Top">
+    <!--MinWidth="{Binding MinWidth, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MeterSet}}}" MinHeight="{Binding MinHeight, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MeterSet}}}"-->
     <UserControl.Resources>
         <Style x:Key="PBarDef" TargetType="ProgressBar">
             <Setter Property="Maximum" Value="1"/>
@@ -94,8 +96,84 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+
+        <Style x:Key="BaseSliderRight" TargetType="RepeatButton">
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="IsTabStop" Value="False"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RepeatButton">
+                        <Border Height="{TemplateBinding Height}" BorderThickness="1" BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding Background}"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="BaseSliderLeft" TargetType="RepeatButton">
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RepeatButton">
+                        <Border Height="{TemplateBinding Height}" BorderThickness="1" BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding Foreground}"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="BaseSliderThumb" TargetType="Thumb">
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="OverridesDefaultStyle" Value="True" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Thumb">
+                        <Ellipse Height="{TemplateBinding Height}" Width="{TemplateBinding Width}" StrokeThickness="0" Stroke="{TemplateBinding BorderBrush}" Fill="{TemplateBinding Foreground}"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <ControlTemplate x:Key="BaseSliderTemplate" TargetType="Slider">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto" MinHeight="{TemplateBinding MinHeight}"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Track Grid.Row="1" x:Name="PART_Track">
+                    <Track.DecreaseRepeatButton>
+                        <RepeatButton Height="{TemplateBinding MinHeight}" Style="{StaticResource BaseSliderLeft}" Command="Slider.DecreaseLarge" Background="{TemplateBinding Background}" Foreground="{TemplateBinding Foreground}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}"/>
+                    </Track.DecreaseRepeatButton>
+                    <Track.Thumb>
+                        <Thumb Height="{TemplateBinding MinHeight}" Width="0" Style="{StaticResource BaseSliderThumb}" Background="{TemplateBinding Background}" Foreground="{TemplateBinding Foreground}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}"/>
+                    </Track.Thumb>
+                    <Track.IncreaseRepeatButton>
+                        <RepeatButton Height="{TemplateBinding MinHeight}" Style="{StaticResource BaseSliderRight}" Command="Slider.IncreaseLarge" Background="{TemplateBinding Background}" Foreground="{TemplateBinding Foreground}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}"/>
+                    </Track.IncreaseRepeatButton>
+                </Track>
+            </Grid>
+        </ControlTemplate>
+        <Style x:Key="SliderDef" TargetType="Slider">
+            <Setter Property="Maximum" Value="1"/>
+            <Setter Property="Minimum" Value="-1"/>
+            <Setter Property="LargeChange" Value="0.05"/>
+            <Setter Property="SmallChange" Value="0.01"/>
+            <Setter Property="TickFrequency" Value="0.01"/>
+            <Setter Property="IsSnapToTickEnabled" Value="True"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Style.Triggers>
+                <Trigger Property="Orientation" Value="Horizontal">
+                    <Setter Property="Height" Value="3"/>
+                    <Setter Property="MinHeight" Value="3"/>
+                    <Setter Property="MinWidth" Value="10"/>
+                    <Setter Property="BorderBrush" Value="Transparent"/>
+                    <Setter Property="Template" Value="{StaticResource BaseSliderTemplate}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </UserControl.Resources>
-    <!--MinWidth="{Binding MinWidth, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MeterSet}}}" MinHeight="{Binding MinHeight, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MeterSet}}}"-->
+    
     <Grid MouseWheel="MeterSet_MouseWheel">
         <StackPanel Margin="2,0">
             <Grid>
@@ -117,7 +195,10 @@
                 </WrapPanel>
             </Grid>
             <StackPanel>
-                <ProgressBar x:Name="VolumeBar" Value=".5" Foreground="{Binding Source={x:Static local:ColorSet.VolumeColorBrush}}" Style="{DynamicResource PBarDef}"/>
+                <Grid>
+                    <ProgressBar x:Name="VolumeBar" Value=".5" Foreground="{Binding Source={x:Static local:ColorSet.VolumeColorBrush}}" Style="{DynamicResource PBarDef}"/>
+                    <Slider x:Name="RelBar" Value="0" Opacity=".55" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Style="{DynamicResource SliderDef}" ValueChanged="RelBar_ValueChanged"/>
+                </Grid>
                 <Grid>
                     <ProgressBar x:Name="LevelBar" Margin="0,0,0,0" Value=".5" Foreground="{Binding Source={x:Static local:ColorSet.PeakColorBrush}}" Style="{DynamicResource PBarDef}"/>
                     <ProgressBar x:Name="AvLevelBar" Opacity="1.75" Value=".25" Foreground="{Binding Source={x:Static local:ColorSet.AverageColorBrush}}" Style="{DynamicResource PBarInner}"/>

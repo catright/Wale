@@ -9,7 +9,7 @@ namespace Wale.WPF
 {
     public static class ShortcutCommands
     {
-        public static readonly RoutedCommand SCDevView = new RoutedCommand("SCDevView", typeof(ShortcutCommands), new InputGestureCollection() { new KeyGesture(Key.F1, ModifierKeys.Shift), new KeyGesture(Key.F1, ModifierKeys.Control) });
+        public static readonly RoutedCommand SCDevShow = new RoutedCommand("SCDevShow", typeof(ShortcutCommands), new InputGestureCollection() { new KeyGesture(Key.F1, ModifierKeys.Shift), new KeyGesture(Key.F1, ModifierKeys.Control) });
         public static readonly RoutedCommand SCMasterTab = new RoutedCommand("SCAlwaysTop", typeof(ShortcutCommands), new InputGestureCollection() { new KeyGesture(Key.F2) });
         public static readonly RoutedCommand SCSessionTab = new RoutedCommand("SCAlwaysTop", typeof(ShortcutCommands), new InputGestureCollection() { new KeyGesture(Key.F3) });
         public static readonly RoutedCommand SCLogTab = new RoutedCommand("SCLogTab", typeof(ShortcutCommands), new InputGestureCollection() { new KeyGesture(Key.F4) });

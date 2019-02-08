@@ -7,7 +7,7 @@
         xmlns:prop="clr-namespace:Wale.WPF.Properties"
         xmlns:wale="clr-namespace:Wale;assembly=WaleBase"
         xmlns:oxy="http://oxyplot.org/wpf"
-        mc:Ignorable="d" Icon="Icon/WaleLeftOn.ico" ShowInTaskbar="False" WindowStyle="None" ResizeMode="NoResize" Width="480" MinWidth="480" MaxWidth="480" Height="260" MinHeight="{Binding Source={x:Static wale:AppDatas.MainWindowHeightDefault}}" Topmost="{Binding Path=AlwaysTop, Source={x:Static prop:Settings.Default}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" MouseLeave="Window_MouseLeave" LostFocus="Window_LostFocus" Deactivated="window_Deactivated">
+        mc:Ignorable="d" Icon="Icon/WaleLeftOn.ico" ShowInTaskbar="False" WindowStyle="None" ResizeMode="NoResize" Width="480" MinWidth="480" MaxWidth="480" Height="260" MinHeight="{Binding Source={x:Static wale:AppDatas.MainWindowHeightDefault}}" Topmost="{Binding Path=AlwaysTop, Source={x:Static prop:Settings.Default}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" Deactivated="window_Deactivated">
     <Window.ContextMenu>
         <ContextMenu>
             <MenuItem Header="Configuration" Click="ConfigToolStripMenuItem_Click"/>
@@ -20,7 +20,7 @@
         </ContextMenu>
     </Window.ContextMenu>
     <Window.CommandBindings>
-        <CommandBinding Command="{x:Static local:ShortcutCommands.SCDevView}" Executed="DevView_CommandBinding_Executed"/>
+        <CommandBinding Command="{x:Static local:ShortcutCommands.SCDevShow}" Executed="DevShow_CommandBinding_Executed"/>
         <CommandBinding Command="{x:Static local:ShortcutCommands.SCMasterTab}" Executed="ShiftToMasterTab"/>
         <CommandBinding Command="{x:Static local:ShortcutCommands.SCSessionTab}" Executed="ShiftToSessionTab"/>
         <CommandBinding Command="{x:Static local:ShortcutCommands.SCLogTab}" Executed="ShiftToLogTab"/>
@@ -402,7 +402,6 @@
                             <Grid>
                                 <Label Content="Target" HorizontalAlignment="Left" Padding="0" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
                                 <Label x:Name="TargetLabel" Content="0" HorizontalAlignment="Right" Padding="0" Foreground="{Binding Source={x:Static local:ColorSet.TargetColorBrush}}"/>
-                                <!--ProgressBar x:Name="BaseBar" HorizontalAlignment="Left" Height="16" Margin="5,0,0,0" VerticalAlignment="Center" Width="80" Value="{Binding Path=BaseLevel, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Foreground="{Binding Source={x:Static local:ColorSet.TargetColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" BorderBrush="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Maximum="1" LargeChange="0.1" SmallChange="0.01"/-->
                             </Grid>
                             <Slider x:Name="BaseSlider" Value="{Binding Path=TargetLevel, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Foreground="{Binding Source={x:Static local:ColorSet.TargetColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Style="{DynamicResource SliderBaseSlider}" ValueChanged="TargetSlider_ValueChanged"/>
                         </StackPanel>
@@ -410,14 +409,14 @@
                             <Grid>
                                 <Label Content="Master" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" Padding="0"/>
                                 <WrapPanel HorizontalAlignment="Right">
-                                    <Label x:Name="MasterLabel" Width="35" Padding="0" Content="0" Foreground="{Binding Source={x:Static local:ColorSet.VolumeColorBrush}}" HorizontalContentAlignment="Right"/>
-                                    <Label x:Name="MasterPeakLabel" Width="35" Padding="0" Content="0" Foreground="{Binding Source={x:Static local:ColorSet.PeakColorBrush}}" HorizontalContentAlignment="Right"/>
+                                    <Label x:Name="MasterLabel" Width="35" Padding="0" Content="{Binding MasterVolume}" Foreground="{Binding Source={x:Static local:ColorSet.VolumeColorBrush}}" HorizontalContentAlignment="Right"/>
+                                    <Label x:Name="MasterPeakLabel" Width="35" Padding="0" Content="{Binding MasterPeak}" Foreground="{Binding Source={x:Static local:ColorSet.PeakColorBrush}}" HorizontalContentAlignment="Right"/>
                                 </WrapPanel>
                             </Grid>
-                            <ProgressBar x:Name="MasterVolumeBar" Value="{Binding MasterVolume}" Foreground="{Binding Source={x:Static local:ColorSet.VolumeColorBrush}}" Style="{DynamicResource PBarDef}"/>
+                            <Slider x:Name="MasterVolumeSlider" Value="{Binding MasterVolume}" Foreground="{Binding Source={x:Static local:ColorSet.VolumeColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Style="{DynamicResource SliderBaseSlider}" ValueChanged="MasterVolumeSlider_ValueChanged"/>
                             <ProgressBar x:Name="MasterPeakBar" Value="{Binding MasterPeak}" Foreground="{Binding Source={x:Static local:ColorSet.PeakColorBrush}}" Style="{DynamicResource PBarDef}"/>
                         </StackPanel>
-                        <Grid Margin="5,5,5,0">
+                        <Grid Margin="5,5,5,0" IsEnabled="False" Width="0" Height="0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="1*" MinWidth="35"/>
                                 <ColumnDefinition Width="99*" MinWidth="80"/>
@@ -459,7 +458,8 @@
                             <CheckBox Content="StayOn(F8)" IsChecked="{Binding Path=StayOn, Source={x:Static prop:Settings.Default}}" Style="{DynamicResource CboxDef}"/>
                             <CheckBox Content="DetailView(F9)" IsChecked="{Binding Path=DetailedView, Source={x:Static prop:Settings.Default}}" Style="{DynamicResource CboxDef}"/>
                         </WrapPanel>
-                        <Border Visibility="{Binding ACDebugShow}" Margin="0,2" Padding="0" BorderBrush="{Binding Source={x:Static local:ColorSet.ForeColorAltBrush}}" BorderThickness="1">
+                        <!--Dev panel i-->
+                        <Border Visibility="{Binding ACDevShow}" Margin="0,2" Padding="0" BorderBrush="{Binding Source={x:Static local:ColorSet.ForeColorAltBrush}}" BorderThickness="1">
                             <StackPanel Margin="0">
                                 <WrapPanel Margin="0">
                                     <Label Content="AC Elapsed" Padding="10,0,0,0" Width="80" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
@@ -552,12 +552,12 @@
                                 </WrapPanel>
                             </StackPanel>
                         </Border>
+                        <!--Dev panel f-->
                     </StackPanel>
-                    <Grid x:Name="SessionGrid" Grid.Column="2">
-                        <!--WrapPanel x:Name="SessionPanel"/-->
+                    <StackPanel x:Name="SessionPanel" Grid.Column="2">
                         <local:MeterSet/>
-                        <local:MeterSet Margin="0,40,0,0"/>
-                    </Grid>
+                        <local:MeterSet/>
+                    </StackPanel>
                 </Grid>
             </TabItem>
             <TabItem Header="Config(F3)" Style="{DynamicResource TItemDef}">

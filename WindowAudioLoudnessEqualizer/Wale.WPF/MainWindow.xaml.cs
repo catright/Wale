@@ -25,21 +25,50 @@ namespace Wale.WPF
     /// </summary>
     public partial class MainWindow : Window
     {
-        private bool Dev = true;
+        // debug flags
+        private bool Dev = true, debug = false, mouseWheelDebug = false, audioDebug = false, updateVolumeDebug = false, updateSessionDebug = false;
         #region Variables
+        // objects
+        /// <summary>
+        /// registry key for start at windows startup
+        /// </summary>
         Microsoft.Win32.RegistryKey rkApp = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
+        /// <summary>
+        /// stored setting that users can modify
+        /// </summary>
         Wale.WPF.Properties.Settings settings = Wale.WPF.Properties.Settings.Default;
+        /// <summary>
+        /// datalink between MVVM
+        /// </summary>
         Datalink DL = new Datalink();
+        /// <summary>
+        /// Tray icon
+        /// </summary>
         System.Windows.Forms.NotifyIcon NI;
+        /// <summary>
+        /// Audio controller
+        /// </summary>
         AudioControl Audio;
+        /// <summary>
+        /// Debug message pack
+        /// </summary>
         JDPack.DebugPack DP;
-        List<Task> _updateTasks;
-        bool debug = false, mouseWheelDebug = false, audioDebug = false, updateVolumeDebug = false, updateSessionDebug = false;
-        object _closelock = new object(), _activelock = new object(), _ntvlock = new object();
-        volatile bool FirstLoad = true, _realClose = false, _activated = false, _numberToVol = true;
-        bool Rclose { get { bool val; lock (_closelock) { val = _realClose; } return val; } set { lock (_closelock) { _realClose = value; } } }
+        /// <summary>
+        /// window update task list
+        /// </summary>
+        List<Task> UpdateTasks;
+        
+        // flags
+        object _FinishAppLock = new object(), _activelock = new object();
+        volatile bool FirstLoad = true, _FinishApp = false, _activated = false;
+        /// <summary>
+        /// attempt to finish whole app
+        /// </summary>
+        bool FinishApp { get { bool val; lock (_FinishAppLock) { val = _FinishApp; } return val; } set { lock (_FinishAppLock) { _FinishApp = value; } } }
+        /// <summary>
+        /// window is activated
+        /// </summary>
         bool Active { get { bool val; lock (_activelock) { val = _activated; } return val; } set { lock (_activelock) { _activated = value; } } }
-        bool NTV { get { bool val; lock (_ntvlock) { val = _numberToVol; } return val; } set { lock (_ntvlock) { _numberToVol = value; } } }
         bool loaded = false;
         double originalMax;
         #endregion
@@ -56,43 +85,55 @@ namespace Wale.WPF
         }
         private void MakeComponents()
         {
-            LogScroll.Content = string.Empty;
-            //DL.ACDebugShow = Dev ? Visibility.Visible : Visibility.Hidden;
-            DL.ACHz = 1.0 / (2.0 * settings.AutoControlInterval / 1000.0);
-            DL.ACAvCnt = settings.AverageTime / settings.AutoControlInterval;
-            this.DataContext = DL;
             DP = new JDPack.DebugPack(debug);
-            settings.PropertyChanged += Settings_PropertyChanged;
 
-            //set process priority
-            SetPriority(settings.ProcessPriority);
+            // clear contents for design
+            LogScroll.Content = string.Empty;
 
+            // set contents for design
             if (string.IsNullOrWhiteSpace(AppVersion.Option)) this.Title = ($"WALE v{AppVersion.LongVersion}");
             else this.Title = ($"WALE v{AppVersion.LongVersion}");//-{AppVersion.Option}
             settings.AppTitle = this.Title;
 
             Left = System.Windows.SystemParameters.WorkArea.Width - this.Width;
             Top = System.Windows.SystemParameters.WorkArea.Height - this.Height;
+
+            // set data context
+            DL.ACHz = 1.0 / (2.0 * settings.AutoControlInterval / 1000.0);
+            DL.ACAvCnt = settings.AverageTime / settings.AutoControlInterval;
+            this.DataContext = DL;
+
+            // settings property changed event
+            settings.PropertyChanged += Settings_PropertyChanged;
+
+            // set process priority
+            SetPriority(settings.ProcessPriority);
+
             Log("OK1");
         }
         private void MakeNI()
         {
-            //this.Visibility = Visibility.Hidden;
-            NI = new System.Windows.Forms.NotifyIcon();
-            NI.Text = $"WALE v{AppVersion.LongVersion}";
-            NI.Icon = Properties.Resources.WaleLeftOn;
-            NI.Visible = true;
+            // make icon
+            NI = new System.Windows.Forms.NotifyIcon() {
+                Text = $"WALE v{AppVersion.LongVersion}",
+                Icon = Properties.Resources.WaleLeftOn,
+                Visible = true
+            };
 
-            List<System.Windows.Forms.MenuItem> items = new List<System.Windows.Forms.MenuItem>();
-            items.Add(new System.Windows.Forms.MenuItem("Configuration", ConfigToolStripMenuItem_Click));
-            items.Add(new System.Windows.Forms.MenuItem("Device Map", deviceMapToolStripMenuItem_Click));
-            items.Add(new System.Windows.Forms.MenuItem("Open Log", openLogDirectoryToolStripMenuItem_Click));
-            items.Add(new System.Windows.Forms.MenuItem("-"));
-            items.Add(new System.Windows.Forms.MenuItem("Help", helpToolStripMenuItem_Click));
-            items.Add(new System.Windows.Forms.MenuItem("License", licensesToolStripMenuItem_Click));
-            items.Add(new System.Windows.Forms.MenuItem("E&xit", OnProgramShutdown));
+            // make context menu
+            List<System.Windows.Forms.MenuItem> items = new List<System.Windows.Forms.MenuItem>
+            {
+                new System.Windows.Forms.MenuItem("Configuration", ConfigToolStripMenuItem_Click),
+                new System.Windows.Forms.MenuItem("Device Map", deviceMapToolStripMenuItem_Click),
+                new System.Windows.Forms.MenuItem("Open Log", openLogDirectoryToolStripMenuItem_Click),
+                new System.Windows.Forms.MenuItem("-"),
+                new System.Windows.Forms.MenuItem("Help", helpToolStripMenuItem_Click),
+                new System.Windows.Forms.MenuItem("License", licensesToolStripMenuItem_Click),
+                new System.Windows.Forms.MenuItem("E&xit", OnProgramShutdown)
+            };
             NI.ContextMenu = new System.Windows.Forms.ContextMenu(items.ToArray());
 
+            // icon click event
             this.NI.MouseClick += new System.Windows.Forms.MouseEventHandler(NI_MouseClick);
         }
         /// <summary>
@@ -100,9 +141,6 @@ namespace Wale.WPF
         /// </summary>
         private void MakeConfigs()
         {
-            //if (string.IsNullOrWhiteSpace(AppVersion.Option)) this.Title = ($"WALE v{AppVersion.LongVersion}");
-            //else this.Title = ($"WALE v{AppVersion.LongVersion}-{AppVersion.Option}");
-
             Makes();
             MakeOriginals();
             loaded = true;
@@ -128,125 +166,85 @@ namespace Wale.WPF
         /// </summary>
         private void StartApp()
         {
-            Wale.Transformation.SetBaseLevel(settings.TargetLevel);
-            Audio = new AudioControl(settings.TargetLevel, DL);
+            // start audio controller
+            Audio = new AudioControl(DL) { UpRate = settings.UpRate };
             while (Audio.MasterVolume == -1)
             {
                 Audio.Dispose();
-                Audio = new AudioControl(settings.TargetLevel, DL);
+                Audio = new AudioControl(DL) { UpRate = settings.UpRate };
             }
             Audio.Start(audioDebug);
-            //Audio.AutoControl = Properties.Settings.Default.autoControl;
-            //UpdateConnectTask();
-            _updateTasks = new List<Task>();
-            _updateTasks.Add(new Task(CheckFirstLoadTask));
-            _updateTasks.Add(new Task(UpdateStateTask));
-            _updateTasks.Add(new Task(UpdateVolumeTask));
-            _updateTasks.Add(new Task(UpdateSessionTask));
-            _updateTasks.ForEach(t => t.Start());
+
+            // start window update tasks
+            UpdateTasks = new List<Task>();
+            UpdateTasks.Add(new Task(CheckFirstLoadTask));
+            UpdateTasks.Add(new Task(UpdateStateTask));
+            UpdateTasks.Add(new Task(UpdateVolumeTask));
+            UpdateTasks.Add(new Task(UpdateSessionTask));
+            UpdateTasks.ForEach(t => t.Start());
+
             Log("OK2");
         }
         #endregion
 
 
         #region Update Tasks
-        //Check First Load.
+        //Check First Load. deprecated
         private void CheckFirstLoadTask()
         {
             Log("Start CheckFirstLoadTask");
-            while (!Rclose && FirstLoad)
+            while (!FinishApp && FirstLoad)
             {
-                if (this.Visibility == Visibility.Visible) CheckFirstLoad();
-                else FirstLoad = false;
+                Dispatcher?.Invoke(() => { Hide(); FirstLoad = false; });
                 System.Threading.Thread.Sleep(new TimeSpan((long)(settings.AutoControlInterval * 10000)));
             }
             Log("End CheckFirstLoadTask");
         }
-        private void CheckFirstLoad()
-        {
-            try
-            {
-                if (!Dispatcher.CheckAccess())
-                {
-                    Dispatcher.Invoke(new WindowConsumer(CheckFirstLoad));  // invoking itself
-                }
-                else
-                {
-                    this.Visibility = Visibility.Hidden;
-                }
-            }
-            catch { DP.DMML($"fail to invoke CheckFirstLoad"); }
-        }
+
         //Check device state.
         private void UpdateStateTask()
         {
             Log("Start UpdateStateTask");
             bool On = true;
-            //Console.WriteLine($"V={Audio.MasterVolume}, I={NI.Icon.Equals(Properties.Resources.WaleLeftOn)}");
-            while (!Rclose)
+            while (!FinishApp)
             {
-                //Console.WriteLine($"V={Audio.MasterVolume}, I={NI.Icon.GetHashCode()}");
-                //Console.WriteLine("USTask");
-                if (Audio.MasterVolume < 0 && On)
+                if (Audio.MasterPeak >= 0 && !On)
                 {
-                    //Console.WriteLine("InsideErrorState");
-                    On = false;
-                    NI.Icon = Properties.Resources.WaleRightOff;
-                    //MessageBox.Show("IconOff");
-                }
-                else if (Audio.MasterPeak >= 0 && !On)
-                {
-                    //Console.WriteLine("InsideGoodState");
                     On = true;
                     NI.Icon = Properties.Resources.WaleLeftOn;
-                    //MessageBox.Show("IconOn");
                 }
-
+                else if (Audio.MasterVolume < 0 && On)
+                {
+                    On = false;
+                    NI.Icon = Properties.Resources.WaleRightOff;
+                }
                 System.Threading.Thread.Sleep(new TimeSpan((long)(settings.UIUpdateInterval * 10000)));
             }
             Log("End UpdateStateTask");
         }
-        /// <summary>
-        /// Update task for master output level of a device is currently used
-        /// </summary>
+        
+        // Update task for master output level of a device is currently used
         private void UpdateVolumeTask()
         {
             Log("Start UpdateVolumeTask");
-            while (!Rclose)
+            while (!FinishApp)
             {
-                //Task wait = Task.Delay(settings.UIUpdateInterval);
-                //if (updateVolumeDelay > 0) wait.Start();
                 if (Active)
                 {
                     JDPack.DebugPack VDP = new JDPack.DebugPack(updateVolumeDebug);
                     VDP.DMML($"base={settings.TargetLevel} vol={Audio.MasterVolume}({Audio.MasterPeak})");
 
-                    //lBaseVolume.Text = $"{Properties.Settings.Default.baseVolume:n}";
-                    //pbBaseVolume.Increment((int)(Properties.Settings.Default.baseVolume * 100) - pbBaseVolume.Value);
-                    
-                    double vbuf = /*(Audio.MasterVolume / settings.BaseLevel) */ Audio.MasterVolume;// Console.WriteLine($"{vbuf}");
-                    //SetBar(MasterVolumeBar, vbuf);
+                    double vbuf = Audio.MasterVolume;// Console.WriteLine($"{vbuf}");
                     DL.MasterVolume = vbuf;
 
-                    double lbuf = (Audio.MasterVolume / settings.TargetLevel) * Audio.MasterPeak;// Console.WriteLine($"{lbuf}");
-                    //SetBar(MasterPeakBar, lbuf);
+                    double lbuf = Audio.MasterPeak * vbuf;// Console.WriteLine($"{lbuf}");
                     DL.MasterPeak = lbuf;
-
-                    /*if (NTV())*/ SetText(MasterLabel, $"{vbuf:n3}");//Transformation.Transform(Audio.MasterVolume, Transformation.TransFlow.MachineToUser)
-                    /*else*/ SetText(MasterPeakLabel, $"{lbuf:n3}");
-                    //Console.WriteLine($"{DL.MasterVolume:n3} {DL.MasterPeak:n3}");
-                    //if (NTV()) lVolume.Text = $"{volume:n}";
-                    //else lVolume.Text = $"{Audio.MasterPeak * volume:n}";
-                    //pbMasterVolume.Increment((int)(Audio.MasterVolume * 100) - pbMasterVolume.Value);
-                    //pbMasterLevel.Increment((int)(Audio.MasterPeak * volume * 100) - pbMasterLevel.Value);
                 }
-                //if (updateVolumeDelay > 0) await wait;
-                //bAllowPaintMaster = true;
                 System.Threading.Thread.Sleep(new TimeSpan((long)(settings.UIUpdateInterval * 10000)));
-                //await wait;
             }
             Log("End UpdateVolumeTask");
         }
+
         //making UIs for all sessions.
         /// <summary>
         /// Update task to make UIs of all sessions
@@ -254,29 +252,21 @@ namespace Wale.WPF
         private void UpdateSessionTask()
         {
             Log("Start UpdateSessionTask");
-            Dispatcher.Invoke(() => { SessionGrid.Children.Clear(); });
-            while (!Rclose)
+            Dispatcher?.Invoke(() => { SessionPanel.Children.Clear(); });
+            while (!FinishApp)
             {
-                //Task wait = Task.Delay(settings.UIUpdateInterval);
-                //if (updateSessionDelay > 0) wait.Start();
-                if (Active) //do when this.activated
-                {
-                    UpdateSession(SessionGrid);
-                }// activated check enclosure
-                 //if (updateSessionDelay > 0) await wait;
-                //bAllowPaintSession = true;
+                if (Active) { UpdateSession(SessionPanel); }
                 System.Threading.Thread.Sleep(new TimeSpan((long)(settings.UIUpdateInterval * 10000)));
-                //await wait;
-            }/**/
+            }
             Log("End UpdateSessionTask");
         }
-        private void UpdateSession(Grid grid)
+        private void UpdateSession(StackPanel grid)
         {
             try
             {
                 if (!Dispatcher.CheckAccess())
                 {
-                    Dispatcher.Invoke(new GridConsumer(UpdateSession), new object[] { grid });  // invoking itself
+                    Dispatcher.Invoke(new StackPanelConsumer(UpdateSession), new object[] { grid });  // invoking itself
                 }
                 else
                 {
@@ -284,11 +274,10 @@ namespace Wale.WPF
                     JDPack.DebugPack SDP = new JDPack.DebugPack(updateSessionDebug);
                     SDP.DMM("Getting Sessions");
                     int count = 0;
-                    lock (Lockers.Sessions)
-                    {
-                        count = Audio.Sessions.Count; //all count
-                    }
+                    lock (Lockers.Sessions) { count = Audio.Sessions.Count; }// count of all sessions
                     SDP.DMML("  Count:" + count);
+
+                    // do when there is session
                     if (count > 0)
                     {
                         bool reAlign = false; // re-alignment flag
@@ -300,54 +289,43 @@ namespace Wale.WPF
                                 if (sc.State != Wale.CoreAudio.SessionState.Expired)
                                 {
                                     bool found = false;
-                                    foreach (MeterSet item in SessionGrid.Children) { if (sc.PID == item.ID) found = true; }
+                                    foreach (MeterSet item in SessionPanel.Children) { if (sc.PID == item.ID) found = true; }
                                     if (!found)
                                     {
-                                        //SessionGrid.RowDefinitions.Add(new RowDefinition());
                                         MeterSet set = new MeterSet(sc.PID, sc.Name, settings.DetailedView, sc.AutoIncluded, updateSessionDebug);
-                                        SessionGrid.Children.Add(set);
-                                        //SetTabControl(SessionGrid, set);
+                                        SessionPanel.Children.Add(set);
                                         reAlign = true;
                                         Log($"New MeterSet:{sc.Name}({sc.PID})");
                                     }
                                 }
                             }
 
-                            foreach (MeterSet item in SessionGrid.Children)
+                            foreach (MeterSet item in SessionPanel.Children)
                             {//check expired session and update not expired session
-                                if (Audio.Sessions.GetSession(item.ID) == null) { expired.Add(item); reAlign = true; break; }
                                 var session = Audio.Sessions.GetSession(item.ID);
-                                if (session.State == Wale.CoreAudio.SessionState.Expired) { expired.Add(item); reAlign = true; }
-                                else// if (session.Active)
+                                if (session == null || session.State == Wale.CoreAudio.SessionState.Expired) { expired.Add(item); reAlign = true; }
+                                else
                                 {
                                     if (settings.DetailedView) item.DetailOn();
                                     else item.DetailOff();
                                     if (item.detailChanged) { reAlign = true; item.detailChanged = false; }
                                     item.UpdateData(session.Volume, session.Peak, session.AveragePeak, session.Name);
-                                    session.Relative = (float)(item.Relative / 100.0);
+                                    session.Relative = (float)item.Relative;
                                     session.AutoIncluded = item.AutoIncluded;
                                 }
                             }
                         }
-                        foreach (MeterSet item in expired) { SetTabControl(SessionGrid, item, true); Log($"Remove MeterSet:{item.SessionName}({item.ID})"); } //remove expired session as meterset from tabSession.controls
+                        foreach (MeterSet item in expired) { SetTabControl(SessionPanel, item, true); Log($"Remove MeterSet:{item.SessionName}({item.ID})"); } //remove expired session as meterset from tabSession.controls
                         expired.Clear(); //clear expire buffer
                                          //realign when there are one or more new set or removed set.
                         if (reAlign)
                         {//re-align when there is(are) added or removed session(s)
                             Log("Re-aligning");
-                            double spacing = AppDatas.SessionBlockHeightNormal, lastHeight = this.Height;
-                            if (settings.DetailedView) { spacing = AppDatas.SessionBlockHeightDetail; }
-                            //spacing += 0;
-                            for (int i = 0; i < SessionGrid.Children.Count; i++)
-                            {
-                                MeterSet s = SessionGrid.Children[i] as MeterSet;
-                                s.UpdateLocation(new Thickness(0, spacing * i, 0, 0));
-                                SDP.DMML($"MeterSet{s.ID,-5} {s.Margin} {s.Height} {s.SessionName}");
-                            }
-                            double fsgHeight = (double)(SessionGrid.Children.Count) * spacing + 60 + 2, dif = fsgHeight - lastHeight;
-                            if (fsgHeight < this.MinHeight) { fsgHeight = AppDatas.MainWindowHeightDefault; dif = fsgHeight - lastHeight; }
+                            double lastHeight = this.Height, spacing = settings.DetailedView ? AppDatas.SessionBlockHeightDetail : AppDatas.SessionBlockHeightNormal;
+                            double newHeight = (double)(SessionPanel.Children.Count) * spacing + 60 + 2, dif = newHeight - lastHeight;
+                            if (newHeight < this.MinHeight) { newHeight = AppDatas.MainWindowHeightDefault; dif = newHeight - lastHeight; }
                             //Console.WriteLine($"fsgH:{fsgHeight},DF:{dif}");
-                            this.Height = fsgHeight;
+                            this.Height = newHeight;
                             this.Top -= dif;
                             //Console.WriteLine($"WH:{this.Height},({SystemParameters.WorkArea.Width},{SystemParameters.WorkArea.Height})");
                             Log("Re-aligned");
@@ -363,18 +341,17 @@ namespace Wale.WPF
 
 
         #region Toolstrip menu events
-        private void OnProgramShutdown(object sender, EventArgs e) { OnProgramShutdown(sender, new RoutedEventArgs()); }
-        private async void OnProgramShutdown(object sender, RoutedEventArgs e)
+        private async void OnProgramShutdown(object sender, EventArgs e)
         {
             MessageBoxResult dialogResult = MessageBox.Show("Are you sure to terminate Wale completely?", "Exit", MessageBoxButton.OKCancel);
             if (dialogResult == MessageBoxResult.OK)
             {
                 DP.DMML("Exit");
                 Active = false;
-                Rclose = true;
+                FinishApp = true;
                 NI.Visible = false;
                 NI.Dispose();
-                await Task.WhenAll(_updateTasks);
+                await Task.WhenAll(UpdateTasks);
                 this.Close();
                 Audio.Dispose();
                 Log("Closed"); DP.DMML("Closed");
@@ -398,8 +375,8 @@ namespace Wale.WPF
             Configuration form = sender as Configuration;
             if ((bool)form.DialogResult?.Equals(true))
             {
-                Transformation.SetBaseLevel(settings.TargetLevel);
-                Audio.SetBaseTo(settings.TargetLevel);
+                //Transformation.SetBaseLevel(settings.TargetLevel);
+                //Audio.SetBaseTo(settings.TargetLevel);
                 Audio.UpRate = settings.UpRate;
             }
             form.Closed -= Config_FormClosed;
@@ -468,7 +445,7 @@ namespace Wale.WPF
             {
                 //double? buf = Transformation.Transform((double)volume, Transformation.TransFlow.UserToMachine);
                 //if (buf != null) Audio.SetVolume((double)buf);
-                Audio.SetVolume((double)volume);
+                Audio.SetMasterVolume((double)volume);
             }
         }
         private void TargetVolumeBox_KeyDown(object sender, KeyEventArgs e)
@@ -480,8 +457,8 @@ namespace Wale.WPF
         {
             DP.DMM(" CalcInterval");
             double it = settings.MasterVolumeInterval;
-            double? buf = Transformation.Transform(it, Transformation.TransFlow.IntervalUserToMachine);
-            if (buf != null) it = (double)buf;
+            //double? buf = Transformation.Transform(it, Transformation.TransFlow.IntervalUserToMachine);
+            //if (buf != null) it = (double)buf;
             DP.DMM($"={it} ");
             return it;
         }
@@ -508,20 +485,26 @@ namespace Wale.WPF
             //if (settings.BaseLevel.ToString().Length > 4) { settings.BaseLevel = Math.Round(settings.BaseLevel, 2); }
             settings.Save();
         }
+
+        private void MasterVolumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            Audio.SetMasterVolume(e.NewValue);
+        }
+
         #endregion
 
         #region NI events
         private void NI_MouseClick(object sender, System.Windows.Forms.MouseEventArgs e)
         {
-            if (e.Button == System.Windows.Forms.MouseButtons.Left) { DP.DMML("IconLeftClick"); Active = true; this.Visibility = Visibility.Visible; this.Activate(); }
+            if (e.Button == System.Windows.Forms.MouseButtons.Left) { DP.DMML("IconLeftClick"); Active = true; Show(); Activate(); }
         }
         #endregion
 
         #region Window Events
 
-        private void DevView_CommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
+        private void DevShow_CommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            if(Dev) DL.ACDebugShow = DL.ACDebugShow == Visibility.Visible ? Visibility.Hidden : Visibility.Visible;
+            if (Dev) { DL.ACDevShow = DL.ACDevShow == Visibility.Visible ? Visibility.Hidden : Visibility.Visible; }
         }
         private void Settings_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
@@ -541,37 +524,9 @@ namespace Wale.WPF
         {
             if (!settings.StayOn)
             {
+                Hide();
                 Active = false;
-                this.Visibility = Visibility.Hidden;
             }
-        }
-        private void Window_LostFocus(object sender, RoutedEventArgs e)
-        {
-            //if (!settings.StayOn)
-            //{
-                //Active(false);
-                //this.Visibility = Visibility.Hidden;
-            //}
-        }
-        private void Window_MouseLeave(object sender, MouseEventArgs e)
-        {
-            //if (!settings.StayOn)
-            //{
-                //Console.WriteLine($"X:{e.GetPosition(this).X}({this.ActualWidth}),Y:{e.GetPosition(this).Y}({this.ActualHeight})");
-                //double crit = 10;
-                //if (e.GetPosition(this).X <= crit || e.GetPosition(this).X >= this.Width - crit - 15 || e.GetPosition(this).Y <= crit || e.GetPosition(this).Y >= this.Height - crit - 15)
-                //{
-                    //Active(false);
-                    //this.Visibility = Visibility.Hidden;
-                //}
-            //}
-        }
-        private void MasterLabel_Click(object sender, MouseButtonEventArgs e)
-        {
-            bool now = NTV;
-            NTV = !now;
-            if (NTV) MasterLabel.Foreground = ColorSet.MainColorBrush;//SetForeColor(lVolume, Color.FromArgb(224, 224, 224));
-            else MasterLabel.Foreground = ColorSet.PeakColorBrush;//SetForeColor(lVolume, Color.PaleVioletRed);
         }
         private void MasterTab_MouseWheel(object sender, MouseWheelEventArgs e)
         {
@@ -739,8 +694,8 @@ namespace Wale.WPF
             if (Converts() && await Register())
             {
                 settings.Save();
-                Transformation.SetBaseLevel(settings.TargetLevel);
-                Audio.SetBaseTo(settings.TargetLevel);
+                //Transformation.SetBaseLevel(settings.TargetLevel);
+                //Audio.SetBaseTo(settings.TargetLevel);
                 Audio.UpRate = settings.UpRate;
                 MakeOriginals();
                 //this.DialogResult = true;
@@ -1085,8 +1040,8 @@ namespace Wale.WPF
             catch { Log($"fail to invoke {control.Name}\n"); }
         }/**/
 
-        delegate void GridMeterSetConsumer(Grid control, MeterSet set, bool add);
-        private void SetTabControl(Grid control, MeterSet set, bool remove = false)
+        delegate void GridMeterSetConsumer(StackPanel control, MeterSet set, bool add);
+        private void SetTabControl(StackPanel control, MeterSet set, bool remove = false)
         {
             try
             {
@@ -1126,6 +1081,7 @@ namespace Wale.WPF
         }/**/
 
         delegate void GridConsumer(Grid grid);//MeterSet Update Delegate
+        delegate void StackPanelConsumer(StackPanel grid);//MeterSet Update Delegate
         delegate void WindowConsumer();//CheckFirstLoad Delegate
 
         #endregion
@@ -1228,14 +1184,14 @@ namespace Wale.WPF
     public class Datalink : INotifyPropertyChanged
     {
         private double _MasterVolume = 0;
-        public double MasterVolume { get => _MasterVolume; set { _MasterVolume = value; Notify("MasterVolume"); } }
+        public double MasterVolume { get => _MasterVolume; set { _MasterVolume = Math.Round(value, 3); Notify("MasterVolume"); } }
         
         private double _MasterPeak = 0;
-        public double MasterPeak { get => _MasterPeak; set { _MasterPeak = value; Notify("MasterPeak"); } }
+        public double MasterPeak { get => _MasterPeak; set { _MasterPeak = Math.Round(value, 3); Notify("MasterPeak"); } }
 
 
-        private Visibility _ACDebugShow = Visibility.Hidden;
-        public Visibility ACDebugShow { get => _ACDebugShow; set { _ACDebugShow = value; Notify("ACDebugShow"); } }
+        private Visibility _ACDevShow = Visibility.Hidden;
+        public Visibility ACDevShow { get => _ACDevShow; set { _ACDevShow = value; Notify("ACDevShow"); } }
         private double _ACElapsed = 0;
         public double ACElapsed { get => _ACElapsed; set { _ACElapsed = Math.Round(value, 3); Notify("ACElapsed"); } }
         private double _ACWaited = 0;
