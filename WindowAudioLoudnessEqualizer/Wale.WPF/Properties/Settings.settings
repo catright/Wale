@@ -30,7 +30,7 @@
       <Value Profile="(Default)">0.35</Value>
     </Setting>
     <Setting Name="MasterVolumeInterval" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">0.1</Value>
+      <Value Profile="(Default)">0.05</Value>
     </Setting>
     <Setting Name="MinPeak" Type="System.Double" Scope="User">
       <Value Profile="(Default)">0.01</Value>
@@ -64,6 +64,16 @@
     </Setting>
     <Setting Name="ProcessPriority" Type="System.String" Scope="User">
       <Value Profile="(Default)">High</Value>
+    </Setting>
+    <Setting Name="ExcList" Type="System.Collections.Specialized.StringCollection" Scope="User">
+      <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
+&lt;ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
+  &lt;string&gt;audacity&lt;/string&gt;
+  &lt;string&gt;obs64&lt;/string&gt;
+  &lt;string&gt;amddvr&lt;/string&gt;
+  &lt;string&gt;ShellExperienceHost&lt;/string&gt;
+  &lt;string&gt;Windows Shell Experience Host&lt;/string&gt;
+&lt;/ArrayOfString&gt;</Value>
     </Setting>
   </Settings>
 </SettingsFile>

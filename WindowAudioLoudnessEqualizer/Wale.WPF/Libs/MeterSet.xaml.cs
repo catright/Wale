@@ -24,8 +24,7 @@ namespace Wale.WPF
         private Brush foreColor = ColorSet.ForeColorBrush, mainColor = ColorSet.MainColorBrush, peakColor = ColorSet.PeakColorBrush, averageColor = ColorSet.AverageColorBrush;
         private enum LabelMode { Relative, Volume, Peak, AveragePeak };
 
-        private int _relative = 0;
-        private bool detailed;//, _disposed = false;
+        private bool detailed;
         private LabelMode labelMode = LabelMode.AveragePeak;
         private string lastName;
 
@@ -33,7 +32,7 @@ namespace Wale.WPF
         //public List<double> LastPeaks;
         public uint ID { get; }
         public string SessionName { get => NameLabel.Content.ToString(); }
-        public double Relative { get => ((double)_relative / 100.0); }
+        public double Relative { get; private set; } = 0;
         public bool AutoIncluded { get => AutoIncludeCBox.IsChecked.Value; private set => AutoIncludeCBox.IsChecked = value; }
         public bool Updated { get; private set; }
         public bool Debug { get => DP.DebugMode; set => DP.DebugMode = value; }
@@ -102,9 +101,13 @@ namespace Wale.WPF
         private void MeterSet_MouseWheel(object sender, MouseWheelEventArgs e)
         {
             DP.DM($"{SessionName}({ID}) MeterSet_MouseWheel {e.Delta}");
-            if (e.Delta > 0) { _relative++; if (_relative > 100) _relative = 100; }
-            else if (e.Delta < 0) { _relative--; if (_relative < -100) _relative = -100; }
+            if (e.Delta > 0) { Relative += 0.05; if (Relative > 1) Relative = 1; }
+            else if (e.Delta < 0) { Relative -= 0.05; if (Relative < -1) Relative = -1; }
             DP.DML($", {Relative}");
+        }
+        private void RelBar_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            Relative = e.NewValue > 1 ? 1 : (e.NewValue < -1 ? -1 : e.NewValue);
         }
 
 
@@ -138,6 +141,7 @@ namespace Wale.WPF
                 SetLabelText(RelLabel, $"{Relative:n3}");
             }
             SetBar(VolumeBar, vol);
+            SetBar(RelBar, Relative);
             //lVolumeBar.Increment((int)(vol * 100) - lVolumeBar.Value);
             //double lbuf = /*Wale.Transformation.Transform(vol, Wale.Transformation.TransFlow.MachineToUser) */ level;
             SetBar(LevelBar, level);
@@ -281,8 +285,28 @@ namespace Wale.WPF
             }
             catch { DP.CML($"fail to invoke {control.Name}"); }
         }/**/
+        delegate void ControlSliderConsumer(Slider control, double value);
+        private void SetBar(Slider control, double value)
+        {
+            try
+            {
+                if (!Dispatcher.CheckAccess())
+                {
+                    if (control != null) Dispatcher.Invoke(new ControlSliderConsumer(SetBar), new object[] { control, value });  // invoking itself
+                }
+                else
+                {
+                    if (value > control.Maximum) value = control.Maximum;
+                    else if (value < control.Minimum) value = control.Minimum;
+                    control.Value = value;      // the "functional part", executing only on the main thread
+                                                //control.Increment(value);
+                }
+            }
+            catch { DP.CML($"fail to invoke {control.Name}"); }
+        }/**/
 
         delegate void SetdoubleConsumer(double height);
+
         private void SetHeight(double height)
         {
             try

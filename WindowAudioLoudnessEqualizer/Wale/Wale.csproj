@@ -54,7 +54,6 @@
     <Compile Include="FFT.cs" />
     <Compile Include="Lockers.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Transformation.cs" />
     <Compile Include="VFunction.cs" />
   </ItemGroup>
   <ItemGroup>

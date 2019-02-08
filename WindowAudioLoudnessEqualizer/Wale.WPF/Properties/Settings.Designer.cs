@@ -133,7 +133,7 @@ namespace Wale.WPF.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0.1")]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.05")]
         public double MasterVolumeInterval {
             get {
                 return ((double)(this["MasterVolumeInterval"]));
@@ -272,6 +272,25 @@ namespace Wale.WPF.Properties {
             }
             set {
                 this["ProcessPriority"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"<?xml version=""1.0"" encoding=""utf-16""?>
+<ArrayOfString xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
+  <string>audacity</string>
+  <string>obs64</string>
+  <string>amddvr</string>
+  <string>ShellExperienceHost</string>
+  <string>Windows Shell Experience Host</string>
+</ArrayOfString>")]
+        public global::System.Collections.Specialized.StringCollection ExcList {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["ExcList"]));
+            }
+            set {
+                this["ExcList"] = value;
             }
         }
     }

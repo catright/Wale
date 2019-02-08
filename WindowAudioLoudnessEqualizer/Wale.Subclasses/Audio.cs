@@ -63,21 +63,18 @@ namespace Wale.CoreAudio
         /// Volume of default device.
         /// </summary>
         public float MasterVolume { get => MasterEPVolume.MasterVolumeLevelScalar; set => MasterEPVolume.MasterVolumeLevelScalar = value; }
-        //public float MasterVolume { get => MasterEPVolume.MasterVolumeLevelScalar; set => MasterEPVolume.MasterVolumeLevelScalar = value; }
         /// <summary>
         /// Peak level of default device.
         /// </summary>
         public float MasterPeak => MasterEPPeak.PeakValue;
-        //public float MasterPeak { get => GetMasterPeak(); }
         /// <summary>
         /// Base level for WALE
         /// </summary>
         public float TargetOutputLevel { get; set; }
         /// <summary>
-        /// Session data list of sessions in default device.
+        /// Session data list of sessions in default device. List&lt;Session&gt;
         /// </summary>
-        //public SessionDataList Sessions { get => sessionList; }
-        public SessionList Sessions { get => ASClist; }
+        public SessionList Sessions => ASClist;
         /// <summary>
         /// A list of excluded sessions for automatic control
         /// </summary>
@@ -85,33 +82,36 @@ namespace Wale.CoreAudio
 
         /// <summary>
         /// Instantiate new instance of Audio class.
+        /// TargetOutputLevel, AverageTime, AverageInterval must specified before Start
         /// </summary>
         public Audio() { }
         /// <summary>
         /// Instantiate new instance of Audio class.
+        /// Automatically Start when <paramref name="autoStart"/> is true.
         /// </summary>
         /// <param name="wBase">Target output level = base level of Wale</param>
-        public Audio(float wBase) { TargetOutputLevel = wBase; }
-        /// <summary>
-        /// Instantiate new instance of Audio class.
-        /// Automatically do UpdateDevice and UpdateSession when <paramref name="autoStart"/> is true.
-        /// </summary>
-        /// <param name="wBase">Target output level = base level of Wale</param>
+        /// <param name="avTime"></param>
+        /// <param name="avInterval"></param>
         /// <param name="autoStart"></param>
-        public Audio(float wBase, bool autoStart)
+        public Audio(float wBase, double avTime, double avInterval, bool autoStart = false)
         {
             TargetOutputLevel = wBase;
-            if (autoStart)
-            {
-                UpdateDevice();
-                UpdateSession();
-            }
+            AverageTime = avTime;
+            AverageInterval = avInterval;
+            if (autoStart) { Start(); }
         }
-        
         /// <summary>
-        /// Get new default MMDevice, VolumeSource, and PeakMeter.
+        /// Manual starter
         /// </summary>
-        public void UpdateDevice()
+        public void Start()
+        {
+            UpdateDevice();
+            GetSessionManager();
+        }
+        /// <summary>
+        /// Get new default MMDevice, VolumeSource, and PeakMeter. Sessions are not included.
+        /// </summary>
+        private void UpdateDevice()
         {
             GetDefaultDevice();
             GetMasterVolume();
@@ -123,13 +123,17 @@ namespace Wale.CoreAudio
         /// <returns></returns>
         public List<DeviceData> GetDeviceList() { return EnumerateWasapiDevices(); }
 
+        /// <summary>
+        /// Not used for now
+        /// </summary>
+        /// <param name="deviceId"></param>
         public void EnableAudioDevice(string deviceId) { EnableDevice(deviceId); }
+        /// <summary>
+        /// Not used for now
+        /// </summary>
+        /// <param name="deviceId"></param>
         public void DisableAudioDevice(string deviceId) { DisableDevice(deviceId); }
 
-        /// <summary>
-        /// Update all sessions in default device and session list.
-        /// </summary>
-        public void UpdateSession() { GetSession(); }
         /// <summary>
         /// Set volume level of the session that has <paramref name="pid"/> for ProcessId.
         /// <para>Log($"Error(SetSessionVolume): {e.ToString()}") when Exception.</para>
@@ -140,12 +144,8 @@ namespace Wale.CoreAudio
         {
             try
             {
-                //using (var s = sessionList.GetSession(pid))
-                //{
-                //SetSessionVolume(s, volume);
                 var s = Sessions.GetSession(pid);
-                    if (s != null) s.Volume = volume;
-                //}
+                if (s != null) s.Volume = volume;
             }
             catch (Exception e) { JDPack.FileLog.Log($"Error(SetSessionVolume): {e.ToString()}"); }
         }
@@ -175,11 +175,8 @@ namespace Wale.CoreAudio
         {
             try
             {
-                //using (var s = sessionList.GetSession(pid))
-                //{
                 var s = Sessions.GetSession(pid);
-                    SetSessionAverage(s, peak);
-                //}
+                if (s != null) SetSessionAverage(s, peak);
             }
             catch (Exception e) { JDPack.FileLog.Log($"Error(SetSessionAverage): {e.ToString()}"); }
         }
@@ -260,27 +257,22 @@ namespace Wale.CoreAudio
         #region Private Audio Device Items
         //Master Volume Items
         private AudioEndpointVolume MasterEPVolume { get; set; }
-        private float GetMasterVolume()
+        private int GetMasterVolume()
         {
             try
             {
-                //using (var defaultDevice = GetDefaultDevice())
                 var defaultDevice = GetDefaultDevice();
                 {
                     if (defaultDevice == null) { JDPack.FileLog.Log("GetMasterVolume: Fail to get master device."); return -1; }
                     Guid IID_IAudioEndpointVolume = typeof(AudioEndpointVolume).GUID;
                     IntPtr i = defaultDevice.Activate(IID_IAudioEndpointVolume, 0, IntPtr.Zero);
-                    //using (var aev = new AudioEndpointVolume(i))
                     MasterEPVolume = new AudioEndpointVolume(i);
-                    //{
-                        return MasterEPVolume.MasterVolumeLevelScalar;
-                    //}
+                    return 0;
                 }
             }
             catch (Exception e) { JDPack.FileLog.Log($"Error(GetMasterVolume): {e.ToString()}"); return -2; }
-            //return defaultDevice.AudioEndpointVolume.MasterVolumeLevelScalar;
         }
-        private void SetMasterVolume(float volume)
+        /*private void SetMasterVolume(float volume)
         {
             try
             {
@@ -298,25 +290,21 @@ namespace Wale.CoreAudio
             }
             catch (Exception e) { JDPack.FileLog.Log($"Error(SetMasterVolume): {e.ToString()}"); return; }
             //defaultDevice.AudioEndpointVolume.MasterVolumeLevelScalar = volume;
-        }
+        }*/
 
         //Master Peak Items
         private AudioMeterInformation MasterEPPeak { get; set; }
-        private float GetMasterPeak()
+        private int GetMasterPeak()
         {
             try
             {
-                //using (var defaultDevice = GetDefaultDevice())
                 var defaultDevice = GetDefaultDevice();
                 {
                     if (defaultDevice == null) { JDPack.FileLog.Log("GetMasterPeak: Fail to get master device."); return -1; }
                     Guid IID_IAudioMeterInformation = typeof(AudioMeterInformation).GUID;
                     IntPtr ip = defaultDevice.Activate(IID_IAudioMeterInformation, 0, IntPtr.Zero);
-                    //using (var ami = new AudioMeterInformation(ip))
                     MasterEPPeak = new AudioMeterInformation(ip);
-                    //{
-                        return MasterEPPeak.PeakValue;
-                    //}
+                    return 0;
                 }
             }
             catch (Exception e) { JDPack.FileLog.Log($"Error(GetMasterPeak): {e.ToString()}"); return -2; }
@@ -880,17 +868,6 @@ namespace Wale.CoreAudio
                 }
             }
             catch (Exception e) { JDPack.FileLog.Log($"Error(SetSessionAvData): {e.ToString()}"); }
-        }
-        private void SetSessionAverage(SessionData session, double peak)
-        {
-            try
-            {
-                lock (sessionLocker)
-                {
-                    session.SetAverage(peak);
-                }
-            }
-            catch (Exception e) { JDPack.FileLog.Log($"Error(SetSessionAverage): {e.ToString()}"); }
         }
         private void SetSessionAverage(Session session, double peak)
         {
