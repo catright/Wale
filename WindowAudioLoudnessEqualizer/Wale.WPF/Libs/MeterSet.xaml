@@ -178,8 +178,8 @@
         <StackPanel Margin="2,0">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="99*"/>
-                    <ColumnDefinition Width="*" MinWidth="67"/>
+                    <ColumnDefinition Width="212*"/>
+                    <ColumnDefinition Width="68*" MinWidth="68"/>
                 </Grid.ColumnDefinitions>
                 <WrapPanel Grid.Column="0">
                     <Label x:Name="NameLabel" Content="TEST" Padding="0" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" MouseDown="LSessionNameLabel_Click">

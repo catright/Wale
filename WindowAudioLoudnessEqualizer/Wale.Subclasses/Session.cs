@@ -137,13 +137,13 @@ namespace Wale.CoreAudio
             AvTime = averagingTime;
             AvCount = (uint)Convert.ToUInt32(averagingTime / unitTime);
             //Console.WriteLine($"Average Time Updated Cnt:{AvCount}");
-            JDPack.FileLog.Log($"Average Time Updated Cnt:{AvCount}");
+            //JDPack.FileLog.Log($"Average Time Updated Cnt:{AvCount}");
             ResetAverage();
         }
         /// <summary>
         /// Clear all stacked peak values and set average to 0.
         /// </summary>
-        public void ResetAverage() { Peaks.Clear(); AveragePeak = 0; JDPack.FileLog.Log("Average Reset"); }//Console.WriteLine("Average Reset");
+        public void ResetAverage() { Peaks.Clear(); AveragePeak = 0; }// JDPack.FileLog.Log("Average Reset"); }//Console.WriteLine("Average Reset");
         /// <summary>
         /// Add new peak value to peaks container and re-calculate AveragePeak value.
         /// </summary>

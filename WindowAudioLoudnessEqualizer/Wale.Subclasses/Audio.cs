@@ -548,7 +548,7 @@ namespace Wale.CoreAudio
         }
         private void Asn_StateChanged(object sender, AudioSessionStateChangedEventArgs e)
         {
-            Console.WriteLine("Session State change raised");
+            //Console.WriteLine("Session State change raised");
             if (e.NewState == AudioSessionState.AudioSessionStateExpired)
             {
                 //Console.WriteLine($"{sender.GetType()}");
