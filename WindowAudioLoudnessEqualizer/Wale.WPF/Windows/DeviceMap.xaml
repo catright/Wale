@@ -4,10 +4,15 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Wale.WPF"
+        xmlns:wale="clr-namespace:Wale;assembly=WaleBase"
         mc:Ignorable="d"
-        Height="300" Width="400" WindowStyle="None" LocationChanged="Window_LocationAndSizeChanged" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" PreviewKeyDown="Window_PreviewKeyDown" ContentRendered="Window_ContentRendered">
+        Title="Wale Device Map"
+        Height="{Binding Source={x:Static wale:AppDatas.SubWindowHeightDefault}}"
+        Width="{Binding Source={x:Static wale:AppDatas.MainWindowWidth}}"
+        WindowStyle="None"
+        Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}"
+        ContentRendered="Window_ContentRendered">
     <Window.Resources>
-
         <Style x:Key="ScrollBarLineButton" TargetType="{x:Type RepeatButton}">
             <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Setter Property="OverridesDefaultStyle" Value="True"/>
@@ -182,13 +187,19 @@
                            Background="{TemplateBinding Background}"/>
             </Grid>
         </ControlTemplate>
+
+        <Style x:Key="FinalButtons" TargetType="Button">
+            <Setter Property="Width" Value="100"/>
+            <Setter Property="Height" Value="20"/>
+            <Setter Property="Margin" Value="10,5"/>
+            <Setter Property="Background" Value="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}"/>
+            <Setter Property="Foreground" Value="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+        </Style>
     </Window.Resources>
-    <Grid>
-        <Grid x:Name="TitleGrid" Height="35" VerticalAlignment="Top" Background="{Binding Source={x:Static local:ColorSet.MainColorBrush}}" MouseMove="titlePanel_MouseMove" MouseDown="titlePanel_MouseDown">
-            <TextBlock x:Name="TitleBlock" Text="Wale Device Map" FontSize="20" Padding="10, 3" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
-        </Grid>
+    <Grid x:Name="MainGrid">
+        <local:TitleBar/>
         <Grid x:Name="ContentGrid" Margin="0,35,0,0">
-            <TreeView x:Name="View" Margin="0,0,0,35" Background="Transparent" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}">
+            <TreeView x:Name="View" Margin="0,0,0,30" Background="Transparent" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}">
                 <TreeView.Style>
                     <Style TargetType="TreeView">
                         <Setter Property="Template">
@@ -205,8 +216,10 @@
                     </Style>
                 </TreeView.Style>
             </TreeView>
-            <Button Content="Update" Margin="10,0,0,10" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="100" Click="Update_Click" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
-            <Button Content="Close" Margin="0,0,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="55" Click="Close_Click" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+            <Grid VerticalAlignment="Bottom">
+                <Button Content="Update" HorizontalAlignment="Left" Click="Update_Click" Style="{StaticResource FinalButtons}"/>
+                <Button Content="Close" HorizontalAlignment="Right" Click="Close_Click" Style="{StaticResource FinalButtons}" IsCancel="True" IsDefault="True"/>
+            </Grid>
         </Grid>
     </Grid>
 </Window>

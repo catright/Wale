@@ -42,9 +42,17 @@ namespace Wale.WPF
             JDPack.FileLog.SetWorkDirectory(System.IO.Path.Combine(Environment.ExpandEnvironmentVariables("%appdata%"), "WaleAudioControl"));
             JDPack.FileLog.Open("WaleLog");
             JDPack.FileLog.Erase(7);
+            JDPack.FileLog.Log($"Wale {AppVersion.Version}.{AppVersion.SubVersion}");
 
             MainWindow mw = new MainWindow();
             mw.Show();
+        }
+        void App_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+        {
+            // Process unhandled exception
+            JDPack.FileLog.Log($"{e.Exception.Message} {e.Exception.StackTrace}");
+            // Prevent default unhandled exception processing
+            //e.Handled = true;
         }
     }
 }

@@ -35,12 +35,16 @@ namespace Wale.CoreAudio
         public SessionState State {
             get
             {
-                switch (asc2.SessionState)
+                try
                 {
-                    case CSCore.CoreAudioAPI.AudioSessionState.AudioSessionStateActive: return SessionState.Active;
-                    case CSCore.CoreAudioAPI.AudioSessionState.AudioSessionStateInactive: return SessionState.Inactive;
-                    default: return SessionState.Expired;
+                    switch (asc2?.SessionState)
+                    {
+                        case CSCore.CoreAudioAPI.AudioSessionState.AudioSessionStateActive: return SessionState.Active;
+                        case CSCore.CoreAudioAPI.AudioSessionState.AudioSessionStateInactive: return SessionState.Inactive;
+                        default: return SessionState.Expired;
+                    }
                 }
+                catch { return SessionState.Expired; }
             }
         }
 
@@ -53,14 +57,14 @@ namespace Wale.CoreAudio
         /// <summary>
         /// ProcessID
         /// </summary>
-        public uint PID { get => (uint)ProcessID; }
-
-        public int ProcessID => asc2.ProcessID;
-        private string DisplayName => asc2.DisplayName;
-        private string ProcessName => asc2.Process.ProcessName;
-        private string MainWindowTitle => asc2.Process.MainWindowTitle;
-        public string SessionIdentifier => asc2.SessionIdentifier;
-        private bool IsSystemSoundSession => asc2.IsSystemSoundSession;
+        //public uint PID { get => (uint)ProcessID; }
+        
+        public int ProcessID { get { try { return (int)asc2?.ProcessID; } catch { return -1; } } }
+        private string DisplayName => asc2?.DisplayName;
+        private string ProcessName => asc2?.Process.ProcessName;
+        private string MainWindowTitle => asc2?.Process.MainWindowTitle;
+        public string SessionIdentifier => asc2?.SessionIdentifier;
+        private bool IsSystemSoundSession => (bool)asc2?.IsSystemSoundSession;
 
         /// <summary>
         /// Read or write volume of audio session. Always use RV when write volume.
@@ -68,8 +72,8 @@ namespace Wale.CoreAudio
         /// </summary>
         public float Volume
         {
-            get { using (var v = asc2.QueryInterface<CSCore.CoreAudioAPI.SimpleAudioVolume>()) { return v.MasterVolume; } }
-            set { using (var v = asc2.QueryInterface<CSCore.CoreAudioAPI.SimpleAudioVolume>()) { v.MasterVolume = (value > 1 ? 1 : (value < -1 ? -1 : value)); } }
+            get { using (var v = asc2?.QueryInterface<CSCore.CoreAudioAPI.SimpleAudioVolume>()) { return v.MasterVolume; } }
+            set { using (var v = asc2?.QueryInterface<CSCore.CoreAudioAPI.SimpleAudioVolume>()) { v.MasterVolume = (value > 1 ? 1 : (value < -1 ? -1 : value)); } }
         }
         public float Peak
         {
@@ -80,6 +84,11 @@ namespace Wale.CoreAudio
                     return p.GetMeteringChannelCount() > 1 ? p.GetChannelsPeakValues().Average() : p.PeakValue;
                 }
             }
+        }
+        public bool SoundEnabled
+        {
+            get { using (var v = asc2?.QueryInterface<CSCore.CoreAudioAPI.SimpleAudioVolume>()) { return !v.IsMuted; } }
+            set { using (var v = asc2?.QueryInterface<CSCore.CoreAudioAPI.SimpleAudioVolume>()) { v.IsMuted = !value; } }
         }
         #endregion
 
@@ -212,7 +221,7 @@ namespace Wale.CoreAudio
         /// </summary>
         /// <param name="pid">ProcessId</param>
         /// <returns>SessionData when find SessionData successfully or null.</returns>
-        public Session GetSession(uint pid)
+        /*public Session GetSession(uint pid)
         {
             try { return this.Find(sc => sc.PID == pid); }
             catch (ArgumentNullException)
@@ -228,7 +237,7 @@ namespace Wale.CoreAudio
                 JDPack.FileLog.Log($"Error(GetSession): {e.ToString()}");
             }
             return null;
-        }
+        }*/
         /// <summary>
         /// Find session by its process id.
         /// <para>Log($"Error(GetSession): ArgumentNullException") when ArgumentNullException. 
@@ -259,7 +268,7 @@ namespace Wale.CoreAudio
         /// </summary>
         /// <param name="pid">ProcessId</param>
         /// <returns>Relative value when find Relative value successfully or 0.0.</returns>
-        public double GetRelative(uint pid)
+        public double GetRelative(int pid)
         {
             try { return GetSession(pid).Relative; }
             catch (NullReferenceException)

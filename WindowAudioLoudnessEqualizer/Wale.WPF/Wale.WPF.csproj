@@ -111,6 +111,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Windows\ConfigSet.xaml.cs">
+      <DependentUpon>ConfigSet.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\DeviceMap.xaml.cs">
       <DependentUpon>DeviceMap.xaml</DependentUpon>
     </Compile>
@@ -120,9 +123,13 @@
     <Compile Include="Windows\Help.xaml.cs">
       <DependentUpon>Help.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Windows\TitleSet.xaml.cs">
-      <DependentUpon>TitleSet.xaml</DependentUpon>
+    <Compile Include="Windows\TitleBar.xaml.cs">
+      <DependentUpon>TitleBar.xaml</DependentUpon>
     </Compile>
+    <Page Include="Windows\ConfigSet.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Windows\DeviceMap.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -132,10 +139,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Windows\Help.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Windows\TitleSet.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -162,13 +165,17 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Libs\MeterSet.xaml">
+    <Page Include="Windows\MeterSet.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\TitleBar.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Libs\MeterSet.xaml.cs">
+    <Compile Include="Windows\MeterSet.xaml.cs">
       <DependentUpon>MeterSet.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -198,9 +205,6 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <None Include="Wale.WPF_TemporaryKey.pfx" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Libs\App.config" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Icon\WaleLeftOff.ico" />

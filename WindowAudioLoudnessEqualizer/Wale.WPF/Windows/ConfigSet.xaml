@@ -1,0 +1,154 @@
+﻿<UserControl x:Class="Wale.WPF.ConfigSet"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Wale.WPF"
+             xmlns:prop="clr-namespace:Wale.WPF.Properties"
+             xmlns:wale="clr-namespace:Wale;assembly=WaleBase"
+             xmlns:oxy="http://oxyplot.org/wpf"
+             mc:Ignorable="d"
+             x:Name="confset"
+             d:DesignHeight="373" Height="375" MinHeight="{Binding Height, Source=self}" MaxHeight="{Binding Height, Source=self}"
+             d:DesignWidth="478" Width="478" MinWidth="{Binding Width, Source=self}" MaxWidth="{Binding Width, Source=self}"
+             Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}">
+    <UserControl.Resources>
+        <Style x:Key="LineItem" TargetType="Grid">
+            <Setter Property="Width" Value="220"/>
+            <Setter Property="Height" Value="20"/>
+            <Setter Property="Margin" Value="0,0,0,2"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+        </Style>
+        <Style x:Key="CBoxDef" TargetType="CheckBox">
+            <Setter Property="Height" Value="20"/>
+            <Setter Property="Margin" Value="0,0,0,2"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Foreground" Value="{Binding Foreground, ElementName=confset}"/>
+        </Style>
+        <Style x:Key="LDef" TargetType="Label">
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="Foreground" Value="{Binding Foreground, ElementName=confset}"/>
+        </Style>
+        <Style x:Key="LLastVal" TargetType="Label">
+            <Setter Property="Margin" Value="120,0,0,0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="Foreground" Value="{Binding Foreground, ElementName=confset}"/>
+        </Style>
+        <Style x:Key="TBoxDef" TargetType="TextBox">
+            <Setter Property="Width" Value="50"/>
+            <Setter Property="Height" Value="20"/>
+            <Setter Property="Margin" Value="0,0,5,0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+        </Style>
+        <Style x:Key="RBtPriority" TargetType="RadioButton">
+            <Setter Property="GroupName" Value="Priority"/>
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Foreground" Value="{Binding Foreground, ElementName=confset}"/>
+        </Style>
+        <Style x:Key="FinalButtons" TargetType="Button">
+            <Setter Property="Width" Value="130"/>
+            <Setter Property="Height" Value="20"/>
+            <Setter Property="VerticalAlignment" Value="Bottom"/>
+            <Setter Property="Foreground" Value="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+            <Setter Property="Background" Value="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}"/>
+        </Style>
+    </UserControl.Resources>
+    <Grid>
+        <StackPanel>
+            <GroupBox Header="Audio" Padding="5">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <Grid Style="{StaticResource LineItem}">
+                            <Label Content="UI Update [ms]" Style="{StaticResource LDef}"/>
+                            <Label Content="{Binding Path=(local:LastValues.UIUpdate), Mode=TwoWay}" Style="{StaticResource LLastVal}"/>
+                            <TextBox Text="{Binding Path=UIUpdateInterval, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Style="{StaticResource TBoxDef}"/>
+                        </Grid>
+                        <Grid Style="{StaticResource LineItem}">
+                            <Label Content="Auto Control [ms]" Style="{StaticResource LDef}"/>
+                            <Label Content="{Binding Path=(local:LastValues.AutoControlInterval), Mode=TwoWay}" Style="{StaticResource LLastVal}"/>
+                            <TextBox Text="{Binding Path=AutoControlInterval, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Style="{StaticResource TBoxDef}"/>
+                        </Grid>
+                        <Grid Style="{StaticResource LineItem}">
+                            <Label Content="GC Interval [ms]" Style="{StaticResource LDef}"/>
+                            <Label Content="{Binding Path=(local:LastValues.GCInterval), Mode=TwoWay}" Style="{StaticResource LLastVal}"/>
+                            <TextBox Text="{Binding Path=GCInterval, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Style="{StaticResource TBoxDef}"/>
+                        </Grid>
+                        <Grid Style="{StaticResource LineItem}">
+                            <Label Content="Target Level" Foreground="{Binding Source={x:Static local:ColorSet.TargetColorBrush}}" Style="{StaticResource LDef}"/>
+                            <Label Content="{Binding Path=(local:LastValues.TargetLevel), Mode=TwoWay}" Style="{StaticResource LLastVal}"/>
+                            <TextBox Text="{Binding Path=TargetLevel, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Style="{StaticResource TBoxDef}" TextChanged="TargetLevel_Changed"/>
+                        </Grid>
+                        <Grid Style="{StaticResource LineItem}">
+                            <Label Content="Up Rate" Style="{StaticResource LDef}"/>
+                            <Label Content="{Binding Path=(local:LastValues.UpRate), Mode=TwoWay}" Style="{StaticResource LLastVal}"/>
+                            <TextBox Text="{Binding Path=UpRate, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Style="{StaticResource TBoxDef}" TextChanged="UpRate_Changed"/>
+                        </Grid>
+                        <Grid Style="{StaticResource LineItem}">
+                            <Label Content="Kurtosis" Style="{StaticResource LDef}"/>
+                            <Label Content="{Binding Path=(local:LastValues.Kurtosis), Mode=TwoWay}" Style="{StaticResource LLastVal}"/>
+                            <TextBox x:Name="KurtosisBox" Text="{Binding Path=Kurtosis, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Style="{StaticResource TBoxDef}" TextChanged="Kurtosis_Changed"/>
+                        </Grid>
+                        <Grid Height="40" Style="{StaticResource LineItem}">
+                            <Label Content="Function" Style="{StaticResource LDef}"/>
+                            <Label Content="{Binding Path=(local:LastValues.VFunc), Mode=TwoWay}" Margin="60,20,0,0" Style="{StaticResource LDef}"/>
+                            <ComboBox x:Name="FunctionSelector" HorizontalAlignment="Left" Margin="60,0,0,0" VerticalAlignment="Top" Width="150" Height="20" SelectionChanged="Function_Changed"/>
+                        </Grid>
+                        <Grid Style="{StaticResource LineItem}">
+                            <Label Content="Average Time [ms]" Style="{StaticResource LDef}"/>
+                            <Label Content="{Binding Path=(local:LastValues.AverageTime), Mode=TwoWay}" Style="{StaticResource LLastVal}"/>
+                            <TextBox Text="{Binding Path=AverageTime, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Style="{StaticResource TBoxDef}"/>
+                        </Grid>
+                        <Grid Style="{StaticResource LineItem}">
+                            <Label Content="Min Peak Level" Style="{StaticResource LDef}"/>
+                            <Label Content="{Binding Path=(local:LastValues.MinPeak), Mode=TwoWay}" Style="{StaticResource LLastVal}"/>
+                            <TextBox Text="{Binding Path=MinPeak, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Style="{StaticResource TBoxDef}"/>
+                        </Grid>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1">
+                        <oxy:PlotView x:Name="plotView" Height="170" Margin="0,0,0,2" BorderThickness="1" BorderBrush="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" Background="{Binding Background, ElementName=confset}"/>
+
+                        <CheckBox Content="Average Enabled" IsChecked="{Binding Path=Averaging, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Style="{StaticResource CBoxDef}"/>
+                        <CheckBox Content="Auto Control Enabled" IsChecked="{Binding Path=AutoControl, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Style="{StaticResource CBoxDef}"/>
+                    </StackPanel>
+                </Grid>
+            </GroupBox>
+            <GroupBox Header="Window" Height="94" Padding="5">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <CheckBox x:Name="runAtWindowsStartup" Content="RunAtWindowsStartup" Style="{StaticResource CBoxDef}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1">
+                            <CheckBox Content="Detailed View" IsChecked="{Binding Path=DetailedView, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Style="{StaticResource CBoxDef}"/>
+                            <CheckBox Content="Detailed Log" IsEnabled="False" Style="{StaticResource CBoxDef}"/>
+                        </StackPanel>
+                    </Grid>
+                    <WrapPanel>
+                        <Label Content="Priority" Padding="5,0" Style="{StaticResource LDef}"/>
+                        <RadioButton Content="Normal" IsChecked="{Binding ProcessPriorityNormal}" Style="{StaticResource RBtPriority}" Checked="Priority_RadioButton_Click"/>
+                        <RadioButton Content="Above Normal" IsChecked="{Binding ProcessPriorityAboveNormal}" Style="{StaticResource RBtPriority}" Checked="Priority_RadioButton_Click"/>
+                        <RadioButton Content="High" IsChecked="{Binding ProcessPriorityHigh}" Style="{StaticResource RBtPriority}" Checked="Priority_RadioButton_Click"/>
+                    </WrapPanel>
+                </StackPanel>
+            </GroupBox>
+            <Grid>
+                <Button x:Name="SaveButton" Content="Save" HorizontalAlignment="Left" Margin="10,5,0,5" Style="{StaticResource FinalButtons}" Click="ConfigSave_Click"/>
+                <Button Content="Return to Default" HorizontalAlignment="Center" Margin="10,5" Style="{StaticResource FinalButtons}" Click="resetToDafault_Click"/>
+                <Button x:Name="CancelButton" Content="Cancel" IsEnabled="False" Visibility="Hidden" IsCancel="True" IsDefault="True" HorizontalAlignment="Right" Margin="0,5,10,5" Style="{StaticResource FinalButtons}" Click="Cancel_Click"/>
+            </Grid>
+        </StackPanel>
+    </Grid>
+</UserControl>

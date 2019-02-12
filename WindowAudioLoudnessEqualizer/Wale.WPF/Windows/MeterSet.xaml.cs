@@ -30,23 +30,25 @@ namespace Wale.WPF
 
         //public variables
         //public List<double> LastPeaks;
-        public uint ID { get; }
+        public int ProcessID { get; }
         public string SessionName { get => NameLabel.Content.ToString(); }
         public double Relative { get; private set; } = 0;
         public bool AutoIncluded { get => AutoIncludeCBox.IsChecked.Value; private set => AutoIncludeCBox.IsChecked = value; }
         public bool Updated { get; private set; }
         public bool Debug { get => DP.DebugMode; set => DP.DebugMode = value; }
         public bool detailChanged = false;
+        public bool SoundEnabled { get => SoundOnCBox.IsChecked.Value; set { SoundOnCBox.IsChecked = value; SoundEnableChanged = false; } }
+        public bool SoundEnableChanged { get; set; } = false;
 
         //Initialization and init methods
         public MeterSet()
         {
             InitializeComponent();
         }
-        public MeterSet(uint id, string name, bool detail, bool autoinc, bool dbg = false)
+        public MeterSet(int pid, string name, bool detail, bool autoinc, bool dbg = false)
         {
             InitializeComponent();
-            ID = id;
+            ProcessID = pid;
             DP = new JDPack.DebugPack(dbg);
 
             Initialization(name);
@@ -100,7 +102,7 @@ namespace Wale.WPF
         }
         private void MeterSet_MouseWheel(object sender, MouseWheelEventArgs e)
         {
-            DP.DM($"{SessionName}({ID}) MeterSet_MouseWheel {e.Delta}");
+            DP.DM($"{SessionName}({ProcessID}) MeterSet_MouseWheel {e.Delta}");
             if (e.Delta > 0) { Relative += 0.05; if (Relative > 1) Relative = 1; }
             else if (e.Delta < 0) { Relative -= 0.05; if (Relative < -1) Relative = -1; }
             DP.DML($", {Relative}");
@@ -108,6 +110,11 @@ namespace Wale.WPF
         private void RelBar_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             Relative = e.NewValue > 1 ? 1 : (e.NewValue < -1 ? -1 : e.NewValue);
+        }
+
+        private void SoundOnCBox_Click(object sender, RoutedEventArgs e)
+        {
+            SoundEnableChanged = true;
         }
 
 

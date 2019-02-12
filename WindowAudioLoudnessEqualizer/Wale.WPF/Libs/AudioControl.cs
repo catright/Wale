@@ -83,6 +83,7 @@ namespace Wale
         public void VolumeDown(double v) { SetMasterVolume(MasterVolume - v); }
         public void SetMasterVolume(double v)
         {
+            if (v < 0) { JDPack.FileLog.Log($"Set Volume Error: {v}"); return; }
             v = v > 1 ? 1 : v < 0.01 ? 0.01 : v;
 
             DP.DML($"SetTo:{v}");
@@ -105,7 +106,8 @@ namespace Wale
         }*/
         private void SessionControl(Session s)
         {
-            StringBuilder dm = new StringBuilder().Append($"AutoVolume:{s.Name}({s.PID}), inc={s.AutoIncluded}");
+            if (s.ProcessID < 0) { JDPack.FileLog.Log($"{s.Name} is changed"); s.Dispose(); return; }
+            StringBuilder dm = new StringBuilder().Append($"AutoVolume:{s.Name}({s.ProcessID}), inc={s.AutoIncluded}");
             if (!settings.ExcList.Contains(s.Name) && s.AutoIncluded && s.State == SessionState.Active)
             {
                 double peak = s.Peak, volume = s.Relative != 0 ? s.Volume / Math.Pow(2, s.Relative) : s.Volume;
@@ -163,6 +165,7 @@ namespace Wale
                     {
                         lock (Lockers.Sessions)
                         {
+                            //if(audio.MasterDeviceIsDisposed != true) { JDPack.FileLog.Log("Master Device is changed. Restart."); audio.Restart(); }
                             Sessions.ForEach(s => aas.Add(new Task(() => SessionControl(s))));
                         }
                         if (logCounter > logCritical)

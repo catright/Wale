@@ -1,0 +1,20 @@
+﻿<UserControl x:Class="Wale.WPF.TitleBar"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Wale.WPF"
+             xmlns:prop="clr-namespace:Wale.WPF.Properties"
+             xmlns:wale="clr-namespace:Wale;assembly=WaleBase"
+             mc:Ignorable="d"
+             d:DesignHeight="{Binding Source={x:Static wale:AppDatas.TitleBarHeight}}" Height="{Binding Source={x:Static wale:AppDatas.TitleBarHeight}}" MinHeight="{Binding Height, Source=self}" MaxHeight="{Binding Height, Source=self}"
+             d:DesignWidth="{Binding Source={x:Static wale:AppDatas.MainWindowWidth}}" Width="{Binding Source={x:Static wale:AppDatas.MainWindowWidth}}"
+             VerticalAlignment="Top">
+
+    <Grid x:Name="TitleGrid"
+          Background="{Binding Source={x:Static local:ColorSet.MainColorBrush}}"
+          MouseMove="titlePanel_MouseMove" MouseDown="titlePanel_MouseDown">
+        <TextBlock x:Name="TitleBlock" Text="{Binding Title}" FontSize="20" Padding="10, 3" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+    </Grid>
+
+</UserControl>

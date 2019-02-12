@@ -11,7 +11,7 @@ namespace Wale.CoreAudio
     /// <summary>
     /// Custom device state equivalent of DeviceState of CoreAudioAPI.
     /// </summary>
-    public enum DeviceState { Active, Disabled, UnPlugged, NotPresent, Unknown }
+    public enum DeviceState { Active, All, Disabled, UnPlugged, NotPresent, Unknown }
     /// <summary>
     /// Custom session state equivalent of SessionState of CoreAudioAPI.
     /// </summary>
@@ -39,8 +39,8 @@ namespace Wale.CoreAudio
 
         // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
         //~Audio() {
-            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-            //Dispose(false);
+        // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+        //Dispose(false);
         //}
 
         // This code added to correctly implement the disposable pattern.
@@ -62,11 +62,13 @@ namespace Wale.CoreAudio
         /// <summary>
         /// Volume of default device.
         /// </summary>
-        public float MasterVolume { get => MasterEPVolume.MasterVolumeLevelScalar; set => MasterEPVolume.MasterVolumeLevelScalar = value; }
+        public float MasterVolume { get { if (MasterEPVolume != null) { return MasterEPVolume.MasterVolumeLevelScalar; } else { return -1; } } set { if (MasterEPVolume != null) { MasterEPVolume.MasterVolumeLevelScalar = value; } } }
         /// <summary>
         /// Peak level of default device.
         /// </summary>
-        public float MasterPeak => MasterEPPeak.PeakValue;
+        public float MasterPeak { get { if (MasterEPPeak != null) { return MasterEPPeak.PeakValue; } else { return -1; } } }
+        public bool? MasterDeviceIsDisposed => DefDevice?.IsDisposed;
+        //public DeviceState MasterDeviceState { get => GetDefDeviceState(); }
         /// <summary>
         /// Base level for WALE
         /// </summary>
@@ -105,8 +107,24 @@ namespace Wale.CoreAudio
         /// </summary>
         public void Start()
         {
+            GetAudio();
             UpdateDevice();
             GetSessionManager();
+        }
+        public void Restart()
+        {
+            lock (sessionLocker)
+            {
+                Sessions?.ForEach(s => s?.Dispose());
+                Sessions?.Clear();
+            }
+            Console.WriteLine("Restart AC: Session cleared");
+            MasterEPPeak = null;
+            MasterEPVolume = null;
+            DefDevice?.Dispose();
+            Console.WriteLine("Restart AC: Master cleared");
+            UpdateDevice();Console.WriteLine("Restart AC: Master device is restarted");
+            GetSessionManager();Console.WriteLine("Restart AC: Session manager is restarted");
         }
         /// <summary>
         /// Get new default MMDevice, VolumeSource, and PeakMeter. Sessions are not included.
@@ -180,7 +198,7 @@ namespace Wale.CoreAudio
             }
             catch (Exception e) { JDPack.FileLog.Log($"Error(SetSessionAverage): {e.ToString()}"); }
         }
-        public void UpdateAvTime(uint pid, double AVTime, double ACInterval)
+        public void UpdateAvTime(int pid, double AVTime, double ACInterval)
         {
             try
             {
@@ -311,27 +329,65 @@ namespace Wale.CoreAudio
 
             //return defaultDevice.AudioMeterInformation.MasterPeakValue;
         }
-        
+
         //Master Device Items
+        MMDeviceEnumerator MMDE { get; set; }
+        private void GetAudio()
+        {
+            MMDE = new CSCore.CoreAudioAPI.MMDeviceEnumerator();
+            MMDE.EnumAudioEndpoints(DataFlow.All, CSCore.CoreAudioAPI.DeviceState.All);
+            MMDE.DefaultDeviceChanged += MMDE_DefaultDeviceChanged;
+            MMDE.DevicePropertyChanged += MMDE_DevicePropertyChanged;
+        }
+        private void MMDE_DefaultDeviceChanged(object sender, DefaultDeviceChangedEventArgs e)
+        {
+            JDPack.FileLog.Log($"Default Audio Device is changed {e.DeviceId}");
+            //Restart();
+        }
+        private void MMDE_DevicePropertyChanged(object sender, DevicePropertyChangedEventArgs e)
+        {
+            JDPack.FileLog.Log($"Audio Device Property is changed {e.DeviceId} {e.PropertyKey}");
+            Restart();
+            //UpdateDevice();
+        }
+
         MMDevice DefDevice { get; set; }
         private MMDevice GetDefaultDevice()
         {
             try
             {
-                if (DefDevice == null)
+                //if (MMDE != null)
+                //{
+                //MasterEPPeak = null;
+                //MasterEPVolume = null;
+                //if (DefDevice != null) DefDevice.Dispose();
+
+                //using (var obj = new CSCore.CoreAudioAPI.MMDeviceEnumerator())
                 {
-                    using (var obj = new CSCore.CoreAudioAPI.MMDeviceEnumerator())
-                    {
-                        //MMDevice device = obj.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
-                        DefDevice = obj.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
-                        if (DefDevice == null) JDPack.FileLog.Log("GetSessionData: Fail to get master device.");
-                        NoDevice = false;
-                    }
+                    //MMDevice device = obj.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
+                    DefDevice = MMDE.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
+                    if (DefDevice == null) JDPack.FileLog.Log("GetSessionData: Fail to get master device.");
+                    //GetMasterVolume();
+                    //GetMasterPeak();
+                    NoDevice = false;
                 }
+                //}
                 return DefDevice;
             }
-            catch (Exception e){ JDPack.FileLog.Log(e.ToString()); NoDevice = true; return null; }
+            catch (Exception e) { JDPack.FileLog.Log(e.ToString()); NoDevice = true; return null; }
         }
+        private DeviceState GetDefDeviceState() {
+            switch(DefDevice.DeviceState)
+            {
+                case CSCore.CoreAudioAPI.DeviceState.Active: return DeviceState.Active;
+                case CSCore.CoreAudioAPI.DeviceState.All: return DeviceState.All;
+                case CSCore.CoreAudioAPI.DeviceState.Disabled: return DeviceState.Disabled;
+                case CSCore.CoreAudioAPI.DeviceState.NotPresent: return DeviceState.NotPresent;
+                case CSCore.CoreAudioAPI.DeviceState.UnPlugged: return DeviceState.UnPlugged;
+                default: return DeviceState.Unknown;
+            }
+        }
+
         //private IEnumerable<MMDevice> deviceList;
         private List<DeviceData> EnumerateWasapiDevices()
         {

@@ -123,13 +123,15 @@
 
 Usage
 
-Wale will try to adjust all sound generating processes' peak level to 'Target: yellow bar on View(F2) page' level. You can change Target to your preferred level.
+Wale tries to adjust all sound generating processes' peak level to 'Target: yellow bar on View(F2) page' level. You can change Target to your preferred level.
 
-However, Wale uses windows volume system for now, which means the app only can control volume between 0.0~1.0. Hence, if you set Target to near 1.0, then Wale could not control volume, because all processes' peak levels are always less than or equal to Target. So, you should lower Target a little. Suggested Target level is 0.25~0.5 (-6dB~-3dB).
+However, Wale uses windows volume system for now, which means the app only can control volume between 0.0~1.0. Hence, if you set Target to near 1.0, then Wale could not control volume, because all processes' peak levels are always less than or equal to Target. So, you should lower Target a little. Suggested Target level is about 0.25(-6dB). Default is 0.15(-8dB).
 
     Caution! Too low Target may cause sudden hugely loud sound. Low Target means quieter output sound from your windows system. Then, you may need to increase the volume of your hardware such as speaker to hear the sound. In this situation, uncontrolled process would make very loud sound caused by some trouble of sound system include unintentional stop of Wale.
 
-Just click the session name or blue checkbox on that session to uncheck it if you want to exclude some session from auto control. This exclusion is not saved when Wale is closed.
+    Just click the session name or blue checkbox on that session to uncheck it if you want to exclude some session from auto control. This exclusion is not saved when Wale is closed.
+    You can use your mouse wheel to adjust Relative volume -white bar- for each session. Relative value is not saved when Wale is closed.
+
 Wale System Description
 View(F2)
 MASTER CONTROL - Left pane
@@ -144,6 +146,7 @@ SESSION(APPLICATION) CONTROL - Right pane
 Click checkbox or session name to include to or exclude from auto control list.
 Click number to cycle values to volume, peak, average peak or relative volume when not detailed mode.
 Use mouse wheel to change relative volume of each session.
+Relative is kept between -1~1. And Final volume is multiplied by (2^Relative).
 Config(F3)
 
     UI Update [ms]: update interval of main UI and audio status

@@ -21,7 +21,7 @@
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="TargetLevel" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">0.25</Value>
+      <Value Profile="(Default)">0.15</Value>
     </Setting>
     <Setting Name="AverageTime" Type="System.Double" Scope="User">
       <Value Profile="(Default)">3000</Value>
@@ -52,15 +52,6 @@
     </Setting>
     <Setting Name="AppTitle" Type="System.String" Scope="User">
       <Value Profile="(Default)">WALE</Value>
-    </Setting>
-    <Setting Name="ProcessPriorityAboveNormal" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
-    <Setting Name="ProcessPriorityNormal" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
-    <Setting Name="ProcessPriorityHigh" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="ProcessPriority" Type="System.String" Scope="User">
       <Value Profile="(Default)">High</Value>

@@ -15,14 +15,17 @@ using System.Windows.Shapes;
 namespace Wale.WPF
 {
     /// <summary>
-    /// Interaction logic for TitleSet.xaml
+    /// Interaction logic for TitleBar.xaml
     /// </summary>
-    public partial class TitleSet : Window
+    public partial class TitleBar : UserControl
     {
-        public TitleSet()
+        Window Owner;
+
+        public TitleBar()
         {
             InitializeComponent();
         }
+        public TitleBar(Window owner) { InitializeComponent(); this.Owner = owner; this.DataContext = Owner; Owner.LocationChanged += Window_LocationAndSizeChanged; }
 
 
         #region title panel control, location and size check events
@@ -36,31 +39,31 @@ namespace Wale.WPF
                 //MessageBox.Show($"L={Screen.PrimaryScreen.WorkingArea.Left} R={Screen.PrimaryScreen.WorkingArea.Right}, T={Screen.PrimaryScreen.WorkingArea.Top} B={Screen.PrimaryScreen.WorkingArea.Bottom}");
                 //Console.WriteLine($"W:{Left},M:{loc.X},LM:{titlePosition.X},SW:{System.Windows.SystemParameters.PrimaryScreenWidth}");
                 double x = loc.X - titlePosition.X;
-                if (x + this.Width >= System.Windows.SystemParameters.WorkArea.Width) x = System.Windows.SystemParameters.WorkArea.Width - this.Width;
+                if (x + Owner.Width >= System.Windows.SystemParameters.WorkArea.Width) x = System.Windows.SystemParameters.WorkArea.Width - Owner.Width;
                 else if (x <= 0) x = 0;
 
                 double y = loc.Y - titlePosition.Y;
-                if (y + this.Height >= System.Windows.SystemParameters.WorkArea.Height) y = System.Windows.SystemParameters.WorkArea.Height - this.Height;
+                if (y + Owner.Height >= System.Windows.SystemParameters.WorkArea.Height) y = System.Windows.SystemParameters.WorkArea.Height - Owner.Height;
                 else if (y <= 0) y = 0;
                 //MessageBox.Show($"x={x} y={y}");
-                Left = x;
-                Top = y;
+                Owner.Left = x;
+                Owner.Top = y;
             }
         }
         private void Window_LocationAndSizeChanged(object sender, EventArgs e)
         {
-            if ((this.Left + this.Width) > System.Windows.SystemParameters.WorkArea.Width)
-                this.Left = System.Windows.SystemParameters.WorkArea.Width - this.Width;
+            if ((Owner.Left + Owner.Width) > System.Windows.SystemParameters.WorkArea.Width)
+                Owner.Left = System.Windows.SystemParameters.WorkArea.Width - Owner.Width;
 
-            if (this.Left < System.Windows.SystemParameters.WorkArea.Left)
-                this.Left = System.Windows.SystemParameters.WorkArea.Left;
+            if (Owner.Left < System.Windows.SystemParameters.WorkArea.Left)
+                Owner.Left = System.Windows.SystemParameters.WorkArea.Left;
 
 
-            if ((this.Top + this.Height) > System.Windows.SystemParameters.WorkArea.Height)
-                this.Top = System.Windows.SystemParameters.WorkArea.Height - this.Height;
+            if ((Owner.Top + Owner.Height) > System.Windows.SystemParameters.WorkArea.Height)
+                Owner.Top = System.Windows.SystemParameters.WorkArea.Height - Owner.Height;
 
-            if (this.Top < System.Windows.SystemParameters.WorkArea.Top)
-                this.Top = System.Windows.SystemParameters.WorkArea.Top;
+            if (Owner.Top < System.Windows.SystemParameters.WorkArea.Top)
+                Owner.Top = System.Windows.SystemParameters.WorkArea.Top;
         }
 
         #endregion

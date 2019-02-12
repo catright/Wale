@@ -11,9 +11,17 @@ namespace Wale.WPF
         static System.Version versionObject = typeof(Wale.WPF.App).Assembly.GetName().Version;
         public static int Major = versionObject.Major;
         public static int Minor = versionObject.Minor;
-        public static int Build = versionObject.Build;
-        public static string LongVersion = $"{Major}.{Minor}.{Build}";
-        public static string Option
+        public static string Version = $"0.{Major}.{Minor}";
+
+        private static int SysBuild = versionObject.Build;
+        private static int SysRevision = versionObject.Revision;
+        private static DateTime buildDate = new DateTime(2000, 1, 1).AddDays(SysBuild).AddSeconds(SysRevision * 2);
+        private static TimeSpan critDate = buildDate.Subtract(new DateTime(2017, 8, 20));
+        public static int Build = (int)critDate.TotalDays;
+        public static int Revision = (int)critDate.Subtract(new TimeSpan(Build, 0, 0, 0)).TotalSeconds / 10;
+
+        public static string SubVersion = $"{Build}.{Revision}";
+        /*public static string Option
         {
             get
             {
@@ -26,6 +34,6 @@ namespace Wale.WPF
                 else opt = "";
                 return opt;
             }
-        }
+        }*/
     }
 }

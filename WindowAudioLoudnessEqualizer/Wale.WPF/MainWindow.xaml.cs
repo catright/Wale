@@ -30,10 +30,6 @@ namespace Wale.WPF
         #region Variables
         // objects
         /// <summary>
-        /// registry key for start at windows startup
-        /// </summary>
-        Microsoft.Win32.RegistryKey rkApp = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
-        /// <summary>
         /// stored setting that users can modify
         /// </summary>
         Wale.WPF.Properties.Settings settings = Wale.WPF.Properties.Settings.Default;
@@ -70,7 +66,6 @@ namespace Wale.WPF
         /// </summary>
         bool Active { get { bool val; lock (_activelock) { val = _activated; } return val; } set { lock (_activelock) { _activated = value; } } }
         bool loaded = false;
-        double originalMax;
         #endregion
 
         #region initializing
@@ -79,8 +74,8 @@ namespace Wale.WPF
             InitializeComponent();
             MakeComponents();
             MakeNI();
-            MakeConfigs();
             StartApp();
+            MakeConfigs();
             Log("AppStarted");
         }
         private void MakeComponents()
@@ -91,8 +86,9 @@ namespace Wale.WPF
             LogScroll.Content = string.Empty;
 
             // set contents for design
-            if (string.IsNullOrWhiteSpace(AppVersion.Option)) this.Title = ($"WALE v{AppVersion.LongVersion}");
-            else this.Title = ($"WALE v{AppVersion.LongVersion}");//-{AppVersion.Option}
+            //if (string.IsNullOrWhiteSpace(AppVersion.Option)) this.Title = ($"WALE v{AppVersion.LongVersion}");
+            this.Title = ($"WALE v{AppVersion.Version}");//-{AppVersion.Option}
+            DL.SubVersion = AppVersion.SubVersion;
             settings.AppTitle = this.Title;
 
             Left = System.Windows.SystemParameters.WorkArea.Width - this.Width;
@@ -107,6 +103,12 @@ namespace Wale.WPF
             settings.PropertyChanged += Settings_PropertyChanged;
 
             // set process priority
+            switch (settings.ProcessPriority)
+            {
+                case "High": DL.ProcessPriorityHigh = true; break;
+                case "Above Normal": DL.ProcessPriorityAboveNormal = true; break;
+                case "Normal": DL.ProcessPriorityNormal = true; break;
+            }
             SetPriority(settings.ProcessPriority);
 
             Log("OK1");
@@ -115,7 +117,7 @@ namespace Wale.WPF
         {
             // make icon
             NI = new System.Windows.Forms.NotifyIcon() {
-                Text = $"WALE v{AppVersion.LongVersion}",
+                Text = this.Title,
                 Icon = Properties.Resources.WaleLeftOn,
                 Visible = true
             };
@@ -135,31 +137,6 @@ namespace Wale.WPF
 
             // icon click event
             this.NI.MouseClick += new System.Windows.Forms.MouseEventHandler(NI_MouseClick);
-        }
-        /// <summary>
-        /// Initialization when window is poped up. Read all setting values, store all values as original, draw all graphs.
-        /// </summary>
-        private void MakeConfigs()
-        {
-            Makes();
-            MakeOriginals();
-            loaded = true;
-
-            string selectedFunction = FunctionSelector.SelectedItem.ToString();
-            if (selectedFunction == VFunction.Func.Reciprocal.ToString() || selectedFunction == VFunction.Func.FixedReciprocal.ToString()) { KurtosisBox.IsEnabled = true; }
-            else { KurtosisBox.IsEnabled = false; }
-
-            plotView.Model = new PlotModel();//ColorSet.BackColorAltBrush
-            
-            //DrawDevideLine();
-            DrawGraph("Original");
-            DrawBase();
-            DrawNew();
-            
-            plotView.Model.TextColor = Color(ColorSet.ForeColor);
-            plotView.Model.PlotAreaBorderColor = Color(ColorSet.ForeColorAlt);
-            //plotView.InvalidateVisual();
-
         }
         /// <summary>
         /// Read necessary setting values and start audio controller and all tasks
@@ -184,6 +161,16 @@ namespace Wale.WPF
             UpdateTasks.ForEach(t => t.Start());
 
             Log("OK2");
+        }
+        /// <summary>
+        /// Initialization when window is poped up. Read all setting values, store all values as original, draw all graphs.
+        /// </summary>
+        private void MakeConfigs()
+        {
+            // make config tab
+            ConfigSet cs = new ConfigSet(Audio, DL, this, debug);
+            cs.LogInvokedEvent += Cs_LogInvokedEvent;
+            ConfTab.Content = cs;
         }
         #endregion
 
@@ -289,20 +276,20 @@ namespace Wale.WPF
                                 if (sc.State != Wale.CoreAudio.SessionState.Expired)
                                 {
                                     bool found = false;
-                                    foreach (MeterSet item in SessionPanel.Children) { if (sc.PID == item.ID) found = true; }
+                                    foreach (MeterSet item in SessionPanel.Children) { if (sc.ProcessID == item.ProcessID) found = true; }
                                     if (!found)
                                     {
-                                        MeterSet set = new MeterSet(sc.PID, sc.Name, settings.DetailedView, sc.AutoIncluded, updateSessionDebug);
+                                        MeterSet set = new MeterSet(sc.ProcessID, sc.Name, settings.DetailedView, sc.AutoIncluded, updateSessionDebug);
                                         SessionPanel.Children.Add(set);
                                         reAlign = true;
-                                        Log($"New MeterSet:{sc.Name}({sc.PID})");
+                                        Log($"New MeterSet:{sc.Name}({sc.ProcessID})");
                                     }
                                 }
                             }
 
                             foreach (MeterSet item in SessionPanel.Children)
                             {//check expired session and update not expired session
-                                var session = Audio.Sessions.GetSession(item.ID);
+                                var session = Audio.Sessions.GetSession(item.ProcessID);
                                 if (session == null || session.State == Wale.CoreAudio.SessionState.Expired) { expired.Add(item); reAlign = true; }
                                 else
                                 {
@@ -311,11 +298,13 @@ namespace Wale.WPF
                                     if (item.detailChanged) { reAlign = true; item.detailChanged = false; }
                                     item.UpdateData(session.Volume, session.Peak, session.AveragePeak, session.Name);
                                     session.Relative = (float)item.Relative;
-                                    session.AutoIncluded = item.AutoIncluded;
+                                    if (session.AutoIncluded != item.AutoIncluded) session.AutoIncluded = item.AutoIncluded;
+                                    if (item.SoundEnableChanged) session.SoundEnabled = item.SoundEnabled;
+                                    if (session.SoundEnabled != item.SoundEnabled) item.SoundEnabled = session.SoundEnabled;
                                 }
                             }
                         }
-                        foreach (MeterSet item in expired) { SetTabControl(SessionPanel, item, true); Log($"Remove MeterSet:{item.SessionName}({item.ID})"); } //remove expired session as meterset from tabSession.controls
+                        foreach (MeterSet item in expired) { SetTabControl(SessionPanel, item, true); Log($"Remove MeterSet:{item.SessionName}({item.ProcessID})"); } //remove expired session as meterset from tabSession.controls
                         expired.Clear(); //clear expire buffer
                                          //realign when there are one or more new set or removed set.
                         if (reAlign)
@@ -363,7 +352,7 @@ namespace Wale.WPF
         {
             DP.DMM("Settings");
             JDPack.FormPack FWP = new JDPack.FormPack();
-            Configuration form = new Configuration() { Icon = this.Icon };
+            Configuration form = new Configuration(Audio, DL) { Icon = this.Icon };
             System.Drawing.Point p = FWP.PointFromMouse(-(int)(form.Width / 2), -(int)form.Height, JDPack.FormPack.PointMode.AboveTaskbar);
             form.Left = p.X;
             form.Top = p.Y;
@@ -509,8 +498,8 @@ namespace Wale.WPF
         private void Settings_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (!loaded) return;
-            DrawBase();
-            DrawNew();
+            //DrawBase();
+            //DrawNew();
             if (settings.AutoControlInterval != LastValues.AutoControlInterval || settings.AverageTime != LastValues.AverageTime)
             {
                 Audio?.UpdateAverageParam();
@@ -566,12 +555,12 @@ namespace Wale.WPF
         private double lastHeightForConfigTab, heightDeffForConfigTab;
         private void ConfigTab_GotFocus(object sender, RoutedEventArgs e)
         {
-            RemakeConf();
+            //RemakeConf();
             lastHeightForConfigTab = this.Height;
-            heightDeffForConfigTab = 450 - this.Height;
+            heightDeffForConfigTab = AppDatas.MainWindowConfigHeight - this.Height;
             //Dispatcher.Invoke(new Action(() =>
             //{
-                this.Height = 450;
+                this.Height = AppDatas.MainWindowConfigHeight;
                 this.Top -= heightDeffForConfigTab;
             //}), System.Windows.Threading.DispatcherPriority.ContextIdle, null);
         }
@@ -587,23 +576,39 @@ namespace Wale.WPF
         private bool nowConfig = false;
         private void Tabs_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            //ConfigSet cs = null;
             foreach (TabItem tab in (sender as TabControl).Items)
             {
                 if (tab.IsSelected)
                 {
-                    if (tab.Header.ToString().Contains("Config") && !nowConfig) { ConfigTab_GotFocus(sender, e); nowConfig = true; }
-                    else if (!tab.Header.ToString().Contains("Config") && nowConfig) { ConfigTab_LostFocus(sender, e); nowConfig = false; }
+                    if (tab.Header.ToString().Contains("Config") && !nowConfig)
+                    {
+                        //cs = new ConfigSet(Audio, DL, debug);
+                        //cs.LogInvokedEvent += Cs_LogInvokedEvent;
+                        //tab.Content = cs;
+                        ConfigTab_GotFocus(sender, e); nowConfig = true;
+                    }
+                    else if (!tab.Header.ToString().Contains("Config") && nowConfig)
+                    {
+                        //if (cs != null) cs.LogInvokedEvent -= Cs_LogInvokedEvent;
+                        //cs = null;
+                        ConfigTab_LostFocus(sender, e); nowConfig = false;
+                    }
                     if (tab.Header.ToString().Contains("Log")) { LogScroll.ScrollToEnd(); }
                 }
             }
         }
+        private void Cs_LogInvokedEvent(object sender, ConfigSet.LogEventArgs e)
+        {
+            Log(e.msg);
+        }
 
-        private void RemakeConf() {
+        /*private void RemakeConf() {
             Makes();
             MakeOriginals();
             DrawGraph("Original");
             DrawNew();
-        }
+        }*/
 
 
         private void ProcessPriorityAboveNormal_Unchecked(object sender, RoutedEventArgs e)
@@ -634,273 +639,14 @@ namespace Wale.WPF
             ProcessPriorityClass ppc = ProcessPriorityClass.Normal;
             switch (priority)
             {
-                case "High": ppc = ProcessPriorityClass.High; settings.ProcessPriorityHigh = true;break; settings.ProcessPriorityAboveNormal = false; settings.ProcessPriorityNormal = false; break;
-                case "Above Normal": ppc = ProcessPriorityClass.AboveNormal; settings.ProcessPriorityHigh = false; settings.ProcessPriorityAboveNormal = true;break; settings.ProcessPriorityNormal = false; break;
-                case "Normal": ppc = ProcessPriorityClass.Normal; settings.ProcessPriorityHigh = false; settings.ProcessPriorityAboveNormal = false; settings.ProcessPriorityNormal = true; break;
-            }JDPack.Debug.CML($"SPP H={settings.ProcessPriorityHigh} A={settings.ProcessPriorityAboveNormal} N={settings.ProcessPriorityNormal}");
+                case "High": ppc = ProcessPriorityClass.High; break;
+                case "Above Normal": ppc = ProcessPriorityClass.AboveNormal; break;
+                case "Normal": ppc = ProcessPriorityClass.Normal; break;
+            }
+            JDPack.Debug.CML($"SPP H={DL.ProcessPriorityHigh} A={DL.ProcessPriorityAboveNormal} N={DL.ProcessPriorityNormal}");
             //settings.Save();
-            using (Process p = Process.GetCurrentProcess())
-            {
-                p.PriorityClass = ppc;
-            }
+            using (Process p = Process.GetCurrentProcess()) { p.PriorityClass = ppc; }
         }
-        #endregion
-
-        #region Config Events
-
-        private void TargetLevel_Changed(object sender, TextChangedEventArgs e)
-        {
-            if (!loaded) return;
-            DrawBase();
-            DrawNew();
-        }
-        private void UpRate_Changed(object sender, TextChangedEventArgs e)
-        {
-            if (!loaded) return;
-            DrawNew();
-        }
-        private void Kurtosis_Changed(object sender, TextChangedEventArgs e)
-        {
-            if (!loaded) return;
-            DrawNew();
-        }
-        private void Function_Changed(object sender, SelectionChangedEventArgs e)
-        {
-            if (!loaded) return;
-            string selectedFunction = (sender as ComboBox).SelectedItem.ToString();
-            //Console.WriteLine($"Fnc Chg{selectedFunction}");
-            //if (selectedFunction == VFunction.Func.None.ToString()) { textBox5.Enabled = false; }
-            //else { textBox5.Enabled = true; }
-            if (selectedFunction == VFunction.Func.Reciprocal.ToString() || selectedFunction == VFunction.Func.FixedReciprocal.ToString()) { KurtosisBox.IsEnabled = true; }
-            else { KurtosisBox.IsEnabled = false; }
-            DrawNew();
-        }
-
-        private void resetToDafault_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBoxResult dr = MessageBox.Show(this, "Do you really want to reset all configurations?", "Warning", MessageBoxButton.YesNo);
-            if (dr == MessageBoxResult.Yes)
-            {
-                settings.Reset();
-                Makes();
-                JDPack.FileLog.Log("All configs are reset.");
-            }
-        }
-        private async void ConfigSave_Click(object sender, RoutedEventArgs e)
-        {
-            //this.IsEnabled = false;
-            //this.Topmost = false;
-            //this.WindowState = WindowState.Minimized;
-            if (Converts() && await Register())
-            {
-                settings.Save();
-                //Transformation.SetBaseLevel(settings.TargetLevel);
-                //Audio.SetBaseTo(settings.TargetLevel);
-                Audio.UpRate = settings.UpRate;
-                MakeOriginals();
-                //this.DialogResult = true;
-                //Close();
-            }
-            else { MessageBox.Show("Can not save Changes", "ERROR"); }
-            //this.IsEnabled = true;
-            //Binding topmostBinding = new Binding();
-            //topmostBinding.Source = settings.AlwaysTop;
-            //BindingOperations.SetBinding(this, Window.TopmostProperty, topmostBinding);
-            //this.WindowState = WindowState.Normal;
-        }
-        private bool Converts()
-        {
-            //System.Diagnostics.Stopwatch st = new System.Diagnostics.Stopwatch();
-            //Console.WriteLine("Convert");
-            bool success = true, auto = settings.AutoControl;
-            settings.AutoControl = false;
-            try
-            {
-                //settings.UIUpdateInterval = Convert.ToInt16(textBox1.Text);
-                //settings.AutoControlInterval = Convert.ToInt16(textBox2.Text);
-                //settings.GCInterval = Convert.ToInt16(textBox3.Text);
-                //settings.BaseLevel = Convert.ToDouble(textBox4.Text);
-                //settings.UpRate = Convert.ToDouble(textBox5.Text);
-                //settings.Kurtosis = Convert.ToDouble(textBox6.Text);
-                //settings.AverageTime = Convert.ToDouble(textBox7.Text) * 1000;
-                //settings.MinPeak = Convert.ToDouble(textBox8.Text);
-                //settings.VFunc = comboBox1.SelectedValue.ToString();
-            }
-            catch { success = false; JDPack.FileLog.Log("Error: Config - Convert failure"); }
-            finally { settings.AutoControl = auto; }
-            //Console.WriteLine("Convert End");
-            return success;
-        }
-        private async Task<bool> Register()
-        {
-            //Console.WriteLine("Resister");
-            bool success = true;
-            try
-            {
-                if (runAtWindowsStartup.IsChecked.Value)
-                {
-                    // Add the value in the registry so that the application runs at startup
-                    if (rkApp.GetValue("WALEWindowAudioLoudnessEqualizer") == null)
-                    {
-                        await Task.Run(() => { rkApp.SetValue("WALEWindowAudioLoudnessEqualizer", System.Reflection.Assembly.GetExecutingAssembly().Location); });
-                    }
-                }
-                else
-                {
-                    // Remove the value from the registry so that the application doesn't start
-                    if (rkApp.GetValue("WALEWindowAudioLoudnessEqualizer") != null)
-                    {
-                        rkApp.DeleteValue("WALEWindowAudioLoudnessEqualizer", false);
-                    }
-                }
-            }
-            catch { success = false; JDPack.FileLog.Log("Error: Config - Register failure"); }
-            //Console.WriteLine("resister End");
-            return success;
-        }
-
-
-        #endregion
-
-        #region Drawing
-        private void Makes()
-        {
-            if (rkApp.GetValue("WALEWindowAudioLoudnessEqualizer") == null)
-            {
-                // The value doesn't exist, the application is not set to run at startup
-                runAtWindowsStartup.IsChecked = false;
-            }
-            else
-            {
-                // The value exists, the application is set to run at startup
-                runAtWindowsStartup.IsChecked = true;
-            }
-
-            FunctionSelector.ItemsSource = Enum.GetValues(typeof(VFunction.Func));
-            if (Enum.TryParse(settings.VFunc, out VFunction.Func f)) FunctionSelector.SelectedItem = f;
-        }
-        private void MakeOriginals()
-        {
-            LastValues.UIUpdate = settings.UIUpdateInterval;
-            LastValues.AutoControlInterval = settings.AutoControlInterval;
-            LastValues.GCInterval = settings.GCInterval;
-            LastValues.TargetLevel = settings.TargetLevel;
-            LastValues.UpRate = settings.UpRate;
-            LastValues.Kurtosis = settings.Kurtosis;
-            LastValues.AverageTime = settings.AverageTime;
-            LastValues.MinPeak = settings.MinPeak;
-            LastValues.VFunc = settings.VFunc;
-        }
-        private void DrawNew() { DrawGraph("Graph"); }
-        private void DrawGraph(string graphName)
-        {
-            List<Series> exc = new List<Series>();
-            foreach (Series s in plotView.Model.Series) { if (s.Title == graphName) exc.Add(s); }
-            foreach (Series s in exc) { plotView.Model.Series.Remove(s); }
-            exc.Clear();
-
-            VFunction.Func f;
-            Enum.TryParse<VFunction.Func>(FunctionSelector.SelectedItem.ToString(), out f);
-
-            Series exclude = null;
-            foreach (var g in plotView.Model.Series) { if (g.Title == graphName) exclude = g; }
-            if (exclude != null) { plotView.Model.Series.Remove(exclude); /*Console.WriteLine("Plot removed");*/ }
-
-            FunctionSeries graph;
-
-            switch (f)
-            {
-                case VFunction.Func.Linear:
-                    graph = new FunctionSeries(new Func<double, double>((x) => {
-                        double res = VFunction.Linear(x, settings.UpRate);// * 1000 / settings.AutoControlInterval;
-                        //if (res > 1) { res = 1; } else if (res < 0) { res = 0; }
-                        return res;
-                    }), 0, 1, 0.05, graphName);
-                    break;
-                case VFunction.Func.SlicedLinear:
-                    VFunction.FactorsForSlicedLinear sliceFactors = VFunction.GetFactorsForSlicedLinear(settings.UpRate, settings.TargetLevel);
-                    graph = new FunctionSeries(new Func<double, double>((x) => {
-                        double res = VFunction.SlicedLinear(x, settings.UpRate, settings.TargetLevel, sliceFactors.A, sliceFactors.B);// * 1000 / settings.AutoControlInterval;
-                        //if (res > 1) { res = 1; } else if (res < 0) { res = 0; }
-                        return res;
-                    }), 0, 1, 0.05, graphName);
-                    break;
-                case VFunction.Func.Reciprocal:
-                    graph = new FunctionSeries(new Func<double, double>((x) => {
-                        double res = VFunction.Reciprocal(x, settings.UpRate, settings.Kurtosis);// * 1000 / settings.AutoControlInterval;
-                        //if (res > 1) { res = 1; } else if (res < 0) { res = 0; }
-                        return res;
-                    }), 0, 1, 0.05, graphName);
-                    break;
-                case VFunction.Func.FixedReciprocal:
-                    graph = new FunctionSeries(new Func<double, double>((x) => {
-                        double res = VFunction.FixedReciprocal(x, settings.UpRate, settings.Kurtosis);// * 1000 / settings.AutoControlInterval;
-                        //if (res > 1) { res = 1; } else if (res < 0) { res = 0; }
-                        return res;
-                    }), 0, 1, 0.05, graphName);
-                    break;
-                default:
-                    graph = new FunctionSeries(new Func<double, double>((x) => {
-                        double res = settings.UpRate;// * 1000 / settings.AutoControlInterval;
-                        //if (res > 1) { res = 1; } else if (res < 0) { res = 0; }
-                        return res;
-                    }), 0, 1, 0.05, graphName);
-                    break;
-            }
-
-            double maxVal = 0, yScale = 1;
-            if (graph.Title == "Original")
-            {
-                graph.Color = Color(ColorSet.MainColor);
-                originalMax = graph.MaxY;
-            }
-            else
-            {
-                graph.Color = Color(ColorSet.PeakColor);
-                maxVal = Math.Max(graph.MaxY, originalMax);
-            }
-
-            plotView.Model.Series.Add(graph);
-            plotView.Model.InvalidatePlot(true);
-
-            for (double i = 1.0; i > 0.00001; i /= 2)
-            {
-                if (maxVal > i) { yScale = i * 2.0; break; }
-            }
-            //plotView.Model.DefaultYAxis.AbsoluteMaximum = yScale;
-            //foreach (var g in plotView.Model.Series) { }
-            //plotView.ZoomAllAxes(yScale);
-            //if (maxVal > 0.01) chart.ChartAreas["Area"].AxisY.LabelStyle.Format = "G";
-            //else chart.ChartAreas["Area"].AxisY.LabelStyle.Format = "#.#E0";
-            //myText1.Y = chart.ChartAreas["Area"].AxisY.Maximum;
-            //myText2.Y = chart.ChartAreas["Area"].AxisY.Maximum * 0.92;
-            plotView.InvalidatePlot();
-        }
-        private void DrawBase()
-        {
-            List<Series> exc = new List<Series>();
-            foreach (Series s in plotView.Model.Series) { if (s.Title == "Base") exc.Add(s); }
-            foreach (Series s in exc) { plotView.Model.Series.Remove(s); }
-            exc.Clear();
-
-            LineSeries lineSeries1 = new LineSeries();
-            lineSeries1.Title = "Base";
-            lineSeries1.Points.Add(new DataPoint(settings.TargetLevel, 0));
-            lineSeries1.Points.Add(new DataPoint(settings.TargetLevel, 1));
-            lineSeries1.Color = Color(ColorSet.TargetColor);
-            plotView.Model.Series.Add(lineSeries1);
-            plotView.InvalidatePlot();
-        }
-        private void DrawDevideLine()
-        {
-            LineSeries lineSeries1 = new LineSeries();
-            lineSeries1.Points.Add(new DataPoint(0, 0));
-            lineSeries1.Points.Add(new DataPoint(1, 1));
-            lineSeries1.Color = Color(ColorSet.ForeColor);
-            plotView.Model.Series.Add(lineSeries1);
-            plotView.InvalidatePlot();
-        }
-        private OxyColor Color(Color color) { return OxyColor.FromArgb(color.A, color.R, color.G, color.B); }
         #endregion
 
         #region title panel control, location and size check events
@@ -1183,9 +929,19 @@ namespace Wale.WPF
     //Datalink for VM
     public class Datalink : INotifyPropertyChanged
     {
+        private string _SubVersion = "";
+        public string SubVersion { get => _SubVersion; set { _SubVersion = value; Notify("SubVersion"); } }
+
+
+        private bool _ProcessPriorityHigh = false;
+        public bool ProcessPriorityHigh { get => _ProcessPriorityHigh; set { _ProcessPriorityHigh = value; Notify("ProcessPriorityHigh"); } }
+        private bool _ProcessPriorityAboveNormal = false;
+        public bool ProcessPriorityAboveNormal { get => _ProcessPriorityAboveNormal; set { _ProcessPriorityAboveNormal = value; Notify("ProcessPriorityAboveNormal"); } }
+        private bool _ProcessPriorityNormal = false;
+        public bool ProcessPriorityNormal { get => _ProcessPriorityNormal; set { _ProcessPriorityNormal = value; Notify("ProcessPriorityNormal"); } }
+
         private double _MasterVolume = 0;
         public double MasterVolume { get => _MasterVolume; set { _MasterVolume = Math.Round(value, 3); Notify("MasterVolume"); } }
-        
         private double _MasterPeak = 0;
         public double MasterPeak { get => _MasterPeak; set { _MasterPeak = Math.Round(value, 3); Notify("MasterPeak"); } }
 

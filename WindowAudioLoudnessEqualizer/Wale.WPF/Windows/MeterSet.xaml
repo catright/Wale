@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Wale.WPF"
              xmlns:prop="clr-namespace:Wale.WPF.Properties"
-             xmlns:wale="clr-namespace:Wale"
+             xmlns:wale="clr-namespace:Wale;assembly=WaleBase"
              mc:Ignorable="d" 
              ScrollViewer.VerticalScrollBarVisibility="Disabled"
              Height="42" MinHeight="27"
@@ -174,7 +174,17 @@
         </Style>
     </UserControl.Resources>
     
-    <Grid MouseWheel="MeterSet_MouseWheel">
+    <Grid Name="TopGrid" MouseWheel="MeterSet_MouseWheel">
+        <Grid.Style>
+            <Style TargetType="Grid">
+                <Setter Property="Opacity" Value=".5"/>
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding IsChecked, ElementName=SoundOnCBox}" Value="True">
+                        <Setter Property="Opacity" Value="1"/>
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </Grid.Style>
         <StackPanel Margin="2,0">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -190,7 +200,7 @@
                 </WrapPanel>
                 <WrapPanel Grid.Column="1" HorizontalAlignment="Right">
                     <Label x:Name="SessionLabel" Foreground="{Binding Source={x:Static local:ColorSet.AverageColorBrush}}" MouseDown="LSessionLabel_Click" Style="{DynamicResource LNums}"/>
-                    <CheckBox IsEnabled="False" x:Name="SoundOnCBox" ToolTip="Sound On" Style="{DynamicResource CBoxDef}"/>
+                    <CheckBox x:Name="SoundOnCBox" ToolTip="Sound On" Style="{DynamicResource CBoxDef}" Click="SoundOnCBox_Click"/>
                     <CheckBox x:Name="AutoIncludeCBox" ToolTip="Auto Include" Foreground="{Binding Source={x:Static local:ColorSet.MainColorBrush}}" Style="{DynamicResource CBoxDef}"/>
                 </WrapPanel>
             </Grid>

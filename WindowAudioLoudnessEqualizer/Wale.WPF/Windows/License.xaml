@@ -5,10 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Wale.WPF"
         xmlns:prop="clr-namespace:Wale.WPF.Properties"
+        xmlns:wale="clr-namespace:Wale;assembly=WaleBase"
         mc:Ignorable="d"
-        Height="350" Width="450" WindowStyle="None" LocationChanged="Window_LocationAndSizeChanged" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" PreviewKeyDown="Window_PreviewKeyDown">
+        Title="Wale License"
+        Height="{Binding Source={x:Static wale:AppDatas.SubWindowHeightDefault}}"
+        Width="{Binding Source={x:Static wale:AppDatas.MainWindowWidth}}"
+        WindowStyle="None"
+        Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}">
     <Window.Resources>
-
         <Style x:Key="ScrollBarLineButton" TargetType="{x:Type RepeatButton}">
             <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Setter Property="OverridesDefaultStyle" Value="True"/>
@@ -184,25 +188,23 @@
             </Grid>
         </ControlTemplate>
     </Window.Resources>
-    <Grid>
-        <Grid x:Name="TitleGrid" Height="35" VerticalAlignment="Top" Background="{Binding Source={x:Static local:ColorSet.MainColorBrush}}" MouseMove="titlePanel_MouseMove" MouseDown="titlePanel_MouseDown">
-            <TextBlock x:Name="TitleBlock" Text="Wale" FontSize="20" Padding="10, 3" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
-        </Grid>
+    <Grid x:Name="MainGrid">
+        <local:TitleBar/>
         <Grid x:Name="ContentGrid" Margin="0,35,0,0">
             <TabControl Background="Transparent" Margin="0,0,0,10" TabStripPlacement="Bottom">
                 <TabItem Header="Wale" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorAltBrush}}">
-                    <ScrollViewer Background="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" BorderBrush="{Binding Background, RelativeSource={RelativeSource Self}}" Template="{StaticResource ScrollViewerTemplate}">
+                    <ScrollViewer Background="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" BorderBrush="{Binding Background, RelativeSource={RelativeSource Self}}" BorderThickness="1" Template="{StaticResource ScrollViewerTemplate}">
                         <TextBlock Text="{Binding Source={x:Static prop:Resources.LicenseWale}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" TextWrapping="Wrap"/>
                     </ScrollViewer>
                 </TabItem>
                 <TabItem Header="CSCore" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorAltBrush}}">
-                    <ScrollViewer Background="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" BorderBrush="{Binding Background, RelativeSource={RelativeSource Self}}" Template="{StaticResource ScrollViewerTemplate}">
+                    <ScrollViewer Background="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" BorderBrush="{Binding Background, RelativeSource={RelativeSource Self}}" BorderThickness="1" Template="{StaticResource ScrollViewerTemplate}">
                         <TextBlock Text="{Binding Source={x:Static prop:Resources.LicenseCSCore}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" TextWrapping="Wrap"/>
                     </ScrollViewer>
                 </TabItem>
             </TabControl>
 
-            <Button Content="Close" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom" Width="74" Click="Button_Click" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+            <Button Content="Close" Margin="10,5" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="100" Click="Button_Click" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" IsCancel="True" IsDefault="True"/>
         </Grid>
     </Grid>
 </Window>

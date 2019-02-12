@@ -5,10 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Wale.WPF"
         xmlns:prop="clr-namespace:Wale.WPF.Properties"
+        xmlns:wale="clr-namespace:Wale;assembly=WaleBase"
         mc:Ignorable="d"
-        Height="350" Width="450" WindowStyle="None" LocationChanged="Window_LocationAndSizeChanged" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" PreviewKeyDown="Window_PreviewKeyDown">
+        Title="Wale Help"
+        Height="{Binding Source={x:Static wale:AppDatas.SubWindowHeightDefault}}"
+        Width="{Binding Source={x:Static wale:AppDatas.MainWindowWidth}}"
+        WindowStyle="None"
+        Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}">
     <Window.Resources>
-
         <Style x:Key="ScrollBarLineButton" TargetType="{x:Type RepeatButton}">
             <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Setter Property="OverridesDefaultStyle" Value="True"/>
@@ -183,19 +187,32 @@
                            Background="{TemplateBinding Background}"/>
             </Grid>
         </ControlTemplate>
+
+        <Style x:Key="WikiLinkDef" TargetType="TextBlock">
+            <Setter Property="Margin" Value="10,0"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="FinalButtons" TargetType="Button">
+            <Setter Property="Width" Value="100"/>
+            <Setter Property="Height" Value="20"/>
+            <Setter Property="Margin" Value="10,5"/>
+            <Setter Property="Background" Value="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}"/>
+            <Setter Property="Foreground" Value="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+        </Style>
     </Window.Resources>
-    <Grid>
-        <Grid x:Name="TitleGrid" Height="35" VerticalAlignment="Top" Background="{Binding Source={x:Static local:ColorSet.MainColorBrush}}" MouseMove="titlePanel_MouseMove" MouseDown="titlePanel_MouseDown">
-            <TextBlock x:Name="TitleBlock" Text="Wale Help" FontSize="20" Padding="10, 3" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
-        </Grid>
+    <Grid x:Name="MainGrid">
+        <local:TitleBar/>
         <Grid x:Name="ContentGrid" Margin="0,35,0,0">
-            <ScrollViewer Margin="0,0,0,35" Background="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" BorderBrush="{Binding Source={x:Static local:ColorSet.ForeColorAltBrush}}" BorderThickness="1" Template="{StaticResource ScrollViewerTemplate}">
-                <TextBlock Text="{Binding Source={x:Static prop:Resources.Help}}" TextWrapping="Wrap" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+            <ScrollViewer Margin="0,0,0,30" Background="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" BorderBrush="{Binding Source={x:Static local:ColorSet.ForeColorAltBrush}}" BorderThickness="1" Template="{StaticResource ScrollViewerTemplate}">
+                <TextBlock Text="{Binding Source={x:Static prop:Resources.Help}}" TextWrapping="Wrap" Padding="2" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
             </ScrollViewer>
 
-            <TextBlock Text="Address copied to clipboard" Margin="10,0,0,10" Width="{Binding Width, ElementName=WikiLinkTBlock}" Height="18" VerticalAlignment="Bottom" HorizontalAlignment="Left" Foreground="{Binding ClipboardCopiedMessageBrush}"/>
-            <TextBlock x:Name="WikiLinkTBlock" Text="{Binding Wiki}" ToolTip="Ctrl+left click to open in browser&#x0a;Right click to copy to clipboard" Margin="10,0,0,10" Height="18" VerticalAlignment="Bottom" HorizontalAlignment="Left" Foreground="{Binding WikiLinkBrush}" MouseLeftButtonUp="WikiLinkTextBlock_MouseLeftButtonUp" MouseRightButtonUp="WikiLinkTextBlock_MouseRightButtonUp"/>
-            <Button Content="Close" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom" Width="50" Click="Button_Click" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+            <Grid Height="30" VerticalAlignment="Bottom">
+                <TextBlock Text="Address copied to clipboard" Width="{Binding Width, ElementName=WikiLinkTBlock}" Foreground="{Binding ClipboardCopiedMessageBrush}" Style="{StaticResource WikiLinkDef}"/>
+                <TextBlock x:Name="WikiLinkTBlock" Text="{Binding Wiki}" ToolTip="Ctrl+left click to open in browser&#x0a;Right click to copy to clipboard" Foreground="{Binding WikiLinkBrush}" Style="{StaticResource WikiLinkDef}" MouseLeftButtonUp="WikiLinkTextBlock_MouseLeftButtonUp" MouseRightButtonUp="WikiLinkTextBlock_MouseRightButtonUp"/>
+                <Button Content="Close" HorizontalAlignment="Right" Click="Button_Click" Style="{StaticResource FinalButtons}" IsCancel="True" IsDefault="True"/>
+            </Grid>
         </Grid>
     </Grid>
 </Window>

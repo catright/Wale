@@ -66,9 +66,9 @@ namespace Wale.WPF.Properties {
         ///
         ///Usage
         ///
-        ///Wale will try to adjust all sound generating processes&apos; peak level to &apos;Target: yellow bar on View(F2) page&apos; level. You can change Target to your preferred level.
+        ///Wale tries to adjust all sound generating processes&apos; peak level to &apos;Target: yellow bar on View(F2) page&apos; level. You can change Target to your preferred level.
         ///
-        ///However, Wale uses windows volume system for now, which means the app only can control volume between 0.0~1.0. Hence, if you set Target to near 1.0, then Wale could not control volume, because all processes&apos; peak levels are always less than o [rest of string was truncated]&quot;;.
+        ///However, Wale uses windows volume system for now, which means the app only can control volume between 0.0~1.0. Hence, if you set Target to near 1.0, then Wale could not control volume, because all processes&apos; peak levels are always less than or e [rest of string was truncated]&quot;;.
         /// </summary>
         public static string Help {
             get {

@@ -97,7 +97,7 @@ namespace Wale.WPF.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0.25")]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.15")]
         public double TargetLevel {
             get {
                 return ((double)(this["TargetLevel"]));
@@ -224,42 +224,6 @@ namespace Wale.WPF.Properties {
             }
             set {
                 this["AppTitle"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool ProcessPriorityAboveNormal {
-            get {
-                return ((bool)(this["ProcessPriorityAboveNormal"]));
-            }
-            set {
-                this["ProcessPriorityAboveNormal"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool ProcessPriorityNormal {
-            get {
-                return ((bool)(this["ProcessPriorityNormal"]));
-            }
-            set {
-                this["ProcessPriorityNormal"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool ProcessPriorityHigh {
-            get {
-                return ((bool)(this["ProcessPriorityHigh"]));
-            }
-            set {
-                this["ProcessPriorityHigh"] = value;
             }
         }
         
