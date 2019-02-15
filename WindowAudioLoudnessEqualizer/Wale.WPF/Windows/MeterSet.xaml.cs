@@ -26,7 +26,7 @@ namespace Wale.WPF
 
         private bool detailed;
         private LabelMode labelMode = LabelMode.AveragePeak;
-        private string lastName;
+        private string lastName, lastTooltip;
 
         //public variables
         //public List<double> LastPeaks;
@@ -37,7 +37,7 @@ namespace Wale.WPF
         public bool Updated { get; private set; }
         public bool Debug { get => DP.DebugMode; set => DP.DebugMode = value; }
         public bool detailChanged = false;
-        public bool SoundEnabled { get => SoundOnCBox.IsChecked.Value; set { SoundOnCBox.IsChecked = value; SoundEnableChanged = false; } }
+        public bool SoundEnabled { get => SoundOnCBox.IsChecked.Value; set { SoundOnCBox.IsChecked = value; } }
         public bool SoundEnableChanged { get; set; } = false;
 
         //Initialization and init methods
@@ -45,30 +45,31 @@ namespace Wale.WPF
         {
             InitializeComponent();
         }
-        public MeterSet(int pid, string name, bool detail, bool autoinc, bool dbg = false)
+        public MeterSet(int pid, string name, bool detail, bool autoinc, bool dbg = false, string tooltip = null)
         {
             InitializeComponent();
             ProcessID = pid;
             DP = new JDPack.DebugPack(dbg);
 
-            Initialization(name);
+            Initialization(name, tooltip);
             detailed = !detail;
             AutoIncluded = autoinc;
             //if (detail) DetailOn();
             //else DetailOff();
         }
-        private void Initialization(string name) { DetailedItems(); SetFinalMake(name); }
+        private void Initialization(string name, string tooltip) { DetailedItems(); SetFinalMake(name, tooltip); }
         private void DetailedItems()
         {
             RelLabel.Visibility = Visibility.Hidden;
             PeakLabel.Visibility = Visibility.Hidden;
             AvPeakLabel.Visibility = Visibility.Hidden;
         }
-        private void SetFinalMake(string name)
+        private void SetFinalMake(string name, string tooltip)
         {
             DP.DML(" - SetFinalMake");
             //SetText(lSessionNameLabel, name);
-            NameToolTip.Content = name;
+            NameLabel.Content = name;
+            NameToolTip.Content = string.IsNullOrEmpty(tooltip) ? name : tooltip;
             //Console.WriteLine($"{LevelBar.DesiredSize}");
         }
 
@@ -122,7 +123,7 @@ namespace Wale.WPF
         //public functions
         public void UpdateLocation(Thickness p) { SetLocation(p); }
         public void ResetUpdate() { Updated = false; }
-        public void UpdateData(double vol, double level, double Avl, string name)
+        public void UpdateData(double vol, double level, double Avl, string name, string tooltip = null)
         {
             Updated = true;
             switch (labelMode)
@@ -155,12 +156,9 @@ namespace Wale.WPF
             SetBar(AvLevelBar, Avl);
             //lLevelBar.Increment((int)(((vbuf != null) ? vbuf : 1) * level * 100) - lLevelBar.Value);
             //SetBar2(pot, (int)(((vbuf != null) ? vbuf : 1) * level * 100));
-            if (lastName != name)
-            {
-                SetLabelText(NameLabel, name);
-                SetTooltip(NameLabel, name);
-            }
-            lastName = name;
+            if (lastName != name) { SetLabelText(NameLabel, name); lastName = name; }
+            if (tooltip != null && lastTooltip != tooltip) { SetTooltip(NameToolTip, tooltip); lastTooltip = tooltip; }
+            //lastName = name;
             //this.Refresh();
         }
 
@@ -257,17 +255,18 @@ namespace Wale.WPF
             }
             catch { DP.CML($"fail to invoke {control.Name}"); }
         }/**/
-        private void SetTooltip(Control control, string text)
+        delegate void ControlTooltipConsumer(ToolTip control, string text);
+        private void SetTooltip(ToolTip control, string text)
         {
             try
             {
                 if (!Dispatcher.CheckAccess())
                 {
-                    if (control != null) Dispatcher.Invoke(new ControlStringConsumer(SetTooltip), new object[] { control, text });  // invoking itself
+                    if (control != null) Dispatcher.Invoke(new ControlTooltipConsumer(SetTooltip), new object[] { control, text });  // invoking itself
                 }
                 else
                 {
-                    NameToolTip.Content = text;// the "functional part", executing only on the main thread
+                    control.Content = text;// the "functional part", executing only on the main thread
                 }
             }
             catch { DP.CML($"fail to invoke {control.Name}"); }

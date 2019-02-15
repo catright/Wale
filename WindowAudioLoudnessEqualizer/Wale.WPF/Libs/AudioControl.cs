@@ -70,6 +70,7 @@ namespace Wale
         
 
         public List<DeviceData> GetDeviceMap() { return audio.GetDeviceList(); }
+        public Tuple<string,string> GetDeviceName() { return audio.DeviceNameTpl; }
 
         #region Master Volume controls
         /*public void SetBaseTo(double bVol)

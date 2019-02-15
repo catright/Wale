@@ -60,6 +60,14 @@ namespace Wale.CoreAudio
         /// </summary>
         public bool NoDevice = false;
         /// <summary>
+        /// The name of current device
+        /// </summary>
+        public string DeviceName { get; private set; }
+        /// <summary>
+        /// The name set of current device
+        /// </summary>
+        public Tuple<string,string> DeviceNameTpl { get; private set; }
+        /// <summary>
         /// Volume of default device.
         /// </summary>
         public float MasterVolume { get { if (MasterEPVolume != null) { return MasterEPVolume.MasterVolumeLevelScalar; } else { return -1; } } set { if (MasterEPVolume != null) { MasterEPVolume.MasterVolumeLevelScalar = value; } } }
@@ -118,13 +126,14 @@ namespace Wale.CoreAudio
                 Sessions?.ForEach(s => s?.Dispose());
                 Sessions?.Clear();
             }
-            Console.WriteLine("Restart AC: Session cleared");
+            //Log("Restart AC: Session cleared");
             MasterEPPeak = null;
             MasterEPVolume = null;
             DefDevice?.Dispose();
-            Console.WriteLine("Restart AC: Master cleared");
-            UpdateDevice();Console.WriteLine("Restart AC: Master device is restarted");
-            GetSessionManager();Console.WriteLine("Restart AC: Session manager is restarted");
+            //Log("Restart AC: Master cleared");
+            UpdateDevice();// Log("Restart AC: Master device is restarted");
+            GetSessionManager();// Log("Restart AC: Session manager is restarted");
+            Log("Restart AC: OK");
         }
         /// <summary>
         /// Get new default MMDevice, VolumeSource, and PeakMeter. Sessions are not included.
@@ -336,19 +345,57 @@ namespace Wale.CoreAudio
         {
             MMDE = new CSCore.CoreAudioAPI.MMDeviceEnumerator();
             MMDE.EnumAudioEndpoints(DataFlow.All, CSCore.CoreAudioAPI.DeviceState.All);
-            MMDE.DefaultDeviceChanged += MMDE_DefaultDeviceChanged;
+            //MMDE.DefaultDeviceChanged += MMDE_DefaultDeviceChanged;
             MMDE.DevicePropertyChanged += MMDE_DevicePropertyChanged;
+            //MMDE.DeviceStateChanged += MMDE_DeviceStateChanged;
+            //MMDE.DeviceAdded += MMDE_DeviceAdded;
+            //MMDE.DeviceRemoved += MMDE_DeviceRemoved;
+        }
+        private void MMDE_DeviceRemoved(object sender, DeviceNotificationEventArgs e)
+        {
+            Log($"Audio Device is removed {e.DeviceId}");
+        }
+        private void MMDE_DeviceAdded(object sender, DeviceNotificationEventArgs e)
+        {
+            Log($"Audio Device is added {e.DeviceId}");
+        }
+        private void MMDE_DeviceStateChanged(object sender, DeviceStateChangedEventArgs e)
+        {
+            Log($"Audio Device State is changed {e.DeviceId} {e.DeviceState}");
         }
         private void MMDE_DefaultDeviceChanged(object sender, DefaultDeviceChangedEventArgs e)
         {
-            JDPack.FileLog.Log($"Default Audio Device is changed {e.DeviceId}");
-            //Restart();
+            Log($"Default Audio Device is changed {e.DeviceId} {e.DataFlow} {e.Role}");
         }
         private void MMDE_DevicePropertyChanged(object sender, DevicePropertyChangedEventArgs e)
         {
-            JDPack.FileLog.Log($"Audio Device Property is changed {e.DeviceId} {e.PropertyKey}");
-            Restart();
+            string key = GetKey(e.PropertyKey);
+            List<string> ResetKeys = new List<string> { "AudioEndpointPath", "AudioEngineDeviceFormat", "DeviceInterfaceClassGuid", "DeviceInterfaceEnabled" };
+
+            if (ResetKeys.Contains(key))
+            {
+                if (e.TryGetDevice(out MMDevice mmd))
+                {
+                    //Log($"Audio Device Property is changed {mmd.FriendlyName} {GetKey(mmd.PropertyStore.First(k => k.Key.ID == e.PropertyKey.ID).Key)}");
+                    Log($"Audio Device Property is changed {mmd.FriendlyName} {key}");
+                    DeviceName = mmd.FriendlyName;
+                }
+                else Log($"Audio Device Property is changed {e.DeviceId} {key}");
+
+                Restart();
+            }
             //UpdateDevice();
+        }
+        private enum PropertyKey { AudioEndpointPath, AudioEngineDeviceFormat, DeviceDescription, DeviceInterfaceClassGuid, DeviceInterfaceEnabled, FriendlyName }
+        private string GetKey(CSCore.Win32.PropertyKey key)
+        {
+            if (key.PropertyID == CSCore.Win32.PropertyStore.AudioEndpointPath.PropertyID) return "AudioEndpointPath";
+            else if (key.PropertyID == CSCore.Win32.PropertyStore.AudioEngineDeviceFormat.PropertyID) return "AudioEngineDeviceFormat";
+            else if (key.PropertyID == CSCore.Win32.PropertyStore.DeviceDesc.PropertyID) return "DeviceDescription";
+            else if (key.PropertyID == CSCore.Win32.PropertyStore.DeviceInterfaceClassGuid.PropertyID) return "DeviceInterfaceClassGuid";
+            else if (key.PropertyID == CSCore.Win32.PropertyStore.DeviceInterfaceEnabled.PropertyID) return "DeviceInterfaceEnabled";
+            else if (key.PropertyID == CSCore.Win32.PropertyStore.FriendlyName.PropertyID) return "FriendlyName";
+            else return key.ToString();
         }
 
         MMDevice DefDevice { get; set; }
@@ -367,6 +414,8 @@ namespace Wale.CoreAudio
                     //MMDevice device = obj.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
                     DefDevice = MMDE.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
                     if (DefDevice == null) JDPack.FileLog.Log("GetSessionData: Fail to get master device.");
+                    DeviceName = DefDevice.PropertyStore.First(p=>p.Key.PropertyID == CSCore.Win32.PropertyStore.DeviceDesc.PropertyID).Value.GetValue() as string;
+                    DeviceNameTpl = new Tuple<string, string>(DeviceName, DefDevice.FriendlyName);
                     //GetMasterVolume();
                     //GetMasterPeak();
                     NoDevice = false;
@@ -939,5 +988,22 @@ namespace Wale.CoreAudio
         #endregion
 
 
+        /// <summary>
+        /// Write log to log tab on main window. Always prefixed "hh:mm> ".
+        /// </summary>
+        /// <param name="msg">message to log</param>
+        /// <param name="newLine">flag for making newline after the end of the <paramref name="msg"/>.</param>
+        private void Log(string msg, bool newLine = true)
+        {
+            JDPack.FileLog.Log(msg, newLine);
+            DateTime t = DateTime.Now.ToLocalTime();
+            string content = $"{t.Hour:d2}:{t.Minute:d2}>{msg}";
+            if (newLine) content += "\r\n";
+            //AppendText(LogScroll, content);
+            if (Debug) JDPack.Debug.CM(content);
+            //DP.DMML(content);
+            //DP.CMML(content);
+            //bAllowPaintLog = true;
+        }
     }//End class Audio
 }

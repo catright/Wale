@@ -26,7 +26,7 @@ namespace Wale.WPF
     public partial class MainWindow : Window
     {
         // debug flags
-        private bool Dev = true, debug = false, mouseWheelDebug = false, audioDebug = false, updateVolumeDebug = false, updateSessionDebug = false;
+        private bool Dev = true, debug = false, mouseWheelDebug = false, audioDebug = true, updateVolumeDebug = false, updateSessionDebug = false;
         #region Variables
         // objects
         /// <summary>
@@ -221,11 +221,21 @@ namespace Wale.WPF
                     JDPack.DebugPack VDP = new JDPack.DebugPack(updateVolumeDebug);
                     VDP.DMML($"base={settings.TargetLevel} vol={Audio.MasterVolume}({Audio.MasterPeak})");
 
+                    Tuple<string, string> nbuf = Audio.GetDeviceName();
+                    if (DL.CurrentDevice != nbuf.Item1) { DL.CurrentDevice = nbuf.Item1; DL.CurrentDeviceLong = nbuf.Item2; }
+
                     double vbuf = Audio.MasterVolume;// Console.WriteLine($"{vbuf}");
                     DL.MasterVolume = vbuf;
 
                     double lbuf = Audio.MasterPeak * vbuf;// Console.WriteLine($"{lbuf}");
                     DL.MasterPeak = lbuf;
+
+                    Dispatcher?.Invoke(() =>
+                    {
+                        double hbuf = MasterPanel.Height + AppDatas.MainWindowBaseHeight;
+                        hbuf = hbuf > AppDatas.MainWindowHeightDefault ? hbuf : AppDatas.MainWindowHeightDefault;
+                        window.MinHeight = hbuf;
+                    });
                 }
                 System.Threading.Thread.Sleep(new TimeSpan((long)(settings.UIUpdateInterval * 10000)));
             }
@@ -279,7 +289,10 @@ namespace Wale.WPF
                                     foreach (MeterSet item in SessionPanel.Children) { if (sc.ProcessID == item.ProcessID) found = true; }
                                     if (!found)
                                     {
-                                        MeterSet set = new MeterSet(sc.ProcessID, sc.Name, settings.DetailedView, sc.AutoIncluded, updateSessionDebug);
+                                        //Console.WriteLine($"{sc.Name}({sc.ProcessID}) {sc.DisplayName} / {sc.ProcessName} / {sc.MainWindowTitle} / {sc.SessionIdentifier}");
+                                        //string stooltip = string.IsNullOrEmpty(sc.MainWindowTitle) ? $"{sc.Name}({sc.ProcessID})" : $"{sc.Name}({sc.ProcessID}) - {sc.MainWindowTitle}";
+                                        string stooltip = $"{sc.Name}({sc.ProcessID})";
+                                        MeterSet set = new MeterSet(sc.ProcessID, sc.Name, settings.DetailedView, sc.AutoIncluded, updateSessionDebug, stooltip);
                                         SessionPanel.Children.Add(set);
                                         reAlign = true;
                                         Log($"New MeterSet:{sc.Name}({sc.ProcessID})");
@@ -296,10 +309,12 @@ namespace Wale.WPF
                                     if (settings.DetailedView) item.DetailOn();
                                     else item.DetailOff();
                                     if (item.detailChanged) { reAlign = true; item.detailChanged = false; }
-                                    item.UpdateData(session.Volume, session.Peak, session.AveragePeak, session.Name);
+                                    //string stooltip = string.IsNullOrEmpty(session.MainWindowTitle) ? $"{session.Name}({session.ProcessID})" : $"{session.Name}({session.ProcessID}) - {session.MainWindowTitle}";
+                                    string stooltip = $"{session.Name}({session.ProcessID})";
+                                    item.UpdateData(session.Volume, session.Peak, session.AveragePeak, session.Name, stooltip);
                                     session.Relative = (float)item.Relative;
                                     if (session.AutoIncluded != item.AutoIncluded) session.AutoIncluded = item.AutoIncluded;
-                                    if (item.SoundEnableChanged) session.SoundEnabled = item.SoundEnabled;
+                                    if (item.SoundEnableChanged) { session.SoundEnabled = item.SoundEnabled; item.SoundEnableChanged = false; }
                                     if (session.SoundEnabled != item.SoundEnabled) item.SoundEnabled = session.SoundEnabled;
                                 }
                             }
@@ -404,7 +419,7 @@ namespace Wale.WPF
 
         private void openLogDirectoryToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            System.Diagnostics.Process.Start("explorer", JDPack.FileLog.WorkDirectory.FullName);
+            System.Diagnostics.Process.Start(JDPack.FileLog.WorkDirectory.FullName);
         }
         #endregion
 
@@ -939,6 +954,12 @@ namespace Wale.WPF
         public bool ProcessPriorityAboveNormal { get => _ProcessPriorityAboveNormal; set { _ProcessPriorityAboveNormal = value; Notify("ProcessPriorityAboveNormal"); } }
         private bool _ProcessPriorityNormal = false;
         public bool ProcessPriorityNormal { get => _ProcessPriorityNormal; set { _ProcessPriorityNormal = value; Notify("ProcessPriorityNormal"); } }
+
+
+        private string _CurrentDevice = "";
+        public string CurrentDevice { get => _CurrentDevice; set { _CurrentDevice = value; Notify("CurrentDevice"); } }
+        private string _CurrentDeviceLong = "";
+        public string CurrentDeviceLong { get => _CurrentDeviceLong; set { _CurrentDeviceLong = value; Notify("CurrentDeviceLong"); } }
 
         private double _MasterVolume = 0;
         public double MasterVolume { get => _MasterVolume; set { _MasterVolume = Math.Round(value, 3); Notify("MasterVolume"); } }

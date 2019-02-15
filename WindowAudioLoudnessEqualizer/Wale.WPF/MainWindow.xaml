@@ -134,6 +134,11 @@
             <Setter Property="Foreground" Value="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
             <Setter Property="Background" Value="Transparent"/>
         </Style>
+        <Style x:Key="TBlockTitleDef" TargetType="TextBlock">
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="20"/>
+        </Style>
         <Style x:Key="CboxDef" TargetType="CheckBox">
             <Setter Property="Foreground" Value="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
             <Setter Property="Background" Value="{Binding Source={x:Static local:ColorSet.BackColorBrush}}"/>
@@ -173,15 +178,8 @@
             </Style.Triggers>
         </Style>
         <Style x:Key="LDef" TargetType="Label">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Label">
-                        <Grid>
-                            <Label Padding="0"/>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Foreground" Value="{Binding Foreground, ElementName=window}"/>
         </Style>
         <Style x:Key="TItemDef" TargetType="TabItem">
             <Setter Property="Background" Value="{Binding Source={x:Static local:ColorSet.BackColorBrush}}"/>
@@ -386,15 +384,15 @@
 
     <Grid>
         <Grid Height="36" VerticalAlignment="Top" Background="{Binding Source={x:Static local:ColorSet.MainColorBrush}}" MouseDown="titlePanel_MouseDown" MouseMove="titlePanel_MouseMove">
-            <WrapPanel>
+            <WrapPanel Grid.Column="0">
                 <Image HorizontalAlignment="Left" Margin="10,5,10,5" Height="26" Width="26" Source="{Binding Icon, ElementName=window}">
                 <Image.Effect>
                     <DropShadowEffect BlurRadius="15" Color="White" Direction="60" Opacity="0.5"/>
                 </Image.Effect>
             </Image>
-                <TextBlock Text="{Binding Path=AppTitle, Source={x:Static prop:Settings.Default}}" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="20"/>
-                <TextBlock Text="." Visibility="{Binding ACDevShow}" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="20"/>
-                <TextBlock Text="{Binding SubVersion}" Visibility="{Binding ACDevShow}" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="20"/>
+                <TextBlock Text="{Binding Path=AppTitle, Source={x:Static prop:Settings.Default}}" Style="{StaticResource TBlockTitleDef}"/>
+                <TextBlock Text="." Visibility="{Binding ACDevShow}" Style="{StaticResource TBlockTitleDef}"/>
+                <TextBlock Text="{Binding SubVersion}" Visibility="{Binding ACDevShow}" Style="{StaticResource TBlockTitleDef}"/>
             </WrapPanel>
         </Grid>
 
@@ -406,14 +404,18 @@
                         <ColumnDefinition MinWidth="0"/>
                         <ColumnDefinition MinWidth="280"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel MouseWheel="MasterTab_MouseWheel" Grid.Column="0">
+                    <StackPanel x:Name="MasterPanel" MouseWheel="MasterTab_MouseWheel" Grid.Column="0">
                         <StackPanel Margin="5,5,5,0">
                             <Grid>
-                                <Label Content="Target" HorizontalAlignment="Left" Padding="0" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
-                                <Label x:Name="TargetLabel" Content="0" HorizontalAlignment="Right" Padding="0" Foreground="{Binding Source={x:Static local:ColorSet.TargetColorBrush}}"/>
+                                <Label Content="Target" HorizontalAlignment="Left" Style="{StaticResource LDef}"/>
+                                <Label x:Name="TargetLabel" Content="0" HorizontalAlignment="Right" Foreground="{Binding Source={x:Static local:ColorSet.TargetColorBrush}}" Style="{StaticResource LDef}"/>
                             </Grid>
                             <Slider x:Name="BaseSlider" Value="{Binding Path=TargetLevel, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Foreground="{Binding Source={x:Static local:ColorSet.TargetColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Style="{DynamicResource SliderBaseSlider}" ValueChanged="TargetSlider_ValueChanged"/>
                         </StackPanel>
+                        <WrapPanel Margin="5,5,5,0">
+                            <Label Content="Device" Margin="0,0,5,0" Style="{StaticResource LDef}"/>
+                            <TextBlock Text="{Binding CurrentDevice}" ToolTip="{Binding CurrentDeviceLong}" TextWrapping="Wrap"/>
+                        </WrapPanel>
                         <StackPanel Margin="5,5,5,0">
                             <Grid>
                                 <Label Content="Master" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" Padding="0"/>

@@ -257,5 +257,17 @@ namespace Wale.WPF.Properties {
                 this["ExcList"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool CombineSession {
+            get {
+                return ((bool)(this["CombineSession"]));
+            }
+            set {
+                this["CombineSession"] = value;
+            }
+        }
     }
 }

@@ -108,6 +108,8 @@ namespace Wale.WPF
                 node.IsExpanded = true;
                 View.Items.Add(node);
             }
+            //View.Items.LiveSortingProperties.Add("Name");
+            View.Items.SortDescriptions.Add(new System.ComponentModel.SortDescription("Header", System.ComponentModel.ListSortDirection.Ascending));
         }
         private void OnEnableDevice(object sender, EventArgs e)
         {

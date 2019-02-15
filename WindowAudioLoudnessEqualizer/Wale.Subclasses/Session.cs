@@ -60,11 +60,17 @@ namespace Wale.CoreAudio
         //public uint PID { get => (uint)ProcessID; }
         
         public int ProcessID { get { try { return (int)asc2?.ProcessID; } catch { return -1; } } }
-        private string DisplayName => asc2?.DisplayName;
-        private string ProcessName => asc2?.Process.ProcessName;
-        private string MainWindowTitle => asc2?.Process.MainWindowTitle;
-        public string SessionIdentifier => asc2?.SessionIdentifier;
-        private bool IsSystemSoundSession => (bool)asc2?.IsSystemSoundSession;
+        public string DisplayName { get { try { return asc2?.DisplayName; } catch { return string.Empty; } } }
+        /// <summary>
+        /// Take VERY LONG TIME when read this property. Because you will access process object when you use this.
+        /// </summary>
+        public string ProcessName { get { try { return asc2?.Process.ProcessName; } catch { return string.Empty; } } }
+        /// <summary>
+        /// Take VERY LONG TIME when read this property. Because you will access process object when you use this.
+        /// </summary>
+        public string MainWindowTitle { get { try { return asc2?.Process.MainWindowTitle; } catch { return string.Empty; } } }
+        public string SessionIdentifier { get { try { return asc2?.SessionIdentifier; } catch { return string.Empty; } } }
+        public bool IsSystemSoundSession { get { try { return (bool)asc2?.IsSystemSoundSession; } catch { return false; } } }
 
         /// <summary>
         /// Read or write volume of audio session. Always use RV when write volume.
@@ -72,23 +78,28 @@ namespace Wale.CoreAudio
         /// </summary>
         public float Volume
         {
-            get { using (var v = asc2?.QueryInterface<CSCore.CoreAudioAPI.SimpleAudioVolume>()) { return v.MasterVolume; } }
-            set { using (var v = asc2?.QueryInterface<CSCore.CoreAudioAPI.SimpleAudioVolume>()) { v.MasterVolume = (value > 1 ? 1 : (value < -1 ? -1 : value)); } }
+            get { using (var v = asc2?.QueryInterface<CSCore.CoreAudioAPI.SimpleAudioVolume>()) { try { return v.MasterVolume; } catch { return -1; } } }
+            set { using (var v = asc2?.QueryInterface<CSCore.CoreAudioAPI.SimpleAudioVolume>()) { try { v.MasterVolume = (value > 1 ? 1 : (value < 0 ? 0 : value)); } catch { } } }
         }
         public float Peak
         {
             get
             {
-                using (var p = asc2.QueryInterface<CSCore.CoreAudioAPI.AudioMeterInformation>())
+                using (var p = asc2?.QueryInterface<CSCore.CoreAudioAPI.AudioMeterInformation>())
                 {
-                    return p.GetMeteringChannelCount() > 1 ? p.GetChannelsPeakValues().Average() : p.PeakValue;
+                    try
+                    {
+                        //return p.GetMeteringChannelCount() > 1 ? p.GetChannelsPeakValues().Average() : p.PeakValue;
+                        return p.PeakValue;
+                    }
+                    catch { return -1; }
                 }
             }
         }
         public bool SoundEnabled
         {
-            get { using (var v = asc2?.QueryInterface<CSCore.CoreAudioAPI.SimpleAudioVolume>()) { return !v.IsMuted; } }
-            set { using (var v = asc2?.QueryInterface<CSCore.CoreAudioAPI.SimpleAudioVolume>()) { v.IsMuted = !value; } }
+            get { using (var v = asc2?.QueryInterface<CSCore.CoreAudioAPI.SimpleAudioVolume>()) { try { return !v.IsMuted; } catch { return false; } } }
+            set { using (var v = asc2?.QueryInterface<CSCore.CoreAudioAPI.SimpleAudioVolume>()) { try { v.IsMuted = !value; } catch { } } }
         }
         #endregion
 
