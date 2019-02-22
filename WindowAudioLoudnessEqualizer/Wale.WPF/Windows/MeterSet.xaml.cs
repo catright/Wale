@@ -18,7 +18,7 @@ namespace Wale.WPF
     /// <summary>
     /// Interaction logic for MeterSet.xaml
     /// </summary>
-    public partial class MeterSet : UserControl
+    public partial class MeterSet : UserControl, IComparable<MeterSet>
     {
         private JDPack.DebugPack DP;
         private Brush foreColor = ColorSet.ForeColorBrush, mainColor = ColorSet.MainColorBrush, peakColor = ColorSet.PeakColorBrush, averageColor = ColorSet.AverageColorBrush;
@@ -33,7 +33,8 @@ namespace Wale.WPF
         public int ProcessID { get; }
         public string SessionName { get => NameLabel.Content.ToString(); }
         public double Relative { get; private set; } = 0;
-        public bool AutoIncluded { get => AutoIncludeCBox.IsChecked.Value; private set => AutoIncludeCBox.IsChecked = value; }
+        public bool AutoIncluded { get => AutoIncludeCBox.IsChecked.Value; set => AutoIncludeCBox.IsChecked = value; }
+        public bool AutoIncludedChanged { get; set; } = false;
         public bool Updated { get; private set; }
         public bool Debug { get => DP.DebugMode; set => DP.DebugMode = value; }
         public bool detailChanged = false;
@@ -75,7 +76,9 @@ namespace Wale.WPF
 
 
         //Item events
-        private void LSessionNameLabel_Click(object sender, MouseButtonEventArgs e) { AutoIncludeCBox.IsChecked = !AutoIncludeCBox.IsChecked; }
+        private void LSessionNameLabel_Click(object sender, MouseButtonEventArgs e) { SoundEnabled = !SoundEnabled; SoundEnableChanged = true; }
+        private void SoundOnCBox_Click(object sender, RoutedEventArgs e) { SoundEnableChanged = true; }
+        private void AutoIncludedCBox_Click(object sender, RoutedEventArgs e) { AutoIncludedChanged = true; }
         private void LSessionLabel_Click(object sender, MouseButtonEventArgs e)
         {
             if (!detailed)
@@ -113,10 +116,6 @@ namespace Wale.WPF
             Relative = e.NewValue > 1 ? 1 : (e.NewValue < -1 ? -1 : e.NewValue);
         }
 
-        private void SoundOnCBox_Click(object sender, RoutedEventArgs e)
-        {
-            SoundEnableChanged = true;
-        }
 
 
 
@@ -346,8 +345,15 @@ namespace Wale.WPF
             }
             catch { DP.CML($"fail to invoke {control.Name}"); }
         }/**/
+
         #endregion
 
+        public int CompareTo(MeterSet other)
+        {
+            // A null value means that this object is greater.
+            if (other == null) return 1;
+            else return this.SessionName.CompareTo(other.SessionName);
+        }
         /*protected override void OnPaint(PaintEventArgs pe)
         {
             base.OnPaint(pe);

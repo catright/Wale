@@ -25,8 +25,30 @@ namespace Wale.WPF
     /// </summary>
     public partial class MainWindow : Window
     {
-        // debug flags
-        private bool Dev = true, debug = false, mouseWheelDebug = false, audioDebug = true, updateVolumeDebug = false, updateSessionDebug = false;
+        #region Debug Flags
+        /// <summary>
+        /// Dev view visibility on Main window
+        /// </summary>
+        private bool Dev = true;
+        /// <summary>
+        /// Debug flag for main window
+        /// </summary>
+        private bool debug = false;
+
+        private bool mouseWheelDebug = false;
+        /// <summary>
+        /// Debug flag for audio controller
+        /// </summary>
+        private bool audioDebug = false;
+        /// <summary>
+        /// Debug flag for master update task
+        /// </summary>
+        private bool updateVolumeDebug = false;
+        /// <summary>
+        /// Debug flag for session update task
+        /// </summary>
+        private bool updateSessionDebug = false;
+        #endregion
         #region Variables
         // objects
         /// <summary>
@@ -78,6 +100,9 @@ namespace Wale.WPF
             MakeConfigs();
             Log("AppStarted");
         }
+        /// <summary>
+        /// Make UI components
+        /// </summary>
         private void MakeComponents()
         {
             DP = new JDPack.DebugPack(debug);
@@ -111,8 +136,19 @@ namespace Wale.WPF
             }
             SetPriority(settings.ProcessPriority);
 
+            // Check for Update
+            //Tuple<bool, string> uc = AppUpdateCheck.Check();
+            //if (uc.Item1)
+            //{
+                //DL.AppUpdateMsg = uc.Item1 ? Visibility.Visible : Visibility.Hidden;
+                //DL.UpdateLink = uc.Item2;
+            //}
+
             Log("OK1");
         }
+        /// <summary>
+        /// Make notifyicon - Task bar icon
+        /// </summary>
         private void MakeNI()
         {
             // make icon
@@ -156,7 +192,7 @@ namespace Wale.WPF
             UpdateTasks = new List<Task>();
             UpdateTasks.Add(new Task(CheckFirstLoadTask));
             UpdateTasks.Add(new Task(UpdateStateTask));
-            UpdateTasks.Add(new Task(UpdateVolumeTask));
+            UpdateTasks.Add(new Task(UpdateMasterDeviceTask));
             UpdateTasks.Add(new Task(UpdateSessionTask));
             UpdateTasks.ForEach(t => t.Start());
 
@@ -176,19 +212,23 @@ namespace Wale.WPF
 
 
         #region Update Tasks
-        //Check First Load. deprecated
+        /// <summary>
+        /// Starter task for check first Load. deprecated
+        /// </summary>
         private void CheckFirstLoadTask()
         {
             Log("Start CheckFirstLoadTask");
             while (!FinishApp && FirstLoad)
             {
-                Dispatcher?.Invoke(() => { Hide(); FirstLoad = false; });
+                Dispatcher?.Invoke(() => { Hide(); FirstLoad = false; loaded = true; });
                 System.Threading.Thread.Sleep(new TimeSpan((long)(settings.AutoControlInterval * 10000)));
             }
             Log("End CheckFirstLoadTask");
         }
 
-        //Check device state.
+        /// <summary>
+        /// Update task for master device status.
+        /// </summary>
         private void UpdateStateTask()
         {
             Log("Start UpdateStateTask");
@@ -209,9 +249,11 @@ namespace Wale.WPF
             }
             Log("End UpdateStateTask");
         }
-        
-        // Update task for master output level of a device is currently used
-        private void UpdateVolumeTask()
+
+        /// <summary>
+        /// Update task for master device which is currently used
+        /// </summary>
+        private void UpdateMasterDeviceTask()
         {
             Log("Start UpdateVolumeTask");
             while (!FinishApp)
@@ -242,7 +284,6 @@ namespace Wale.WPF
             Log("End UpdateVolumeTask");
         }
 
-        //making UIs for all sessions.
         /// <summary>
         /// Update task to make UIs of all sessions
         /// </summary>
@@ -257,6 +298,9 @@ namespace Wale.WPF
             }
             Log("End UpdateSessionTask");
         }
+        /// <summary>
+        /// real session update process, making UIs for all session
+        /// </summary>
         private void UpdateSession(StackPanel grid)
         {
             try
@@ -293,7 +337,10 @@ namespace Wale.WPF
                                         //string stooltip = string.IsNullOrEmpty(sc.MainWindowTitle) ? $"{sc.Name}({sc.ProcessID})" : $"{sc.Name}({sc.ProcessID}) - {sc.MainWindowTitle}";
                                         string stooltip = $"{sc.Name}({sc.ProcessID})";
                                         MeterSet set = new MeterSet(sc.ProcessID, sc.Name, settings.DetailedView, sc.AutoIncluded, updateSessionDebug, stooltip);
-                                        SessionPanel.Children.Add(set);
+                                        int idx = SessionPanel.Children.Count;
+                                        foreach (MeterSet item in SessionPanel.Children) { if (set.CompareTo(item) < 0) { idx = SessionPanel.Children.IndexOf(item); break; } }
+                                        if (idx < SessionPanel.Children.Count) SessionPanel.Children.Insert(idx, set);
+                                        else SessionPanel.Children.Add(set);
                                         reAlign = true;
                                         Log($"New MeterSet:{sc.Name}({sc.ProcessID})");
                                     }
@@ -313,9 +360,12 @@ namespace Wale.WPF
                                     string stooltip = $"{session.Name}({session.ProcessID})";
                                     item.UpdateData(session.Volume, session.Peak, session.AveragePeak, session.Name, stooltip);
                                     session.Relative = (float)item.Relative;
-                                    if (session.AutoIncluded != item.AutoIncluded) session.AutoIncluded = item.AutoIncluded;
+                                    // Sound mute check
                                     if (item.SoundEnableChanged) { session.SoundEnabled = item.SoundEnabled; item.SoundEnableChanged = false; }
                                     if (session.SoundEnabled != item.SoundEnabled) item.SoundEnabled = session.SoundEnabled;
+                                    // Auto include check
+                                    if (item.AutoIncludedChanged) { session.AutoIncluded = item.AutoIncluded; item.AutoIncludedChanged = false; }
+                                    if (session.AutoIncluded != item.AutoIncluded) item.AutoIncluded = session.AutoIncluded;
                                 }
                             }
                         }
@@ -487,6 +537,7 @@ namespace Wale.WPF
             Console.WriteLine($"{settings.TargetLevel}");
             TargetLabel.Content = settings.TargetLevel.ToString();
             //if (settings.BaseLevel.ToString().Length > 4) { settings.BaseLevel = Math.Round(settings.BaseLevel, 2); }
+            LastValues.TargetLevel = settings.TargetLevel;
             settings.Save();
         }
 
@@ -518,10 +569,12 @@ namespace Wale.WPF
             if (settings.AutoControlInterval != LastValues.AutoControlInterval || settings.AverageTime != LastValues.AverageTime)
             {
                 Audio?.UpdateAverageParam();
-                JDPack.FileLog.Log($"Update Avr Param {settings.AverageTime:n3}ms({settings.AverageTime / settings.AutoControlInterval:n0}), {settings.AutoControlInterval:n3}ms");
+                double avcnt = settings.AverageTime / settings.AutoControlInterval;
+                Log($"Update Avr Param {settings.AverageTime:n3}ms({avcnt:n0}), {settings.AutoControlInterval:n3}ms");
                 DL.ACHz = 1.0 / (2.0 * settings.AutoControlInterval / 1000.0);
-                DL.ACAvCnt = settings.AverageTime / settings.AutoControlInterval;
+                DL.ACAvCnt = avcnt;
             }
+            if (settings.VFunc != LastValues.VFunc) { Audio?.UpdateVFunc(); }
         }
 
         private void window_Deactivated(object sender, EventArgs e)
@@ -671,37 +724,42 @@ namespace Wale.WPF
         {
             if (e.LeftButton == MouseButtonState.Pressed)
             {
-                Point loc = PointToScreen(e.GetPosition(this));
+                Point mouse = PointToScreen(e.GetPosition(this));
                 //MessageBox.Show($"L={Screen.PrimaryScreen.WorkingArea.Left} R={Screen.PrimaryScreen.WorkingArea.Right}, T={Screen.PrimaryScreen.WorkingArea.Top} B={Screen.PrimaryScreen.WorkingArea.Bottom}");
                 //Console.WriteLine($"W:{Left},M:{loc.X},LM:{titlePosition.X},SW:{System.Windows.SystemParameters.PrimaryScreenWidth}");
-                double x = loc.X - titlePosition.X;
-                if (x + this.Width >= System.Windows.SystemParameters.WorkArea.Width) x = System.Windows.SystemParameters.WorkArea.Width - this.Width;
-                else if (x <= 0) x = 0;
+                double x = mouse.X - titlePosition.X;
+                //if (x + this.Width >= System.Windows.SystemParameters.WorkArea.Width) x = System.Windows.SystemParameters.WorkArea.Width - this.Width;
+                //else if (x <= 0) x = 0;
 
-                double y = loc.Y - titlePosition.Y;
-                if (y + this.Height >= System.Windows.SystemParameters.WorkArea.Height) y = System.Windows.SystemParameters.WorkArea.Height - this.Height;
-                else if (y <= 0) y = 0;
+                double y = mouse.Y - titlePosition.Y;
+                //if (y + this.Height >= System.Windows.SystemParameters.WorkArea.Height) y = System.Windows.SystemParameters.WorkArea.Height - this.Height;
+                //else if (y <= 0) y = 0;
+                var loc = CheckWindowLocation(x, y);
                 //MessageBox.Show($"x={x} y={y}");
-                Left = x;
-                Top = y;
+                Left = loc.Item1;
+                Top = loc.Item2;
             }
         }
         private void Window_LocationAndSizeChanged(object sender, EventArgs e)
         {
-            if ((this.Left + this.Width) > System.Windows.SystemParameters.WorkArea.Width)
-                this.Left = System.Windows.SystemParameters.WorkArea.Width - this.Width;
+            //if ((this.Left + this.Width) > System.Windows.SystemParameters.WorkArea.Width) this.Left = System.Windows.SystemParameters.WorkArea.Width - this.Width;
+            //else if (this.Left < System.Windows.SystemParameters.WorkArea.Left) this.Left = System.Windows.SystemParameters.WorkArea.Left;
 
-            if (this.Left < System.Windows.SystemParameters.WorkArea.Left)
-                this.Left = System.Windows.SystemParameters.WorkArea.Left;
-
-
-            if ((this.Top + this.Height) > System.Windows.SystemParameters.WorkArea.Height)
-                this.Top = System.Windows.SystemParameters.WorkArea.Height - this.Height;
-
-            if (this.Top < System.Windows.SystemParameters.WorkArea.Top)
-                this.Top = System.Windows.SystemParameters.WorkArea.Top;
+            //if ((this.Top + this.Height) > System.Windows.SystemParameters.WorkArea.Height) this.Top = System.Windows.SystemParameters.WorkArea.Height - this.Height;
+            //else if (this.Top < System.Windows.SystemParameters.WorkArea.Top) this.Top = System.Windows.SystemParameters.WorkArea.Top;
+            var loc = CheckWindowLocation(this.Left, this.Top);
+            this.Left = loc.Item1;
+            this.Top = loc.Item2;
         }
+        private Tuple<double, double> CheckWindowLocation(double left, double top)
+        {
+            if ((left + this.Width) > System.Windows.SystemParameters.WorkArea.Width) left = System.Windows.SystemParameters.WorkArea.Width - this.Width;
+            else if (left < System.Windows.SystemParameters.WorkArea.Left) left = System.Windows.SystemParameters.WorkArea.Left;
 
+            if ((top + this.Height) > System.Windows.SystemParameters.WorkArea.Height) top = System.Windows.SystemParameters.WorkArea.Height - this.Height;
+            else if (top < System.Windows.SystemParameters.WorkArea.Top) top = System.Windows.SystemParameters.WorkArea.Top;
+            return new Tuple<double, double>(left, top);
+        }
         #endregion
 
         #region Funcion delegates for unsafe UI update
@@ -945,44 +1003,58 @@ namespace Wale.WPF
     public class Datalink : INotifyPropertyChanged
     {
         private string _SubVersion = "";
-        public string SubVersion { get => _SubVersion; set { _SubVersion = value; Notify("SubVersion"); } }
-
+        public string SubVersion { get => _SubVersion; set => SetData(ref _SubVersion, value); }
+        private Visibility _AppUpdateMsg = Visibility.Hidden;
+        public Visibility AppUpdateMsg { get => _AppUpdateMsg; set => SetData(ref _AppUpdateMsg, value); }
+        private string _UpdateLink = "";
+        public string UpdateLink { get => _UpdateLink; set => SetData(ref _UpdateLink, value); }
 
         private bool _ProcessPriorityHigh = false;
-        public bool ProcessPriorityHigh { get => _ProcessPriorityHigh; set { _ProcessPriorityHigh = value; Notify("ProcessPriorityHigh"); } }
+        public bool ProcessPriorityHigh { get => _ProcessPriorityHigh; set => SetData(ref _ProcessPriorityHigh, value); }
         private bool _ProcessPriorityAboveNormal = false;
-        public bool ProcessPriorityAboveNormal { get => _ProcessPriorityAboveNormal; set { _ProcessPriorityAboveNormal = value; Notify("ProcessPriorityAboveNormal"); } }
+        public bool ProcessPriorityAboveNormal { get => _ProcessPriorityAboveNormal; set => SetData(ref _ProcessPriorityAboveNormal, value); }
         private bool _ProcessPriorityNormal = false;
-        public bool ProcessPriorityNormal { get => _ProcessPriorityNormal; set { _ProcessPriorityNormal = value; Notify("ProcessPriorityNormal"); } }
+        public bool ProcessPriorityNormal { get => _ProcessPriorityNormal; set => SetData(ref _ProcessPriorityNormal, value); }
 
 
         private string _CurrentDevice = "";
-        public string CurrentDevice { get => _CurrentDevice; set { _CurrentDevice = value; Notify("CurrentDevice"); } }
+        public string CurrentDevice { get => _CurrentDevice; set => SetData(ref _CurrentDevice, value); }
         private string _CurrentDeviceLong = "";
-        public string CurrentDeviceLong { get => _CurrentDeviceLong; set { _CurrentDeviceLong = value; Notify("CurrentDeviceLong"); } }
+        public string CurrentDeviceLong { get => _CurrentDeviceLong; set => SetData(ref _CurrentDeviceLong, value); }
 
         private double _MasterVolume = 0;
-        public double MasterVolume { get => _MasterVolume; set { _MasterVolume = Math.Round(value, 3); Notify("MasterVolume"); } }
+        public double MasterVolume { get => _MasterVolume; set => SetData(ref _MasterVolume, Math.Round(value, 3)); }
         private double _MasterPeak = 0;
-        public double MasterPeak { get => _MasterPeak; set { _MasterPeak = Math.Round(value, 3); Notify("MasterPeak"); } }
+        public double MasterPeak { get => _MasterPeak; set => SetData(ref _MasterPeak, Math.Round(value, 3)); }
 
 
         private Visibility _ACDevShow = Visibility.Hidden;
-        public Visibility ACDevShow { get => _ACDevShow; set { _ACDevShow = value; Notify("ACDevShow"); } }
+        public Visibility ACDevShow { get => _ACDevShow; set => SetData(ref _ACDevShow, value); }
         private double _ACElapsed = 0;
-        public double ACElapsed { get => _ACElapsed; set { _ACElapsed = Math.Round(value, 3); Notify("ACElapsed"); } }
+        public double ACElapsed { get => _ACElapsed; set => SetData(ref _ACElapsed, Math.Round(value, 3)); }
         private double _ACWaited = 0;
-        public double ACWaited { get => _ACWaited; set { _ACWaited = Math.Round(value, 3); Notify("ACWaited"); } }
+        public double ACWaited { get => _ACWaited; set => SetData(ref _ACWaited, Math.Round(value, 3)); }
         private double _ACEWdif = 0;
-        public double ACEWdif { get => _ACEWdif; set { _ACEWdif = Math.Round(value, 3); Notify("ACEWdif"); } }
+        public double ACEWdif { get => _ACEWdif; set => SetData(ref _ACEWdif, Math.Round(value, 3)); }
 
         private double _ACAvCnt = 0;
-        public double ACAvCnt { get => _ACAvCnt; set { _ACAvCnt = Math.Round(value, 0); Notify("ACAvCnt"); } }
+        public double ACAvCnt { get => _ACAvCnt; set => SetData(ref _ACAvCnt, Math.Round(value, 0)); }
         private double _ACHz = 0;
-        public double ACHz { get => _ACHz; set { _ACHz = Math.Round(value, 2); Notify("ACHz"); } }
+        public double ACHz { get => _ACHz; set => SetData(ref _ACHz, Math.Round(value, 2)); }
 
 
         public event PropertyChangedEventHandler PropertyChanged;
-        private void Notify(string Name) { PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(Name)); }
+        protected void Notify([System.Runtime.CompilerServices.CallerMemberName]string name = null) { PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name)); }
+        protected bool SetData<T>(ref T storage, T value, [System.Runtime.CompilerServices.CallerMemberName] string name = null)
+        {
+            if (Equals(storage, value))
+            {
+                return false;
+            }
+
+            storage = value;
+            Notify(name);
+            return true;
+        }
     }
 }

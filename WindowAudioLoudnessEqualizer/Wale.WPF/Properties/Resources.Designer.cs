@@ -61,14 +61,15 @@ namespace Wale.WPF.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Latest usage is always updated on Github Wiki(https://github.com/catright/Wale/wiki) first
+        ///   Looks up a localized string similar to Latest usage and full description are always firstly updated on Github Wiki(https://github.com/catright/Wale/wiki)
+        ///Last Update 0.5.7
         ///
         ///
         ///Usage
         ///
-        ///Wale tries to adjust all sound generating processes&apos; peak level to &apos;Target: yellow bar on View(F2) page&apos; level. You can change Target to your preferred level.
+        ///Wale tries to adjust all sound generating processes&apos; peak level to Target-Yellow bar- level. You can change Target to your preferred level.
         ///
-        ///However, Wale uses windows volume system for now, which means the app only can control volume between 0.0~1.0. Hence, if you set Target to near 1.0, then Wale could not control volume, because all processes&apos; peak levels are always less than or e [rest of string was truncated]&quot;;.
+        ///However, Wale uses windows volume system for now, which means the app only can control volume between 0.0~1.0. Hence, if you set Target to near 1.0, then Wale could not control volume, because all processes&apos; peak levels a [rest of string was truncated]&quot;;.
         /// </summary>
         public static string Help {
             get {

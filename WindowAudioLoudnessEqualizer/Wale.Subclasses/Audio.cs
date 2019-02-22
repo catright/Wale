@@ -625,20 +625,20 @@ namespace Wale.CoreAudio
             }
 
             //enumerate all sessions
-            foreach(var asc in ASM.GetSessionEnumerator().ToArray())
+            foreach (var asc in ASM.GetSessionEnumerator().ToArray())
             {
                 var asc2 = asc.QueryInterface<AudioSessionControl2>();
                 asc2.StateChanged += Asn_StateChanged;
                 //if (asc2.SessionState == AudioSessionState.AudioSessionStateActive)
                 //{
-                    lock (sessionLocker) { ASClist.Add(new Session(asc2, ExcludeList, AverageTime, AverageInterval)); }
+                lock (sessionLocker) { ASClist.Add(new Session(asc2, ExcludeList, AverageTime, AverageInterval)); }
                 //}
             }
-
+            lock (sessionLocker) { ASClist.Sort(); }
             //thread.SetApartmentState(System.Threading.ApartmentState.MTA);
             //thread.Start();
             //thread.Join();
-            
+
         }
 
         private void Audio_SessionCreated(object sender, SessionCreatedEventArgs e)
@@ -649,7 +649,7 @@ namespace Wale.CoreAudio
             //asn.StateChanged += Asn_StateChanged;
             //asc2.RegisterAudioSessionNotification(asn);
             asc2.StateChanged += Asn_StateChanged;
-            lock (sessionLocker) { ASClist.Add(new Session(asc2, ExcludeList, AverageTime, AverageInterval)); }
+            lock (sessionLocker) { ASClist.Add(new Session(asc2, ExcludeList, AverageTime, AverageInterval)); ASClist.Sort(); }
         }
         private void Asn_StateChanged(object sender, AudioSessionStateChangedEventArgs e)
         {

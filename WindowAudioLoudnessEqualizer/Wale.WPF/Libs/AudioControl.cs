@@ -39,6 +39,7 @@ namespace Wale
         }
         public double UpRate { get => upRate; set { upRate = (value * settings.AutoControlInterval / 1000); } }
         public double Kurtosis { get => kurtosis; set => kurtosis = value; }
+        public VFunction.Func VFunc { get => _VFunc; set => _VFunc = value; }
         #endregion
 
         #region class loads
@@ -55,16 +56,20 @@ namespace Wale
         {
             Debug = debug;
 
+            UpdateVFunc();
+
             audio = new Audio((float)settings.TargetLevel, settings.AverageTime, settings.AutoControlInterval, true)
             {
                 ExcludeList = settings.ExcList.Cast<string>().ToList()
             };
 
-            controllerCleanTask = new Task(ControllerCleanTask);
-            controllerCleanTask.Start();
+            ControlTasks.Add(ControllerCleanTask());
+            //controllerCleanTask = new Task(ControllerCleanTask);
+            //controllerCleanTask.Start();
 
-            audioControlTask = new Task(AudioControlTask);
-            audioControlTask.Start();
+            ControlTasks.Add(AudioControlTask());
+            //audioControlTask = new Task(AudioControlTask);
+            //audioControlTask.Start();
         }
         #endregion
         
@@ -73,13 +78,6 @@ namespace Wale
         public Tuple<string,string> GetDeviceName() { return audio.DeviceNameTpl; }
 
         #region Master Volume controls
-        /*public void SetBaseTo(double bVol)
-        {
-            baseLv = bVol > 1 ? 1 : (bVol < 0.01 ? 0.01 : bVol);
-            if (audio != null) { audio.TargetOutputLevel = (float)baseLv; }
-            baseLvSquare = baseLv * baseLv;
-            sliceFactors = VFunction.GetFactorsForSlicedLinear(UpRate, baseLv);
-        }*/
         public void VolumeUp(double v) { SetMasterVolume(MasterVolume + v); }
         public void VolumeDown(double v) { SetMasterVolume(MasterVolume - v); }
         public void SetMasterVolume(double v)
@@ -94,33 +92,34 @@ namespace Wale
 
 
         #region Session Control
-        //private void ResetAllSessionVolume()
-        //{
-            //lock (Lockers.Sessions) { audio.SetAllSessions(0.01f); }
-            //uint[] ids = Wale.Subclasses.Audio.GetApplicationIDs();
-            //for (int i = 0; i < ids.Count(); i++) { SetSessionVolume(ids[i], 0.01); }
-        //}
-        /*private void SetSessionVolume(int id, double v)
-        {
-            DP.DML($"SessionTo:{v:n6}");
-            lock (Lockers.Sessions) { audio.SetSessionVolume(id, (float)v); }
-        }*/
         private void SessionControl(Session s)
         {
-            if (s.ProcessID < 0) { JDPack.FileLog.Log($"{s.Name} is changed"); s.Dispose(); return; }
+            if (s.ProcessID < 0) { JDPack.FileLog.Log($"{s.Name} is changed. Dispose session"); s.Dispose(); return; }
+
             StringBuilder dm = new StringBuilder().Append($"AutoVolume:{s.Name}({s.ProcessID}), inc={s.AutoIncluded}");
+
             if (!settings.ExcList.Contains(s.Name) && s.AutoIncluded && s.State == SessionState.Active)
             {
-                double peak = s.Peak, volume = s.Relative != 0 ? s.Volume / Math.Pow(2, s.Relative) : s.Volume;
+                double peak = s.Peak;
+                // math 2^0=1 but skip math calculation and set relFactor to 1 for calc speed when relative is 0
+                double relFactor = (s.Relative == 0 ? 1 : Math.Pow(2, s.Relative));
+                double volume = s.Volume / relFactor;
                 dm.Append($" P:{peak:n3} V:{volume:n3}");
+
+                // control volume when audio session makes sound
                 if (peak > settings.MinPeak)
                 {
                     double tVol, UpLimit;
+
+                    // update average
                     if (settings.Averaging) s.SetAverage(peak);
-                    if (settings.Averaging && peak <= s.AveragePeak) tVol = settings.TargetLevel / s.AveragePeak;
+
+                    // when averaging, lower volume once if current peak exceeds average or set volume along average.
+                    if (settings.Averaging && peak < s.AveragePeak) tVol = settings.TargetLevel / s.AveragePeak;
                     else tVol = settings.TargetLevel / peak;
-                    if (!Enum.TryParse(settings.VFunc, out VFunction.Func func)) { JDPack.FileLog.Log("Invalid function for session control"); return; }
-                    switch (func)
+
+                    // calc upLimit by vfunc
+                    switch (VFunc)
                     {
                         case VFunction.Func.Linear:
                             UpLimit = VFunction.Linear(volume, UpRate) + volume;
@@ -138,18 +137,20 @@ namespace Wale
                             UpLimit = upRate + volume;
                             break;
                     }
+
+                    // set volume
                     dm.Append($" T={tVol:n3} UL={UpLimit:n3}");//Console.WriteLine($" T={tVol:n3} UL={UpLimit:n3}");
-                    s.Volume = (float)((tVol > UpLimit ? UpLimit : tVol) * Math.Pow(2, s.Relative));
+                    s.Volume = (float)((tVol > UpLimit ? UpLimit : tVol) * relFactor);
                 }
-                DP.DML(dm.ToString());
-                //Console.WriteLine(dm);
+                DP.DML(dm.ToString());// print debug message
             }
         }
         public void UpdateAverageParam() { lock (Lockers.Sessions) { audio.UpdateAvTimeAll(settings.AverageTime, settings.AutoControlInterval); } }
+        public void UpdateVFunc() { if (!Enum.TryParse(settings.VFunc, out _VFunc)) JDPack.FileLog.Log("Invalid function for session control"); return; }
         #endregion
 
         #region Automatic volume control
-        private async void AudioControlTask()
+        private async Task AudioControlTask()
         {
             JDPack.FileLog.Log("Audio Control Task Start");
             List<Task> aas = new List<Task>();
@@ -190,6 +191,7 @@ namespace Wale
                 //Console.WriteLine($"ACTaskElapsed={sw.ElapsedMilliseconds}(-{d.Ticks / 10000:n3})[ms]");
                 elapsed.Add((double)el.Ticks / 10000);
                 ewdif.Add((double)d.Ticks / 10000);
+                //if (d.Ticks > 0) { System.Threading.Thread.Sleep(d); }
                 if (d.Ticks > 0) { await Task.Delay(d); }
                 sw.Stop();
                 //Console.WriteLine($"ACTaskWaited ={(double)sw.ElapsedTicks / System.Diagnostics.Stopwatch.Frequency * 1000:n3}[ms]");// *10000000 T[100ns]
@@ -205,7 +207,7 @@ namespace Wale
 
             JDPack.FileLog.Log("Audio Control Task End");
         }// end AudioControlTask
-        private async void ControllerCleanTask()
+        private async Task ControllerCleanTask()
         {
             JDPack.FileLog.Log("Controller Clean Task(GC) Start");
             List<Task> aas = new List<Task>();
@@ -277,8 +279,9 @@ namespace Wale
         //protected bool AccuTimer { get { lock (AccuTimerlock) { return _AccuTimer; } } set { lock (AccuTimerlock) { _AccuTimer = value; } } }
         protected System.Threading.CancellationTokenSource AccuTimerCTS;
         protected double upRate = 0.02, kurtosis = 0.5;
+        protected VFunction.Func _VFunc;
         protected VFunction.FactorsForSlicedLinear sliceFactors;
-        protected Task audioControlTask, controllerCleanTask;
+        protected List<Task> ControlTasks = new List<Task>();//audioControlTask, controllerCleanTask;
         #endregion
 
         protected System.Timers.Timer Timer;
@@ -297,12 +300,14 @@ namespace Wale
             if (!disposed)
             {
                 Terminate = true;
-                if (audioControlTask != null) await audioControlTask;
-                if (controllerCleanTask != null) await controllerCleanTask;
+                await Task.WhenAll(ControlTasks);
+                //if (audioControlTask != null) await audioControlTask;
+                //if (controllerCleanTask != null) await controllerCleanTask;
                 if (disposing)
                 {
-                    audioControlTask.Dispose();
-                    controllerCleanTask.Dispose();
+                    ControlTasks.ForEach(i => i.Dispose());
+                    //audioControlTask.Dispose();
+                    //controllerCleanTask.Dispose();
                 }
                 await Task.Delay(250);
                 disposed = true;

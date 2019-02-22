@@ -118,65 +118,21 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Help" xml:space="preserve">
-    <value>Latest usage is always updated on Github Wiki(https://github.com/catright/Wale/wiki) first
+    <value>Latest usage and full description are always firstly updated on Github Wiki(https://github.com/catright/Wale/wiki)
+Last Update 0.5.7
 
 
 Usage
 
-Wale tries to adjust all sound generating processes' peak level to 'Target: yellow bar on View(F2) page' level. You can change Target to your preferred level.
+Wale tries to adjust all sound generating processes' peak level to Target-Yellow bar- level. You can change Target to your preferred level.
 
 However, Wale uses windows volume system for now, which means the app only can control volume between 0.0~1.0. Hence, if you set Target to near 1.0, then Wale could not control volume, because all processes' peak levels are always less than or equal to Target. So, you should lower Target a little. Suggested Target level is about 0.25(-6dB). Default is 0.15(-8dB).
 
     Caution! Too low Target may cause sudden hugely loud sound. Low Target means quieter output sound from your windows system. Then, you may need to increase the volume of your hardware such as speaker to hear the sound. In this situation, uncontrolled process would make very loud sound caused by some trouble of sound system include unintentional stop of Wale.
 
-    Just click the session name or blue checkbox on that session to uncheck it if you want to exclude some session from auto control. This exclusion is not saved when Wale is closed.
-    You can use your mouse wheel to adjust Relative volume -white bar- for each session. Relative value is not saved when Wale is closed.
-
-Wale System Description
-View(F2)
-MASTER CONTROL - Left pane
-
-Controls volume of current default render device with mouse wheel on anywhere of master tab. Control step is on small textbox which a left one of two of them.
-Click ‘Set Volume’ button to set a volume of current default render device, target volume is on bigger textbox which a right one of two of them.
-AlwaysTop(F7): window would be always on top
-StayOn(F8): window does not close automatically
-DetailView(F9): detailed mode for session pane
-SESSION(APPLICATION) CONTROL - Right pane
-
-Click checkbox or session name to include to or exclude from auto control list.
-Click number to cycle values to volume, peak, average peak or relative volume when not detailed mode.
-Use mouse wheel to change relative volume of each session.
-Relative is kept between -1~1. And Final volume is multiplied by (2^Relative).
-Config(F3)
-
-    UI Update [ms]: update interval of main UI and audio status
-    Auto Control [ms]: auto control interval, a value lower than 15ms is worthless due to the limitation of windows system
-    GC Interval [ms]: garbage collection interval
-    Target Level: target peak to equalization
-    Up Rate: rate of volume raising per second
-    Kurtosis: kurtosis for reciprocal functions
-    Function:
-    linear=V+(R-R*V)
-    sliced linear=(V&lt;V_B)? V+A*V+R ∶ V+B*(V-1) [A=R-R/V_B][B=R*V_B/(V_B-1)]
-    reciprocal=V+R*1/(K+(1-K)*V-1) [if (K==1&amp;&amp;V==0) reciprocal=99]
-    fixed reciprocal=V+R*((K+(1-K)*V)^(1/(Log_2(K)))-1) [if (K==0) fixed reciprocal=input][if (K==1) fixed reciprocal=input+R]
-    where V=Volume,R=UpRate,B=Base Volume,K=Kurtosis
-
-    Graph: graph for current volume raising function, yellow is base, blue is current, red is new(you want to set)
-
-    Average Time: past time to compute average
-    Min Peak Level: minimum peak to compute average
-    Average Enabled: On/Off average computing, should always on
-    Auto Control Enabled: On/Off Auto Session(App) volume control, should always on
-
-    Run at Windows Startup: run at windows start
-    Detailed View: view mode for main window.
-    Detailed Log: log more detailed information on file. for future
-    Priority: process priority for Wale.
-
-Log(F4)
-
-you can find app log on log tab, detailed log on %appdata%\WaleAudioControl</value>
+    Click blue checkbox on the session to uncheck it if you want to exclude some session from auto control. This exclusion is not saved when Wale is closed.
+    Click process name or white checkbox on the session to mute it. The mute state is saved in the process itself so kept when Wale is closed.
+    You can use your mouse wheel to adjust Relative-White bar- volume for each session. Relative value is not saved when Wale is closed.</value>
   </data>
   <data name="LicenseCSCore" xml:space="preserve">
     <value>Microsoft Public License (Ms-PL)

@@ -9,8 +9,8 @@
              xmlns:oxy="http://oxyplot.org/wpf"
              mc:Ignorable="d"
              x:Name="confset"
-             d:DesignHeight="375" Height="375" MinHeight="{Binding Height, Source=self}" MaxHeight="{Binding Height, Source=self}"
-             d:DesignWidth="478" Width="478" MinWidth="{Binding Width, Source=self}" MaxWidth="{Binding Width, Source=self}"
+             d:DesignHeight="375" Height="375" MinHeight="{Binding Height, RelativeSource={RelativeSource Self}}" MaxHeight="{Binding Height, RelativeSource={RelativeSource Self}}"
+             d:DesignWidth="478" Width="478" MinWidth="{Binding Width, RelativeSource={RelativeSource Self}}" MaxWidth="{Binding Width, RelativeSource={RelativeSource Self}}"
              Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}">
     <UserControl.Resources>
         <Style x:Key="LineItem" TargetType="Grid">
@@ -131,7 +131,8 @@
                             <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0">
-                            <CheckBox x:Name="runAtWindowsStartup" Content="RunAtWindowsStartup" Style="{StaticResource CBoxDef}"/>
+                            <CheckBox x:Name="runAtWindowsStartup" Content="Run at Windows Startup" Style="{StaticResource CBoxDef}"/>
+                            <CheckBox Visibility="Hidden" IsEnabled="False" x:Name="CheckForUpdateCB" Content="Check for Update" Style="{StaticResource CBoxDef}"/>
                         </StackPanel>
                         <StackPanel Grid.Column="1">
                             <CheckBox Content="Detailed View" IsChecked="{Binding Path=DetailedView, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Style="{StaticResource CBoxDef}"/>

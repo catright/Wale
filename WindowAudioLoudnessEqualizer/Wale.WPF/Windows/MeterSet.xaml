@@ -65,15 +65,18 @@
             <Setter Property="Foreground" Value="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
             <Setter Property="ToolTip" Value="{Binding Name, RelativeSource={RelativeSource Self}}"/>
             <Setter Property="BorderBrush" Value="{Binding Foreground, RelativeSource={RelativeSource Self}}"/>
+            <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="CheckBox">
-                        <Border Margin="1" Padding="{TemplateBinding Padding}" Width="14" Height="13" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
-                            <Grid Width="12" Height="11" Background="{TemplateBinding Background}">
-                                <Path x:Name="Equis" Opacity="0" Stroke="{TemplateBinding Foreground}" Fill="Transparent" Stretch="UniformToFill" StrokeThickness="2" Data="M 0 0 M 110 100 M 6 50 L 48 83 L 102 7"/>
-                                <ContentPresenter Margin="0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-                            </Grid>
-                        </Border>
+                        <WrapPanel>
+                            <Border Margin="0,2,0,1" Padding="{TemplateBinding Padding}" Width="13" Height="13" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                                <Grid Width="11" Height="11" Background="{TemplateBinding Background}">
+                                    <Path x:Name="Equis" Opacity="0" Stroke="{TemplateBinding Foreground}" Fill="Transparent" Stretch="UniformToFill" StrokeThickness="2" Data="M 0 0 M 100 100 M 6 50 L 48 83 L 92 7"/>
+                                </Grid>
+                            </Border>
+                            <ContentPresenter/>
+                        </WrapPanel>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
                                 <Setter TargetName="Equis" Property="Opacity" Value="1"/>
@@ -86,9 +89,6 @@
                 </Setter.Value>
             </Setter>
             <Style.Triggers>
-                <Trigger Property="Content" Value="">
-                    <Setter Property="Height" Value="13"/>
-                </Trigger>
                 <Trigger Property="IsEnabled" Value="False">
                     <Setter Property="Background" Value="Transparent"/>
                     <Setter Property="Foreground" Value="#40808080"/>
@@ -199,9 +199,9 @@
                     </Label>
                 </WrapPanel>
                 <WrapPanel Grid.Column="1" HorizontalAlignment="Right">
-                    <Label x:Name="SessionLabel" Foreground="{Binding Source={x:Static local:ColorSet.AverageColorBrush}}" MouseDown="LSessionLabel_Click" Style="{DynamicResource LNums}"/>
-                    <CheckBox x:Name="SoundOnCBox" ToolTip="Sound On" Style="{DynamicResource CBoxDef}" Click="SoundOnCBox_Click"/>
-                    <CheckBox x:Name="AutoIncludeCBox" ToolTip="Auto Include" Foreground="{Binding Source={x:Static local:ColorSet.MainColorBrush}}" Style="{DynamicResource CBoxDef}"/>
+                    <Label x:Name="SessionLabel" Foreground="{Binding Source={x:Static local:ColorSet.AverageColorBrush}}" MouseDown="LSessionLabel_Click" Style="{StaticResource LNums}"/>
+                    <CheckBox x:Name="SoundOnCBox" ToolTip="Sound On" Style="{StaticResource CBoxDef}" Click="SoundOnCBox_Click"/>
+                    <CheckBox x:Name="AutoIncludeCBox" ToolTip="Auto Include" Foreground="{Binding Source={x:Static local:ColorSet.MainColorBrush}}" Style="{StaticResource CBoxDef}" Click="AutoIncludedCBox_Click"/>
                 </WrapPanel>
             </Grid>
             <StackPanel>

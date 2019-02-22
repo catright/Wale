@@ -384,6 +384,10 @@
 
     <Grid>
         <Grid Height="36" VerticalAlignment="Top" Background="{Binding Source={x:Static local:ColorSet.MainColorBrush}}" MouseDown="titlePanel_MouseDown" MouseMove="titlePanel_MouseMove">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="99*"/>
+                <ColumnDefinition Width="*" MinWidth="{Binding ActualWidth, ElementName=AppUpdateMsg}"/>
+            </Grid.ColumnDefinitions>
             <WrapPanel Grid.Column="0">
                 <Image HorizontalAlignment="Left" Margin="10,5,10,5" Height="26" Width="26" Source="{Binding Icon, ElementName=window}">
                 <Image.Effect>
@@ -393,6 +397,9 @@
                 <TextBlock Text="{Binding Path=AppTitle, Source={x:Static prop:Settings.Default}}" Style="{StaticResource TBlockTitleDef}"/>
                 <TextBlock Text="." Visibility="{Binding ACDevShow}" Style="{StaticResource TBlockTitleDef}"/>
                 <TextBlock Text="{Binding SubVersion}" Visibility="{Binding ACDevShow}" Style="{StaticResource TBlockTitleDef}"/>
+            </WrapPanel>
+            <WrapPanel Grid.Column="1" VerticalAlignment="Bottom">
+                <TextBlock x:Name="AppUpdateMsg" Text="New Version Detected" Visibility="{Binding AppUpdateMsg}" ToolTip="{Binding UpdateLink}" TextDecorations="Underline" Padding="2,3" HorizontalAlignment="Right"/>
             </WrapPanel>
         </Grid>
 

@@ -10,7 +10,7 @@ namespace Wale.CoreAudio
     /// <summary>
     /// Data container for audio session
     /// </summary>
-    public class Session : IDisposable
+    public class Session : IDisposable, IComparable<Session>
     {
         private CSCore.CoreAudioAPI.AudioSessionControl2 asc2;
         public Session(CSCore.CoreAudioAPI.AudioSessionControl2 asc2, List<string> ExcList, double AvgTime, double AcInterval)
@@ -24,7 +24,16 @@ namespace Wale.CoreAudio
                 asc2.DisplayName,
                 asc2.SessionIdentifier
             );
-            AutoIncluded = ExcList.Contains(NameSet.Name) ? false : true;
+            //AutoIncluded = ExcList.Contains(NameSet.Name) ? false : true;
+            if (ExcList.Contains(NameSet.Name)){
+                LastIncluded = false;
+                AutoIncluded = false;
+            }
+            else
+            {
+                LastIncluded = true;
+                AutoIncluded = SoundEnabled;
+            }
             SetAvTime(AvgTime, AcInterval);
         }
 
@@ -99,7 +108,9 @@ namespace Wale.CoreAudio
         public bool SoundEnabled
         {
             get { using (var v = asc2?.QueryInterface<CSCore.CoreAudioAPI.SimpleAudioVolume>()) { try { return !v.IsMuted; } catch { return false; } } }
-            set { using (var v = asc2?.QueryInterface<CSCore.CoreAudioAPI.SimpleAudioVolume>()) { try { v.IsMuted = !value; } catch { } } }
+            set { using (var v = asc2?.QueryInterface<CSCore.CoreAudioAPI.SimpleAudioVolume>()) { try { v.IsMuted = !value;
+                        if (v.IsMuted) { LastIncluded = AutoIncluded; AutoIncluded = false; } else { AutoIncluded = LastIncluded; }
+                    } catch { } } }
         }
         #endregion
 
@@ -127,7 +138,10 @@ namespace Wale.CoreAudio
         /// <summary>
         /// The session is included to Auto controller when this flag is True. Default is True.
         /// </summary>
-        public bool AutoIncluded { get; set; } = true;
+        public bool AutoIncluded { get; set; }
+        //public bool AutoIncluded { get=> _AutoIncluded; set { _AutoIncluded = value; LastIncluded = value; } }
+        //private bool _AutoIncluded = true;
+        private bool LastIncluded = true;
         /// <summary>
         /// Average Calculation is enabled when this flag is True. Default is True.
         /// </summary>
@@ -178,6 +192,12 @@ namespace Wale.CoreAudio
         #endregion
 
 
+        public int CompareTo(Session other)
+        {
+            // A null value means that this object is greater.
+            if (other == null) return 1;
+            else return this.Name.CompareTo(other.Name);
+        }
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 
