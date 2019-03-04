@@ -28,6 +28,9 @@ namespace Wale.WPF
 
             MainGrid.Children.RemoveAt(0);
             MainGrid.Children.Insert(0, new TitleBar(this));
+
+            this.Title = "Wale " + Localization.Interpreter.Current.Help;
+            message.Text = Localization.Interpreter.Current.HelpMsg;
         }
         
 

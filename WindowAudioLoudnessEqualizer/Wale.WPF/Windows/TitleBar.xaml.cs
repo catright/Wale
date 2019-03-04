@@ -30,42 +30,39 @@ namespace Wale.WPF
 
         #region title panel control, location and size check events
         private Point titlePosition;
-        private void titlePanel_MouseDown(object sender, MouseButtonEventArgs e) { titlePosition = e.GetPosition(this); }
-        private void titlePanel_MouseMove(object sender, MouseEventArgs e)
+        private void TitlePanel_MouseDown(object sender, MouseButtonEventArgs e) { titlePosition = e.GetPosition(Owner); }
+        private void TitlePanel_MouseMove(object sender, MouseEventArgs e)
         {
             if (e.LeftButton == MouseButtonState.Pressed)
             {
-                Point loc = PointToScreen(e.GetPosition(this));
-                //MessageBox.Show($"L={Screen.PrimaryScreen.WorkingArea.Left} R={Screen.PrimaryScreen.WorkingArea.Right}, T={Screen.PrimaryScreen.WorkingArea.Top} B={Screen.PrimaryScreen.WorkingArea.Bottom}");
-                //Console.WriteLine($"W:{Left},M:{loc.X},LM:{titlePosition.X},SW:{System.Windows.SystemParameters.PrimaryScreenWidth}");
-                double x = loc.X - titlePosition.X;
-                if (x + Owner.Width >= System.Windows.SystemParameters.WorkArea.Width) x = System.Windows.SystemParameters.WorkArea.Width - Owner.Width;
-                else if (x <= 0) x = 0;
+                Point mouse = PointToScreen(e.GetPosition(this));
+                var visource = PresentationSource.FromVisual(Owner).CompositionTarget.TransformToDevice;
 
-                double y = loc.Y - titlePosition.Y;
-                if (y + Owner.Height >= System.Windows.SystemParameters.WorkArea.Height) y = System.Windows.SystemParameters.WorkArea.Height - Owner.Height;
-                else if (y <= 0) y = 0;
-                //MessageBox.Show($"x={x} y={y}");
-                Owner.Left = x;
-                Owner.Top = y;
+                double x = mouse.X / visource.M11 - titlePosition.X;
+                double y = mouse.Y / visource.M22 - titlePosition.Y;
+                
+                var loc = CheckWindowLocation(Owner, x, y);
+                
+                Owner.Left = loc.Item1;
+                Owner.Top = loc.Item2;
             }
         }
         private void Window_LocationAndSizeChanged(object sender, EventArgs e)
         {
-            if ((Owner.Left + Owner.Width) > System.Windows.SystemParameters.WorkArea.Width)
-                Owner.Left = System.Windows.SystemParameters.WorkArea.Width - Owner.Width;
-
-            if (Owner.Left < System.Windows.SystemParameters.WorkArea.Left)
-                Owner.Left = System.Windows.SystemParameters.WorkArea.Left;
-
-
-            if ((Owner.Top + Owner.Height) > System.Windows.SystemParameters.WorkArea.Height)
-                Owner.Top = System.Windows.SystemParameters.WorkArea.Height - Owner.Height;
-
-            if (Owner.Top < System.Windows.SystemParameters.WorkArea.Top)
-                Owner.Top = System.Windows.SystemParameters.WorkArea.Top;
+            var loc = CheckWindowLocation(Owner, Owner.Left, Owner.Top);
+            Owner.Left = loc.Item1;
+            Owner.Top = loc.Item2;
         }
+        public static Tuple<double, double> CheckWindowLocation(Window win, double left, double top)
+        {
+            if ((left + win.Width) > System.Windows.SystemParameters.WorkArea.Width) left = System.Windows.SystemParameters.WorkArea.Width - win.Width;
+            else if (left < System.Windows.SystemParameters.WorkArea.Left) left = System.Windows.SystemParameters.WorkArea.Left;
 
+            if ((top + win.Height) > System.Windows.SystemParameters.WorkArea.Height) top = System.Windows.SystemParameters.WorkArea.Height - win.Height;
+            else if (top < System.Windows.SystemParameters.WorkArea.Top) top = System.Windows.SystemParameters.WorkArea.Top;
+            
+            return new Tuple<double, double>(left, top);
+        }
         #endregion
 
     }

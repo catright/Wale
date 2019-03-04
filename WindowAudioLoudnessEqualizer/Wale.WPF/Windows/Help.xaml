@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:Wale.WPF"
         xmlns:prop="clr-namespace:Wale.WPF.Properties"
         xmlns:wale="clr-namespace:Wale;assembly=WaleBase"
+        xmlns:locale="clr-namespace:Wale.Localization;assembly=Wale.Localization"
         mc:Ignorable="d"
         Title="Wale Help"
         Height="{Binding Source={x:Static wale:AppDatas.SubWindowHeightDefault}}"
@@ -205,13 +206,13 @@
         <local:TitleBar/>
         <Grid x:Name="ContentGrid" Margin="0,35,0,0">
             <ScrollViewer Margin="0,0,0,30" Background="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" BorderBrush="{Binding Source={x:Static local:ColorSet.ForeColorAltBrush}}" BorderThickness="1" Template="{StaticResource ScrollViewerTemplate}">
-                <TextBlock Text="{Binding Source={x:Static prop:Resources.Help}}" TextWrapping="Wrap" Padding="2" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+                <TextBlock x:Name="message" Text="{Binding Source={x:Static prop:Resources.Help}}" TextWrapping="Wrap" Padding="2" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
             </ScrollViewer>
 
             <Grid Height="30" VerticalAlignment="Bottom">
-                <TextBlock Text="Address copied to clipboard" Width="{Binding Width, ElementName=WikiLinkTBlock}" Foreground="{Binding ClipboardCopiedMessageBrush}" Style="{StaticResource WikiLinkDef}"/>
-                <TextBlock x:Name="WikiLinkTBlock" Text="{Binding Wiki}" ToolTip="Ctrl+left click to open in browser&#x0a;Right click to copy to clipboard" Foreground="{Binding WikiLinkBrush}" Style="{StaticResource WikiLinkDef}" MouseLeftButtonUp="WikiLinkTextBlock_MouseLeftButtonUp" MouseRightButtonUp="WikiLinkTextBlock_MouseRightButtonUp"/>
-                <Button Content="Close" HorizontalAlignment="Right" Click="Button_Click" Style="{StaticResource FinalButtons}" IsCancel="True" IsDefault="True"/>
+                <TextBlock Text="{Binding CopiedToClip, Source={x:Static locale:Interpreter.Current}}" Width="{Binding Width, ElementName=WikiLinkTBlock}" Foreground="{Binding ClipboardCopiedMessageBrush}" Style="{StaticResource WikiLinkDef}"/>
+                <TextBlock x:Name="WikiLinkTBlock" Text="{Binding Wiki}" ToolTip="{Binding LinkTooltip, Source={x:Static locale:Interpreter.Current}}" Foreground="{Binding WikiLinkBrush}" Style="{StaticResource WikiLinkDef}" MouseLeftButtonUp="WikiLinkTextBlock_MouseLeftButtonUp" MouseRightButtonUp="WikiLinkTextBlock_MouseRightButtonUp"/>
+                <Button Content="{Binding Close, Source={x:Static locale:Interpreter.Current}}" HorizontalAlignment="Right" Click="Button_Click" Style="{StaticResource FinalButtons}" IsCancel="True" IsDefault="True"/>
             </Grid>
         </Grid>
     </Grid>

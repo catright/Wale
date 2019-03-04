@@ -18,7 +18,7 @@ namespace Wale
         /// <summary>
         /// Default height of main visual window
         /// </summary>
-        public static double MainWindowHeightDefault { get => 260; }
+        public static double MainWindowHeightDefault { get => 285; }
 
         /// <summary>
         /// Base height of main window includes title bar and tab selector
@@ -32,7 +32,11 @@ namespace Wale
         /// <summary>
         /// Final height of main window when selected config tab
         /// </summary>
-        public static double MainWindowConfigHeight { get => 433; }
+        public static double MainWindowConfigHeight { get => 285; }
+        /// <summary>
+        /// Final long height of main window when selected config tab
+        /// </summary>
+        public static double MainWindowConfigLongHeight { get => 435; }
 
         /// <summary>
         /// Default height of windows except main window

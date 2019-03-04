@@ -64,6 +64,7 @@ namespace Wale.WPF
             InitializeComponent();
             MakeComponents(audio, dl, owner, debug, newWindow);
             MakeConfigs();
+            MakeFinal();
         }
         private void MakeComponents(AudioControl audio, Datalink dl, Window owner, bool debug, bool newWindow)
         {
@@ -82,6 +83,8 @@ namespace Wale.WPF
                 SaveButton.Content = "Save and Close";//Console.WriteLine("SB C");
                 CancelButton.IsEnabled = true;//Console.WriteLine("CB E");
                 CancelButton.Visibility = Visibility.Visible;//Console.WriteLine("CB V");
+
+                Owner.KeyDown += ConfigSet_KeyDown;
             }
 
             this.Audio = audio;
@@ -112,6 +115,15 @@ namespace Wale.WPF
             settings.PropertyChanged += Settings_PropertyChanged;
 
             if (NewWindow) { Owner.Activate(); }
+        }
+        private void MakeFinal()
+        {
+            
+        }
+
+        private void ConfigSet_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.F9) settings.AdvancedView = !settings.AdvancedView;
         }
         #endregion
 
@@ -514,5 +526,7 @@ namespace Wale.WPF
         public static int UIUpdate, AutoControlInterval, GCInterval;
         public static double TargetLevel, AverageTime, UpRate, Kurtosis, MinPeak;
         public static string VFunc;*/
+
+        //public static bool AdvancedView { get; set; }
     }
 }

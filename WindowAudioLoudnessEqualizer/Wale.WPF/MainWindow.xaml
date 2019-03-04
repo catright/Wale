@@ -7,21 +7,29 @@
         xmlns:prop="clr-namespace:Wale.WPF.Properties"
         xmlns:wale="clr-namespace:Wale;assembly=WaleBase"
         xmlns:oxy="http://oxyplot.org/wpf"
+        xmlns:locale="clr-namespace:Wale.Localization;assembly=Wale.Localization"
         mc:Ignorable="d" Icon="Icon/WaleLeftOn.ico" ShowInTaskbar="False" WindowStyle="None" ResizeMode="NoResize"
-        Width="{Binding Source={x:Static wale:AppDatas.MainWindowWidth}}" MinWidth="{Binding Width, Source=self}" MaxWidth="{Binding Width, Source=self}"
-        Height="260" MinHeight="{Binding Source={x:Static wale:AppDatas.MainWindowHeightDefault}}"
-        Topmost="{Binding Path=AlwaysTop, Source={x:Static prop:Settings.Default}}"
-        Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}"
-        Deactivated="window_Deactivated">
+        Deactivated="window_Deactivated" MouseMove="Window_MouseMove" MouseUp="Window_MouseUp">
+    <Window.Style>
+        <Style TargetType="Window">
+            <Setter Property="Foreground" Value="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+            <Setter Property="Background" Value="{Binding Source={x:Static local:ColorSet.BackColorBrush}}"/>
+            <Setter Property="Width" Value="{Binding Source={x:Static wale:AppDatas.MainWindowWidth}}"/>
+            <Setter Property="MaxWidth" Value="{Binding Width, RelativeSource={RelativeSource self}}"/>
+            <Setter Property="Height" Value="285"/>
+            <Setter Property="MinHeight" Value="{Binding Source={x:Static wale:AppDatas.MainWindowHeightDefault}}"/>
+            <Setter Property="Topmost" Value="{Binding Path=AlwaysTop, Source={x:Static prop:Settings.Default}}"/>
+        </Style>
+    </Window.Style>
     <Window.ContextMenu>
         <ContextMenu>
-            <MenuItem Header="Configuration" Click="ConfigToolStripMenuItem_Click"/>
-            <MenuItem Header="Device Map" Click="deviceMapToolStripMenuItem_Click"/>
-            <MenuItem Header="Open Log" Click="openLogDirectoryToolStripMenuItem_Click"/>
+            <MenuItem Header="{Binding Configuration, Source={x:Static locale:Interpreter.Current}}" Click="ConfigToolStripMenuItem_Click"/>
+            <MenuItem Header="{Binding DeviceMap, Source={x:Static locale:Interpreter.Current}}" Click="deviceMapToolStripMenuItem_Click"/>
+            <MenuItem Header="{Binding OpenLog, Source={x:Static locale:Interpreter.Current}}" Click="openLogDirectoryToolStripMenuItem_Click"/>
             <Separator/>
-            <MenuItem Header="Help" Click="helpToolStripMenuItem_Click"/>
-            <MenuItem Header="License" Click="licensesToolStripMenuItem_Click"/>
-            <MenuItem Header="E_xit" Click="OnProgramShutdown"/>
+            <MenuItem Header="{Binding Help, Source={x:Static locale:Interpreter.Current}}" Click="helpToolStripMenuItem_Click"/>
+            <MenuItem Header="{Binding License, Source={x:Static locale:Interpreter.Current}}" Click="licensesToolStripMenuItem_Click"/>
+            <MenuItem Header="{Binding Exitxml, Source={x:Static locale:Interpreter.Current}}" Click="OnProgramShutdown"/>
         </ContextMenu>
     </Window.ContextMenu>
     <Window.CommandBindings>
@@ -34,7 +42,16 @@
         <CommandBinding Command="{x:Static local:ShortcutCommands.SCDetail}" Executed="ChangeDetailView"/>
     </Window.CommandBindings>
     <Window.Resources>
+        <Storyboard x:Key="changeHeightSB">
+            <DoubleAnimation Storyboard.TargetName="window" Storyboard.TargetProperty="Height" Duration="{Binding Transition}" To="{Binding WindowHeight}" BeginTime="0:0:0"/>
+            <DoubleAnimation Storyboard.TargetName="window" Storyboard.TargetProperty="Top" Duration="{Binding Transition}" To="{Binding WindowTop}" BeginTime="0:0:0"/>
+        </Storyboard>
+        <Storyboard x:Key="changeTopSB">
+            <DoubleAnimation Storyboard.TargetName="window" Storyboard.TargetProperty="Top" Duration="0:0:0" To="{Binding WindowTop}" BeginTime="0:0:0"/>
+        </Storyboard>
+        
         <local:ACdataconverter x:Key="ACdataconverter"/>
+
         <Style x:Key="BaseSliderRight" TargetType="RepeatButton">
             <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Setter Property="OverridesDefaultStyle" Value="True"/>
@@ -383,7 +400,8 @@
     </Window.Resources>
 
     <Grid>
-        <Grid Height="36" VerticalAlignment="Top" Background="{Binding Source={x:Static local:ColorSet.MainColorBrush}}" MouseDown="titlePanel_MouseDown" MouseMove="titlePanel_MouseMove">
+        <Grid Height="36" VerticalAlignment="Top" Background="{Binding Source={x:Static local:ColorSet.MainColorBrush}}"
+              MouseDown="TitlePanel_MouseDown">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="99*"/>
                 <ColumnDefinition Width="*" MinWidth="{Binding ActualWidth, ElementName=AppUpdateMsg}"/>
@@ -395,8 +413,9 @@
                 </Image.Effect>
             </Image>
                 <TextBlock Text="{Binding Path=AppTitle, Source={x:Static prop:Settings.Default}}" Style="{StaticResource TBlockTitleDef}"/>
-                <TextBlock Text="." Visibility="{Binding ACDevShow}" Style="{StaticResource TBlockTitleDef}"/>
+                <TextBlock Text=" [" Visibility="{Binding ACDevShow}" Style="{StaticResource TBlockTitleDef}"/>
                 <TextBlock Text="{Binding SubVersion}" Visibility="{Binding ACDevShow}" Style="{StaticResource TBlockTitleDef}"/>
+                <TextBlock Text="]" Visibility="{Binding ACDevShow}" Style="{StaticResource TBlockTitleDef}"/>
             </WrapPanel>
             <WrapPanel Grid.Column="1" VerticalAlignment="Bottom">
                 <TextBlock x:Name="AppUpdateMsg" Text="New Version Detected" Visibility="{Binding AppUpdateMsg}" ToolTip="{Binding UpdateLink}" TextDecorations="Underline" Padding="2,3" HorizontalAlignment="Right"/>
@@ -404,28 +423,28 @@
         </Grid>
 
         <TabControl x:Name="Tabs" TabStripPlacement="Bottom" Margin="0,36,0,0" Padding="0" SnapsToDevicePixels="True" Background="Transparent" SelectionChanged="Tabs_SelectionChanged" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
-            <TabItem Header="View(F2)" Style="{DynamicResource TItemDef}">
-                <Grid>
+            <TabItem Header="{Binding View, Source={x:Static locale:Interpreter.Current}}" Style="{DynamicResource TItemDef}">
+                <Grid MouseLeftButtonDown="MasterPanel_MouseDown">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition MinWidth="195"/>
                         <ColumnDefinition MinWidth="0"/>
                         <ColumnDefinition MinWidth="280"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel x:Name="MasterPanel" MouseWheel="MasterTab_MouseWheel" Grid.Column="0">
+                    <StackPanel x:Name="MasterPanel" Grid.Column="0" MouseWheel="MasterTab_MouseWheel">
                         <StackPanel Margin="5,5,5,0">
                             <Grid>
-                                <Label Content="Target" HorizontalAlignment="Left" Style="{StaticResource LDef}"/>
+                                <Label Content="{Binding Target, Source={x:Static locale:Interpreter.Current}}" HorizontalAlignment="Left" Style="{StaticResource LDef}"/>
                                 <Label x:Name="TargetLabel" Content="0" HorizontalAlignment="Right" Foreground="{Binding Source={x:Static local:ColorSet.TargetColorBrush}}" Style="{StaticResource LDef}"/>
                             </Grid>
                             <Slider x:Name="BaseSlider" Value="{Binding Path=TargetLevel, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Foreground="{Binding Source={x:Static local:ColorSet.TargetColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Style="{DynamicResource SliderBaseSlider}" ValueChanged="TargetSlider_ValueChanged"/>
                         </StackPanel>
                         <WrapPanel Margin="5,5,5,0">
-                            <Label Content="Device" Margin="0,0,5,0" Style="{StaticResource LDef}"/>
+                            <Label Content="{Binding Device, Source={x:Static locale:Interpreter.Current}}" Margin="0,0,5,0" Style="{StaticResource LDef}"/>
                             <TextBlock Text="{Binding CurrentDevice}" ToolTip="{Binding CurrentDeviceLong}" TextWrapping="Wrap"/>
                         </WrapPanel>
                         <StackPanel Margin="5,5,5,0">
                             <Grid>
-                                <Label Content="Master" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" Padding="0"/>
+                                <Label Content="{Binding Master, Source={x:Static locale:Interpreter.Current}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" Padding="0"/>
                                 <WrapPanel HorizontalAlignment="Right">
                                     <Label x:Name="MasterLabel" Width="35" Padding="0" Content="{Binding MasterVolume}" Foreground="{Binding Source={x:Static local:ColorSet.VolumeColorBrush}}" HorizontalContentAlignment="Right"/>
                                     <Label x:Name="MasterPeakLabel" Width="35" Padding="0" Content="{Binding MasterPeak}" Foreground="{Binding Source={x:Static local:ColorSet.PeakColorBrush}}" HorizontalContentAlignment="Right"/>
@@ -472,12 +491,13 @@
                             </Button>
                         </Grid>
                         <WrapPanel Margin="5,5,5,0">
-                            <CheckBox Content="AlwaysTop(F7)" IsChecked="{Binding Path=AlwaysTop, Source={x:Static prop:Settings.Default}}" Style="{DynamicResource CboxDef}"/>
-                            <CheckBox Content="StayOn(F8)" IsChecked="{Binding Path=StayOn, Source={x:Static prop:Settings.Default}}" Style="{DynamicResource CboxDef}"/>
-                            <CheckBox Content="DetailView(F9)" IsChecked="{Binding Path=DetailedView, Source={x:Static prop:Settings.Default}}" Style="{DynamicResource CboxDef}"/>
+                            <CheckBox Content="{Binding AlwaysTop, Source={x:Static locale:Interpreter.Current}}" IsChecked="{Binding Path=AlwaysTop, Source={x:Static prop:Settings.Default}}" Style="{DynamicResource CboxDef}"/>
+                            <CheckBox Content="{Binding StayOn, Source={x:Static locale:Interpreter.Current}}" IsChecked="{Binding Path=StayOn, Source={x:Static prop:Settings.Default}}" Style="{DynamicResource CboxDef}"/>
+                            <CheckBox Content="{Binding AdvancedView, Source={x:Static locale:Interpreter.Current}}" IsChecked="{Binding Path=AdvancedView, Source={x:Static prop:Settings.Default}}" Style="{DynamicResource CboxDef}"/>
                         </WrapPanel>
                         <!--Dev panel i-->
-                        <Border Visibility="{Binding ACDevShow}" Margin="0,2" Padding="0" BorderBrush="{Binding Source={x:Static local:ColorSet.ForeColorAltBrush}}" BorderThickness="1">
+                        <Border Visibility="{Binding ACDevShow}" Margin="0,2" Padding="0"
+                                BorderBrush="{Binding Source={x:Static local:ColorSet.ForeColorAltBrush}}" BorderThickness="1">
                             <StackPanel Margin="0">
                                 <WrapPanel Margin="0">
                                     <Label Content="AC Elapsed" Padding="10,0,0,0" Width="80" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
@@ -578,10 +598,10 @@
                     </StackPanel>
                 </Grid>
             </TabItem>
-            <TabItem x:Name="ConfTab" Header="Config(F3)" Style="{DynamicResource TItemDef}">
+            <TabItem x:Name="ConfTab" Header="{Binding Config, Source={x:Static locale:Interpreter.Current}}" Style="{DynamicResource TItemDef}">
                 <local:ConfigSet/>
             </TabItem>
-            <TabItem Header="Log(F4)" Style="{DynamicResource TItemDef}" GotFocus="Logs_VisibleChanged">
+            <TabItem Header="{Binding Log, Source={x:Static locale:Interpreter.Current}}" Style="{DynamicResource TItemDef}" GotFocus="Logs_VisibleChanged">
                 <Grid>
                     <ScrollViewer x:Name="LogScroll" Content="1TEST&#10;2&#10;3&#10;4&#10;5&#10;6&#10;7&#10;8&#10;9&#10;T&#10;11&#10;12&#10;13&#10;14&#10;15&#10;" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                         <ScrollViewer.Style>

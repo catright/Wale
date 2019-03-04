@@ -6,26 +6,49 @@
              xmlns:local="clr-namespace:Wale.WPF"
              xmlns:prop="clr-namespace:Wale.WPF.Properties"
              xmlns:wale="clr-namespace:Wale;assembly=WaleBase"
+            xmlns:locale="clr-namespace:Wale.Localization;assembly=Wale.Localization"
              xmlns:oxy="http://oxyplot.org/wpf"
              mc:Ignorable="d"
-             x:Name="confset"
-             d:DesignHeight="375" Height="375" MinHeight="{Binding Height, RelativeSource={RelativeSource Self}}" MaxHeight="{Binding Height, RelativeSource={RelativeSource Self}}"
-             d:DesignWidth="478" Width="478" MinWidth="{Binding Width, RelativeSource={RelativeSource Self}}" MaxWidth="{Binding Width, RelativeSource={RelativeSource Self}}"
-             Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}">
+             x:Name="confset">
+    <UserControl.Style>
+        <Style TargetType="UserControl">
+            <Setter Property="Foreground" Value="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+            <Setter Property="Background" Value="{Binding Source={x:Static local:ColorSet.BackColorBrush}}"/>
+            
+            <Setter Property="Width" Value="478"/>
+            <Setter Property="MinWidth" Value="{Binding Width, RelativeSource={RelativeSource Self}}"/>
+            <Setter Property="MaxWidth" Value="{Binding Width, RelativeSource={RelativeSource Self}}"/>
+            
+            <Setter Property="Height" Value="225"/>
+            <Setter Property="MinHeight" Value="{Binding Height, RelativeSource={RelativeSource Self}}"/>
+            <Setter Property="MaxHeight" Value="{Binding Height, RelativeSource={RelativeSource Self}}"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=AdvancedView, Source={x:Static prop:Settings.Default}, Mode=OneWay}" Value="True">
+                    <Setter Property="Height" Value="375"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Style>
     <UserControl.Resources>
         <Style x:Key="LineItem" TargetType="Grid">
             <Setter Property="Width" Value="220"/>
             <Setter Property="Height" Value="20"/>
             <Setter Property="Margin" Value="0,0,0,2"/>
             <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="Visibility" Value="Visible"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=AdvancedView, Source={x:Static prop:Settings.Default}, Mode=OneWay}" Value="False">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                </DataTrigger>
+            </Style.Triggers>
         </Style>
-        <Style x:Key="CBoxDef" TargetType="CheckBox">
+        <Style TargetType="CheckBox">
             <Setter Property="Height" Value="20"/>
-            <Setter Property="Margin" Value="0,0,0,2"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Foreground" Value="{Binding Foreground, ElementName=confset}"/>
         </Style>
-        <Style x:Key="LDef" TargetType="Label">
+        <Style TargetType="Label">
             <Setter Property="Padding" Value="0"/>
             <Setter Property="HorizontalAlignment" Value="Left"/>
             <Setter Property="Foreground" Value="{Binding Foreground, ElementName=confset}"/>
@@ -36,7 +59,7 @@
             <Setter Property="HorizontalAlignment" Value="Left"/>
             <Setter Property="Foreground" Value="{Binding Foreground, ElementName=confset}"/>
         </Style>
-        <Style x:Key="TBoxDef" TargetType="TextBox">
+        <Style TargetType="TextBox">
             <Setter Property="Width" Value="50"/>
             <Setter Property="Height" Value="20"/>
             <Setter Property="Margin" Value="0,0,5,0"/>
@@ -58,6 +81,7 @@
             <Setter Property="Background" Value="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}"/>
         </Style>
     </UserControl.Resources>
+    
     <Grid>
         <StackPanel>
             <GroupBox Header="Audio" Padding="5">
@@ -67,59 +91,81 @@
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0">
-                        <Grid Style="{StaticResource LineItem}">
-                            <Label Content="UI Update [ms]" Style="{StaticResource LDef}"/>
+                        <Grid Style="{StaticResource LineItem}" Visibility="Visible">
+                            <Label Content="UI Update [ms]"/>
                             <Label Content="{Binding Path=(local:LastValues.UIUpdate), Mode=TwoWay}" Style="{StaticResource LLastVal}"/>
-                            <TextBox Text="{Binding Path=UIUpdateInterval, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Style="{StaticResource TBoxDef}"/>
+                            <TextBox Text="{Binding Path=UIUpdateInterval, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
                         </Grid>
-                        <Grid Style="{StaticResource LineItem}">
-                            <Label Content="Auto Control [ms]" Style="{StaticResource LDef}"/>
+                        <Grid Style="{StaticResource LineItem}" Visibility="Visible">
+                            <Label Content="Auto Control [ms]"/>
                             <Label Content="{Binding Path=(local:LastValues.AutoControlInterval), Mode=TwoWay}" Style="{StaticResource LLastVal}"/>
-                            <TextBox Text="{Binding Path=AutoControlInterval, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Style="{StaticResource TBoxDef}"/>
+                            <TextBox Text="{Binding Path=AutoControlInterval, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
                         </Grid>
                         <Grid Style="{StaticResource LineItem}">
-                            <Label Content="GC Interval [ms]" Style="{StaticResource LDef}"/>
+                            <Label Content="GC Interval [ms]"/>
                             <Label Content="{Binding Path=(local:LastValues.GCInterval), Mode=TwoWay}" Style="{StaticResource LLastVal}"/>
-                            <TextBox Text="{Binding Path=GCInterval, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Style="{StaticResource TBoxDef}"/>
+                            <TextBox Text="{Binding Path=GCInterval, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
                         </Grid>
-                        <Grid Style="{StaticResource LineItem}">
-                            <Label Content="Target Level" Foreground="{Binding Source={x:Static local:ColorSet.TargetColorBrush}}" Style="{StaticResource LDef}"/>
+                        <Grid Style="{StaticResource LineItem}" Visibility="Visible">
+                            <Label Content="Target Level" Foreground="{Binding Source={x:Static local:ColorSet.TargetColorBrush}}"/>
                             <Label Content="{Binding Path=(local:LastValues.TargetLevel), Mode=TwoWay}" Style="{StaticResource LLastVal}"/>
-                            <TextBox Text="{Binding Path=TargetLevel, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Style="{StaticResource TBoxDef}" TextChanged="TargetLevel_Changed"/>
+                            <TextBox Text="{Binding Path=TargetLevel, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" TextChanged="TargetLevel_Changed"/>
                         </Grid>
                         <Grid Style="{StaticResource LineItem}">
-                            <Label Content="Up Rate" Style="{StaticResource LDef}"/>
+                            <Label Content="Up Rate"/>
                             <Label Content="{Binding Path=(local:LastValues.UpRate), Mode=TwoWay}" Style="{StaticResource LLastVal}"/>
-                            <TextBox Text="{Binding Path=UpRate, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Style="{StaticResource TBoxDef}" TextChanged="UpRate_Changed"/>
+                            <TextBox Text="{Binding Path=UpRate, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" TextChanged="UpRate_Changed"/>
                         </Grid>
                         <Grid Style="{StaticResource LineItem}">
-                            <Label Content="Kurtosis" Style="{StaticResource LDef}"/>
+                            <Label Content="Kurtosis"/>
                             <Label Content="{Binding Path=(local:LastValues.Kurtosis), Mode=TwoWay}" Style="{StaticResource LLastVal}"/>
-                            <TextBox x:Name="KurtosisBox" Text="{Binding Path=Kurtosis, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Style="{StaticResource TBoxDef}" TextChanged="Kurtosis_Changed"/>
+                            <TextBox x:Name="KurtosisBox" Text="{Binding Path=Kurtosis, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" TextChanged="Kurtosis_Changed"/>
                         </Grid>
                         <Grid Height="40" Style="{StaticResource LineItem}">
-                            <Label Content="Function" Style="{StaticResource LDef}"/>
-                            <Label Content="{Binding Path=(local:LastValues.VFunc), Mode=TwoWay}" Margin="60,20,0,0" Style="{StaticResource LDef}"/>
+                            <Label Content="Function"/>
+                            <Label Content="{Binding Path=(local:LastValues.VFunc), Mode=TwoWay}" Margin="60,20,0,0"/>
                             <ComboBox x:Name="FunctionSelector" HorizontalAlignment="Left" Margin="60,0,0,0" VerticalAlignment="Top" Width="150" Height="20" SelectionChanged="Function_Changed"/>
                         </Grid>
                         <Grid Style="{StaticResource LineItem}">
-                            <Label Content="Average Time [ms]" Style="{StaticResource LDef}"/>
+                            <Label Content="Average Time [ms]"/>
                             <Label Content="{Binding Path=(local:LastValues.AverageTime), Mode=TwoWay}" Style="{StaticResource LLastVal}"/>
-                            <TextBox Text="{Binding Path=AverageTime, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Style="{StaticResource TBoxDef}"/>
+                            <TextBox Text="{Binding Path=AverageTime, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
                         </Grid>
                         <Grid Style="{StaticResource LineItem}">
-                            <Label Content="Min Peak Level" Style="{StaticResource LDef}"/>
+                            <Label Content="Min Peak Level"/>
                             <Label Content="{Binding Path=(local:LastValues.MinPeak), Mode=TwoWay}" Style="{StaticResource LLastVal}"/>
-                            <TextBox Text="{Binding Path=MinPeak, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Style="{StaticResource TBoxDef}"/>
+                            <TextBox Text="{Binding Path=MinPeak, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
                         </Grid>
                         
                     </StackPanel>
                     <StackPanel Grid.Column="1">
-                        <oxy:PlotView x:Name="plotView" Height="170" Margin="0,0,0,2" BorderThickness="1" BorderBrush="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" Background="{Binding Background, ElementName=confset}"/>
+                        <oxy:PlotView x:Name="plotView" Height="170" Margin="0,0,0,2" BorderThickness="1" BorderBrush="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" Background="{Binding Background, ElementName=confset}">
+                            <oxy:PlotView.Style>
+                                <Style TargetType="oxy:PlotView">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Path=AdvancedView, Source={x:Static prop:Settings.Default}, Mode=OneWay}" Value="False">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </oxy:PlotView.Style>
+                        </oxy:PlotView>
 
-                        <CheckBox Content="Average Enabled" IsChecked="{Binding Path=Averaging, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Style="{StaticResource CBoxDef}"/>
-                        <CheckBox Content="Auto Control Enabled" IsChecked="{Binding Path=AutoControl, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Style="{StaticResource CBoxDef}"/>
-                        <!--CheckBox Content="Combine processes by app name" ToolTip="Combine session processes by application name and control them together" IsChecked="{Binding Path=CombineSession, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Style="{StaticResource CBoxDef}"/-->
+                        <!--TextBlock Text="These two options are critical for functioning of Wale" TextWrapping="Wrap"/-->
+                        <Grid Style="{StaticResource LineItem}" Visibility="Visible">
+                            <WrapPanel>
+                            <CheckBox Content="Average Enabled" IsChecked="{Binding Path=Averaging, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
+                            <TextBlock Visibility="Collapsed" Text="Critical" Margin="3,0" FontSize="10" Foreground="OrangeRed"/>
+                            </WrapPanel>
+                        </Grid>
+                        <Grid Style="{StaticResource LineItem}" Visibility="Visible">
+                            <WrapPanel>
+                                <CheckBox Content="Auto Control Enabled" IsChecked="{Binding Path=AutoControl, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
+                                <TextBlock Text="Critical" Margin="3,0" FontSize="10" Foreground="OrangeRed"/>
+                            </WrapPanel>
+                        </Grid>
+                        <!--CheckBox Content="Combine processes by app name" ToolTip="Combine session processes by application name and control them together" IsChecked="{Binding Path=CombineSession, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/-->
                     </StackPanel>
                 </Grid>
             </GroupBox>
@@ -131,16 +177,16 @@
                             <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0">
-                            <CheckBox x:Name="runAtWindowsStartup" Content="Run at Windows Startup" Style="{StaticResource CBoxDef}"/>
-                            <CheckBox Visibility="Hidden" IsEnabled="False" x:Name="CheckForUpdateCB" Content="Check for Update" Style="{StaticResource CBoxDef}"/>
+                            <CheckBox x:Name="runAtWindowsStartup" Content="Run at Windows Startup"/>
+                            <CheckBox Visibility="Hidden" IsEnabled="False" x:Name="CheckForUpdateCB" Content="Check for Update"/>
                         </StackPanel>
                         <StackPanel Grid.Column="1">
-                            <CheckBox Content="Detailed View" IsChecked="{Binding Path=DetailedView, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Style="{StaticResource CBoxDef}"/>
-                            <CheckBox Content="Detailed Log" IsEnabled="False" Style="{StaticResource CBoxDef}"/>
+                            <CheckBox Content="Advanced View(F9)" IsChecked="{Binding Path=AdvancedView, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
+                            <CheckBox Content="Detailed Log" IsEnabled="False"/>
                         </StackPanel>
                     </Grid>
                     <WrapPanel>
-                        <Label Content="Priority" Padding="5,0" Style="{StaticResource LDef}"/>
+                        <Label Content="Priority" Padding="5,0"/>
                         <RadioButton Content="Normal" IsChecked="{Binding ProcessPriorityNormal}" Style="{StaticResource RBtPriority}" Checked="Priority_RadioButton_Click"/>
                         <RadioButton Content="Above Normal" IsChecked="{Binding ProcessPriorityAboveNormal}" Style="{StaticResource RBtPriority}" Checked="Priority_RadioButton_Click"/>
                         <RadioButton Content="High" IsChecked="{Binding ProcessPriorityHigh}" Style="{StaticResource RBtPriority}" Checked="Priority_RadioButton_Click"/>

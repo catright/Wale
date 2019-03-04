@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:Wale.WPF"
         xmlns:prop="clr-namespace:Wale.WPF.Properties"
         xmlns:wale="clr-namespace:Wale;assembly=WaleBase"
+        xmlns:locale="clr-namespace:Wale.Localization;assembly=Wale.Localization"
         mc:Ignorable="d"
         Title="Wale License"
         Height="{Binding Source={x:Static wale:AppDatas.SubWindowHeightDefault}}"
@@ -204,7 +205,7 @@
                 </TabItem>
             </TabControl>
 
-            <Button Content="Close" Margin="10,5" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="100" Click="Button_Click" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" IsCancel="True" IsDefault="True"/>
+            <Button Content="{Binding Close, Source={x:Static locale:Interpreter.Current}}" Margin="10,5" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="100" Click="Button_Click" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" IsCancel="True" IsDefault="True"/>
         </Grid>
     </Grid>
 </Window>

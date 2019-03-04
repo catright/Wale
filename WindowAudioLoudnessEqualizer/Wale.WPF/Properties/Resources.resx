@@ -126,7 +126,7 @@ Usage
 
 Wale tries to adjust all sound generating processes' peak level to Target-Yellow bar- level. You can change Target to your preferred level.
 
-However, Wale uses windows volume system for now, which means the app only can control volume between 0.0~1.0. Hence, if you set Target to near 1.0, then Wale could not control volume, because all processes' peak levels are always less than or equal to Target. So, you should lower Target a little. Suggested Target level is about 0.25(-6dB). Default is 0.15(-8dB).
+However, Wale uses windows volume system for now, which means the app only can control volume between 0.0~1.0. Hence, if you set Target to near 1.0, then Wale could not control volume, because all processes' peak levels are always less than or equal to Target. So, you should lower Target a little. Suggested Target level is about 0.25(-12dB). Default is 0.15(-16.5dB).
 
     Caution! Too low Target may cause sudden hugely loud sound. Low Target means quieter output sound from your windows system. Then, you may need to increase the volume of your hardware such as speaker to hear the sound. In this situation, uncontrolled process would make very loud sound caused by some trouble of sound system include unintentional stop of Wale.
 

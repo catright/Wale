@@ -88,6 +88,10 @@ namespace Wale.WPF
         /// </summary>
         bool Active { get { bool val; lock (_activelock) { val = _activated; } return val; } set { lock (_activelock) { _activated = value; } } }
         bool loaded = false;
+
+        // visuals
+        double mainHeight;
+        volatile bool nowConfig = false;
         #endregion
 
         #region initializing
@@ -161,13 +165,13 @@ namespace Wale.WPF
             // make context menu
             List<System.Windows.Forms.MenuItem> items = new List<System.Windows.Forms.MenuItem>
             {
-                new System.Windows.Forms.MenuItem("Configuration", ConfigToolStripMenuItem_Click),
-                new System.Windows.Forms.MenuItem("Device Map", deviceMapToolStripMenuItem_Click),
-                new System.Windows.Forms.MenuItem("Open Log", openLogDirectoryToolStripMenuItem_Click),
+                new System.Windows.Forms.MenuItem(Localization.Interpreter.Current.Configuration, ConfigToolStripMenuItem_Click),
+                new System.Windows.Forms.MenuItem(Localization.Interpreter.Current.DeviceMap, deviceMapToolStripMenuItem_Click),
+                new System.Windows.Forms.MenuItem(Localization.Interpreter.Current.OpenLog, openLogDirectoryToolStripMenuItem_Click),
                 new System.Windows.Forms.MenuItem("-"),
-                new System.Windows.Forms.MenuItem("Help", helpToolStripMenuItem_Click),
-                new System.Windows.Forms.MenuItem("License", licensesToolStripMenuItem_Click),
-                new System.Windows.Forms.MenuItem("E&xit", OnProgramShutdown)
+                new System.Windows.Forms.MenuItem(Localization.Interpreter.Current.Help, helpToolStripMenuItem_Click),
+                new System.Windows.Forms.MenuItem(Localization.Interpreter.Current.License, licensesToolStripMenuItem_Click),
+                new System.Windows.Forms.MenuItem(Localization.Interpreter.Current.ExitNI, OnProgramShutdown)
             };
             NI.ContextMenu = new System.Windows.Forms.ContextMenu(items.ToArray());
 
@@ -336,7 +340,7 @@ namespace Wale.WPF
                                         //Console.WriteLine($"{sc.Name}({sc.ProcessID}) {sc.DisplayName} / {sc.ProcessName} / {sc.MainWindowTitle} / {sc.SessionIdentifier}");
                                         //string stooltip = string.IsNullOrEmpty(sc.MainWindowTitle) ? $"{sc.Name}({sc.ProcessID})" : $"{sc.Name}({sc.ProcessID}) - {sc.MainWindowTitle}";
                                         string stooltip = $"{sc.Name}({sc.ProcessID})";
-                                        MeterSet set = new MeterSet(sc.ProcessID, sc.Name, settings.DetailedView, sc.AutoIncluded, updateSessionDebug, stooltip);
+                                        MeterSet set = new MeterSet(sc.ProcessID, sc.Name, settings.AdvancedView, sc.AutoIncluded, updateSessionDebug, stooltip);
                                         int idx = SessionPanel.Children.Count;
                                         foreach (MeterSet item in SessionPanel.Children) { if (set.CompareTo(item) < 0) { idx = SessionPanel.Children.IndexOf(item); break; } }
                                         if (idx < SessionPanel.Children.Count) SessionPanel.Children.Insert(idx, set);
@@ -353,12 +357,12 @@ namespace Wale.WPF
                                 if (session == null || session.State == Wale.CoreAudio.SessionState.Expired) { expired.Add(item); reAlign = true; }
                                 else
                                 {
-                                    if (settings.DetailedView) item.DetailOn();
+                                    if (settings.AdvancedView) item.DetailOn();
                                     else item.DetailOff();
                                     if (item.detailChanged) { reAlign = true; item.detailChanged = false; }
                                     //string stooltip = string.IsNullOrEmpty(session.MainWindowTitle) ? $"{session.Name}({session.ProcessID})" : $"{session.Name}({session.ProcessID}) - {session.MainWindowTitle}";
                                     string stooltip = $"{session.Name}({session.ProcessID})";
-                                    item.UpdateData(session.Volume, session.Peak, session.AveragePeak, session.Name, stooltip);
+                                    item.UpdateData(session.Volume, session.Volume*session.Peak, session.Volume*session.AveragePeak, session.Name, stooltip);
                                     session.Relative = (float)item.Relative;
                                     // Sound mute check
                                     if (item.SoundEnableChanged) { session.SoundEnabled = item.SoundEnabled; item.SoundEnableChanged = false; }
@@ -375,12 +379,12 @@ namespace Wale.WPF
                         if (reAlign)
                         {//re-align when there is(are) added or removed session(s)
                             Log("Re-aligning");
-                            double lastHeight = this.Height, spacing = settings.DetailedView ? AppDatas.SessionBlockHeightDetail : AppDatas.SessionBlockHeightNormal;
-                            double newHeight = (double)(SessionPanel.Children.Count) * spacing + 60 + 2, dif = newHeight - lastHeight;
-                            if (newHeight < this.MinHeight) { newHeight = AppDatas.MainWindowHeightDefault; dif = newHeight - lastHeight; }
+                            double lastHeight = this.Height, spacing = settings.AdvancedView ? AppDatas.SessionBlockHeightDetail : AppDatas.SessionBlockHeightNormal;
+                            double newHeight = (double)(SessionPanel.Children.Count) * spacing + 60 + 2;
+                            if (newHeight < this.MinHeight) { newHeight = AppDatas.MainWindowHeightDefault; }
                             //Console.WriteLine($"fsgH:{fsgHeight},DF:{dif}");
-                            this.Height = newHeight;
-                            this.Top -= dif;
+                            mainHeight = newHeight;
+                            if (!nowConfig) DoChangeHeightSB(newHeight, "0:0:.1");
                             //Console.WriteLine($"WH:{this.Height},({SystemParameters.WorkArea.Width},{SystemParameters.WorkArea.Height})");
                             Log("Re-aligned");
                         }
@@ -560,6 +564,7 @@ namespace Wale.WPF
         private void DevShow_CommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             if (Dev) { DL.ACDevShow = DL.ACDevShow == Visibility.Visible ? Visibility.Hidden : Visibility.Visible; }
+            Log($"DevShow {DL.ACDevShow}");
         }
         private void Settings_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
@@ -575,6 +580,11 @@ namespace Wale.WPF
                 DL.ACAvCnt = avcnt;
             }
             if (settings.VFunc != LastValues.VFunc) { Audio?.UpdateVFunc(); }
+            if (e.PropertyName == "AdvancedView" && nowConfig)
+            {
+                if (settings.AdvancedView) DoChangeHeightSB(AppDatas.MainWindowConfigLongHeight);
+                else DoChangeHeightSB(AppDatas.MainWindowConfigHeight);
+            }
         }
 
         private void window_Deactivated(object sender, EventArgs e)
@@ -604,7 +614,7 @@ namespace Wale.WPF
         }
         private void ChangeDetailView(object sender, ExecutedRoutedEventArgs e)
         {
-            settings.DetailedView = !settings.DetailedView;
+            settings.AdvancedView = !settings.AdvancedView;
             settings.Save();
         }
         private void ShiftToMasterTab(object sender, ExecutedRoutedEventArgs e)
@@ -620,47 +630,30 @@ namespace Wale.WPF
             Dispatcher.BeginInvoke((Action)(() => Tabs.SelectedIndex = 2));
         }
 
-        private double lastHeightForConfigTab, heightDeffForConfigTab;
-        private void ConfigTab_GotFocus(object sender, RoutedEventArgs e)
+        private void DoChangeHeightSB(double newHeight, string transition = null)
         {
-            //RemakeConf();
-            lastHeightForConfigTab = this.Height;
-            heightDeffForConfigTab = AppDatas.MainWindowConfigHeight - this.Height;
-            //Dispatcher.Invoke(new Action(() =>
-            //{
-                this.Height = AppDatas.MainWindowConfigHeight;
-                this.Top -= heightDeffForConfigTab;
-            //}), System.Windows.Threading.DispatcherPriority.ContextIdle, null);
+            var transitRegex = new System.Text.RegularExpressions.Regex(@"\d:\d:\d", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            if (transition != null && transitRegex.IsMatch(transition)) DL.Transition = transition;
+            DL.WindowHeight = newHeight;
+            DL.WindowTop = this.Top + (this.Height - DL.WindowHeight);
+            BeginStoryboard(this.FindResource("changeHeightSB") as System.Windows.Media.Animation.Storyboard);
         }
-        private void ConfigTab_LostFocus(object sender, RoutedEventArgs e)
-        {
-            
-            //Dispatcher.Invoke(new Action(() =>
-            //{
-                this.Top += heightDeffForConfigTab;
-                this.Height = lastHeightForConfigTab;
-            //}), System.Windows.Threading.DispatcherPriority.ContextIdle, null);
-        }
-        private bool nowConfig = false;
         private void Tabs_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            //ConfigSet cs = null;
             foreach (TabItem tab in (sender as TabControl).Items)
             {
                 if (tab.IsSelected)
                 {
                     if (tab.Header.ToString().Contains("Config") && !nowConfig)
                     {
-                        //cs = new ConfigSet(Audio, DL, debug);
-                        //cs.LogInvokedEvent += Cs_LogInvokedEvent;
-                        //tab.Content = cs;
-                        ConfigTab_GotFocus(sender, e); nowConfig = true;
+                        if (settings.AdvancedView) DoChangeHeightSB(AppDatas.MainWindowConfigLongHeight);
+                        else DoChangeHeightSB(AppDatas.MainWindowConfigHeight);
+                        nowConfig = true;
                     }
                     else if (!tab.Header.ToString().Contains("Config") && nowConfig)
                     {
-                        //if (cs != null) cs.LogInvokedEvent -= Cs_LogInvokedEvent;
-                        //cs = null;
-                        ConfigTab_LostFocus(sender, e); nowConfig = false;
+                        DoChangeHeightSB(mainHeight);
+                        nowConfig = false;
                     }
                     if (tab.Header.ToString().Contains("Log")) { LogScroll.ScrollToEnd(); }
                 }
@@ -670,13 +663,6 @@ namespace Wale.WPF
         {
             Log(e.msg);
         }
-
-        /*private void RemakeConf() {
-            Makes();
-            MakeOriginals();
-            DrawGraph("Original");
-            DrawNew();
-        }*/
 
 
         private void ProcessPriorityAboveNormal_Unchecked(object sender, RoutedEventArgs e)
@@ -715,50 +701,108 @@ namespace Wale.WPF
             //settings.Save();
             using (Process p = Process.GetCurrentProcess()) { p.PriorityClass = ppc; }
         }
-        #endregion
 
+        private void Window_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (touchControl) TouchControl(sender, e);
+            else if (titleControl) TitleControl(sender, e);
+        }
+        private void Window_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            touchControl = false;
+            titleControl = false;
+        }
+        #endregion
+        #region Window Touch Events
+        private volatile bool ts, t1, t2, touchControl = false;
+        private Point tPos;
+        private void MasterPanel_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            //Log("dT start");
+            //Console.WriteLine("dTm start");
+            tPos = PointToScreen(e.GetPosition(this));
+            touchControl = true;
+            ts = false;
+            t1 = false;
+            t2 = false;
+        }
+        private void MasterPanel_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (touchControl) TouchControl(sender, e);
+            else if (titleControl) TitleControl(sender, e);
+        }
+        private void TouchControl(object sender, MouseEventArgs e)
+        {
+            //Log("dT move");
+            //Console.WriteLine("dTm move");
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                double crit = 30, ori = 10;
+                Point mouse = PointToScreen(e.GetPosition(this));
+                double x = mouse.X - tPos.X;
+                //Log($"dT={x}");
+                //Console.WriteLine($"dTm={x}");
+
+                if (!t1 && !t2 && !ts && x > crit) { t1 = true; }// Console.WriteLine($"dTm={x} t1 {t1}"); }
+                if (t1 && !t2 && !ts && x < ori) { t2 = true; }// Console.WriteLine($"dTm={x} t2 {t2}"); }
+                if (t1 && t2 && !ts && x > crit) { ts = true; }// Console.WriteLine($"dTm={x} ts {ts}"); }
+                if (t1 && t2 && ts)
+                {
+                    DevShow_CommandBinding_Executed(this, null);
+                    ts = false;
+                    t1 = false;
+                    t2 = false;
+                }
+            }
+        }
+
+        #endregion
         #region title panel control, location and size check events
+        private volatile bool titleControl = false;
         private Point titlePosition;
-        private void titlePanel_MouseDown(object sender, MouseButtonEventArgs e) { titlePosition = e.GetPosition(this); }
-        private void titlePanel_MouseMove(object sender, MouseEventArgs e)
+        private void TitlePanel_MouseDown(object sender, MouseButtonEventArgs e) { titlePosition = (e.GetPosition(this)); titleControl = true; }// Console.WriteLine($"TMD {titlePosition.X}, {titlePosition.Y}"); }
+        private void TitlePanel_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (touchControl) TouchControl(sender, e);
+            else if (titleControl) TitleControl(sender, e);
+        }
+        private void TitleControl(object sender, MouseEventArgs e)
         {
             if (e.LeftButton == MouseButtonState.Pressed)
             {
                 Point mouse = PointToScreen(e.GetPosition(this));
-                //MessageBox.Show($"L={Screen.PrimaryScreen.WorkingArea.Left} R={Screen.PrimaryScreen.WorkingArea.Right}, T={Screen.PrimaryScreen.WorkingArea.Top} B={Screen.PrimaryScreen.WorkingArea.Bottom}");
-                //Console.WriteLine($"W:{Left},M:{loc.X},LM:{titlePosition.X},SW:{System.Windows.SystemParameters.PrimaryScreenWidth}");
-                double x = mouse.X - titlePosition.X;
-                //if (x + this.Width >= System.Windows.SystemParameters.WorkArea.Width) x = System.Windows.SystemParameters.WorkArea.Width - this.Width;
-                //else if (x <= 0) x = 0;
+                var visource = PresentationSource.FromVisual(this).CompositionTarget.TransformToDevice;
 
-                double y = mouse.Y - titlePosition.Y;
-                //if (y + this.Height >= System.Windows.SystemParameters.WorkArea.Height) y = System.Windows.SystemParameters.WorkArea.Height - this.Height;
-                //else if (y <= 0) y = 0;
-                var loc = CheckWindowLocation(x, y);
-                //MessageBox.Show($"x={x} y={y}");
-                Left = loc.Item1;
-                Top = loc.Item2;
+                double x = mouse.X / visource.M11 - titlePosition.X;
+                double y = mouse.Y / visource.M22 - titlePosition.Y;
+
+                //Console.Write($"TMM {x},{y} ({x+this.Width},{y+this.Height})");
+                //Console.Write($" [{SystemParameters.WorkArea.Left}-{SystemParameters.WorkArea.Right},");
+                //Console.Write($"{SystemParameters.WorkArea.Top}-{SystemParameters.WorkArea.Bottom}]");
+                //Console.Write($" L {this.Left},{this.Left+this.Width}-{this.Width}");
+                //Console.Write($" T {this.Top},{this.Top+this.Height}-{this.Height}");
+
+                //Console.Write($" DPI {visource.M11}, {visource.M22}");
+                //Console.Write($" ! M/D {mouse.X / visource.M11}, {mouse.Y / visource.M22} !");
+                //Console.Write($" FPS {SystemParameters.FullPrimaryScreenWidth}, {SystemParameters.FullPrimaryScreenHeight}");
+                //Console.Write($" MPS {SystemParameters.MaximizedPrimaryScreenWidth}, {SystemParameters.MaximizedPrimaryScreenHeight}");
+                //Console.Write($" PS {SystemParameters.PrimaryScreenWidth}, {SystemParameters.PrimaryScreenHeight}");
+                //Console.Write($" VS {SystemParameters.VirtualScreenWidth}, {SystemParameters.VirtualScreenHeight}");
+                //Console.WriteLine("");
+
+                var loc = TitleBar.CheckWindowLocation(this, x, y);
+                Console.WriteLine($"{loc.Item1},{loc.Item2}");
+                this.Left = loc.Item1;
+                //this.Top = loc.Item2;
+                DL.WindowTop = loc.Item2;
+                BeginStoryboard(this.FindResource("changeTopSB") as System.Windows.Media.Animation.Storyboard);
             }
         }
         private void Window_LocationAndSizeChanged(object sender, EventArgs e)
         {
-            //if ((this.Left + this.Width) > System.Windows.SystemParameters.WorkArea.Width) this.Left = System.Windows.SystemParameters.WorkArea.Width - this.Width;
-            //else if (this.Left < System.Windows.SystemParameters.WorkArea.Left) this.Left = System.Windows.SystemParameters.WorkArea.Left;
-
-            //if ((this.Top + this.Height) > System.Windows.SystemParameters.WorkArea.Height) this.Top = System.Windows.SystemParameters.WorkArea.Height - this.Height;
-            //else if (this.Top < System.Windows.SystemParameters.WorkArea.Top) this.Top = System.Windows.SystemParameters.WorkArea.Top;
-            var loc = CheckWindowLocation(this.Left, this.Top);
-            this.Left = loc.Item1;
-            this.Top = loc.Item2;
-        }
-        private Tuple<double, double> CheckWindowLocation(double left, double top)
-        {
-            if ((left + this.Width) > System.Windows.SystemParameters.WorkArea.Width) left = System.Windows.SystemParameters.WorkArea.Width - this.Width;
-            else if (left < System.Windows.SystemParameters.WorkArea.Left) left = System.Windows.SystemParameters.WorkArea.Left;
-
-            if ((top + this.Height) > System.Windows.SystemParameters.WorkArea.Height) top = System.Windows.SystemParameters.WorkArea.Height - this.Height;
-            else if (top < System.Windows.SystemParameters.WorkArea.Top) top = System.Windows.SystemParameters.WorkArea.Top;
-            return new Tuple<double, double>(left, top);
+            var loc = TitleBar.CheckWindowLocation(this, this.Left, this.Top);
+            if (this.Left != loc.Item1) this.Left = loc.Item1;
+            if (this.Top != loc.Item2) this.Top = loc.Item2;
         }
         #endregion
 
@@ -900,6 +944,7 @@ namespace Wale.WPF
         }/**/
 
         delegate void GridConsumer(Grid grid);//MeterSet Update Delegate
+
         delegate void StackPanelConsumer(StackPanel grid);//MeterSet Update Delegate
         delegate void WindowConsumer();//CheckFirstLoad Delegate
 
@@ -1041,6 +1086,14 @@ namespace Wale.WPF
         public double ACAvCnt { get => _ACAvCnt; set => SetData(ref _ACAvCnt, Math.Round(value, 0)); }
         private double _ACHz = 0;
         public double ACHz { get => _ACHz; set => SetData(ref _ACHz, Math.Round(value, 2)); }
+
+        // window height change storyboard parameters
+        private double _WindowHeight = 0;
+        public double WindowHeight { get => _WindowHeight; set => SetData(ref _WindowHeight, value); }
+        private double _WindowTop = 0;
+        public double WindowTop { get => _WindowTop; set => SetData(ref _WindowTop, value); }
+        private string _Transition = "0:0:.2";
+        public string Transition { get => _Transition; set => SetData(ref _Transition, value); }
 
 
         public event PropertyChangedEventHandler PropertyChanged;

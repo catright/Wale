@@ -24,6 +24,8 @@ namespace Wale.WPF
             InitializeComponent();
             MainGrid.Children.RemoveAt(0);
             MainGrid.Children.Insert(0, new TitleBar(this));
+
+            this.Title = "Wale " + Localization.Interpreter.Current.License;
         }
 
 

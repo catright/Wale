@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Wale.WPF"
         xmlns:wale="clr-namespace:Wale;assembly=WaleBase"
+        xmlns:locale="clr-namespace:Wale.Localization;assembly=Wale.Localization"
         mc:Ignorable="d"
         Title="Wale Device Map"
         Height="{Binding Source={x:Static wale:AppDatas.SubWindowHeightDefault}}"
@@ -217,8 +218,8 @@
                 </TreeView.Style>
             </TreeView>
             <Grid VerticalAlignment="Bottom">
-                <Button Content="Update" HorizontalAlignment="Left" Click="Update_Click" Style="{StaticResource FinalButtons}"/>
-                <Button Content="Close" HorizontalAlignment="Right" Click="Close_Click" Style="{StaticResource FinalButtons}" IsCancel="True" IsDefault="True"/>
+                <Button Content="{Binding Update, Source={x:Static locale:Interpreter.Current}}" HorizontalAlignment="Left" Click="Update_Click" Style="{StaticResource FinalButtons}"/>
+                <Button Content="{Binding Close, Source={x:Static locale:Interpreter.Current}}" HorizontalAlignment="Right" Click="Close_Click" Style="{StaticResource FinalButtons}" IsCancel="True" IsDefault="True"/>
             </Grid>
         </Grid>
     </Grid>

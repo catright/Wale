@@ -7,15 +7,30 @@
         xmlns:local="clr-namespace:Wale.WPF"
         xmlns:prop="clr-namespace:Wale.WPF.Properties"
         xmlns:wale="clr-namespace:Wale;assembly=WaleBase"
+        xmlns:locale="clr-namespace:Wale.Localization;assembly=Wale.Localization"
         mc:Ignorable="d"
-        Title="Wale"
-        Height="410"
-        Width="{Binding Source={x:Static wale:AppDatas.MainWindowWidth}}" MinWidth="{Binding Width, Source=self}" MaxWidth="{Binding Width, Source=self}"
-        ResizeMode="NoResize" WindowStyle="None"
-        Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"
+        x:Name="confwindow"
+        Title="Wale" ResizeMode="NoResize" WindowStyle="None"
         Topmost="{Binding Path=AlwaysTop, Source={x:Static prop:Settings.Default}}"
-        LocationChanged="Window_LocationAndSizeChanged">
-        <!--PreviewKeyDown="Window_PreviewKeyDown"-->
+        >
+    <Window.Style>
+        <Style TargetType="Window">
+            <Setter Property="Foreground" Value="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+            <Setter Property="Background" Value="{Binding Source={x:Static local:ColorSet.BackColorBrush}}"/>
+
+            <Setter Property="Width" Value="{Binding Source={x:Static wale:AppDatas.MainWindowWidth}}"/>
+            <!--Setter Property="MinWidth" Value="{Binding Width, RelativeSource={RelativeSource Self}}"/>
+            <Setter Property="MaxWidth" Value="{Binding Width, RelativeSource={RelativeSource Self}}"/-->
+
+            <Setter Property="Height" Value="410"/>
+        </Style>
+    </Window.Style>
+    <Window.Resources>
+        <Storyboard x:Key="changeHeightSB">
+            <DoubleAnimation Storyboard.TargetName="confwindow" Storyboard.TargetProperty="Height" Duration="{Binding Transition}" To="{Binding WindowHeight}" BeginTime="0:0:0"/>
+            <!--DoubleAnimation Storyboard.TargetName="confwindow" Storyboard.TargetProperty="Top" Duration="{Binding Transition}" To="{Binding WindowTop}" BeginTime="0:0:0"/-->
+        </Storyboard>
+    </Window.Resources>
     <Grid x:Name="MainGrid">
         <local:TitleBar/>
         <local:ConfigSet Margin="0,35,0,0"/>

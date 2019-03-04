@@ -6,14 +6,15 @@
              xmlns:local="clr-namespace:Wale.WPF"
              xmlns:prop="clr-namespace:Wale.WPF.Properties"
              xmlns:wale="clr-namespace:Wale;assembly=WaleBase"
+            xmlns:locale="clr-namespace:Wale.Localization;assembly=Wale.Localization"
              mc:Ignorable="d"
-             d:DesignHeight="{Binding Source={x:Static wale:AppDatas.TitleBarHeight}}" Height="{Binding Source={x:Static wale:AppDatas.TitleBarHeight}}" MinHeight="{Binding Height, Source=self}" MaxHeight="{Binding Height, Source=self}"
-             d:DesignWidth="{Binding Source={x:Static wale:AppDatas.MainWindowWidth}}" Width="{Binding Source={x:Static wale:AppDatas.MainWindowWidth}}"
+             Height="{Binding Source={x:Static wale:AppDatas.TitleBarHeight}}" MinHeight="{Binding Height, RelativeSource={RelativeSource Self}}" MaxHeight="{Binding Height, RelativeSource={RelativeSource Self}}"
+             Width="{Binding Source={x:Static wale:AppDatas.MainWindowWidth}}"
              VerticalAlignment="Top">
 
     <Grid x:Name="TitleGrid"
           Background="{Binding Source={x:Static local:ColorSet.MainColorBrush}}"
-          MouseMove="titlePanel_MouseMove" MouseDown="titlePanel_MouseDown">
+          MouseMove="TitlePanel_MouseMove" MouseDown="TitlePanel_MouseDown">
         <TextBlock x:Name="TitleBlock" Text="{Binding Title}" FontSize="20" Padding="10, 3" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
     </Grid>
 

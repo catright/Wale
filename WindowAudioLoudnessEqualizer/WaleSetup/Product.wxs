@@ -3,7 +3,7 @@
 	<Product Id="*" Name="Wale" Language="1033" Manufacturer="Jongtae Park"
            UpgradeCode="7286072b-aa45-40bc-a835-88de5243a963" Version="!(bind.fileVersion.WaleEXE)">
 		<Package Id="*" Keywords="Installer" InstallerVersion="405" InstallScope="perMachine" Compressed="yes" Languages="1033"
-             Description="Windows Audio Loudness Equalizer" Manufacturer="Jongtae Park" Comments="Copyright @ Jongtae Park" />
+             Description="Windows Audio Loudness Equalizer" Manufacturer="Jongtae Park (catright)" Comments="Copyright @ Jongtae Park (catright)" />
 
 		<MajorUpgrade AllowDowngrades="no" DowngradeErrorMessage="A newer version of [ProductName] is already installed."
                   AllowSameVersionUpgrades="yes"
@@ -79,7 +79,13 @@
               Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Release\Wale.CoreAudio.dll"
               KeyPath="yes" />
       </Component>
-      
+
+      <Component Id="WaleLocalizationComp">
+        <File Id="WaleLocalization" Name="Wale.Localization.dll"
+              Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Release\Wale.Localization.dll"
+              KeyPath="yes" />
+      </Component>
+
       <Component Id="JDPackComp">
         <File Id="JDPack" Name="JDPack.dll"
               Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Release\JDPack.dll"

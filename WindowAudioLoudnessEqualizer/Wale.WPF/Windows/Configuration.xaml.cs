@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,6 +20,7 @@ namespace Wale.WPF
     /// </summary>
     public partial class Configuration : Window
     {
+        ConfigDatalink CDL;
         /// <summary>
         /// Initialization when window is poped up. Read all setting values, store all values as original, draw all graphs.
         /// </summary>
@@ -26,15 +28,30 @@ namespace Wale.WPF
         {
             InitializeComponent();
 
+            this.CDL = new ConfigDatalink();
+            this.DataContext = this.CDL;
+
             MainGrid.Children.Clear();
 
             MainGrid.Children.Add(new TitleBar(this));
 
-            ConfigSet cs = new ConfigSet(audio, dl, this, false, true);
-            cs.LogInvokedEvent += Cs_LogInvokedEvent;
-            cs.Margin = new Thickness(0, 35, 0, 0);
+            ConfigSet cs = new ConfigSet(audio, dl, this, false, true)
+            {
+                //cs.LogInvokedEvent += Cs_LogInvokedEvent;
+                Margin = new Thickness(0, 35, 0, 0)
+            };
+            cs.SizeChanged += ConfigSet_SizeChanged;
             MainGrid.Children.Add(cs);
             this.Height = cs.Height + AppDatas.TitleBarHeight;
+            //this.Width = 280;
+
+            this.Title = "Wale " + Localization.Interpreter.Current.Configuration;
+        }
+
+        private void ConfigSet_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            //this.Height = (MainGrid.Children[1] as ConfigSet).Height + AppDatas.TitleBarHeight;
+            DoChangeHeightSB((MainGrid.Children[1] as ConfigSet).Height + AppDatas.TitleBarHeight);
         }
 
         private void Cs_LogInvokedEvent(object sender, ConfigSet.LogEventArgs e)
@@ -42,52 +59,40 @@ namespace Wale.WPF
             //Console.WriteLine(e.msg);
         }
 
-
-        #region title panel control, location and size check events
-        private Point titlePosition;
-        private void titlePanel_MouseDown(object sender, MouseButtonEventArgs e) { titlePosition = e.GetPosition(this); }
-        private void titlePanel_MouseMove(object sender, MouseEventArgs e)
+        private void DoChangeHeightSB(double newHeight, string transition = null)
         {
-            if (e.LeftButton == MouseButtonState.Pressed)
+            var transitRegex = new System.Text.RegularExpressions.Regex(@"\d:\d:\d", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            if (transition != null && transitRegex.IsMatch(transition)) CDL.Transition = transition;
+            CDL.WindowHeight = newHeight;
+            //CDL.WindowTop = this.Top + (this.Height - CDL.WindowHeight);
+            BeginStoryboard(this.FindResource("changeHeightSB") as System.Windows.Media.Animation.Storyboard);
+        }
+    }
+
+    public class ConfigDatalink : INotifyPropertyChanged
+    {
+
+        // window height change storyboard parameters
+        private double _WindowHeight = 0;
+        public double WindowHeight { get => _WindowHeight; set => SetData(ref _WindowHeight, value); }
+        private double _WindowTop = 0;
+        public double WindowTop { get => _WindowTop; set => SetData(ref _WindowTop, value); }
+        private string _Transition = "0:0:.2";
+        public string Transition { get => _Transition; set => SetData(ref _Transition, value); }
+
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void Notify([System.Runtime.CompilerServices.CallerMemberName]string name = null) { PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name)); }
+        protected bool SetData<T>(ref T storage, T value, [System.Runtime.CompilerServices.CallerMemberName] string name = null)
+        {
+            if (Equals(storage, value))
             {
-                Point loc = PointToScreen(e.GetPosition(this));
-                //MessageBox.Show($"L={Screen.PrimaryScreen.WorkingArea.Left} R={Screen.PrimaryScreen.WorkingArea.Right}, T={Screen.PrimaryScreen.WorkingArea.Top} B={Screen.PrimaryScreen.WorkingArea.Bottom}");
-                //Console.WriteLine($"W:{Left},M:{loc.X},LM:{titlePosition.X},SW:{System.Windows.SystemParameters.PrimaryScreenWidth}");
-                double x = loc.X - titlePosition.X;
-                if (x + this.Width > System.Windows.SystemParameters.WorkArea.Width) x = System.Windows.SystemParameters.WorkArea.Width - this.Width;
-                else if (x < 0) x = 0;
-
-                double y = loc.Y - titlePosition.Y;
-                if (y + this.Height > System.Windows.SystemParameters.WorkArea.Height) y = System.Windows.SystemParameters.WorkArea.Height - this.Height;
-                else if (y < 0) y = 0;
-                //MessageBox.Show($"x={x} y={y}");
-                Left = x;
-                Top = y;
+                return false;
             }
+
+            storage = value;
+            Notify(name);
+            return true;
         }
-        private void Window_LocationAndSizeChanged(object sender, EventArgs e)
-        {
-            if ((this.Left + this.Width) > System.Windows.SystemParameters.WorkArea.Width)
-                this.Left = System.Windows.SystemParameters.WorkArea.Width - this.Width;
-
-            if (this.Left < System.Windows.SystemParameters.WorkArea.Left)
-                this.Left = System.Windows.SystemParameters.WorkArea.Left;
-
-
-            if ((this.Top + this.Height) > System.Windows.SystemParameters.WorkArea.Height)
-                this.Top = System.Windows.SystemParameters.WorkArea.Height - this.Height;
-
-            if (this.Top < System.Windows.SystemParameters.WorkArea.Top)
-                this.Top = System.Windows.SystemParameters.WorkArea.Top;
-        }
-
-        #endregion
-
-
-        /*private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Escape) { this.Close(); }
-        }*/
-
     }
 }
