@@ -446,8 +446,8 @@
                             <Grid>
                                 <Label Content="{Binding Master, Source={x:Static locale:Interpreter.Current}}" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" Padding="0"/>
                                 <WrapPanel HorizontalAlignment="Right">
-                                    <Label x:Name="MasterLabel" Width="35" Padding="0" Content="{Binding MasterVolume}" Foreground="{Binding Source={x:Static local:ColorSet.VolumeColorBrush}}" HorizontalContentAlignment="Right"/>
-                                    <Label x:Name="MasterPeakLabel" Width="35" Padding="0" Content="{Binding MasterPeak}" Foreground="{Binding Source={x:Static local:ColorSet.PeakColorBrush}}" HorizontalContentAlignment="Right"/>
+                                    <Label x:Name="MasterLabel" Width="35" Padding="0" Content="0" Foreground="{Binding Source={x:Static local:ColorSet.VolumeColorBrush}}" HorizontalContentAlignment="Right"/>
+                                    <Label x:Name="MasterPeakLabel" Width="35" Padding="0" Content="0" Foreground="{Binding Source={x:Static local:ColorSet.PeakColorBrush}}" HorizontalContentAlignment="Right"/>
                                 </WrapPanel>
                             </Grid>
                             <Slider x:Name="MasterVolumeSlider" Value="{Binding MasterVolume}" Foreground="{Binding Source={x:Static local:ColorSet.VolumeColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Style="{DynamicResource SliderBaseSlider}" ValueChanged="MasterVolumeSlider_ValueChanged"/>

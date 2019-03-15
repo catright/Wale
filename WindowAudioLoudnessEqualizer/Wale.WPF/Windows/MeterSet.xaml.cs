@@ -40,6 +40,7 @@ namespace Wale.WPF
         public bool detailChanged = false;
         public bool SoundEnabled { get => SoundOnCBox.IsChecked.Value; set { SoundOnCBox.IsChecked = value; } }
         public bool SoundEnableChanged { get; set; } = false;
+        public int AudioUnit { get; set; } = 0;
 
         //Initialization and init methods
         public MeterSet()
@@ -128,24 +129,24 @@ namespace Wale.WPF
             switch (labelMode)
             {
                 case LabelMode.Relative:
-                    SetLabelText(SessionLabel, $"{Relative:n3}");
+                    SetLabelText(SessionLabel, $"{VFunction.Level(Relative, AudioUnit)}");
                     break;
                 case LabelMode.Volume:
-                    SetLabelText(SessionLabel, $"{vol:n3}");//string.Format("{0:n}", Transformation.Transform(vol, Transformation.TransFlow.MachineToUser)));
+                    SetLabelText(SessionLabel, $"{VFunction.Level(vol, AudioUnit)}");//string.Format("{0:n}", Transformation.Transform(vol, Transformation.TransFlow.MachineToUser)));
                     break;
                 case LabelMode.Peak:
-                    SetLabelText(SessionLabel, $"{level:n3}");
+                    SetLabelText(SessionLabel, $"{VFunction.Level(level, AudioUnit)}");
                     break;
                 case LabelMode.AveragePeak:
-                    SetLabelText(SessionLabel, $"{Avl:n3}");
+                    SetLabelText(SessionLabel, $"{VFunction.Level(Avl, AudioUnit)}");
                     break;
             }
             if (detailed)
             {
-                SetLabelText(VolumeLabel, $"{vol:n3}");
-                SetLabelText(PeakLabel, $"{level:n3}");
-                SetLabelText(AvPeakLabel, $"{Avl:n3}");
-                SetLabelText(RelLabel, $"{Relative:n3}");
+                SetLabelText(VolumeLabel, $"{VFunction.Level(vol, AudioUnit)}");
+                SetLabelText(PeakLabel, $"{VFunction.Level(level, AudioUnit)}");
+                SetLabelText(AvPeakLabel, $"{VFunction.Level(Avl, AudioUnit)}");
+                SetLabelText(RelLabel, $"{VFunction.Level(Relative, AudioUnit)}");
             }
             SetBar(VolumeBar, vol);
             SetBar(RelBar, Relative);

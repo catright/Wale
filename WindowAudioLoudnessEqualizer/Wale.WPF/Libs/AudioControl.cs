@@ -98,7 +98,8 @@ namespace Wale
 
             StringBuilder dm = new StringBuilder().Append($"AutoVolume:{s.Name}({s.ProcessID}), inc={s.AutoIncluded}");
 
-            if (!settings.ExcList.Contains(s.Name) && s.AutoIncluded && s.State == SessionState.Active)
+            // Control session(=s) when s is not in exclude list, auto included, active, and not muted
+            if (!settings.ExcList.Contains(s.Name) && s.AutoIncluded && s.State == SessionState.Active && s.SoundEnabled)
             {
                 double peak = s.Peak;
                 // math 2^0=1 but skip math calculation and set relFactor to 1 for calc speed when relative is 0

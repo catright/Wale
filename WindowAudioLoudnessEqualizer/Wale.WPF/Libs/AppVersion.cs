@@ -8,9 +8,9 @@ namespace Wale.WPF
 {
     public static class AppVersion
     {
-        static System.Version versionObject = typeof(Wale.WPF.App).Assembly.GetName().Version;
+        private static System.Version versionObject = typeof(Wale.WPF.App).Assembly.GetName().Version;
         /// <summary>
-        /// App Release Number
+        /// App Release Number. Top level version
         /// </summary>
         public static int ARN = 0;
         public static int Major = versionObject.Major;
@@ -20,12 +20,16 @@ namespace Wale.WPF
         /// </summary>
         public static string Version = $"{ARN}.{Major}.{Minor}";
 
-        private static int SysBuild = versionObject.Build;
-        private static int SysRevision = versionObject.Revision;
-        private static DateTime buildDate = new DateTime(2000, 1, 1).AddDays(SysBuild).AddSeconds(SysRevision * 2);
-        private static TimeSpan critDate = buildDate.Subtract(new DateTime(2017, 8, 20));
-        public static int Build = (int)critDate.TotalDays;
-        public static int Revision = (int)critDate.Subtract(new TimeSpan(Build, 0, 0, 0)).TotalSeconds / 10;
+
+
+        //private static int SysBuild = versionObject.Build;
+        //private static int SysRevision = versionObject.Revision;
+        //private static DateTime buildDate = new DateTime(2000, 1, 1).AddDays(SysBuild).AddSeconds(SysRevision * 2);
+        //private static TimeSpan critDate = buildDate.Subtract(new DateTime(2017, 8, 20));
+        //public static int Build = (int)critDate.TotalDays;
+        //public static int Revision = (int)critDate.Subtract(new TimeSpan(Build, 0, 0, 0)).TotalSeconds / 10;
+        private static int Build = versionObject.Build;
+        private static int Revision = versionObject.Revision;
 
         /// <summary>
         /// Build number
@@ -45,6 +49,10 @@ namespace Wale.WPF
                 return opt;
             }
         }*/
+
+
+
+        public static string FullVersion = $"{Version}.{SubVersion}";
     }
 
     public static class AppUpdateCheck

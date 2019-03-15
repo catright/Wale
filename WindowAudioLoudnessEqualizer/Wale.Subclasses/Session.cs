@@ -108,9 +108,12 @@ namespace Wale.CoreAudio
         public bool SoundEnabled
         {
             get { using (var v = asc2?.QueryInterface<CSCore.CoreAudioAPI.SimpleAudioVolume>()) { try { return !v.IsMuted; } catch { return false; } } }
-            set { using (var v = asc2?.QueryInterface<CSCore.CoreAudioAPI.SimpleAudioVolume>()) { try { v.IsMuted = !value;
-                        if (v.IsMuted) { LastIncluded = AutoIncluded; AutoIncluded = false; } else { AutoIncluded = LastIncluded; }
-                    } catch { } } }
+            set { using (var v = asc2?.QueryInterface<CSCore.CoreAudioAPI.SimpleAudioVolume>()) {
+                    try { v.IsMuted = !value;
+                        //if (v.IsMuted) { LastIncluded = AutoIncluded; AutoIncluded = false; } else { AutoIncluded = LastIncluded; }
+                    } catch { }
+                }
+            }
         }
         #endregion
 

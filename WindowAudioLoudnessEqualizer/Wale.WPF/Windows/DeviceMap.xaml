@@ -1,4 +1,5 @@
-﻿<Window x:Class="Wale.WPF.DeviceMap"
+﻿<Window
+        x:Class="Wale.WPF.DeviceMap"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -12,7 +13,7 @@
         Width="{Binding Source={x:Static wale:AppDatas.MainWindowWidth}}"
         WindowStyle="None"
         Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}"
-        ContentRendered="Window_ContentRendered">
+        ContentRendered="Window_ContentRendered"> 
     <Window.Resources>
         <Style x:Key="ScrollBarLineButton" TargetType="{x:Type RepeatButton}">
             <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -152,7 +153,7 @@
                 <RepeatButton Grid.Column="3" Style="{StaticResource ScrollBarLineButton}" Width="18" Command="ScrollBar.LineRightCommand" Content="M 0 0 L 4 4 L 0 8 Z" />
             </Grid>
         </ControlTemplate>
-        <ControlTemplate x:Key="ScrollViewerTemplate" TargetType="ScrollViewer">
+        <ControlTemplate x:Key="ScrollViewerTemplate" TargetType="{x:Type ScrollViewer}">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
@@ -189,7 +190,7 @@
             </Grid>
         </ControlTemplate>
 
-        <Style x:Key="FinalButtons" TargetType="Button">
+        <Style x:Key="FinalButtons" TargetType="{x:Type Button}">
             <Setter Property="Width" Value="100"/>
             <Setter Property="Height" Value="20"/>
             <Setter Property="Margin" Value="10,5"/>
@@ -200,13 +201,14 @@
     <Grid x:Name="MainGrid">
         <local:TitleBar/>
         <Grid x:Name="ContentGrid" Margin="0,35,0,0">
+            <local:Loading Margin="0,0,0,30"/>
             <TreeView x:Name="View" Margin="0,0,0,30" Background="Transparent" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}">
                 <TreeView.Style>
-                    <Style TargetType="TreeView">
+                    <Style TargetType="{x:Type TreeView}">
                         <Setter Property="Template">
                             <Setter.Value>
-                                <ControlTemplate TargetType="TreeView">
-                                    <Border Name="Border" BorderBrush="{Binding Source={x:Static local:ColorSet.ForeColorAltBrush}}" BorderThickness="1" Padding="0" Margin="1">
+                                <ControlTemplate TargetType="{x:Type TreeView}">
+                                    <Border x:Name="Border" BorderBrush="{Binding Source={x:Static local:ColorSet.ForeColorAltBrush}}" BorderThickness="1" Padding="0" Margin="1">
                                         <ScrollViewer Focusable="False" CanContentScroll="False" Padding="0" BorderThickness="1" Background="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" BorderBrush="{Binding Source={x:Static local:ColorSet.ForeColorAltBrush}}" Template="{DynamicResource ScrollViewerTemplate}">
                                             <ItemsPresenter/>
                                         </ScrollViewer>
@@ -222,5 +224,6 @@
                 <Button Content="{Binding Close, Source={x:Static locale:Interpreter.Current}}" HorizontalAlignment="Right" Click="Close_Click" Style="{StaticResource FinalButtons}" IsCancel="True" IsDefault="True"/>
             </Grid>
         </Grid>
+        
     </Grid>
 </Window>

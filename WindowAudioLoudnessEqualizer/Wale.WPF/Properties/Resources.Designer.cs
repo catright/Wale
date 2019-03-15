@@ -113,15 +113,17 @@ namespace Wale.WPF.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Icons and 3rd party libraries are NOT included in this license. They are copyrighted on their right holders.
+        ///   Looks up a localized string similar to This app is distributed with MIT license, but it&apos;s restricted tightly to my own codes.
+        ///Icons and 3rd party libraries are NOT included in this license. They are copyrighted on their right holders.
         ///Icons are copyrighted on Hyein, Park.
+        ///
         ///
         ///
         ///MIT License
         ///
-        ///Copyright (c) 2017 Jongtae, Park (catright)
+        ///Copyright (c) 2017-2019 Jongtae, Park (catright)
         ///
-        ///Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &quot;Software&quot;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and [rest of string was truncated]&quot;;.
+        ///Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &quot;Software&quot;), to deal in the Software without restriction, including  [rest of string was truncated]&quot;;.
         /// </summary>
         public static string LicenseWale {
             get {

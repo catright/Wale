@@ -1,0 +1,156 @@
+﻿<UserControl x:Class="Wale.WPF.Loading"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Wale.WPF"
+             mc:Ignorable="d">
+    <UserControl.Resources>
+        <Color x:Key="FilledColor" A="255" B="155" R="155" G="155"/>
+        <Duration x:Key="Dura">00:00:01.0</Duration>
+
+        <Storyboard x:Key="Animation0" BeginTime="00:00:0" RepeatBehavior="Forever">
+            <ColorAnimation Storyboard.TargetName="ellipse0" Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)" Duration="{StaticResource Dura}" From="{StaticResource FilledColor}" To="Transparent"/>
+        </Storyboard>
+        <Storyboard x:Key="Animation1" BeginTime="00:00:0.056" RepeatBehavior="Forever">
+            <ColorAnimation Storyboard.TargetName="ellipse1" Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)" Duration="{StaticResource Dura}" From="{StaticResource FilledColor}" To="Transparent"/>
+        </Storyboard>
+        <Storyboard x:Key="Animation2" BeginTime="00:00:0.112" RepeatBehavior="Forever">
+            <ColorAnimation Storyboard.TargetName="ellipse2" Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)" Duration="{StaticResource Dura}" From="{StaticResource FilledColor}" To="Transparent"/>
+        </Storyboard>
+        <Storyboard x:Key="Animation3" BeginTime="00:00:0.168" RepeatBehavior="Forever">
+            <ColorAnimation Storyboard.TargetName="ellipse3" Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)" Duration="{StaticResource Dura}" From="{StaticResource FilledColor}" To="Transparent"/>
+        </Storyboard>
+        <Storyboard x:Key="Animation4" BeginTime="00:00:0.224" RepeatBehavior="Forever">
+            <ColorAnimation Storyboard.TargetName="ellipse4" Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)" Duration="{StaticResource Dura}" From="{StaticResource FilledColor}" To="Transparent"/>
+        </Storyboard>
+        <Storyboard x:Key="Animation5" BeginTime="00:00:0.28" RepeatBehavior="Forever">
+            <ColorAnimation Storyboard.TargetName="ellipse5" Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)" Duration="{StaticResource Dura}" From="{StaticResource FilledColor}" To="Transparent"/>
+        </Storyboard>
+        <Storyboard x:Key="Animation6" BeginTime="00:00:0.336" RepeatBehavior="Forever">
+            <ColorAnimation Storyboard.TargetName="ellipse6" Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)" Duration="{StaticResource Dura}" From="{StaticResource FilledColor}" To="Transparent"/>
+        </Storyboard>
+        <Storyboard x:Key="Animation7" BeginTime="00:00:0.392" RepeatBehavior="Forever">
+            <ColorAnimation Storyboard.TargetName="ellipse7" Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)" Duration="{StaticResource Dura}" From="{StaticResource FilledColor}" To="Transparent"/>
+        </Storyboard>
+        <Storyboard x:Key="Animation8" BeginTime="00:00:0.448" RepeatBehavior="Forever">
+            <ColorAnimation Storyboard.TargetName="ellipse8" Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)" Duration="{StaticResource Dura}" From="{StaticResource FilledColor}" To="Transparent"/>
+        </Storyboard>
+        <Storyboard x:Key="Animation9" BeginTime="00:00:0.504" RepeatBehavior="Forever">
+            <ColorAnimation Storyboard.TargetName="ellipse9" Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)" Duration="{StaticResource Dura}" From="{StaticResource FilledColor}" To="Transparent"/>
+        </Storyboard>
+        <Storyboard x:Key="Animation10" BeginTime="00:00:0.56" RepeatBehavior="Forever">
+            <ColorAnimation Storyboard.TargetName="ellipse10" Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)" Duration="{StaticResource Dura}" From="{StaticResource FilledColor}" To="Transparent"/>
+        </Storyboard>
+        <Storyboard x:Key="Animation11" BeginTime="00:00:0.616" RepeatBehavior="Forever">
+            <ColorAnimation Storyboard.TargetName="ellipse11" Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)" Duration="{StaticResource Dura}" From="{StaticResource FilledColor}" To="Transparent"/>
+        </Storyboard>
+        <Storyboard x:Key="Animation12" BeginTime="00:00:0.672" RepeatBehavior="Forever">
+            <ColorAnimation Storyboard.TargetName="ellipse12" Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)" Duration="{StaticResource Dura}" From="{StaticResource FilledColor}" To="Transparent"/>
+        </Storyboard>
+        <Storyboard x:Key="Animation13" BeginTime="00:00:0.728" RepeatBehavior="Forever">
+            <ColorAnimation Storyboard.TargetName="ellipse13" Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)" Duration="{StaticResource Dura}" From="{StaticResource FilledColor}" To="Transparent"/>
+        </Storyboard>
+        <Storyboard x:Key="Animation14" BeginTime="00:00:0.784" RepeatBehavior="Forever">
+            <ColorAnimation Storyboard.TargetName="ellipse14" Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)" Duration="{StaticResource Dura}" From="{StaticResource FilledColor}" To="Transparent"/>
+        </Storyboard>
+        <Storyboard x:Key="Animation15" BeginTime="00:00:0.84" RepeatBehavior="Forever">
+            <ColorAnimation Storyboard.TargetName="ellipse15" Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)" Duration="{StaticResource Dura}" From="{StaticResource FilledColor}" To="Transparent"/>
+        </Storyboard>
+        <Storyboard x:Key="Animation16" BeginTime="00:00:0.896" RepeatBehavior="Forever">
+            <ColorAnimation Storyboard.TargetName="ellipse16" Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)" Duration="{StaticResource Dura}" From="{StaticResource FilledColor}" To="Transparent"/>
+        </Storyboard>
+        <Storyboard x:Key="Animation17" BeginTime="00:00:0.952" RepeatBehavior="Forever">
+            <ColorAnimation Storyboard.TargetName="ellipse17" Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)" Duration="{StaticResource Dura}" From="{StaticResource FilledColor}" To="Transparent"/>
+        </Storyboard>
+
+    </UserControl.Resources>
+    <UserControl.Style>
+        <Style TargetType="Control">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="BorderThickness" Value="0"/>
+
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Control">
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsVisible" Value="True">
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard Storyboard="{StaticResource Animation0}" x:Name="Storyboard0"/>
+                                    <BeginStoryboard Storyboard="{StaticResource Animation1}" x:Name="Storyboard1"/>
+                                    <BeginStoryboard Storyboard="{StaticResource Animation2}" x:Name="Storyboard2"/>
+                                    <BeginStoryboard Storyboard="{StaticResource Animation3}" x:Name="Storyboard3"/>
+                                    <BeginStoryboard Storyboard="{StaticResource Animation4}" x:Name="Storyboard4"/>
+                                    <BeginStoryboard Storyboard="{StaticResource Animation5}" x:Name="Storyboard5"/>
+                                    <BeginStoryboard Storyboard="{StaticResource Animation6}" x:Name="Storyboard6"/>
+                                    <BeginStoryboard Storyboard="{StaticResource Animation7}" x:Name="Storyboard7"/>
+                                    <BeginStoryboard Storyboard="{StaticResource Animation8}" x:Name="Storyboard8"/>
+                                    <BeginStoryboard Storyboard="{StaticResource Animation9}" x:Name="Storyboard9"/>
+                                    <BeginStoryboard Storyboard="{StaticResource Animation10}" x:Name="Storyboard10"/>
+                                    <BeginStoryboard Storyboard="{StaticResource Animation11}" x:Name="Storyboard11"/>
+                                    <BeginStoryboard Storyboard="{StaticResource Animation12}" x:Name="Storyboard12"/>
+                                    <BeginStoryboard Storyboard="{StaticResource Animation13}" x:Name="Storyboard13"/>
+                                    <BeginStoryboard Storyboard="{StaticResource Animation14}" x:Name="Storyboard14"/>
+                                    <BeginStoryboard Storyboard="{StaticResource Animation15}" x:Name="Storyboard15"/>
+                                    <BeginStoryboard Storyboard="{StaticResource Animation16}" x:Name="Storyboard16"/>
+                                    <BeginStoryboard Storyboard="{StaticResource Animation17}" x:Name="Storyboard17"/>
+                                </Trigger.EnterActions>
+
+                                <Trigger.ExitActions>
+                                    <StopStoryboard BeginStoryboardName="Storyboard0"/>
+                                    <StopStoryboard BeginStoryboardName="Storyboard1"/>
+                                    <StopStoryboard BeginStoryboardName="Storyboard2"/>
+                                    <StopStoryboard BeginStoryboardName="Storyboard3"/>
+                                    <StopStoryboard BeginStoryboardName="Storyboard4"/>
+                                    <StopStoryboard BeginStoryboardName="Storyboard5"/>
+                                    <StopStoryboard BeginStoryboardName="Storyboard6"/>
+                                    <StopStoryboard BeginStoryboardName="Storyboard7"/>
+                                    <StopStoryboard BeginStoryboardName="Storyboard8"/>
+                                    <StopStoryboard BeginStoryboardName="Storyboard9"/>
+                                    <StopStoryboard BeginStoryboardName="Storyboard10"/>
+                                    <StopStoryboard BeginStoryboardName="Storyboard11"/>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+
+                        <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Margin="0" Padding="0">
+                            <Grid Margin="0">
+                                <Canvas Height="46" Width="46" Margin="0">
+                                    <Canvas.Resources>
+                                        <Style TargetType="Ellipse">
+                                            <Setter Property="Width" Value="10"/>
+                                            <Setter Property="Height" Value="10"/>
+                                            <Setter Property="Fill" Value="#009B9B9B"/>
+                                        </Style>
+                                    </Canvas.Resources>
+
+                                    <Ellipse x:Name="ellipse0" Canvas.Left="18" Canvas.Top="0"/>
+                                    <Ellipse x:Name="ellipse1" Canvas.Left="24.156" Canvas.Top="1.086"/>
+                                    <Ellipse x:Name="ellipse2" Canvas.Left="29.57" Canvas.Top="4.211"/>
+                                    <Ellipse x:Name="ellipse3" Canvas.Left="33.588" Canvas.Top="9"/>
+                                    <Ellipse x:Name="ellipse4" Canvas.Left="35.727" Canvas.Top="14.874"/>
+                                    <Ellipse x:Name="ellipse5" Canvas.Left="35.727" Canvas.Top="21.126"/>
+                                    <Ellipse x:Name="ellipse6" Canvas.Left="33.588" Canvas.Top="27"/>
+                                    <Ellipse x:Name="ellipse7" Canvas.Left="29.57" Canvas.Top="31.789"/>
+                                    <Ellipse x:Name="ellipse8" Canvas.Left="24.156" Canvas.Top="34.914"/>
+                                    <Ellipse x:Name="ellipse9" Canvas.Left="18" Canvas.Top="36"/>
+                                    <Ellipse x:Name="ellipse10" Canvas.Left="11.844" Canvas.Top="34.914"/>
+                                    <Ellipse x:Name="ellipse11" Canvas.Left="6.43" Canvas.Top="31.789"/>
+                                    <Ellipse x:Name="ellipse12" Canvas.Left="2.412" Canvas.Top="27"/>
+                                    <Ellipse x:Name="ellipse13" Canvas.Left="0.273" Canvas.Top="21.126"/>
+                                    <Ellipse x:Name="ellipse14" Canvas.Left="0.273" Canvas.Top="14.874"/>
+                                    <Ellipse x:Name="ellipse15" Canvas.Left="2.412" Canvas.Top="9"/>
+                                    <Ellipse x:Name="ellipse16" Canvas.Left="6.43" Canvas.Top="4.211"/>
+                                    <Ellipse x:Name="ellipse17" Canvas.Left="11.844" Canvas.Top="1.086"/>
+
+                                </Canvas>
+                                <Label Content="{Binding Path=Text}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Style>
+</UserControl>

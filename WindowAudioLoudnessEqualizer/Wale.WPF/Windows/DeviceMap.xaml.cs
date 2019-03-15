@@ -39,6 +39,7 @@ namespace Wale.WPF
             MainGrid.Children.Insert(0, new TitleBar(this));
 
             this.Title = "Wale " + Localization.Interpreter.Current.DeviceMap;
+            if (ContentGrid.Children[0].GetType() == typeof(Loading)) { ContentGrid.Children.RemoveAt(0); }
         }
 
 
@@ -140,9 +141,14 @@ namespace Wale.WPF
         }
         private async void Update_Click(object sender, RoutedEventArgs e)
         {
+            ContentGrid.Children.Insert(0, new Loading() { Margin = new Thickness(0, 0, 0, 30) });
+            //LoadingCircle.Visibility = Visibility.Visible;
             await GetData();
             DrawMap();
+            //LoadingCircle.Visibility = Visibility.Hidden;
+            if (ContentGrid.Children[0].GetType() == typeof(Loading)) { ContentGrid.Children.RemoveAt(0); }
         }
+
         private void Window_ContentRendered(object sender, EventArgs e)
         {
             Update_Click(sender, new RoutedEventArgs());

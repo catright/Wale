@@ -98,11 +98,33 @@ namespace Wale.WPF
         public MainWindow()
         {
             InitializeComponent();
+            CheckSettings();
             MakeComponents();
             MakeNI();
             StartApp();
             MakeConfigs();
             Log("AppStarted");
+        }
+        /// <summary>
+        /// Check settings from previous version of the app
+        /// </summary>
+        private void CheckSettings()
+        {
+            Version appVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+            string appVersionString = appVersion.ToString();
+
+            if (Properties.Settings.Default.Version != appVersion.ToString())
+            {
+                Properties.Settings.Default.Upgrade();
+                Properties.Settings.Default.Version = appVersionString;
+                Properties.Settings.Default.Save();
+            }
+
+            //if (settings.Version != AppVersion.FullVersion)
+            //{
+            //    settings.Upgrade();
+            //    settings.Version = AppVersion.FullVersion;
+            //}Properties.Settings.Default
         }
         /// <summary>
         /// Make UI components
@@ -272,9 +294,11 @@ namespace Wale.WPF
 
                     double vbuf = Audio.MasterVolume;// Console.WriteLine($"{vbuf}");
                     DL.MasterVolume = vbuf;
+                    SetText(MasterLabel, VFunction.Level(vbuf, settings.AudioUnit).ToString());
 
                     double lbuf = Audio.MasterPeak * vbuf;// Console.WriteLine($"{lbuf}");
-                    DL.MasterPeak = lbuf;
+                    DL.MasterPeak = VFunction.Level(lbuf, settings.AudioUnit);
+                    SetText(MasterPeakLabel, VFunction.Level(lbuf, settings.AudioUnit).ToString());
 
                     Dispatcher?.Invoke(() =>
                     {
@@ -362,6 +386,7 @@ namespace Wale.WPF
                                     if (item.detailChanged) { reAlign = true; item.detailChanged = false; }
                                     //string stooltip = string.IsNullOrEmpty(session.MainWindowTitle) ? $"{session.Name}({session.ProcessID})" : $"{session.Name}({session.ProcessID}) - {session.MainWindowTitle}";
                                     string stooltip = $"{session.Name}({session.ProcessID})";
+                                    if (item.AudioUnit != settings.AudioUnit) item.AudioUnit = settings.AudioUnit;
                                     item.UpdateData(session.Volume, session.Volume*session.Peak, session.Volume*session.AveragePeak, session.Name, stooltip);
                                     session.Relative = (float)item.Relative;
                                     // Sound mute check
@@ -473,7 +498,10 @@ namespace Wale.WPF
 
         private void openLogDirectoryToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            System.Diagnostics.Process.Start(JDPack.FileLog.WorkDirectory.FullName);
+            //System.Diagnostics.Process.Start(JDPack.FileLog.WorkDirectory.FullName);
+            Console.WriteLine($"{JDPack.FileLog.WorkDirectory.FullName}");
+            JDPack.FileLog.Log(JDPack.FileLog.File.FullName);
+            JDPack.FileLog.OpenWorkDirectoryOnExplorer();
         }
         #endregion
 
@@ -539,7 +567,7 @@ namespace Wale.WPF
         private void TargetSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             Console.WriteLine($"{settings.TargetLevel}");
-            TargetLabel.Content = settings.TargetLevel.ToString();
+            TargetLabel.Content = VFunction.Level(settings.TargetLevel, settings.AudioUnit).ToString();
             //if (settings.BaseLevel.ToString().Length > 4) { settings.BaseLevel = Math.Round(settings.BaseLevel, 2); }
             LastValues.TargetLevel = settings.TargetLevel;
             settings.Save();
@@ -585,6 +613,7 @@ namespace Wale.WPF
                 if (settings.AdvancedView) DoChangeHeightSB(AppDatas.MainWindowConfigLongHeight);
                 else DoChangeHeightSB(AppDatas.MainWindowConfigHeight);
             }
+            if(e.PropertyName == "AudioUnit") { TargetLabel.Content = VFunction.Level(settings.TargetLevel, settings.AudioUnit).ToString(); }
         }
 
         private void window_Deactivated(object sender, EventArgs e)
@@ -1094,6 +1123,10 @@ namespace Wale.WPF
         public double WindowTop { get => _WindowTop; set => SetData(ref _WindowTop, value); }
         private string _Transition = "0:0:.2";
         public string Transition { get => _Transition; set => SetData(ref _Transition, value); }
+
+        // slider storyboard on configset
+        //private double _AudioUnit = 0;
+        //public double AudioUnit { get => _AudioUnit; set => SetData(ref _AudioUnit, value); }
 
 
         public event PropertyChangedEventHandler PropertyChanged;

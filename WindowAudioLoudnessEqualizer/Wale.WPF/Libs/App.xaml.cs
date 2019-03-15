@@ -39,10 +39,13 @@ namespace Wale.WPF
             // overload the OnStartup so that the main window 
             // is constructed and visible
 
-            JDPack.FileLog.SetWorkDirectory(System.IO.Path.Combine(Environment.ExpandEnvironmentVariables("%appdata%"), "WaleAudioControl"));
+            //JDPack.FileLog.SetWorkDirectory(System.IO.Path.Combine(Environment.ExpandEnvironmentVariables("%appdata%"), "WaleAudioControl"));
+            string path=(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "WaleAudioControl"));
+            JDPack.FileLog.SetWorkDirectory(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "WaleAudioControl"));
             JDPack.FileLog.Open("WaleLog");
             JDPack.FileLog.Erase(7);
             JDPack.FileLog.Log($"Wale {AppVersion.Version}.{AppVersion.SubVersion}");
+            JDPack.FileLog.Log(path);
 
             MainWindow mw = new MainWindow();
             mw.Show();

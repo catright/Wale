@@ -118,7 +118,8 @@ namespace Wale.WPF
         }
         private void MakeFinal()
         {
-            
+            TargetdB.Content = VFunction.Level(settings.TargetLevel, 1);
+            MinPeakdB.Content = VFunction.Level(settings.MinPeak, 1);
         }
 
         private void ConfigSet_KeyDown(object sender, KeyEventArgs e)
@@ -134,6 +135,7 @@ namespace Wale.WPF
             if (!loaded) return;
             DrawBase();
             DrawNew();
+            MakeFinal();
         }
 
         private void TargetLevel_Changed(object sender, TextChangedEventArgs e)
@@ -323,7 +325,7 @@ namespace Wale.WPF
         /// </summary>
         private void MakeOriginals()
         {
-            LastValues.UIUpdate = settings.UIUpdateInterval;
+            LastValues.UIUpdateInterval = settings.UIUpdateInterval;
             LastValues.AutoControlInterval = settings.AutoControlInterval;
             LastValues.GCInterval = settings.GCInterval;
             LastValues.TargetLevel = settings.TargetLevel;
@@ -332,6 +334,7 @@ namespace Wale.WPF
             LastValues.AverageTime = settings.AverageTime;
             LastValues.MinPeak = settings.MinPeak;
             LastValues.VFunc = settings.VFunc;
+            LastValues.AudioUnit = settings.AudioUnit;
         }
         /// <summary>
         /// Draw new present graph
@@ -509,7 +512,7 @@ namespace Wale.WPF
             StaticPropertyChanged?.Invoke(null, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
         }
 
-        public static double UIUpdate { get => _UIUpdate; set { _UIUpdate = value; OnStaticPropertyChanged("UIUpdate"); } }
+        public static double UIUpdateInterval { get => _UIUpdate; set { _UIUpdate = value; OnStaticPropertyChanged("UIUpdateInterval"); } }
         public static double AutoControlInterval { get => _AutoControlInterval; set { _AutoControlInterval = value; OnStaticPropertyChanged("AutoControlInterval"); } }
         public static double GCInterval { get => _GCInterval; set { _GCInterval = value; OnStaticPropertyChanged("GCInterval"); } }
         public static double TargetLevel { get => _TargetLevel; set { _TargetLevel = value; OnStaticPropertyChanged("TargetLevel"); } }
@@ -518,10 +521,12 @@ namespace Wale.WPF
         public static double Kurtosis { get => _Kurtosis; set { _Kurtosis = value; OnStaticPropertyChanged("Kurtosis"); } }
         public static double MinPeak { get => _MinPeak; set { _MinPeak = value; OnStaticPropertyChanged("MinPeak"); } }
         public static string VFunc { get => _VFunc; set { _VFunc = value; OnStaticPropertyChanged("VFunc"); } }
+        public static int AudioUnit { get => _AudioUnit; set { _AudioUnit = value; OnStaticPropertyChanged("AudioUnit"); } }
 
-        public static double _UIUpdate, _AutoControlInterval, _GCInterval;
-        public static double _TargetLevel, _AverageTime, _UpRate, _Kurtosis, _MinPeak;
-        public static string _VFunc;
+        private static double _UIUpdate, _AutoControlInterval, _GCInterval;
+        private static double _TargetLevel, _AverageTime, _UpRate, _Kurtosis, _MinPeak;
+        private static string _VFunc;
+        private static int _AudioUnit;
         /*
         public static int UIUpdate, AutoControlInterval, GCInterval;
         public static double TargetLevel, AverageTime, UpRate, Kurtosis, MinPeak;

@@ -19,17 +19,18 @@
             <Setter Property="MinWidth" Value="{Binding Width, RelativeSource={RelativeSource Self}}"/>
             <Setter Property="MaxWidth" Value="{Binding Width, RelativeSource={RelativeSource Self}}"/>
             
-            <Setter Property="Height" Value="225"/>
+            <Setter Property="Height" Value="245"/>
             <Setter Property="MinHeight" Value="{Binding Height, RelativeSource={RelativeSource Self}}"/>
             <Setter Property="MaxHeight" Value="{Binding Height, RelativeSource={RelativeSource Self}}"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding Path=AdvancedView, Source={x:Static prop:Settings.Default}, Mode=OneWay}" Value="True">
-                    <Setter Property="Height" Value="375"/>
+                    <Setter Property="Height" Value="395"/>
                 </DataTrigger>
             </Style.Triggers>
         </Style>
     </UserControl.Style>
     <UserControl.Resources>
+        
         <Style x:Key="LineItem" TargetType="Grid">
             <Setter Property="Width" Value="220"/>
             <Setter Property="Height" Value="20"/>
@@ -48,16 +49,14 @@
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Foreground" Value="{Binding Foreground, ElementName=confset}"/>
         </Style>
-        <Style TargetType="Label">
+        <Style x:Key="LabelDef" TargetType="Label">
             <Setter Property="Padding" Value="0"/>
             <Setter Property="HorizontalAlignment" Value="Left"/>
             <Setter Property="Foreground" Value="{Binding Foreground, ElementName=confset}"/>
         </Style>
-        <Style x:Key="LLastVal" TargetType="Label">
+        <Style TargetType="Label" BasedOn="{StaticResource LabelDef}"/>
+        <Style x:Key="LLastVal" TargetType="Label" BasedOn="{StaticResource LabelDef}">
             <Setter Property="Margin" Value="120,0,0,0"/>
-            <Setter Property="Padding" Value="0"/>
-            <Setter Property="HorizontalAlignment" Value="Left"/>
-            <Setter Property="Foreground" Value="{Binding Foreground, ElementName=confset}"/>
         </Style>
         <Style TargetType="TextBox">
             <Setter Property="Width" Value="50"/>
@@ -93,7 +92,7 @@
                     <StackPanel Grid.Column="0">
                         <Grid Style="{StaticResource LineItem}" Visibility="Visible">
                             <Label Content="UI Update [ms]"/>
-                            <Label Content="{Binding Path=(local:LastValues.UIUpdate), Mode=TwoWay}" Style="{StaticResource LLastVal}"/>
+                            <Label Content="{Binding Path=(local:LastValues.UIUpdateInterval), Mode=TwoWay}" Style="{StaticResource LLastVal}"/>
                             <TextBox Text="{Binding Path=UIUpdateInterval, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
                         </Grid>
                         <Grid Style="{StaticResource LineItem}" Visibility="Visible">
@@ -107,9 +106,152 @@
                             <TextBox Text="{Binding Path=GCInterval, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
                         </Grid>
                         <Grid Style="{StaticResource LineItem}" Visibility="Visible">
-                            <Label Content="Target Level" Foreground="{Binding Source={x:Static local:ColorSet.TargetColorBrush}}"/>
+                            <WrapPanel>
+                                <Label Content="Target Level" Foreground="{Binding Source={x:Static local:ColorSet.TargetColorBrush}}"/>
+                                <Label Content=" " FontSize="10"/>
+                                <Label x:Name="TargetdB" Content="0" FontSize="10"/>
+                                <Label Content="dB" FontSize="10"/>
+                            </WrapPanel>
                             <Label Content="{Binding Path=(local:LastValues.TargetLevel), Mode=TwoWay}" Style="{StaticResource LLastVal}"/>
                             <TextBox Text="{Binding Path=TargetLevel, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" TextChanged="TargetLevel_Changed"/>
+                        </Grid>
+                        <Grid Style="{StaticResource LineItem}" Visibility="Visible">
+                            <WrapPanel>
+                                <Label Content="Audio Unit" ToolTip="0=Linear(0~1), 1=dB(-&#8734;~0)"/>
+                                <Label>
+                                    <Label.Style>
+                                        <Style TargetType="Label">
+                                            <Setter Property="Padding" Value="0"/>
+                                            <Setter Property="HorizontalAlignment" Value="Left"/>
+                                            <Setter Property="Foreground" Value="{Binding Foreground, ElementName=confset}"/>
+                                            <Setter Property="Content" Value=" [L]"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Path=AudioUnit, Source={x:Static prop:Settings.Default}, Mode=OneWay}" Value="1">
+                                                    <Setter Property="Content" Value=" [dB]"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Label.Style>
+                                </Label>
+                            </WrapPanel>
+                            <Label Content="{Binding Path=(local:LastValues.AudioUnit), Mode=TwoWay}" Style="{StaticResource LLastVal}"/>
+                            <Slider x:Name="AudioUnitSlider" Value="{Binding Path=AudioUnit, Source={x:Static prop:Settings.Default}, Mode=TwoWay}">
+                                <Slider.Resources>
+                                    <Storyboard x:Key="Inc">
+                                        <DoubleAnimation Storyboard.TargetName="AudioUnitSlider" Storyboard.TargetProperty="RangeBase.Value" Duration="0:0:0.1" To="1" BeginTime="0:0:0"/>
+                                    </Storyboard>
+                                    <Storyboard x:Key="Dec">
+                                        <DoubleAnimation Storyboard.TargetName="AudioUnitSlider" Storyboard.TargetProperty="RangeBase.Value" Duration="0:0:0.1" To="0" BeginTime="0:0:0"/>
+                                    </Storyboard>
+                                </Slider.Resources>
+                                <Slider.Style>
+                                    <Style TargetType="Slider">
+                                        <Setter Property="Width" Value="50"/>
+                                        
+                                        <Setter Property="Height" Value="10"/>
+                                        <Setter Property="MinHeight" Value="10"/>
+                                        
+                                        <Setter Property="Margin" Value="0,0,6,0"/>
+                                        <Setter Property="Padding" Value="0"/>
+                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+
+                                        <Setter Property="Maximum" Value="1"/>
+                                        <Setter Property="Minimum" Value="0"/>
+                                        <Setter Property="LargeChange" Value="1"/>
+                                        <Setter Property="SmallChange" Value="0.01"/>
+
+                                        <Setter Property="TickFrequency" Value="0.01"/>
+                                        <Setter Property="IsSnapToTickEnabled" Value="True"/>
+                                        <Setter Property="Focusable" Value="False"/>
+                                        <Setter Property="SnapsToDevicePixels" Value="True"/>
+                                        <Setter Property="OverridesDefaultStyle" Value="True"/>
+
+                                        <Setter Property="Foreground" Value="{Binding Foreground, ElementName=confset}"/>
+                                        <Setter Property="Background" Value="{Binding Background, ElementName=confset}"/>
+                                    </Style>
+                                </Slider.Style>
+                                <Slider.Template>
+                                    <ControlTemplate TargetType="Slider">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto" MinHeight="{TemplateBinding MinHeight}"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+                                            <Track Grid.Row="1" x:Name="PART_Track">
+                                                <Track.DecreaseRepeatButton>
+                                                    <RepeatButton Height="{TemplateBinding MinHeight}" Command="Slider.DecreaseLarge" Background="{TemplateBinding Background}" Foreground="{TemplateBinding Foreground}">
+                                                        <!--RepeatButton.Triggers>
+                                                            <EventTrigger RoutedEvent="RepeatButton.Click">
+                                                                <BeginStoryboard>
+                                                                    <Storyboard>
+                                                                        <DoubleAnimation Storyboard.TargetName="AudioUnitSlider" Storyboard.TargetProperty="RangeBase.Value" Duration="0:0:0.1" To="0" BeginTime="0:0:0"/>
+                                                                    </Storyboard>
+                                                                </BeginStoryboard>
+                                                            </EventTrigger>
+                                                        </RepeatButton.Triggers-->
+                                                        <RepeatButton.Style>
+                                                            <Style TargetType="RepeatButton">
+                                                                <Setter Property="SnapsToDevicePixels" Value="True"/>
+                                                                <Setter Property="OverridesDefaultStyle" Value="True"/>
+                                                                <Setter Property="Template">
+                                                                    <Setter.Value>
+                                                                        <ControlTemplate TargetType="RepeatButton">
+                                                                            <Border Height="{TemplateBinding Height}" BorderThickness="1" BorderBrush="Black" Background="{TemplateBinding Foreground}"/>
+                                                                        </ControlTemplate>
+                                                                    </Setter.Value>
+                                                                </Setter>
+                                                            </Style>
+                                                        </RepeatButton.Style>
+                                                    </RepeatButton>
+                                                </Track.DecreaseRepeatButton>
+                                                <Track.Thumb>
+                                                    <Thumb Height="{TemplateBinding MinHeight}" Width="{TemplateBinding MinHeight}" Background="{TemplateBinding Background}" Foreground="{TemplateBinding Foreground}">
+                                                        <Thumb.Style>
+                                                            <Style TargetType="Thumb">
+                                                                <Setter Property="SnapsToDevicePixels" Value="True" />
+                                                                <Setter Property="OverridesDefaultStyle" Value="True" />
+                                                                <Setter Property="Template">
+                                                                    <Setter.Value>
+                                                                        <ControlTemplate TargetType="Thumb">
+                                                                            <Ellipse Height="{TemplateBinding Height}" Width="{TemplateBinding Width}" StrokeThickness="1" Stroke="Black" Fill="{TemplateBinding Foreground}"/>
+                                                                        </ControlTemplate>
+                                                                    </Setter.Value>
+                                                                </Setter>
+                                                            </Style>
+                                                        </Thumb.Style>
+                                                    </Thumb>
+                                                </Track.Thumb>
+                                                <Track.IncreaseRepeatButton>
+                                                    <RepeatButton Height="{TemplateBinding MinHeight}" Command="Slider.IncreaseLarge" Background="{TemplateBinding Background}" Foreground="{TemplateBinding Foreground}">
+                                                        <!--RepeatButton.Triggers>
+                                                            <EventTrigger RoutedEvent="RepeatButton.Click">
+                                                                <BeginStoryboard Storyboard="{StaticResource Inc}"/>
+                                                            </EventTrigger>
+                                                        </><!-->
+                                                        <RepeatButton.Style>
+                                                            <Style TargetType="RepeatButton">
+                                                                <Setter Property="SnapsToDevicePixels" Value="True"/>
+                                                                <Setter Property="OverridesDefaultStyle" Value="True"/>
+                                                                <Setter Property="IsTabStop" Value="False"/>
+                                                                <Setter Property="Focusable" Value="False"/>
+                                                                <Setter Property="Template">
+                                                                    <Setter.Value>
+                                                                        <ControlTemplate TargetType="RepeatButton">
+                                                                            <Border Height="{TemplateBinding Height}" BorderThickness="1" BorderBrush="Black" Background="{TemplateBinding Background}"/>
+                                                                        </ControlTemplate>
+                                                                    </Setter.Value>
+                                                                </Setter>
+                                                            </Style>
+                                                        </RepeatButton.Style>
+                                                    </RepeatButton>
+                                                </Track.IncreaseRepeatButton>
+                                            </Track>
+                                        </Grid>
+                                    </ControlTemplate>
+                                </Slider.Template>
+                            </Slider>
                         </Grid>
                         <Grid Style="{StaticResource LineItem}">
                             <Label Content="Up Rate"/>
@@ -132,7 +274,12 @@
                             <TextBox Text="{Binding Path=AverageTime, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
                         </Grid>
                         <Grid Style="{StaticResource LineItem}">
-                            <Label Content="Min Peak Level"/>
+                            <WrapPanel>
+                                <Label Content="Min Peak Level"/>
+                                <Label Content=" " FontSize="10"/>
+                                <Label x:Name="MinPeakdB" Content="0" FontSize="10"/>
+                                <Label Content="dB" FontSize="10"/>
+                            </WrapPanel>
                             <Label Content="{Binding Path=(local:LastValues.MinPeak), Mode=TwoWay}" Style="{StaticResource LLastVal}"/>
                             <TextBox Text="{Binding Path=MinPeak, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
                         </Grid>
