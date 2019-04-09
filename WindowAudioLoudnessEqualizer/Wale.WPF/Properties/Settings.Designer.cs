@@ -293,5 +293,17 @@ namespace Wale.WPF.Properties {
                 this["Version"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool ShowSessionIcon {
+            get {
+                return ((bool)(this["ShowSessionIcon"]));
+            }
+            set {
+                this["ShowSessionIcon"] = value;
+            }
+        }
     }
 }

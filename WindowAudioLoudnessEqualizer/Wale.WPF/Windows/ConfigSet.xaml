@@ -325,7 +325,8 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0">
                             <CheckBox x:Name="runAtWindowsStartup" Content="Run at Windows Startup"/>
-                            <CheckBox Visibility="Hidden" IsEnabled="False" x:Name="CheckForUpdateCB" Content="Check for Update"/>
+                            <CheckBox Content="Show Session Icon" IsChecked="{Binding Path=ShowSessionIcon, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
+                            <CheckBox Visibility="Collapsed" IsEnabled="False" x:Name="CheckForUpdateCB" Content="Check for Update"/>
                         </StackPanel>
                         <StackPanel Grid.Column="1">
                             <CheckBox Content="Advanced View(F9)" IsChecked="{Binding Path=AdvancedView, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>

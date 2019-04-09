@@ -110,21 +110,22 @@ namespace Wale.WPF
         /// </summary>
         private void CheckSettings()
         {
-            Version appVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
-            string appVersionString = appVersion.ToString();
+            //Version appVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+            //string appVersionString = appVersion.ToString();
 
-            if (Properties.Settings.Default.Version != appVersion.ToString())
-            {
-                Properties.Settings.Default.Upgrade();
-                Properties.Settings.Default.Version = appVersionString;
-                Properties.Settings.Default.Save();
-            }
-
-            //if (settings.Version != AppVersion.FullVersion)
+            //if (Properties.Settings.Default.Version != appVersion.ToString())
             //{
-            //    settings.Upgrade();
-            //    settings.Version = AppVersion.FullVersion;
-            //}Properties.Settings.Default
+            //    Properties.Settings.Default.Upgrade();
+            //    Properties.Settings.Default.Version = appVersionString;
+            //    Properties.Settings.Default.Save();
+            //}
+
+            if (settings.Version != AppVersion.FullVersion)
+            {
+                settings.Upgrade();
+                settings.Version = AppVersion.FullVersion;
+                settings.Save();
+            }
         }
         /// <summary>
         /// Make UI components
@@ -297,7 +298,7 @@ namespace Wale.WPF
                     SetText(MasterLabel, VFunction.Level(vbuf, settings.AudioUnit).ToString());
 
                     double lbuf = Audio.MasterPeak * vbuf;// Console.WriteLine($"{lbuf}");
-                    DL.MasterPeak = VFunction.Level(lbuf, settings.AudioUnit);
+                    DL.MasterPeak = lbuf;
                     SetText(MasterPeakLabel, VFunction.Level(lbuf, settings.AudioUnit).ToString());
 
                     Dispatcher?.Invoke(() =>
@@ -364,7 +365,7 @@ namespace Wale.WPF
                                         //Console.WriteLine($"{sc.Name}({sc.ProcessID}) {sc.DisplayName} / {sc.ProcessName} / {sc.MainWindowTitle} / {sc.SessionIdentifier}");
                                         //string stooltip = string.IsNullOrEmpty(sc.MainWindowTitle) ? $"{sc.Name}({sc.ProcessID})" : $"{sc.Name}({sc.ProcessID}) - {sc.MainWindowTitle}";
                                         string stooltip = $"{sc.Name}({sc.ProcessID})";
-                                        MeterSet set = new MeterSet(sc.ProcessID, sc.Name, settings.AdvancedView, sc.AutoIncluded, updateSessionDebug, stooltip);
+                                        MeterSet set = new MeterSet(sc.ProcessID, sc.Name, sc.Icon, settings.AdvancedView, sc.AutoIncluded, updateSessionDebug, stooltip) { SoundEnabled = sc.SoundEnabled };
                                         int idx = SessionPanel.Children.Count;
                                         foreach (MeterSet item in SessionPanel.Children) { if (set.CompareTo(item) < 0) { idx = SessionPanel.Children.IndexOf(item); break; } }
                                         if (idx < SessionPanel.Children.Count) SessionPanel.Children.Insert(idx, set);
@@ -375,26 +376,26 @@ namespace Wale.WPF
                                 }
                             }
 
-                            foreach (MeterSet item in SessionPanel.Children)
+                            foreach (MeterSet mSet in SessionPanel.Children)
                             {//check expired session and update not expired session
-                                var session = Audio.Sessions.GetSession(item.ProcessID);
-                                if (session == null || session.State == Wale.CoreAudio.SessionState.Expired) { expired.Add(item); reAlign = true; }
+                                var session = Audio.Sessions.GetSession(mSet.ProcessID);
+                                if (session == null || session.State == Wale.CoreAudio.SessionState.Expired) { expired.Add(mSet); reAlign = true; }
                                 else
                                 {
-                                    if (settings.AdvancedView) item.DetailOn();
-                                    else item.DetailOff();
-                                    if (item.detailChanged) { reAlign = true; item.detailChanged = false; }
+                                    if (settings.AdvancedView) mSet.DetailOn();
+                                    else mSet.DetailOff();
+                                    if (mSet.detailChanged) { reAlign = true; mSet.detailChanged = false; }
                                     //string stooltip = string.IsNullOrEmpty(session.MainWindowTitle) ? $"{session.Name}({session.ProcessID})" : $"{session.Name}({session.ProcessID}) - {session.MainWindowTitle}";
                                     string stooltip = $"{session.Name}({session.ProcessID})";
-                                    if (item.AudioUnit != settings.AudioUnit) item.AudioUnit = settings.AudioUnit;
-                                    item.UpdateData(session.Volume, session.Volume*session.Peak, session.Volume*session.AveragePeak, session.Name, stooltip);
-                                    session.Relative = (float)item.Relative;
+                                    if (mSet.AudioUnit != settings.AudioUnit) mSet.AudioUnit = settings.AudioUnit;
+                                    mSet.UpdateData(session.Volume, session.Volume*session.Peak, session.Volume*session.AveragePeak, session.Name, stooltip);
+                                    session.Relative = (float)mSet.Relative;
                                     // Sound mute check
-                                    if (item.SoundEnableChanged) { session.SoundEnabled = item.SoundEnabled; item.SoundEnableChanged = false; }
-                                    if (session.SoundEnabled != item.SoundEnabled) item.SoundEnabled = session.SoundEnabled;
+                                    if (mSet.SoundEnableChanged) { session.SoundEnabled = mSet.SoundEnabled; mSet.SoundEnableChanged = false; }
+                                    if (session.SoundEnabled != mSet.SoundEnabled) mSet.SoundEnabled = session.SoundEnabled;
                                     // Auto include check
-                                    if (item.AutoIncludedChanged) { session.AutoIncluded = item.AutoIncluded; item.AutoIncludedChanged = false; }
-                                    if (session.AutoIncluded != item.AutoIncluded) item.AutoIncluded = session.AutoIncluded;
+                                    if (mSet.AutoIncludedChanged) { session.AutoIncluded = mSet.AutoIncluded; mSet.AutoIncludedChanged = false; }
+                                    if (session.AutoIncluded != mSet.AutoIncluded) mSet.AutoIncluded = session.AutoIncluded;
                                 }
                             }
                         }

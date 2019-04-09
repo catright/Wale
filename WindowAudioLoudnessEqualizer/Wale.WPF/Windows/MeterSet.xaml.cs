@@ -31,7 +31,7 @@ namespace Wale.WPF
         //public variables
         //public List<double> LastPeaks;
         public int ProcessID { get; }
-        public string SessionName { get => NameLabel.Content.ToString(); }
+        public string SessionName { get => NameLabel.Text.ToString(); }
         public double Relative { get; private set; } = 0;
         public bool AutoIncluded { get => AutoIncludeCBox.IsChecked.Value; set => AutoIncludeCBox.IsChecked = value; }
         public bool AutoIncludedChanged { get; set; } = false;
@@ -47,10 +47,24 @@ namespace Wale.WPF
         {
             InitializeComponent();
         }
-        public MeterSet(int pid, string name, bool detail, bool autoinc, bool dbg = false, string tooltip = null)
+        public MeterSet(int pid, string name, string iconpath, bool detail, bool autoinc, bool dbg = false, string tooltip = null)
         {
             InitializeComponent();
             ProcessID = pid;
+
+            // get session icon
+            if (iconpath.StartsWith("@"))
+            {
+                iconpath = iconpath.Substring(iconpath.IndexOf('@') + 1, iconpath.LastIndexOf(",-") - 1);
+                if (iconpath.Contains("%SystemRoot%")) iconpath = iconpath.Replace("%SystemRoot%", Environment.GetFolderPath(Environment.SpecialFolder.Windows));
+            }
+            else if (string.IsNullOrWhiteSpace(iconpath)) iconpath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "AudioSrv.Dll");
+            iconpath = System.IO.Path.GetFullPath(iconpath);
+            Console.WriteLine(iconpath);
+            System.Drawing.Icon icon = System.Drawing.Icon.ExtractAssociatedIcon(iconpath);
+            Icon.Source = System.Windows.Interop.Imaging.CreateBitmapSourceFromHIcon(icon.Handle, new Int32Rect(0, 0, icon.Width, icon.Height), BitmapSizeOptions.FromEmptyOptions());
+            //Icon.Source = new BitmapImage(new Uri(iconpath, UriKind.Relative));
+
             DP = new JDPack.DebugPack(dbg);
 
             Initialization(name, tooltip);
@@ -58,6 +72,7 @@ namespace Wale.WPF
             AutoIncluded = autoinc;
             //if (detail) DetailOn();
             //else DetailOff();
+
         }
         private void Initialization(string name, string tooltip) { DetailedItems(); SetFinalMake(name, tooltip); }
         private void DetailedItems()
@@ -70,7 +85,7 @@ namespace Wale.WPF
         {
             DP.DML(" - SetFinalMake");
             //SetText(lSessionNameLabel, name);
-            NameLabel.Content = name;
+            NameLabel.Text = name;
             NameToolTip.Content = string.IsNullOrEmpty(tooltip) ? name : tooltip;
             //Console.WriteLine($"{LevelBar.DesiredSize}");
         }
@@ -79,7 +94,7 @@ namespace Wale.WPF
         //Item events
         private void LSessionNameLabel_Click(object sender, MouseButtonEventArgs e) { SoundEnabled = !SoundEnabled; SoundEnableChanged = true; }
         private void SoundOnCBox_Click(object sender, RoutedEventArgs e) { SoundEnableChanged = true; }
-        private void AutoIncludedCBox_Click(object sender, RoutedEventArgs e) { AutoIncludedChanged = true; }
+        private void AutoIncludedCBox_Click(object sender, RoutedEventArgs e) { AutoIncludedChanged = true; NameLabel.Foreground = AutoIncluded ? ColorSet.ForeColorBrush : ColorSet.MainColorBrush; }
         private void LSessionLabel_Click(object sender, MouseButtonEventArgs e)
         {
             if (!detailed)
@@ -156,7 +171,7 @@ namespace Wale.WPF
             SetBar(AvLevelBar, Avl);
             //lLevelBar.Increment((int)(((vbuf != null) ? vbuf : 1) * level * 100) - lLevelBar.Value);
             //SetBar2(pot, (int)(((vbuf != null) ? vbuf : 1) * level * 100));
-            if (lastName != name) { SetLabelText(NameLabel, name); lastName = name; }
+            if (lastName != name) { SetTextBlockText(NameLabel, name); lastName = name; }
             if (tooltip != null && lastTooltip != tooltip) { SetTooltip(NameToolTip, tooltip); lastTooltip = tooltip; }
             //lastName = name;
             //this.Refresh();
@@ -239,6 +254,22 @@ namespace Wale.WPF
             catch { DP.CML($"fail to invoke SetLocation"); }
         }/**/
 
+        delegate void TextBlockStringConsumer(TextBlock control, string text);
+        private void SetTextBlockText(TextBlock control, string text)
+        {
+            try
+            {
+                if (!Dispatcher.CheckAccess())
+                {
+                    if (control != null) Dispatcher.Invoke(new TextBlockStringConsumer(SetTextBlockText), new object[] { control, text });  // invoking itself
+                }
+                else
+                {
+                    control.Text = text;      // the "functional part", executing only on the main thread
+                }
+            }
+            catch { DP.CML($"fail to invoke {control.Name}"); }
+        }/**/
         delegate void ControlStringConsumer(Label control, string text);
         private void SetLabelText(Label control, string text)
         {
@@ -353,7 +384,7 @@ namespace Wale.WPF
         {
             // A null value means that this object is greater.
             if (other == null) return 1;
-            else return this.SessionName.CompareTo(other.SessionName);
+            else return this.ProcessID.CompareTo(other.ProcessID);
         }
         /*protected override void OnPaint(PaintEventArgs pe)
         {

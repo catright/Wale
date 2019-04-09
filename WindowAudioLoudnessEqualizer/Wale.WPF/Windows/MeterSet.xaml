@@ -189,16 +189,44 @@
         <StackPanel Margin="2,0">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="212*"/>
-                    <ColumnDefinition Width="68*" MinWidth="68"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="68" MinWidth="68"/>
                 </Grid.ColumnDefinitions>
-                <WrapPanel Grid.Column="0">
-                    <Label x:Name="NameLabel" Content="TEST" Padding="0" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" MouseDown="LSessionNameLabel_Click">
-                        <Label.ToolTip>
+                <Grid Grid.Column="0" MaxHeight="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Grid}, Path=ActualHeight}">
+                    <Image x:Name="Icon" Width="16" Height="16" MaxWidth="16" MaxHeight="16" Margin="0,0,2,0" HorizontalAlignment="Left">
+                        <Image.Style>
+                            <Style TargetType="Image">
+                                <Setter Property="Visibility" Value="Hidden"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Path=ShowSessionIcon, Source={x:Static prop:Settings.Default}, Mode=OneWay}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Image.Style>
+                    </Image>
+                    <TextBlock x:Name="NameLabel" Text="TEST" MouseDown="LSessionNameLabel_Click" TextWrapping="WrapWithOverflow">
+                        <TextBlock.ToolTip>
                             <ToolTip x:Name="NameToolTip"></ToolTip>
-                        </Label.ToolTip>
-                    </Label>
-                </WrapPanel>
+                        </TextBlock.ToolTip>
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="MaxHeight" Value="16"/>
+                                <Setter Property="Padding" Value="0"/>
+                                <Setter Property="Margin" Value="0"/>
+                                <Setter Property="Foreground" Value="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Path=ShowSessionIcon, Source={x:Static prop:Settings.Default}, Mode=OneWay}" Value="True">
+                                        <Setter Property="Margin" Value="18,0,0,0"/>
+                                    </DataTrigger>
+                                    <!--DataTrigger Binding="{Binding IsChecked, ElementName=AutoIncludeCBox}" Value="False">
+                                        <Setter Property="Foreground" Value="{Binding Source={x:Static local:ColorSet.MainColorBrush}}"/>
+                                    </-->
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </Grid>
                 <WrapPanel Grid.Column="1" HorizontalAlignment="Right">
                     <Label x:Name="SessionLabel" Foreground="{Binding Source={x:Static local:ColorSet.AverageColorBrush}}" MouseDown="LSessionLabel_Click" Style="{StaticResource LNums}"/>
                     <CheckBox x:Name="SoundOnCBox" ToolTip="Sound On" Style="{StaticResource CBoxDef}" Click="SoundOnCBox_Click"/>

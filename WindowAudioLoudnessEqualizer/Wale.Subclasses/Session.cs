@@ -26,13 +26,14 @@ namespace Wale.CoreAudio
             );
             //AutoIncluded = ExcList.Contains(NameSet.Name) ? false : true;
             if (ExcList.Contains(NameSet.Name)){
-                LastIncluded = false;
+                //LastIncluded = false;
                 AutoIncluded = false;
             }
             else
             {
-                LastIncluded = true;
-                AutoIncluded = SoundEnabled;
+                //LastIncluded = true;
+                //AutoIncluded = SoundEnabled;
+                AutoIncluded = true;
             }
             SetAvTime(AvgTime, AcInterval);
         }
@@ -80,7 +81,19 @@ namespace Wale.CoreAudio
         public string MainWindowTitle { get { try { return asc2?.Process.MainWindowTitle; } catch { return string.Empty; } } }
         public string SessionIdentifier { get { try { return asc2?.SessionIdentifier; } catch { return string.Empty; } } }
         public bool IsSystemSoundSession { get { try { return (bool)asc2?.IsSystemSoundSession; } catch { return false; } } }
-
+        public string Icon
+        {
+            get
+            {
+                string path = asc2?.IconPath;
+                if (string.IsNullOrWhiteSpace(path))
+                {
+                    path = asc2?.Process.MainModule.FileName;
+                    JDPack.FileLog.Log($"PID({ProcessID}):there is no icon information. try to get it from process");
+                }
+                return path;
+            }
+        }
         /// <summary>
         /// Read or write volume of audio session. Always use RV when write volume.
         /// RV makes final volume = inputVolume * Pow(2, Reletive)
@@ -144,7 +157,7 @@ namespace Wale.CoreAudio
         public bool AutoIncluded { get; set; }
         //public bool AutoIncluded { get=> _AutoIncluded; set { _AutoIncluded = value; LastIncluded = value; } }
         //private bool _AutoIncluded = true;
-        private bool LastIncluded = true;
+        //private bool LastIncluded = true;
         /// <summary>
         /// Average Calculation is enabled when this flag is True. Default is True.
         /// </summary>
@@ -199,7 +212,7 @@ namespace Wale.CoreAudio
         {
             // A null value means that this object is greater.
             if (other == null) return 1;
-            else return this.Name.CompareTo(other.Name);
+            else return this.ProcessID.CompareTo(other.ProcessID);
         }
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
