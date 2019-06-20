@@ -33,7 +33,7 @@
       <Value Profile="(Default)">0.05</Value>
     </Setting>
     <Setting Name="MinPeak" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">0.01</Value>
+      <Value Profile="(Default)">0.001</Value>
     </Setting>
     <Setting Name="UpRate" Type="System.Double" Scope="User">
       <Value Profile="(Default)">1</Value>

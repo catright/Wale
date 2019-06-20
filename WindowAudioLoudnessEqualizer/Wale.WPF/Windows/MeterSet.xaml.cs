@@ -20,8 +20,8 @@ namespace Wale.WPF
     /// </summary>
     public partial class MeterSet : UserControl, IComparable<MeterSet>
     {
-        private JDPack.DebugPack DP;
-        private Brush foreColor = ColorSet.ForeColorBrush, mainColor = ColorSet.MainColorBrush, peakColor = ColorSet.PeakColorBrush, averageColor = ColorSet.AverageColorBrush;
+        private readonly JDPack.DebugPack DP;
+        private readonly Brush foreColor = ColorSet.ForeColorBrush, mainColor = ColorSet.MainColorBrush, peakColor = ColorSet.PeakColorBrush, averageColor = ColorSet.AverageColorBrush;
         private enum LabelMode { Relative, Volume, Peak, AveragePeak };
 
         private bool detailed;
@@ -49,16 +49,17 @@ namespace Wale.WPF
         }
         public MeterSet(int pid, string name, string iconpath, bool detail, bool autoinc, bool dbg = false, string tooltip = null)
         {
-            InitializeComponent();
-            ProcessID = pid;
+            Console.WriteLine($"make new meterset with: {pid}, {name}, {iconpath}, {detail}, {autoinc}, {dbg}, {tooltip}");
+            InitializeComponent();Console.WriteLine("meterset init ok");
+            ProcessID = pid;Console.WriteLine("meterset pid ok");
 
             // get session icon
             if (iconpath.StartsWith("@"))
             {
-                iconpath = iconpath.Substring(iconpath.IndexOf('@') + 1, iconpath.LastIndexOf(",-") - 1);
-                if (iconpath.Contains("%SystemRoot%")) iconpath = iconpath.Replace("%SystemRoot%", Environment.GetFolderPath(Environment.SpecialFolder.Windows));
+                iconpath = iconpath.Substring(iconpath.IndexOf('@') + 1, iconpath.LastIndexOf(",-") - 1); Console.WriteLine("@sub ok");
+                if (iconpath.Contains("%SystemRoot%")) { iconpath = iconpath.Replace("%SystemRoot%", Environment.GetFolderPath(Environment.SpecialFolder.Windows)); Console.WriteLine("%path% ok"); }
             }
-            else if (string.IsNullOrWhiteSpace(iconpath)) iconpath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "AudioSrv.Dll");
+            else if (string.IsNullOrWhiteSpace(iconpath)) { iconpath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "AudioSrv.Dll"); Console.WriteLine("Default Icon ok"); }
             iconpath = System.IO.Path.GetFullPath(iconpath);
             Console.WriteLine(iconpath);
             System.Drawing.Icon icon = System.Drawing.Icon.ExtractAssociatedIcon(iconpath);
@@ -161,7 +162,7 @@ namespace Wale.WPF
                 SetLabelText(VolumeLabel, $"{VFunction.Level(vol, AudioUnit)}");
                 SetLabelText(PeakLabel, $"{VFunction.Level(level, AudioUnit)}");
                 SetLabelText(AvPeakLabel, $"{VFunction.Level(Avl, AudioUnit)}");
-                SetLabelText(RelLabel, $"{VFunction.Level(Relative, AudioUnit)}");
+                SetLabelText(RelLabel, $"{VFunction.RelLv(Relative, AudioUnit)}");
             }
             SetBar(VolumeBar, vol);
             SetBar(RelBar, Relative);

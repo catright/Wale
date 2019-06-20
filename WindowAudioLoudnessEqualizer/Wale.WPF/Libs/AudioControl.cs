@@ -62,7 +62,7 @@ namespace Wale
             {
                 ExcludeList = settings.ExcList.Cast<string>().ToList()
             };
-
+            audio.RestartRequested += Audio_RestartRequested;
             ControlTasks.Add(ControllerCleanTask());
             //controllerCleanTask = new Task(ControllerCleanTask);
             //controllerCleanTask.Start();
@@ -71,8 +71,10 @@ namespace Wale
             //audioControlTask = new Task(AudioControlTask);
             //audioControlTask.Start();
         }
+
+        private void Audio_RestartRequested(object sender, EventArgs e) { RestartRequest(); }
         #endregion
-        
+
 
         public List<DeviceData> GetDeviceMap() { return audio.GetDeviceList(); }
         public Tuple<string,string> GetDeviceName() { return audio.DeviceNameTpl; }
@@ -94,7 +96,7 @@ namespace Wale
         #region Session Control
         private void SessionControl(Session s)
         {
-            if (s.ProcessID < 0) { JDPack.FileLog.Log($"{s.Name} is changed. Dispose session"); s.Dispose(); return; }
+            if (s.ProcessID < 0) { JDPack.FileLog.Log($"{s.Name} is changed. Dispose session"); s.Dispose(); RestartRequest(); return; }
 
             StringBuilder dm = new StringBuilder().Append($"AutoVolume:{s.Name}({s.ProcessID}), inc={s.AutoIncluded}");
 
@@ -155,7 +157,7 @@ namespace Wale
         {
             JDPack.FileLog.Log("Audio Control Task Start");
             List<Task> aas = new List<Task>();
-            uint logCounter = 0, logCritical = 10000, swCritical = (uint)(settings.UIUpdateInterval / settings.AutoControlInterval);
+            uint logCounter = 0, logCritical = 100000, swCritical = (uint)(settings.UIUpdateInterval / settings.AutoControlInterval);
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
             List<double> elapsed = new List<double>(), ewdif = new List<double>(), waited = new List<double>();
             //System.Timers.Timer timer = new System.Timers.Timer();
@@ -168,7 +170,8 @@ namespace Wale
                     {
                         lock (Lockers.Sessions)
                         {
-                            //if(audio.MasterDeviceIsDisposed != true) { JDPack.FileLog.Log("Master Device is changed. Restart."); audio.Restart(); }
+                            //if (audio.MasterDeviceIsDisposed != true) { JDPack.FileLog.Log("Master Device is changed. Restart."); audio.Restart(); }
+                            //if (audio.MasterDeviceIsDisposed != true) { JDPack.FileLog.Log("Master Device is changed. Restart."); RestartRequest(); }
                             Sessions.ForEach(s => aas.Add(new Task(() => SessionControl(s))));
                         }
                         if (logCounter > logCritical)
@@ -263,6 +266,9 @@ namespace Wale
             }
             JDPack.FileLog.Log("Controller Clean Task(GC) End");
         }
+
+        protected virtual void RestartRequest() => RestartRequested?.Invoke(this, new EventArgs());
+        public event EventHandler RestartRequested;
         #endregion
 
 
@@ -289,28 +295,34 @@ namespace Wale
         protected void Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e) { if (!AccuTimerCTS.IsCancellationRequested) AccuTimerCTS.Cancel(); }
 
         #region Dispose
-        private bool disposed = false;
-        ~AudioControlInternal() { Dispose(false); }
+        public bool Disposed => disposed;
+        private bool disposed = false, disposing = false;
+        //~AudioControlInternal() { Dispose(false); }
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);
+            //GC.SuppressFinalize(this);
         }
-        protected virtual async void Dispose(bool disposing)
+        protected virtual async void Dispose(bool disposeSafe)
         {
-            if (!disposed)
+            if (!disposed && !disposing)
             {
-                Terminate = true;
-                await Task.WhenAll(ControlTasks);
-                //if (audioControlTask != null) await audioControlTask;
-                //if (controllerCleanTask != null) await controllerCleanTask;
-                if (disposing)
+                disposing = true;
+                if (disposeSafe)
                 {
-                    ControlTasks.ForEach(i => i.Dispose());
+                    Terminate = true;
+                    await Task.WhenAll(ControlTasks);
+                    //if (audioControlTask != null) await audioControlTask;
+                    //if (controllerCleanTask != null) await controllerCleanTask;
+
+                    ControlTasks.ForEach(i => i?.Dispose());
                     //audioControlTask.Dispose();
                     //controllerCleanTask.Dispose();
+
+                    audio?.Dispose();
+
+                    await Task.Delay(250);
                 }
-                await Task.Delay(250);
                 disposed = true;
             }
         }

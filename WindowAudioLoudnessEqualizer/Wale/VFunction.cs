@@ -62,7 +62,27 @@ namespace Wale
             double output = 0;
             switch (unit)
             {
-                case 1: output = Math.Round(20 * Math.Log10(input), 1);if (output < -99.9) { output = double.NegativeInfinity; } break;
+                case 1: output = Math.Round(20 * Math.Log10(input), 1);if (output < -99.9) { output = double.NegativeInfinity; } else if (output > 99.9) { output = double.PositiveInfinity; } break;
+                case 0:
+                default: output = Math.Round(input, 3); break;
+            }
+            return output;
+        }
+        /// <summary>
+        /// Get output level of Relative factor for UI. 0=Linear, 1=dB.
+        /// Output would be rounded to 3digit when 0, 1digit when 1.
+        /// Output would be ∞ when absolute value of output is above than 99.9 and unit is 1.
+        /// </summary>
+        /// <param name="input">audio level, such as volume or peak</param>
+        /// <param name="unit">0=Linear(Windows default), 1=dB, else=Linear</param>
+        /// <returns></returns>
+        public static double RelLv(double input, int unit = 0)
+        {
+            double output = 0;
+            input = Math.Pow(4, input);
+            switch (unit)
+            {
+                case 1: output = Math.Round(20 * Math.Log10(input), 1); if (output < -99.9) { output = double.NegativeInfinity; } else if (output > 99.9) { output = double.PositiveInfinity; } break;
                 case 0:
                 default: output = Math.Round(input, 3); break;
             }

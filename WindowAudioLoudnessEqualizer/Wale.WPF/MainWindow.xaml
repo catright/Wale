@@ -22,13 +22,15 @@
         </Style>
     </Window.Style>
     <Window.ContextMenu>
-        <ContextMenu>
+        <ContextMenu x:Name="MainContext">
             <MenuItem Header="{Binding Configuration, Source={x:Static locale:Interpreter.Current}}" Click="ConfigToolStripMenuItem_Click"/>
             <MenuItem Header="{Binding DeviceMap, Source={x:Static locale:Interpreter.Current}}" Click="deviceMapToolStripMenuItem_Click"/>
             <MenuItem Header="{Binding OpenLog, Source={x:Static locale:Interpreter.Current}}" Click="openLogDirectoryToolStripMenuItem_Click"/>
             <Separator/>
             <MenuItem Header="{Binding Help, Source={x:Static locale:Interpreter.Current}}" Click="helpToolStripMenuItem_Click"/>
             <MenuItem Header="{Binding License, Source={x:Static locale:Interpreter.Current}}" Click="licensesToolStripMenuItem_Click"/>
+            <Separator/>
+            <MenuItem Header="{Binding Restart, Source={x:Static locale:Interpreter.Current}}" Click="OnProgramRestart"/>
             <MenuItem Header="{Binding Exitxml, Source={x:Static locale:Interpreter.Current}}" Click="OnProgramShutdown"/>
         </ContextMenu>
     </Window.ContextMenu>
@@ -603,9 +605,10 @@
             </TabItem>
             <TabItem Header="{Binding Log, Source={x:Static locale:Interpreter.Current}}" Style="{DynamicResource TItemDef}" GotFocus="Logs_VisibleChanged">
                 <Grid>
-                    <ScrollViewer x:Name="LogScroll" Content="1TEST&#10;2&#10;3&#10;4&#10;5&#10;6&#10;7&#10;8&#10;9&#10;T&#10;11&#10;12&#10;13&#10;14&#10;15&#10;" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <ScrollViewer x:Name="LogScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" local:KineticBehaviour.HandleKineticScrolling="True">
                         <ScrollViewer.Style>
                             <Style TargetType="ScrollViewer">
+                                <Setter Property="Content" Value="1TEST&#10;2&#10;3&#10;4&#10;5&#10;6&#10;7&#10;8&#10;9&#10;T&#10;11&#10;12&#10;13&#10;14&#10;15&#10;"/>
                                 <Setter Property="SnapsToDevicePixels" Value="True"/>
                                 <Setter Property="OverridesDefaultStyle" Value="True"/>
                                 <Setter Property="Foreground" Value="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>

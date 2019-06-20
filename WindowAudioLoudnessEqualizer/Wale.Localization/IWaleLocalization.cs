@@ -63,10 +63,12 @@ namespace Wale.Localization
         string Localization { get; }
         string LocalizationMsg { get; }
 
+        string Restart { get; }
         string Close { get; }
 
         string Exitxml { get; }
-        string ExitNI { get; }
+        string Exit { get; }
         string AreYouSureToTerminateWaleCompletely { get; }
+        string AreYouSureToRestartWaleCompletely { get; }
     }
 }

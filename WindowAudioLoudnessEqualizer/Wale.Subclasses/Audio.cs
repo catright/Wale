@@ -19,20 +19,29 @@ namespace Wale.CoreAudio
     public class Audio : IDisposable
     {
         #region IDisposable Support
-        private bool disposedValue = false; // To detect redundant calls
+        private bool disposedValue = false, disposing = false; // To detect redundant calls
 
-        protected virtual void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposeSafe)
         {
-            if (!disposedValue)
+            if (!disposedValue && !disposing)
             {
-                if (disposing)
+                disposing = true;
+                if (disposeSafe)
                 {
                     // TODO: dispose managed state (managed objects).
+                    MasterEPVolume.Dispose();
+                    MasterEPPeak.Dispose();
+                    MMDE.Dispose();
+                    DefDevice.Dispose();
+
+                    sessionList = null;
+                    ASM.Dispose();
+                    ASClist.Clear();
+                    ASClist = null;
                 }
                 //if (defaultDevice != null) Marshal.ReleaseComObject(defaultDevice);
                 // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
                 // TODO: set large fields to null.
-                sessionList = null;
                 disposedValue = true;
             }
         }
@@ -281,6 +290,8 @@ namespace Wale.CoreAudio
         #endregion
 
 
+        protected virtual void RestartRequest() => RestartRequested?.Invoke(this, new EventArgs());
+        public event EventHandler RestartRequested;
         #region Private Audio Device Items
         //Master Volume Items
         private AudioEndpointVolume MasterEPVolume { get; set; }
@@ -382,7 +393,8 @@ namespace Wale.CoreAudio
                 }
                 else Log($"Audio Device Property is changed {e.DeviceId} {key}");
 
-                Restart();
+                //Restart();
+                RestartRequest();
             }
             //UpdateDevice();
         }

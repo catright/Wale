@@ -111,6 +111,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Libs\KineticBehaviour.cs" />
     <Compile Include="Windows\ConfigSet.xaml.cs">
       <DependentUpon>ConfigSet.xaml</DependentUpon>
     </Compile>

@@ -64,11 +64,13 @@ namespace Wale.Localization
         public virtual string Localization { get; protected set; }
         public virtual string LocalizationMsg { get; protected set; }
 
+        public virtual string Restart { get; protected set; }
         public virtual string Close { get; protected set; }
 
         public virtual string Exitxml { get; protected set; }
-        public virtual string ExitNI { get; protected set; }
+        public virtual string Exit { get; protected set; }
         public virtual string AreYouSureToTerminateWaleCompletely { get; protected set; }
+        public virtual string AreYouSureToRestartWaleCompletely { get; protected set; }
     }
 
 }

@@ -88,9 +88,13 @@ namespace Wale.CoreAudio
                 string path = asc2?.IconPath;
                 if (string.IsNullOrWhiteSpace(path))
                 {
-                    path = asc2?.Process.MainModule.FileName;
+                    Console.WriteLine($"PID({ProcessID}):there is no icon information. try to get it from process");
                     JDPack.FileLog.Log($"PID({ProcessID}):there is no icon information. try to get it from process");
+                    try { path = asc2?.Process.MainModule.FileName; } catch { Console.WriteLine($"PID({ProcessID}):FAILED to get icon from process"); JDPack.FileLog.Log($"PID({ProcessID}):FAILED to get icon from process"); }
+                    if (string.IsNullOrWhiteSpace(path)) { Console.WriteLine($"PID({ProcessID}):FAILED to get icon"); }
+                    else { Console.WriteLine($"PID({ProcessID}):Suceed to get Icon from process"); }
                 }
+                else { Console.WriteLine($"PID({ProcessID}):Suceed to get Icon from session control"); }
                 return path;
             }
         }
