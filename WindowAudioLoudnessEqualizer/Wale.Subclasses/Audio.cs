@@ -16,6 +16,9 @@ namespace Wale.CoreAudio
     /// Custom session state equivalent of SessionState of CoreAudioAPI.
     /// </summary>
     public enum SessionState { Active, Inactive, Expired }
+    /// <summary>
+    /// Wrapper of windows Coreaudio API using CSCore
+    /// </summary>
     public class Audio : IDisposable
     {
         #region IDisposable Support
@@ -97,7 +100,7 @@ namespace Wale.CoreAudio
         /// <summary>
         /// A list of excluded sessions for automatic control
         /// </summary>
-        public List<string> ExcludeList = new List<string> { "audacity", "obs64", "amddvr", "ShellExperienceHost", "Windows Shell Experience Host" };
+        public List<string> ExcludeList = new List<string> { "audacity", "obs64", "amddvr", "ShellExperienceHost", "Windows Shell Experience Host", "Studio One" };
 
         /// <summary>
         /// Instantiate new instance of Audio class.
@@ -134,14 +137,15 @@ namespace Wale.CoreAudio
             {
                 Sessions?.ForEach(s => s?.Dispose());
                 Sessions?.Clear();
+
+                //Log("Restart AC: Session cleared");
+                MasterEPPeak = null;
+                MasterEPVolume = null;
+                DefDevice?.Dispose();
+                //Log("Restart AC: Master cleared");
+                UpdateDevice();// Log("Restart AC: Master device is restarted");
+                GetSessionManager();// Log("Restart AC: Session manager is restarted");
             }
-            //Log("Restart AC: Session cleared");
-            MasterEPPeak = null;
-            MasterEPVolume = null;
-            DefDevice?.Dispose();
-            //Log("Restart AC: Master cleared");
-            UpdateDevice();// Log("Restart AC: Master device is restarted");
-            GetSessionManager();// Log("Restart AC: Session manager is restarted");
             Log("Restart AC: OK");
         }
         /// <summary>
@@ -244,8 +248,8 @@ namespace Wale.CoreAudio
             catch (Exception e) { JDPack.FileLog.Log($"Error(UpdateAvDataAll): {e.ToString()}"); }
         }
 
-        public double AverageTime { get; set; }
-        public double AverageInterval { get; set; }
+        public double AverageTime { get => AudConf.AverageTime; set => AudConf.AverageTime = value; }
+        public double AverageInterval { get => AudConf.AutoControlInterval; set => AudConf.AutoControlInterval = value; }
         #endregion
 
         #region Private Common Variables
@@ -292,6 +296,7 @@ namespace Wale.CoreAudio
 
         protected virtual void RestartRequest() => RestartRequested?.Invoke(this, new EventArgs());
         public event EventHandler RestartRequested;
+
         #region Private Audio Device Items
         //Master Volume Items
         private AudioEndpointVolume MasterEPVolume { get; set; }
@@ -388,13 +393,17 @@ namespace Wale.CoreAudio
                 if (e.TryGetDevice(out MMDevice mmd))
                 {
                     //Log($"Audio Device Property is changed {mmd.FriendlyName} {GetKey(mmd.PropertyStore.First(k => k.Key.ID == e.PropertyKey.ID).Key)}");
-                    Log($"Audio Device Property is changed {mmd.FriendlyName} {key}");
+                    Log($"Audio Device Property is changed {mmd.FriendlyName}[{e.DeviceId}] {key}");
                     DeviceName = mmd.FriendlyName;
                 }
-                else Log($"Audio Device Property is changed {e.DeviceId} {key}");
+                else Log($"Audio Device Property is changed [{e.DeviceId}] {key}");
 
-                //Restart();
-                RestartRequest();
+                // Request to restart wale if detected device is current device.
+                if (e.DeviceId == DefDevice.DeviceID) {
+                    Log($"Restart Contoller. Reason: {mmd.FriendlyName}[{e.DeviceId}] {key}");
+                    //RestartRequest();
+                    Restart();
+                }
             }
             //UpdateDevice();
         }
@@ -433,6 +442,7 @@ namespace Wale.CoreAudio
                     NoDevice = false;
                 }
                 //}
+                Log($"Current Default Device is {DeviceName}[{DefDevice.DeviceID}]");
                 return DefDevice;
             }
             catch (Exception e) { JDPack.FileLog.Log(e.ToString()); NoDevice = true; return null; }
@@ -643,7 +653,8 @@ namespace Wale.CoreAudio
                 asc2.StateChanged += Asn_StateChanged;
                 //if (asc2.SessionState == AudioSessionState.AudioSessionStateActive)
                 //{
-                lock (sessionLocker) { ASClist.Add(new Session(asc2, ExcludeList, AverageTime, AverageInterval)); }
+                //lock (sessionLocker) { ASClist.Add(new Session(asc2, ExcludeList, AverageTime, AverageInterval)); }
+                AddSessionToList(asc2);
                 //}
             }
             lock (sessionLocker) { ASClist.Sort(); }
@@ -661,7 +672,15 @@ namespace Wale.CoreAudio
             //asn.StateChanged += Asn_StateChanged;
             //asc2.RegisterAudioSessionNotification(asn);
             asc2.StateChanged += Asn_StateChanged;
+            AddSessionToList(asc2);
+        }
+        private void AddSessionToList(AudioSessionControl2 asc2)
+        {
             lock (sessionLocker) { ASClist.Add(new Session(asc2, ExcludeList, AverageTime, AverageInterval)); ASClist.Sort(); }
+            //string sInfo = $"Session Created: {asc2.DisplayName}({asc2.ProcessID}): {asc2.SessionIdentifier}, {asc2.SessionInstanceIdentifier}\n"
+            //               + $"Session Created: SS={asc2.IsSystemSoundSession} SP={asc2.IsSingleProcessSession} GP={asc2.GroupingParam}";
+            //Console.WriteLine(sInfo);
+            //JDPack.FileLog.Log(sInfo);
         }
         private void Asn_StateChanged(object sender, AudioSessionStateChangedEventArgs e)
         {

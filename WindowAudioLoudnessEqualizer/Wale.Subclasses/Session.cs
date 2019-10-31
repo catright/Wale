@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 
@@ -70,6 +71,7 @@ namespace Wale.CoreAudio
         //public uint PID { get => (uint)ProcessID; }
         
         public int ProcessID { get { try { return (int)asc2?.ProcessID; } catch { return -1; } } }
+        public string GroupParam { get { try { return asc2?.GroupingParam.ToString(); } catch { return Guid.Empty.ToString(); } } }
         public string DisplayName { get { try { return asc2?.DisplayName; } catch { return string.Empty; } } }
         /// <summary>
         /// Take VERY LONG TIME when read this property. Because you will access process object when you use this.
@@ -122,13 +124,16 @@ namespace Wale.CoreAudio
                 }
             }
         }
+        private bool _SoundEnabled;
         public bool SoundEnabled
         {
-            get { using (var v = asc2?.QueryInterface<CSCore.CoreAudioAPI.SimpleAudioVolume>()) { try { return !v.IsMuted; } catch { return false; } } }
+            get { using (var v = asc2?.QueryInterface<CSCore.CoreAudioAPI.SimpleAudioVolume>()) { try { _SoundEnabled = !v.IsMuted; } catch { _SoundEnabled = false; } } return _SoundEnabled; }
             set { using (var v = asc2?.QueryInterface<CSCore.CoreAudioAPI.SimpleAudioVolume>()) {
-                    try { v.IsMuted = !value;
+                    bool buffer = !value;
+                    try { v.IsMuted = buffer;
                         //if (v.IsMuted) { LastIncluded = AutoIncluded; AutoIncluded = false; } else { AutoIncluded = LastIncluded; }
-                    } catch { }
+                    } catch { return; }
+                    _SoundEnabled = buffer;
                 }
             }
         }
@@ -174,10 +179,6 @@ namespace Wale.CoreAudio
         /// Average peak value within AvTime.
         /// </summary>
         public double AveragePeak { get; private set; }
-        /// <summary>
-        /// Total stacking time for averaging.
-        /// </summary>
-        public double AvTime { get; private set; }//ms
         private uint AvCount = 0;
         private List<double> Peaks = new List<double>();
 
@@ -188,7 +189,6 @@ namespace Wale.CoreAudio
         /// <param name="unitTime">Passing time when calculate the average once.[ms]</param>
         public void SetAvTime(double averagingTime, double unitTime)
         {
-            AvTime = averagingTime;
             AvCount = (uint)Convert.ToUInt32(averagingTime / unitTime);
             //Console.WriteLine($"Average Time Updated Cnt:{AvCount}");
             //JDPack.FileLog.Log($"Average Time Updated Cnt:{AvCount}");
@@ -209,6 +209,129 @@ namespace Wale.CoreAudio
             AveragePeak = Peaks.Average();
             //Console.WriteLine($"Av={AveragePeak}, PC={Peaks.Count}, AvT={AvTime}");
         }
+        public void SetAverage2()
+        {
+            if (Peaks.Count > AvCount) Peaks.RemoveAt(0);
+            Peaks.Add(Peak);
+            AveragePeak = Peaks.Average();
+            //Console.WriteLine($"Av={AveragePeak}, PC={Peaks.Count}, AvT={AvTime}");
+        }
+        #endregion
+
+
+        #region SessionAutoControl
+        private CancellationTokenSource cTokenS = null;
+        private bool AutoControlEnabled = false;
+        private Task ControlTask, AverageTask;
+        private int AutoInterval => AudConf.ACInterval;
+        public void AutoControlEnable()
+        {
+            AutoControlEnabled = true;
+            cTokenS = new CancellationTokenSource();
+            CancellationToken cT = cTokenS.Token;
+            ControlTask = AutoController(cT);
+            AverageTask = Averaging(cT);
+        }
+        public async void AutoControlDisable()
+        {
+            AutoControlEnabled = false;
+            await AutoControlDisableI();
+        }
+        private async Task AutoControlDisableI()
+        {
+            try
+            {
+                await Task.WhenAny(ControlTask, AverageTask, Task.Delay(100));
+                if (cTokenS != null) { cTokenS.Cancel(); }
+                await Task.WhenAll(ControlTask, AverageTask);
+            }
+            catch (OperationCanceledException e)
+            {
+                string msg = $"{nameof(OperationCanceledException)} thrown with message: {e.Message}"; JDPack.FileLog.Log(msg); JDPack.Debug.DML(msg);
+            }
+            finally { cTokenS.Dispose(); }
+        }
+        private async Task Averaging(CancellationToken cT)
+        {
+            while (AutoControlEnabled)
+            {
+                if (_SoundEnabled && AutoIncluded)
+                {
+                    await Task.Run(SetAverage2, cT);
+                    if (cT.IsCancellationRequested) { cT.ThrowIfCancellationRequested(); }
+                    await Task.Delay(AutoInterval, cT);
+                }
+            }
+        }
+        private async Task AutoController(CancellationToken cT)
+        {
+            while (AutoControlEnabled)
+            {
+                if (_SoundEnabled && AutoIncluded)
+                {
+                    await AutoControl(cT);
+                    if (cT.IsCancellationRequested) { cT.ThrowIfCancellationRequested(); }
+                    await Task.Delay(AutoInterval, cT);
+                }
+            }
+        }
+        private Task AutoControl(CancellationToken cT)
+        {
+            cT.ThrowIfCancellationRequested();
+
+            StringBuilder dm = new StringBuilder().Append($"AutoVolume:{Name}({ProcessID}), inc={AutoIncluded}");
+
+            // Control session(=s) when s is not in exclude list, auto included, active, and not muted
+            if (AutoIncluded && State == SessionState.Active && _SoundEnabled)
+            {
+                double peak = Peak;
+                // math 2^0=1 but skip math calculation and set relFactor to 1 for calc speed when relative is 0
+                double relFactor = (Relative == 0 ? 1 : Math.Pow(4, Relative));
+                double volume = Volume / relFactor;
+                dm.Append($" P:{peak:n3} V:{volume:n3}");
+
+                if (cT.IsCancellationRequested) { cT.ThrowIfCancellationRequested(); }// Cancellation Check
+                // control volume when audio session makes sound
+                if (peak > AudConf.MinPeak)
+                {
+                    double tVol, UpLimit;
+
+                    // update average
+                    if (AudConf.Averaging) SetAverage(peak);
+
+                    // when averaging, lower volume once if current peak exceeds average or set volume along average.
+                    if (AudConf.Averaging && peak < AveragePeak) tVol = AudConf.TargetLevel / AveragePeak;
+                    else tVol = AudConf.TargetLevel / peak;
+
+                    // calc upLimit by vfunc
+                    switch (AudConf.VFunc)
+                    {
+                        case VFunction.Func.Linear:
+                            UpLimit = VFunction.Linear(volume, AudConf.UpRate) + volume;
+                            break;
+                        case VFunction.Func.SlicedLinear:
+                            UpLimit = VFunction.SlicedLinear(volume, AudConf.UpRate, AudConf.TargetLevel, AudConf.SliceFactors.A, AudConf.SliceFactors.B) + volume;
+                            break;
+                        case VFunction.Func.Reciprocal:
+                            UpLimit = VFunction.Reciprocal(volume, AudConf.UpRate, AudConf.Kurtosis) + volume;
+                            break;
+                        case VFunction.Func.FixedReciprocal:
+                            UpLimit = VFunction.FixedReciprocal(volume, AudConf.UpRate, AudConf.Kurtosis) + volume;
+                            break;
+                        default:
+                            UpLimit = AudConf.UpRate + volume;
+                            break;
+                    }
+
+                    if (cT.IsCancellationRequested) { cT.ThrowIfCancellationRequested(); }// Cancellation Check
+                    // set volume
+                    dm.Append($" T={tVol:n3} UL={UpLimit:n3}");//Console.WriteLine($" T={tVol:n3} UL={UpLimit:n3}");
+                    Volume = (float)((tVol > UpLimit ? UpLimit : tVol) * relFactor);
+                }
+                JDPack.Debug.DML(dm.ToString());// print debug message
+            }
+            return Task.FromResult(0);
+        }
         #endregion
 
 
@@ -228,6 +351,7 @@ namespace Wale.CoreAudio
                 if (disposing)
                 {
                     // TODO: dispose managed state (managed objects).
+                    Task.WaitAll(AutoControlDisableI());
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
@@ -296,7 +420,7 @@ namespace Wale.CoreAudio
         /// Log($"Error(GetSession): {(Exception)e.ToString()}") when Exception</para>
         /// </summary>
         /// <param name="pid">ProcessId</param>
-        /// <returns>SessionData when find SessionData successfully or null.</returns>
+        /// <returns>Session object if it found or null.</returns>
         public Session GetSession(int pid)
         {
             try { return this.Find(sc => sc.ProcessID == pid); }
@@ -318,7 +442,7 @@ namespace Wale.CoreAudio
         /// Get Relative value with <code>GetSession</code> by its process id.
         /// </summary>
         /// <param name="pid">ProcessId</param>
-        /// <returns>Relative value when find Relative value successfully or 0.0.</returns>
+        /// <returns>Relative value if session is found or 0.0.</returns>
         public double GetRelative(int pid)
         {
             try { return GetSession(pid).Relative; }
@@ -333,5 +457,49 @@ namespace Wale.CoreAudio
             return 0.0;
         }
 
+
+        /// <summary>
+        /// Find session by grouping param.
+        /// <para>Log($"Error(GetSession): ArgumentNullException") when ArgumentNullException. 
+        /// Log($"Error(GetSession): NullReferenceException") when NullReferenceException. 
+        /// Log($"Error(GetSession): {(Exception)e.ToString()}") when Exception</para>
+        /// </summary>
+        /// <param name="grparam">Grouping Param</param>
+        /// <returns>Session object if it found or null.</returns>
+        public Session GetSession(string grparam)
+        {
+            try { return this.Find(sc => sc.GroupParam == grparam); }
+            catch (ArgumentNullException)
+            {
+                JDPack.FileLog.Log($"Error(GetSession): ArgumentNullException");
+            }
+            catch (NullReferenceException)
+            {
+                JDPack.FileLog.Log($"Error(GetSession): NullReferenceException");
+            }
+            catch (Exception e)
+            {
+                JDPack.FileLog.Log($"Error(GetSession): {e.ToString()}");
+            }
+            return null;
+        }
+        /// <summary>
+        /// Get Relative value with <code>GetSession</code> by grouping param.
+        /// </summary>
+        /// <param name="grparam">Grouping Param</param>
+        /// <returns>Relative value if session is found or 0.0.</returns>
+        public double GetRelative(string grparam)
+        {
+            try { return GetSession(grparam).Relative; }
+            catch (NullReferenceException)
+            {
+                JDPack.FileLog.Log($"Error(GetRelative): NullReferenceException");
+            }
+            catch (Exception e)
+            {
+                JDPack.FileLog.Log($"Error(GetRelative): {e.ToString()}");
+            }
+            return 0.0;
+        }
     }
 }//End namespace Wale.Subclasses

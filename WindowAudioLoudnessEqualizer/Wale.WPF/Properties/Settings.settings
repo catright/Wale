@@ -61,6 +61,10 @@
 &lt;ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
   &lt;string&gt;audacity&lt;/string&gt;
   &lt;string&gt;obs64&lt;/string&gt;
+  &lt;string&gt;Studio One&lt;/string&gt;
+  &lt;string&gt;shotcut&lt;/string&gt;
+  &lt;string&gt;Resolve&lt;/string&gt;
+  &lt;string&gt;Cakewalk&lt;/string&gt;
   &lt;string&gt;amddvr&lt;/string&gt;
   &lt;string&gt;ShellExperienceHost&lt;/string&gt;
   &lt;string&gt;Windows Shell Experience Host&lt;/string&gt;
@@ -76,6 +80,9 @@
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="ShowSessionIcon" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="CollapseSubSessions" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
   </Settings>

@@ -76,8 +76,8 @@ namespace Wale
         #endregion
 
 
-        public List<DeviceData> GetDeviceMap() { return audio.GetDeviceList(); }
-        public Tuple<string,string> GetDeviceName() { return audio.DeviceNameTpl; }
+        public List<DeviceData> GetDeviceMap() => audio.GetDeviceList();
+        public Tuple<string, string> GetDeviceName() => audio.DeviceNameTpl;
 
         #region Master Volume controls
         public void VolumeUp(double v) { SetMasterVolume(MasterVolume + v); }
@@ -182,6 +182,7 @@ namespace Wale
                         aas.ForEach(t => t.Start());
                     }
                     catch (InvalidOperationException e) { JDPack.FileLog.Log($"Error(AudioControlTask): Session collection was modified.\r\n\t{e.ToString()}"); }
+                    catch (Exception e) { JDPack.FileLog.Log($"Error(AudioControlTask): Unknown.\r\n\t{e.ToString()}"); }
                 }
 
                 await Task.WhenAll(aas);

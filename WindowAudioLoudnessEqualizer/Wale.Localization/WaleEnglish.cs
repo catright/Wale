@@ -86,7 +86,7 @@ However, Wale uses windows volume system for now, which means the app only can c
             Exitxml = "E_xit";
             Exit = "Exit";
             AreYouSureToTerminateWaleCompletely = "Are you sure to terminate Wale completely?";
-            AreYouSureToRestartWaleCompletely = "Are you sure to restart Wale?";
+            AreYouSureToRestartWale = "Are you sure to restart Wale?";
         }
     }
 }

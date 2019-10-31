@@ -33,13 +33,13 @@ namespace Wale.WPF
         /// <summary>
         /// Debug flag for main window
         /// </summary>
-        private readonly bool debug = true;
+        private readonly bool debug = false;
 
         private readonly bool mouseWheelDebug = false;
         /// <summary>
         /// Debug flag for audio controller
         /// </summary>
-        private readonly bool audioDebug = true;
+        private readonly bool audioDebug = false;
         /// <summary>
         /// Debug flag for master update task
         /// </summary>
@@ -47,7 +47,7 @@ namespace Wale.WPF
         /// <summary>
         /// Debug flag for session update task
         /// </summary>
-        private readonly bool updateSessionDebug = true;
+        private readonly bool updateSessionDebug = false;
         #endregion
         #region Variables
         // objects
@@ -574,7 +574,7 @@ namespace Wale.WPF
         }
         private void OnProgramRestart(object sender, EventArgs e) {
             MessageBoxResult dialogResult = MessageBox.Show(
-                Localization.Interpreter.Current.AreYouSureToRestartWaleCompletely,
+                Localization.Interpreter.Current.AreYouSureToRestartWale,
                 Localization.Interpreter.Current.Restart,
                 MessageBoxButton.OKCancel
             );

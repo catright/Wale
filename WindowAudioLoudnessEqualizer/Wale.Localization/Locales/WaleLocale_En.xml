@@ -1,0 +1,83 @@
+<!DOCTYPE WaleLocale [
+  <!ELEMENT WaleLocale ANY>
+  <!ELEMENT set ANY>
+  <!ELEMENT item ANY>
+  <!ATTLIST item id ID #REQUIRED>
+]>
+<WaleLocale>
+	<set lang="English">
+		<item id="View">View(F2)</item>
+		<item id="Target">Target</item>
+		<item id="Device">Device</item>
+		<item id="Master">Master</item>
+		<item id="AlwaysTop">AlwaysTop(F7)</item>
+		<item id="StayOn">StayOn(F8)</item>
+		<item id="AdvancedView">AdvancedView(F9)</item>
+		
+		<item id="Config">Config(F3)</item>
+		<item id="Configuration">Configuration</item>
+		<item id="Audio">Audio</item>
+		<item id="UIUpdate">UI Update [ms]</item>
+		<item id="AutoControl">Auto Control [ms]</item>
+		<item id="GCInterval">GC Interval [ms]</item>
+		<item id="TargetLevel">Target Level</item>
+		<item id="UpRate">Up Rate</item>
+		<item id="Kurtosis">Kurtosis</item>
+		<item id="Function">Function</item>
+		<item id="Original">Original</item>
+		<item id="Graph">Graph</item>
+		<item id="AverageTime">Average Time [ms]</item>
+		<item id="MinPeakLevel">Min Peak Level</item>
+		<item id="AverageEnabled">Average Enabled</item>
+		<item id="AutoControlEnabled">Auto Control Enabled</item>
+		<item id="Window">Window</item>
+		<item id="RunAtWindowsStartup">Run at Windows Startup</item>
+		<item id="AdvancedViewConf">Advanced View(F9)</item>
+		<item id="DetailedLog">Detailed Log</item>
+		<item id="Priority">Priority</item>
+		<item id="Normal">Normal</item>
+		<item id="AboveNormal">Above Normal</item>
+		<item id="High">High</item>
+		<item id="Save">Save</item>
+		<item id="SaveAndClose">Save and Close</item>
+		<item id="ReturnToDefault">Return to Default</item>
+		<item id="Cancel">Cancel</item>
+
+		<item id="Log">Log(F4)</item>
+
+		<item id="DeviceMap">Device Map</item>
+		<item id="Update">Update</item>
+
+		<item id="OpenLog">Open Log</item>
+		<item id="Help">Help</item>
+		<item id="HelpMsg">Latest usage and full description are always firstly updated on Github Wiki(https://github.com/catright/Wale/wiki)
+		Last Update 0.5.8
+
+
+		Usage
+
+		Wale tries to adjust all sound generating processes' peak level to Target-Yellow bar- level. You can change Target to your preferred level.
+
+		However, Wale uses windows volume system for now, which means the app only can control volume between 0.0~1.0. Hence, if you set Target to near 1.0, then Wale could not control volume, because all processes' peak levels are always less than or equal to Target. So, you should lower Target a little. Default Target level is 0.15(-16.5dB).
+
+			Caution! Too low Target may cause sudden hugely loud sound. Low Target means quieter output sound from your windows system. Then, you may need to increase the volume of your hardware such as speaker to hear the sound. In this situation, uncontrolled process would make very loud sound caused by some trouble of sound system include unintentional stop of Wale.
+
+			Click blue checkbox on the session to uncheck it if you want to exclude some session from auto control. This exclusion is not saved when Wale is closed.
+			Click process name or white checkbox on the session to mute it. The mute state is saved in the process itself so kept when Wale is closed.
+			You can use your mouse wheel to adjust Relative-White bar- volume for each session. Relative value is not saved when Wale is closed.</item>
+		<item id="CopiedToClip">Address copied to clipboard</item>
+		<item id="LinkTooltip">Ctrl+left click to open in browser\nRight click to copy to clipboard</item>
+
+		<item id="License">License</item>
+		<item id="Localization">Localization</item>
+		<item id="LocalizationMsg">06.20.2019</item>
+
+		<item id="Restart">Restart</item>
+		<item id="Close">Close</item>
+
+		<item id="Exitxml">E_xit</item>
+		<item id="Exit">Exit</item>
+		<item id="AreYouSureToTerminateWaleCompletely">Are you sure to terminate Wale completely?</item>
+		<item id="AreYouSureToRestartWale">Are you sure to restart Wale?</item>
+	</set>
+</WaleLocale>

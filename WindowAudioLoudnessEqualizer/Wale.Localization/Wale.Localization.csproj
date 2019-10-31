@@ -56,5 +56,8 @@
   <ItemGroup>
     <None Include="Wale.WPF_TemporaryKey.pfx" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Locales\WaleLocale_En.xml" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="AppDatas.cs" />
     <Compile Include="AppVersion.cs" />
+    <Compile Include="AudConf.cs" />
     <Compile Include="EBUR128.cs" />
     <Compile Include="FFT.cs" />
     <Compile Include="Lockers.cs" />

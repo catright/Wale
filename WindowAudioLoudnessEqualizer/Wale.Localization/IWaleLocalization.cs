@@ -69,6 +69,6 @@ namespace Wale.Localization
         string Exitxml { get; }
         string Exit { get; }
         string AreYouSureToTerminateWaleCompletely { get; }
-        string AreYouSureToRestartWaleCompletely { get; }
+        string AreYouSureToRestartWale { get; }
     }
 }

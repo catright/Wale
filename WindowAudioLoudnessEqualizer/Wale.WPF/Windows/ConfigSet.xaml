@@ -312,6 +312,13 @@
                                 <TextBlock Text="Critical" Margin="3,0" FontSize="10" Foreground="OrangeRed"/>
                             </WrapPanel>
                         </Grid>
+                        <Grid Style="{StaticResource LineItem}" Visibility="Visible">
+                            <WrapPanel>
+                                <CheckBox Content="Collapse Sub Sessions" IsChecked="{Binding Path=CollapseSubSessions, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"
+                                          ToolTip="Collapse all sub sessions on session group of individual app to one"/>
+                                <TextBlock Visibility="Collapsed" Text="Critical" Margin="3,0" FontSize="10" Foreground="OrangeRed"/>
+                            </WrapPanel>
+                        </Grid>
                         <!--CheckBox Content="Combine processes by app name" ToolTip="Combine session processes by application name and control them together" IsChecked="{Binding Path=CombineSession, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/-->
                     </StackPanel>
                 </Grid>

@@ -70,7 +70,7 @@ namespace Wale.Localization
         public virtual string Exitxml { get; protected set; }
         public virtual string Exit { get; protected set; }
         public virtual string AreYouSureToTerminateWaleCompletely { get; protected set; }
-        public virtual string AreYouSureToRestartWaleCompletely { get; protected set; }
+        public virtual string AreYouSureToRestartWale { get; protected set; }
     }
 
 }
