@@ -7,7 +7,28 @@ Wale is free open-source app, some sensitive AV could alert Wale as a virus, but
 
 Wale is distributed under MIT license, but it's restricted tightly to my own codes.
 Icons and 3rd party libraries are NOT included in this license. They are copyrighted on their right holders.
+
 [Full License](https://github.com/catright/Wale/blob/master/LICENSE)
+
+***
+
+# Before use
+### First
+If you just want to control every apps manually, I recommend _EarTrumpet_ which is much more stable, fancy, and easy to use. I also using it more than several years. You can download it on Microsoft store.
+
+The purpose of Wale is automatic control of system wide sound output.
+
+### Second
+If your sound card driver provides '_Loudness Equalization_' or its equivalent, please use it. Your driver is also much more reliable and easy to use. Many sound drivers support this feature these days. Most of them can be accessed by following way.
+
+1. Open Sound setting panel. Fastest way is _**Run**(Win+R)_ `control mmsys.cpl sounds`
+2. Double click to open your playback device.
+3. Switch to _Enhancements_ tab.
+4. Check _Loudness Equalization_.
+
+Accessing method varies with sound card vendors. On-board sound card users also use this feature same way.
+
+***
 
 ## Usage is on Wiki page
 [View Wiki](https://github.com/catright/Wale/wiki)
