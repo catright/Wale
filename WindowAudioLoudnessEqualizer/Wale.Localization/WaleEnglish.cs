@@ -55,7 +55,10 @@ namespace Wale.Localization
             DeviceMap = "Device Map";
             Update = "Update";
 
+            AboutWale = "About Wale";
             OpenLog = "Open Log";
+            WindowsSoundSetting = "Windows Sound Setting";
+            WindowsVolumeMixer = "Windows Volume Mixer";
 
             Help = "Help";
             HelpMsg = @"Latest usage and full description are always firstly updated on Github Wiki(https://github.com/catright/Wale/wiki)

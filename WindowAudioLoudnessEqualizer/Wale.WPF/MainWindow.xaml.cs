@@ -113,15 +113,19 @@ namespace Wale.WPF
         {
             //try { MessageBox.Show($"V. {AppVersion.FullVersion}, {settings.Version}, pre {settings.GetPreviousVersion("Version")}"); }
             //catch (System.Configuration.SettingsPropertyNotFoundException) { MessageBox.Show("Property not found"); }
-            if (settings.Version != AppVersion.FullVersion)
-            {
+
+            Action action = new Action(() => {
                 //MessageBox.Show("Settings Upgrade Entry");
-                //try { settings.Upgrade(); } catch (Exception e) { MessageBox.Show($"Unknown Error on upgrade settings{e.Message}"); }
-                settings.Upgrade();// MessageBox.Show("Settings Upgraded.");
+                try { settings.Upgrade(); } catch (Exception e) { MessageBox.Show($"Unknown Error on upgrade settings\r{e.Message}\rYour setting would be reset to default"); settings.Reset(); }
+                //settings.Upgrade();// MessageBox.Show("Settings Upgraded.");
                 settings.Version = AppVersion.FullVersion;// MessageBox.Show("Settings Version Upgraded");
                 settings.Save();// MessageBox.Show("Settings Saved");
                 try { JDPack.FileLog.Log($"Settings are Upgraded from {settings.GetPreviousVersion("Version")}"); } catch { MessageBox.Show("FileLog Error on settings upgrade"); }
-            }
+            });
+
+            string ver = String.Empty;
+            try { ver = settings.Version; } catch { action(); }
+            if (ver != AppVersion.FullVersion) { action(); }
         }
         /// <summary>
         /// Make UI components
@@ -183,26 +187,39 @@ namespace Wale.WPF
 
             // make context menu
             List<System.Windows.Forms.MenuItem> items = new List<System.Windows.Forms.MenuItem>();
-            //{
-            //    new System.Windows.Forms.MenuItem(Localization.Interpreter.Current.Configuration, ConfigToolStripMenuItem_Click),
-            //    new System.Windows.Forms.MenuItem(Localization.Interpreter.Current.DeviceMap, deviceMapToolStripMenuItem_Click),
-            //    new System.Windows.Forms.MenuItem(Localization.Interpreter.Current.OpenLog, openLogDirectoryToolStripMenuItem_Click),
-            //    new System.Windows.Forms.MenuItem("-"),
-            //    new System.Windows.Forms.MenuItem(Localization.Interpreter.Current.Help, helpToolStripMenuItem_Click),
-            //    new System.Windows.Forms.MenuItem(Localization.Interpreter.Current.License, licensesToolStripMenuItem_Click),
-            //    new System.Windows.Forms.MenuItem(Localization.Interpreter.Current.ExitNI, OnProgramShutdown)
-            //};
             foreach (var item in MainContext.Items)
             {
-                if (item.GetType() == typeof(MenuItem))
+                System.Windows.Forms.MenuItem NIitem = MenuItemConvert(item);
+                if (NIitem != null)
                 {
-                    items.Add(new System.Windows.Forms.MenuItem(
-                        (item as MenuItem).Header.ToString().Replace('_','&'),
-                        new EventHandler((s, e) => { (item as MenuItem).RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent)); })
-                    ));
-                }
-                else if (item.GetType() == typeof(Separator)) {
-                    items.Add(new System.Windows.Forms.MenuItem("-"));
+
+                    if (item.GetType() == typeof(MenuItem) && (item as MenuItem).Items.Count > 0)
+                    {
+                        foreach (var subitem in (item as MenuItem).Items)
+                        {
+                            System.Windows.Forms.MenuItem NIsubitem = MenuItemConvert(subitem);
+                            if (NIsubitem != null)
+                            {
+
+                                if (subitem.GetType() == typeof(MenuItem) && (subitem as MenuItem).Items.Count > 0)
+                                {
+                                    foreach (var subsubitem in (subitem as MenuItem).Items)
+                                    {
+                                        System.Windows.Forms.MenuItem NIsubsubitem = MenuItemConvert(subsubitem);
+                                        if (NIsubsubitem != null)
+                                        {
+
+                                            NIsubitem.MenuItems.Add(NIsubsubitem);
+                                        }
+                                    }
+                                }
+
+                                NIitem.MenuItems.Add(NIsubitem);
+                            }
+                        }
+                    }
+
+                    items.Add(NIitem);
                 }
             }
             NI.ContextMenu = new System.Windows.Forms.ContextMenu(items.ToArray());
@@ -210,6 +227,26 @@ namespace Wale.WPF
             // icon click event
             this.NI.MouseClick += new System.Windows.Forms.MouseEventHandler(NI_MouseClick);
         }
+        private System.Windows.Forms.MenuItem MenuItemConvert(object item)
+        {
+            if (item.GetType() == typeof(MenuItem))
+            {
+                return new System.Windows.Forms.MenuItem(
+                    (item as MenuItem).Header.ToString().Replace('_', '&'),
+                    new EventHandler((s, e) => { (item as MenuItem).RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent)); })
+                    );
+            }
+            else if (item.GetType() == typeof(Separator))
+            {
+                return new System.Windows.Forms.MenuItem("-");
+            }
+            else
+            {
+                Console.WriteLine("MenuItem is null");
+                return null;
+            }
+        }
+
         /// <summary>
         /// Read necessary setting values and start audio controller and all tasks
         /// </summary>
@@ -660,6 +697,19 @@ namespace Wale.WPF
             JDPack.FileLog.Log(JDPack.FileLog.File.FullName);
             JDPack.FileLog.OpenWorkDirectoryOnExplorer();
         }
+
+        private void WindowsSoundSetting_Click(object sender, RoutedEventArgs e)
+        {
+            ProcessStartInfo soundsetting = new ProcessStartInfo();
+            soundsetting.FileName = "control";
+            soundsetting.Arguments = "mmsys.cpl sounds";
+            Process.Start(soundsetting);
+        }
+        private void WindowsVolumeMixer_Click(object sender, RoutedEventArgs e)
+        {
+            Process.Start("sndvol.exe");
+        }
+
         #endregion
 
         #region Master Volume control methods and events
@@ -1112,6 +1162,7 @@ namespace Wale.WPF
         }/**/
 
         delegate void doubleConsumer(double value);
+
         private void SetWindowSize(double difference)
         {
             try

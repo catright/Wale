@@ -96,10 +96,10 @@ namespace Wale
         #region Session Control
         private void SessionControl(Session s)
         {
-            if (s.ProcessID < 0) { JDPack.FileLog.Log($"{s.Name} is changed. Dispose session"); s.Dispose(); RestartRequest(); return; }
+            if (s?.ProcessID < 0) { JDPack.FileLog.Log($"{s.Name} is changed. Dispose session"); s.Dispose(); RestartRequest(); return; }
 
             StringBuilder dm = new StringBuilder().Append($"AutoVolume:{s.Name}({s.ProcessID}), inc={s.AutoIncluded}");
-
+            
             // Control session(=s) when s is not in exclude list, auto included, active, and not muted
             if (!settings.ExcList.Contains(s.Name) && s.AutoIncluded && s.State == SessionState.Active && s.SoundEnabled)
             {
@@ -115,9 +115,11 @@ namespace Wale
                     double tVol, UpLimit;
 
                     // update average
+                    if (s.State != SessionState.Active) { return; }//Check session activity
                     if (settings.Averaging) s.SetAverage(peak);
 
                     // when averaging, lower volume once if current peak exceeds average or set volume along average.
+                    if (s.State != SessionState.Active) { return; }//Check session activity
                     if (settings.Averaging && peak < s.AveragePeak) tVol = settings.TargetLevel / s.AveragePeak;
                     else tVol = settings.TargetLevel / peak;
 
@@ -142,10 +144,24 @@ namespace Wale
                     }
 
                     // set volume
+                    if (s.State != SessionState.Active) { return; }//Check session activity
                     dm.Append($" T={tVol:n3} UL={UpLimit:n3}");//Console.WriteLine($" T={tVol:n3} UL={UpLimit:n3}");
                     s.Volume = (float)((tVol > UpLimit ? UpLimit : tVol) * relFactor);
                 }
                 DP.DML(dm.ToString());// print debug message
+            }
+        }
+        private void SessionControlinStaticMode(Session s)
+        {
+            if (s?.ProcessID < 0) { JDPack.FileLog.Log($"{s.Name} is changed. Dispose session"); s.Dispose(); RestartRequest(); return; }
+
+            StringBuilder dm = new StringBuilder().Append($"AutoVolume:{s.Name}({s.ProcessID}), inc={s.AutoIncluded}");
+
+            // Control session(=s) when s is not in exclude list, auto included, and not muted. doesn't care it's active or not.
+            if (!settings.ExcList.Contains(s.Name) && s.AutoIncluded && s.SoundEnabled)
+            {
+                double relFactor = (s.Relative == 0 ? 1 : Math.Pow(4, s.Relative));
+                s.Volume = (float)(settings.TargetLevel * relFactor);
             }
         }
         public void UpdateAverageParam() { lock (Lockers.Sessions) { audio.UpdateAvTimeAll(settings.AverageTime, settings.AutoControlInterval); } }
@@ -172,7 +188,8 @@ namespace Wale
                         {
                             //if (audio.MasterDeviceIsDisposed != true) { JDPack.FileLog.Log("Master Device is changed. Restart."); audio.Restart(); }
                             //if (audio.MasterDeviceIsDisposed != true) { JDPack.FileLog.Log("Master Device is changed. Restart."); RestartRequest(); }
-                            Sessions.ForEach(s => aas.Add(new Task(() => SessionControl(s))));
+                            if (settings.StaticMode) { Sessions.ForEach(s => aas.Add(new Task(() => SessionControlinStaticMode(s)))); }
+                            else { Sessions.ForEach(s => aas.Add(new Task(() => SessionControl(s)))); }
                         }
                         if (logCounter > logCritical)
                         {
@@ -192,7 +209,9 @@ namespace Wale
                 sw.Stop();
                 TimeSpan el = sw.Elapsed;
                 sw.Start();
-                TimeSpan d = new TimeSpan((long)(settings.AutoControlInterval * 10000)).Subtract(el);
+                TimeSpan d = new TimeSpan();
+                if (settings.StaticMode) { d = new TimeSpan((long)(settings.UIUpdateInterval * 10000)).Subtract(el); }
+                else { d = new TimeSpan((long)(settings.AutoControlInterval * 10000)).Subtract(el); }
                 //Console.WriteLine($"ACTaskElapsed={sw.ElapsedMilliseconds}(-{d.Ticks / 10000:n3})[ms]");
                 elapsed.Add((double)el.Ticks / 10000);
                 ewdif.Add((double)d.Ticks / 10000);

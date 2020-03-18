@@ -22,7 +22,7 @@
             <!--Setter Property="MinWidth" Value="{Binding Width, RelativeSource={RelativeSource Self}}"/>
             <Setter Property="MaxWidth" Value="{Binding Width, RelativeSource={RelativeSource Self}}"/-->
 
-            <Setter Property="Height" Value="410"/>
+            <Setter Property="Height" Value="430"/>
         </Style>
     </Window.Style>
     <Window.Resources>

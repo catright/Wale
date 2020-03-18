@@ -36,7 +36,7 @@ namespace Wale
         /// <summary>
         /// Final long height of main window when selected config tab
         /// </summary>
-        public static double MainWindowConfigLongHeight { get => 455; }
+        public static double MainWindowConfigLongHeight { get => 475; }
 
         /// <summary>
         /// Default height of windows except main window

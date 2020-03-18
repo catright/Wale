@@ -126,6 +126,7 @@ namespace Wale.WPF
         {
             if (e.Key == Key.F9) settings.AdvancedView = !settings.AdvancedView;
         }
+
         #endregion
 
 
@@ -185,6 +186,7 @@ namespace Wale.WPF
         }
         private async void ConfigSave_Click(object sender, RoutedEventArgs e)
         {
+            SavedMessageCancelTKSources.ForEach((TKSource) => { TKSource.Cancel(); });
             if (NewWindow)
             {
                 Owner.IsEnabled = false;
@@ -211,6 +213,11 @@ namespace Wale.WPF
                 BindingOperations.SetBinding(this, Window.TopmostProperty, topmostBinding);
                 Owner.WindowState = WindowState.Normal;
             }
+            System.Threading.CancellationTokenSource SavedMessageCancelTKSource = new System.Threading.CancellationTokenSource();
+            SavedMessageCancelTKSources.Add(SavedMessageCancelTKSource);
+            try { await ShowSavedMessage(SavedMessageCancelTKSource.Token); }
+            catch (OperationCanceledException) { JDPack.Debug.CML("Saved Msg Canceled. This is normal operation"); }
+            finally { SavedMessageCancelTKSources.Remove(SavedMessageCancelTKSource); SavedMessageCancelTKSource.Dispose(); }
         }
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {
@@ -220,6 +227,47 @@ namespace Wale.WPF
                 Owner.Close();
             }
         }
+
+
+        //private volatile bool SavedMessageShowing = false;
+        private List<System.Threading.CancellationTokenSource> SavedMessageCancelTKSources = new List<System.Threading.CancellationTokenSource>();
+        private async Task ShowSavedMessage(System.Threading.CancellationToken cancellationToken, int keepTime = 1600, int fadeTime = 300)
+        {
+            Action cancelAction = new Action(() =>
+            {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    //SavedNoti.Opacity = 0;
+                    //SaveButton.Content = "Save";
+                    cancellationToken.ThrowIfCancellationRequested();
+                }
+            });
+            int fadeStage = fadeTime / 10;
+
+            //string SaveButtonContent = SaveButton.Content.ToString();
+            SaveButton.Content = String.Empty;
+            cancelAction();
+
+            for (int i = 0; i < fadeTime; i += fadeStage)
+            {
+                double divide = (double)(i + fadeStage) / fadeTime;
+                SavedNoti.Opacity = divide;
+                //DL.WikiLinkBrush.Opacity = 1.0 - divide;
+                try { await Task.Delay(fadeStage, cancellationToken); } catch (OperationCanceledException) { cancelAction(); }
+            }
+
+            try { await Task.Delay(keepTime, cancellationToken); } catch (OperationCanceledException) { cancelAction(); }
+
+            for (int i = 0; i < fadeTime; i += fadeStage)
+            {
+                double divide = (double)(i + fadeStage) / fadeTime;
+                SavedNoti.Opacity = 1.0 - divide;
+                //DL.ClipboardCopiedMessageBrush.Opacity = 1.0 - divide;
+                try { await Task.Delay(fadeStage, cancellationToken); } catch (OperationCanceledException) { cancelAction(); }
+            }
+            SaveButton.Content = "Save";
+        }
+
 
         private bool Converts()
         {

@@ -212,7 +212,7 @@
             <Grid Height="30" VerticalAlignment="Bottom">
                 <TextBlock Text="{Binding CopiedToClip, Source={x:Static locale:Interpreter.Current}}" Width="{Binding Width, ElementName=WikiLinkTBlock}" Foreground="{Binding ClipboardCopiedMessageBrush}" Style="{StaticResource WikiLinkDef}"/>
                 <TextBlock x:Name="WikiLinkTBlock" Text="{Binding Wiki}" ToolTip="{Binding LinkTooltip, Source={x:Static locale:Interpreter.Current}}" Foreground="{Binding WikiLinkBrush}" Style="{StaticResource WikiLinkDef}" MouseLeftButtonUp="WikiLinkTextBlock_MouseLeftButtonUp" MouseRightButtonUp="WikiLinkTextBlock_MouseRightButtonUp"/>
-                <Button Content="{Binding Close, Source={x:Static locale:Interpreter.Current}}" HorizontalAlignment="Right" Click="Button_Click" Style="{StaticResource FinalButtons}" IsCancel="True" IsDefault="True"/>
+                <Button Content="{Binding Close, Source={x:Static locale:Interpreter.Current}}" HorizontalAlignment="Right" Click="CloseButton_Click" Style="{StaticResource FinalButtons}" IsCancel="True" IsDefault="True"/>
             </Grid>
         </Grid>
     </Grid>

@@ -53,7 +53,10 @@ namespace Wale.Localization
         public virtual string DeviceMap { get; protected set; }
         public virtual string Update { get; protected set; }
 
+        public virtual string AboutWale { get; protected set; }
         public virtual string OpenLog { get; protected set; }
+        public virtual string WindowsSoundSetting { get; protected set; }
+        public virtual string WindowsVolumeMixer { get; protected set; }
 
         public virtual string Help { get; protected set; }
         public virtual string HelpMsg { get; protected set; }

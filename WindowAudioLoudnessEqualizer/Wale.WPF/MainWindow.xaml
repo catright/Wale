@@ -25,10 +25,14 @@
         <ContextMenu x:Name="MainContext">
             <MenuItem Header="{Binding Configuration, Source={x:Static locale:Interpreter.Current}}" Click="ConfigToolStripMenuItem_Click"/>
             <MenuItem Header="{Binding DeviceMap, Source={x:Static locale:Interpreter.Current}}" Click="deviceMapToolStripMenuItem_Click"/>
-            <MenuItem Header="{Binding OpenLog, Source={x:Static locale:Interpreter.Current}}" Click="openLogDirectoryToolStripMenuItem_Click"/>
+            <MenuItem Header="{Binding AboutWale, Source={x:Static locale:Interpreter.Current}}">
+                <MenuItem Header="{Binding OpenLog, Source={x:Static locale:Interpreter.Current}}" Click="openLogDirectoryToolStripMenuItem_Click"/>
+                <MenuItem Header="{Binding Help, Source={x:Static locale:Interpreter.Current}}" Click="helpToolStripMenuItem_Click"/>
+                <MenuItem Header="{Binding License, Source={x:Static locale:Interpreter.Current}}" Click="licensesToolStripMenuItem_Click"/>
+            </MenuItem>
             <Separator/>
-            <MenuItem Header="{Binding Help, Source={x:Static locale:Interpreter.Current}}" Click="helpToolStripMenuItem_Click"/>
-            <MenuItem Header="{Binding License, Source={x:Static locale:Interpreter.Current}}" Click="licensesToolStripMenuItem_Click"/>
+            <MenuItem Header="{Binding WindowsSoundSetting, Source={x:Static locale:Interpreter.Current}}" Click="WindowsSoundSetting_Click"/>
+            <MenuItem Header="{Binding WindowsVolumeMixer, Source={x:Static locale:Interpreter.Current}}" Click="WindowsVolumeMixer_Click"/>
             <Separator/>
             <MenuItem Header="{Binding Restart, Source={x:Static locale:Interpreter.Current}}" Click="OnProgramRestart"/>
             <MenuItem Header="{Binding Exitxml, Source={x:Static locale:Interpreter.Current}}" Click="OnProgramShutdown"/>
