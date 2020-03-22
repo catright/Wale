@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
+using System.Runtime.Remoting.Messaging;
 
 namespace Wale.CoreAudio
 {
@@ -20,8 +21,8 @@ namespace Wale.CoreAudio
             NameSet = new NameSet(
                 asc2.ProcessID,
                 asc2.IsSystemSoundSession,
-                "",//asc2.Process.ProcessName
-                "",//asc2.Process.MainWindowTitle
+                "",//asc2.Process.ProcessName,
+                "",//asc2.Process?.MainWindowTitle,
                 asc2.DisplayName,
                 asc2.SessionIdentifier
             );
@@ -61,10 +62,32 @@ namespace Wale.CoreAudio
 
         private string name;
         public NameSet NameSet { get; set; }
+        private void MakeNameSet()
+        {
+            try
+            {
+                NameSet = new NameSet(
+                    ProcessID,
+                    IsSystemSoundSession,
+                    ProcessName,
+                    MainWindowTitle,
+                    DisplayName,
+                    SessionIdentifier
+                );
+            }
+            catch
+            {
+                string l = $"Error: failed to re-make NameSet of {Name}";
+                Console.WriteLine(l);
+                JDPack.FileLog.Log(l);
+                return;
+            }
+            NameSet.MakeName();
+        }
         /// <summary>
         /// Human readable process name
         /// </summary>
-        public string Name { get { if (NameSet != null) return NameSet.Name; return name; } set => name = value; }
+        public string Name { get { return (NameSet != null) ? NameSet.Name : name; } set { MakeNameSet(); name = value; } }
         /// <summary>
         /// ProcessID
         /// </summary>
@@ -144,7 +167,7 @@ namespace Wale.CoreAudio
         /// <summary>
         /// Final volume would be multiplied by 2^Relative. This value is kept in -1~1.
         /// </summary>
-        public float Relative { get => _Relative; set { _Relative = (value > 1) ? 1 : ((value < -1) ? -1 : value); } }
+        public float Relative { get => _Relative; set { _Relative = (value > 1) ? 1 : ((value < -1) ? -1 : (Math.Abs(value) < 0.00001) ? 0 : value); } }
         /// <summary>
         /// Minimum volume. Session volume is kept above this value.
         /// </summary>
@@ -500,6 +523,33 @@ namespace Wale.CoreAudio
                 JDPack.FileLog.Log($"Error(GetRelative): {e.ToString()}");
             }
             return 0.0;
+        }
+
+
+        /// <summary>
+        /// Find session by SessionIdentifier.
+        /// <para>Log($"Error(GetSession): ArgumentNullException") when ArgumentNullException. 
+        /// Log($"Error(GetSession): NullReferenceException") when NullReferenceException. 
+        /// Log($"Error(GetSession): {(Exception)e.ToString()}") when Exception</para>
+        /// </summary>
+        /// <param name="sid">SessionIdentifier</param>
+        /// <returns>Session object if it found or null.</returns>
+        public List<Session> GetSessionBySID(string sid)
+        {
+            try { return this.FindAll(sc => sc.SessionIdentifier == sid); }
+            catch (ArgumentNullException)
+            {
+                JDPack.FileLog.Log($"Error(GetSession): ArgumentNullException");
+            }
+            catch (NullReferenceException)
+            {
+                JDPack.FileLog.Log($"Error(GetSession): NullReferenceException");
+            }
+            catch (Exception e)
+            {
+                JDPack.FileLog.Log($"Error(GetSession): {e.ToString()}");
+            }
+            return null;
         }
     }
 }//End namespace Wale.Subclasses

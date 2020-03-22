@@ -92,7 +92,9 @@ namespace EqualizerTest
             {
                 dfc[i] = new System.Numerics.Complex(data[i], 0);
             }
+#pragma warning disable CS0618 // Type or member is obsolete
             System.Numerics.Complex[] result = MathNet.Numerics.IntegralTransforms.Fourier.NaiveForward(dfc, MathNet.Numerics.IntegralTransforms.FourierOptions.Default);
+#pragma warning restore CS0618 // Type or member is obsolete
             double[] final = new double[data.Length];
             for (int i = 0; i < data.Length; i++)
             {
@@ -107,7 +109,9 @@ namespace EqualizerTest
             {
                 dfc[i] = new System.Numerics.Complex(data[i], 0);
             }
+#pragma warning disable CS0618 // Type or member is obsolete
             System.Numerics.Complex[] result = MathNet.Numerics.IntegralTransforms.Fourier.NaiveForward(dfc, MathNet.Numerics.IntegralTransforms.FourierOptions.Default);
+#pragma warning restore CS0618 // Type or member is obsolete
             List<double> final = new List<double>();
             foreach (System.Numerics.Complex d in result)
             {

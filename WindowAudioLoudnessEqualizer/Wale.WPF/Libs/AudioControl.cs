@@ -190,13 +190,14 @@ namespace Wale
                             //if (audio.MasterDeviceIsDisposed != true) { JDPack.FileLog.Log("Master Device is changed. Restart."); RestartRequest(); }
                             if (settings.StaticMode) { Sessions.ForEach(s => aas.Add(new Task(() => SessionControlinStaticMode(s)))); }
                             else { Sessions.ForEach(s => aas.Add(new Task(() => SessionControl(s)))); }
+
+                            if (logCounter > logCritical)
+                            {
+                                aas.Add(new Task(() => JDPack.FileLog.Log($"Auto control task passed for {logCritical} times.")));
+                                logCounter = 0;
+                            }
+                            aas.ForEach(t => t.Start());
                         }
-                        if (logCounter > logCritical)
-                        {
-                            aas.Add(new Task(() => JDPack.FileLog.Log($"Auto control task passed for {logCritical} times.")));
-                            logCounter = 0;
-                        }
-                        aas.ForEach(t => t.Start());
                     }
                     catch (InvalidOperationException e) { JDPack.FileLog.Log($"Error(AudioControlTask): Session collection was modified.\r\n\t{e.ToString()}"); }
                     catch (Exception e) { JDPack.FileLog.Log($"Error(AudioControlTask): Unknown.\r\n\t{e.ToString()}"); }

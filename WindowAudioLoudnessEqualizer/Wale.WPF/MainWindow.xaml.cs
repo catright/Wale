@@ -17,6 +17,8 @@ using OxyPlot;
 using OxyPlot.Series;
 using System.Globalization;
 using System.ComponentModel;
+using System.IO;
+using Wale.CoreAudio;
 
 namespace Wale.WPF
 {
@@ -391,6 +393,7 @@ namespace Wale.WPF
         {
             Log("Start UpdateSessionTask");
             Dispatcher?.Invoke(() => { SessionPanel.Children.Clear(); });
+            UpdateSession2(SessionPanel);
             while (!FinishApp)
             {
                 if (Active) { UpdateSession2(SessionPanel); }
@@ -524,16 +527,20 @@ namespace Wale.WPF
                                     foreach (MeterSet item in SessionPanel.Children) { if (sc.ProcessID == item.ProcessID) { found = true; break; } }
                                     if (!found)
                                     {
-                                        Console.WriteLine($"{sc.Name}({sc.ProcessID}) {sc.DisplayName} / {sc.ProcessName} / {sc.Icon} / {sc.MainWindowTitle} / {sc.SessionIdentifier}");
+                                        //if (sc.Name != sc.DisplayName && !string.IsNullOrWhiteSpace(sc.DisplayName)) { Log($"Remake name of {sc.Name}({sc.ProcessID})"); sc.Name = sc.DisplayName; }
+                                        Log($"Make proper name of {sc.Name}({sc.ProcessID})");
+                                        sc.Name = sc.DisplayName;//Make proper NameSet
+                                        if (updateSessionDebug) { Console.WriteLine($"{sc.Name}({sc.ProcessID}) {sc.DisplayName} / {sc.ProcessName} / {sc.Icon} / {sc.MainWindowTitle} / {sc.SessionIdentifier}"); }
                                         //string stooltip = string.IsNullOrEmpty(sc.MainWindowTitle) ? $"{sc.Name}({sc.ProcessID})" : $"{sc.Name}({sc.ProcessID}) - {sc.MainWindowTitle}";
                                         string stooltip = $"{sc.Name}({sc.ProcessID})";Console.WriteLine(stooltip);
-                                        MeterSet set = new MeterSet(sc.ProcessID, sc.Name, sc.Icon, settings.AdvancedView, sc.AutoIncluded, updateSessionDebug, stooltip) { SoundEnabled = sc.SoundEnabled };
+                                        if (GetSessionConfigFromFile()) ApplyCurrentSessionConfig(sc);//Get saved session config
+                                        MeterSet set = new MeterSet(sc.ProcessID, sc.Name, sc.Icon, settings.AdvancedView, sc.AutoIncluded, updateSessionDebug, stooltip) { SoundEnabled = sc.SoundEnabled, Relative = sc.Relative };
                                         int idx = SessionPanel.Children.Count; //Console.WriteLine($"new meterset idx={idx}");
                                         foreach (MeterSet item in SessionPanel.Children) { if (set.CompareTo(item) < 0) { idx = SessionPanel.Children.IndexOf(item); break; } }
                                         if (idx < SessionPanel.Children.Count) { SessionPanel.Children.Insert(idx, set); }//Console.WriteLine("new meterset inserted"); }
                                         else { SessionPanel.Children.Add(set); }//Console.WriteLine("new meterset added"); }
                                         reAlign = true;
-                                        Log($"New MeterSet:{sc.Name}({sc.ProcessID})");
+                                        Log($"New MeterSet:{sc.Name}({sc.ProcessID}) {sc.SessionIdentifier}");
                                     }
                                 }
                             }
@@ -547,18 +554,19 @@ namespace Wale.WPF
                                     if (settings.AdvancedView) mSet.DetailOn();
                                     else mSet.DetailOff();
                                     if (mSet.detailChanged) { reAlign = true; mSet.detailChanged = false; }
+                                    //if (session.Name != session.DisplayName && !string.IsNullOrWhiteSpace(session.DisplayName)) { Log($"Remake name of {session.Name}({session.ProcessID})"); session.Name = session.DisplayName; }
                                     //string stooltip = string.IsNullOrEmpty(session.MainWindowTitle) ? $"{session.Name}({session.ProcessID})" : $"{session.Name}({session.ProcessID}) - {session.MainWindowTitle}";
                                     string stooltip = $"{session.Name}({session.ProcessID})";
                                     if (mSet.AudioUnit != settings.AudioUnit) mSet.AudioUnit = settings.AudioUnit;
                                     mSet.UpdateData(session.Volume, session.Volume * session.Peak, session.Volume * session.AveragePeak, session.Name, stooltip);
-                                    Console.WriteLine($"{session.Volume}, {session.Volume * session.Peak}, {session.Volume * session.AveragePeak}, {session.Name}, {stooltip}");
-                                    session.Relative = (float)mSet.Relative;
+                                    if (updateSessionDebug) { Console.WriteLine($"{session.Volume}, {session.Volume * session.Peak}, {session.Volume * session.AveragePeak}, {session.Name}, {stooltip}"); }
+                                    if (session.Relative != (float)mSet.Relative) { session.Relative = (float)mSet.Relative; SaveSessionConfigToFile(); }
                                     // Sound mute check
                                     if (mSet.SoundEnableChanged) { session.SoundEnabled = mSet.SoundEnabled; mSet.SoundEnableChanged = false; }
                                     if (session.SoundEnabled != mSet.SoundEnabled) mSet.SoundEnabled = session.SoundEnabled;
                                     // Auto include check
-                                    if (mSet.AutoIncludedChanged) { session.AutoIncluded = mSet.AutoIncluded; mSet.AutoIncludedChanged = false; }
-                                    if (session.AutoIncluded != mSet.AutoIncluded) mSet.AutoIncluded = session.AutoIncluded;
+                                    if (mSet.AutoIncludedChanged) { session.AutoIncluded = mSet.AutoIncluded; mSet.AutoIncludedChanged = false; SaveSessionConfigToFile(); }
+                                    if (session.AutoIncluded != mSet.AutoIncluded) { mSet.AutoIncluded = session.AutoIncluded; }
                                 }
                             }
                         }
@@ -599,6 +607,7 @@ namespace Wale.WPF
             if (dialogResult == MessageBoxResult.OK)
             {
                 DP.DMML("Exit");
+                SaveSessionConfigToFile();
                 Active = false;
                 FinishApp = true;
                 NI.Visible = false;
@@ -618,6 +627,7 @@ namespace Wale.WPF
             if (dialogResult == MessageBoxResult.OK)
             {
                 RestartQueued = true;
+                SaveSessionConfigToFile();
                 RestartApp();
             }
         }
@@ -785,6 +795,159 @@ namespace Wale.WPF
             Audio.SetMasterVolume(e.NewValue);
         }
 
+        #endregion
+        #region Session Control mothods and events
+        private const string SessionDataFile = "SessionData.conf", cmtind = "###";
+        private List<SessionDataStructure> SavedSessionConfig = new List<SessionDataStructure>();
+        struct SessionDataStructure
+        {
+            public string SessionIdentifier;
+            public bool AutoIncluded;
+            public float Relative;
+        }
+        private bool ReadSessionConfigFile(out string d)
+        {
+            string f = System.IO.Path.Combine(JDPack.FileLog.WorkDirectory.FullName, SessionDataFile);
+            if (File.Exists(f))
+            {
+                d = File.ReadAllText(f, Encoding.UTF8);
+                return true;
+            }
+            d = string.Empty;
+            return false;
+        }
+        private List<SessionDataStructure> ParseSessionConfigFile(string df)
+        {
+            List<SessionDataStructure> sessionDatas = new List<SessionDataStructure>();
+
+            string[] d = df.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (string st in d)
+            {
+                if (!st.StartsWith(cmtind))//Exclude comment line
+                {
+                    string[] sb = st.Split(new[] { cmtind }, StringSplitOptions.None);//split out inline comments
+                    // Log($"sb={sb.Length}");foreach (string ss in sb) { Log(ss); }
+                    string[] s = sb[0].Split('\t');
+                    // Log($"s={s.Length}"); foreach (string ss in s) { Log(ss); }
+                    if (s.Length == 3)//check whether the line is formatted properly
+                    {
+                        sessionDatas.Add(new SessionDataStructure()
+                        {
+                            SessionIdentifier = s[0],
+                            AutoIncluded = Convert.ToBoolean(s[1]),
+                            Relative = (float)Convert.ToDouble(s[2])
+                        });
+                    }
+                    else { Log($"Error: when parsing session data file, {st}"); }
+                }
+            }
+
+            return sessionDatas;
+        }
+        private bool GetSessionConfigFromFile()
+        {
+            if (ReadSessionConfigFile(out string d))
+            {
+                SavedSessionConfig = ParseSessionConfigFile(d);
+                //Log("Session Config Read");
+                return true;
+            }
+            return false;
+        }
+        private void ApplyCurrentSessionConfig()
+        {
+            SavedSessionConfig?.ForEach((sd) =>
+            {
+                lock (Lockers.Sessions)
+                {
+                    Audio.Sessions.GetSessionBySID(sd.SessionIdentifier).ForEach((s) => { s.AutoIncluded = sd.AutoIncluded; s.Relative = sd.Relative; });
+                }
+            });
+            Log("Session Config Applied");
+        }
+        private void ApplyCurrentSessionConfig(Session s)
+        {
+            SessionDataStructure sd = SavedSessionConfig.Find(sds => sds.SessionIdentifier == s.SessionIdentifier);
+            s.AutoIncluded = sd.AutoIncluded;
+            s.Relative = sd.Relative;
+
+            Log("Session Config Applied on Session");
+        }
+        private List<SessionDataStructure> ParseSessionConfig()
+        {
+            List<SessionDataStructure> sessionDatas = new List<SessionDataStructure>();
+
+            List<string> sidList = new List<string>();
+
+            lock (Lockers.Sessions)
+            {
+                Audio.Sessions.ForEach((s) =>
+                {
+                    string sid = s.SessionIdentifier;
+                    if (!sidList.Contains(sid)) { sidList.Add(sid); }
+                });
+            }
+
+            sidList.ForEach((sid) =>
+            {
+                lock (Lockers.Sessions)
+                {
+                    List<Session> ss = Audio.Sessions.GetSessionBySID(sid);
+                    if (ss.Count == 1) { sessionDatas.Add(new SessionDataStructure() { SessionIdentifier = ss[0].SessionIdentifier, AutoIncluded = ss[0].AutoIncluded, Relative = ss[0].Relative }); }
+                    else if (ss.Count > 1)
+                    {
+                        Dictionary<bool, int> incCount = new Dictionary<bool, int>() { { true, 0 }, { false, 0 } };
+                        Dictionary<float, int> relCount = new Dictionary<float, int>();
+
+                        ss.ForEach((s) =>
+                        {
+                            if (s.AutoIncluded) { incCount[true]++; } else { incCount[false]++; }
+                            if (relCount.ContainsKey(s.Relative)) { relCount[s.Relative]++; }
+                            else { relCount.Add(s.Relative, 1); }
+                        });
+
+                        sessionDatas.Add(new SessionDataStructure()
+                        {
+                            SessionIdentifier = ss[0].SessionIdentifier,
+                            AutoIncluded = incCount[true] > incCount[false] ? true : false,
+                            Relative = relCount.First((d) => { return d.Value == relCount.Values.Max(); }).Key
+                        });
+                    }
+                }
+            });
+            
+            return sessionDatas;
+        }
+        private void SaveSessionConfigToFile()
+        {
+            string f = System.IO.Path.Combine(JDPack.FileLog.WorkDirectory.FullName, SessionDataFile);
+
+            List<SessionDataStructure> data = ParseSessionConfig();
+
+            if (ReadSessionConfigFile(out string d))//check data is already saved into file
+            {
+                ParseSessionConfigFile(d).ForEach(sf => {
+                    if(!data.Exists(sd => sd.SessionIdentifier== sf.SessionIdentifier))//get non-updated data from file
+                    {
+                        data.Add(sf);
+                    }
+                });
+            }
+
+            StringBuilder df = new StringBuilder();
+            df.AppendLine($"{cmtind} Session Configuration Data of Wale");// '###' is the comment indicator
+            df.AppendLine($"{cmtind} Last Update : {DateTime.Now.ToLocalTime().ToString()}");
+
+            foreach(SessionDataStructure s in data)
+            {
+                df.AppendLine($"{s.SessionIdentifier}\t{s.AutoIncluded}\t{s.Relative}");
+            }
+
+            File.WriteAllText(f, df.ToString(), Encoding.UTF8);
+
+            SavedSessionConfig = data;
+            //Log("Session Config Saved");
+        }
         #endregion
 
         #region NI events

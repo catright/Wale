@@ -32,7 +32,7 @@ namespace Wale.WPF
         //public List<double> LastPeaks;
         public int ProcessID { get; }
         public string SessionName { get => NameLabel.Text.ToString(); }
-        public double Relative { get; private set; } = 0;
+        public double Relative { get; set; } = 0;
         public bool AutoIncluded { get => AutoIncludeCBox.IsChecked.Value; set => AutoIncludeCBox.IsChecked = value; }
         public bool AutoIncludedChanged { get; set; } = false;
         public bool Updated { get; private set; }
@@ -71,6 +71,7 @@ namespace Wale.WPF
             Initialization(name, tooltip);
             detailed = !detail;
             AutoIncluded = autoinc;
+            NameLabel.Foreground = AutoIncluded ? ColorSet.ForeColorBrush : ColorSet.MainColorBrush;
             //if (detail) DetailOn();
             //else DetailOff();
 

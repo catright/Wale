@@ -193,7 +193,7 @@
                     <ColumnDefinition Width="68" MinWidth="68"/>
                 </Grid.ColumnDefinitions>
                 <Grid Grid.Column="0" MaxHeight="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Grid}, Path=ActualHeight}">
-                    <Image x:Name="Icon" Width="16" Height="16" MaxWidth="16" MaxHeight="16" Margin="0,0,2,0" HorizontalAlignment="Left" MouseDown="LSessionNameLabel_Click">
+                    <Image x:Name="Icon" Width="16" Height="16" MaxWidth="16" MaxHeight="16" Margin="0,0,2,0" HorizontalAlignment="Left" MouseLeftButtonDown="LSessionNameLabel_Click">
                         <Image.Style>
                             <Style TargetType="Image">
                                 <Setter Property="Visibility" Value="Hidden"/>
@@ -205,7 +205,7 @@
                             </Style>
                         </Image.Style>
                     </Image>
-                    <TextBlock x:Name="NameLabel" Text="TEST" MouseDown="LSessionNameLabel_Click" TextWrapping="WrapWithOverflow">
+                    <TextBlock x:Name="NameLabel" Text="TEST" MouseLeftButtonDown="LSessionNameLabel_Click" TextWrapping="WrapWithOverflow">
                         <TextBlock.ToolTip>
                             <ToolTip x:Name="NameToolTip"></ToolTip>
                         </TextBlock.ToolTip>
