@@ -530,11 +530,13 @@ namespace Wale.WPF
                                         //if (sc.Name != sc.DisplayName && !string.IsNullOrWhiteSpace(sc.DisplayName)) { Log($"Remake name of {sc.Name}({sc.ProcessID})"); sc.Name = sc.DisplayName; }
                                         Log($"Make proper name of {sc.Name}({sc.ProcessID})");
                                         sc.Name = sc.DisplayName;//Make proper NameSet
-                                        if (updateSessionDebug) { Console.WriteLine($"{sc.Name}({sc.ProcessID}) {sc.DisplayName} / {sc.ProcessName} / {sc.Icon} / {sc.MainWindowTitle} / {sc.SessionIdentifier}"); }
+                                        string mt = sc.MainWindowTitle, name = (settings.MainTitleforAppname? $"{sc.Name} {mt}" : sc.Name), pname = sc.NameSet.ProcessName;
+                                        if (settings.PnameForAppname) { name = (settings.MainTitleforAppname ? $"{sc.NameSet.ProcessName} {mt}" : sc.NameSet.ProcessName); pname = sc.Name; }
+                                        if (updateSessionDebug) { Console.WriteLine($"{name}({sc.ProcessID}) {sc.DisplayName} / {sc.ProcessName} / {sc.Icon} / {mt} / {sc.SessionIdentifier}"); }
                                         //string stooltip = string.IsNullOrEmpty(sc.MainWindowTitle) ? $"{sc.Name}({sc.ProcessID})" : $"{sc.Name}({sc.ProcessID}) - {sc.MainWindowTitle}";
-                                        string stooltip = $"{sc.Name}({sc.ProcessID})";Console.WriteLine(stooltip);
+                                        string stooltip = $"{pname}({sc.ProcessID}) {mt}";Console.WriteLine(stooltip);
                                         if (GetSessionConfigFromFile()) ApplyCurrentSessionConfig(sc);//Get saved session config
-                                        MeterSet set = new MeterSet(sc.ProcessID, sc.Name, sc.Icon, settings.AdvancedView, sc.AutoIncluded, updateSessionDebug, stooltip) { SoundEnabled = sc.SoundEnabled, Relative = sc.Relative };
+                                        MeterSet set = new MeterSet(sc.ProcessID, name, sc.Icon, settings.AdvancedView, sc.AutoIncluded, updateSessionDebug, stooltip) { SoundEnabled = sc.SoundEnabled, Relative = sc.Relative };
                                         int idx = SessionPanel.Children.Count; //Console.WriteLine($"new meterset idx={idx}");
                                         foreach (MeterSet item in SessionPanel.Children) { if (set.CompareTo(item) < 0) { idx = SessionPanel.Children.IndexOf(item); break; } }
                                         if (idx < SessionPanel.Children.Count) { SessionPanel.Children.Insert(idx, set); }//Console.WriteLine("new meterset inserted"); }
@@ -554,11 +556,13 @@ namespace Wale.WPF
                                     if (settings.AdvancedView) mSet.DetailOn();
                                     else mSet.DetailOff();
                                     if (mSet.detailChanged) { reAlign = true; mSet.detailChanged = false; }
+                                    string mt=session.MainWindowTitle, name = (settings.MainTitleforAppname ? $"{session.Name} {mt}" : session.Name), pname = session.NameSet.ProcessName;
+                                    if (settings.PnameForAppname) { name = (settings.MainTitleforAppname ? $"{session.NameSet.ProcessName} {mt}" : session.NameSet.ProcessName); pname = session.Name; }
                                     //if (session.Name != session.DisplayName && !string.IsNullOrWhiteSpace(session.DisplayName)) { Log($"Remake name of {session.Name}({session.ProcessID})"); session.Name = session.DisplayName; }
                                     //string stooltip = string.IsNullOrEmpty(session.MainWindowTitle) ? $"{session.Name}({session.ProcessID})" : $"{session.Name}({session.ProcessID}) - {session.MainWindowTitle}";
-                                    string stooltip = $"{session.Name}({session.ProcessID})";
+                                    string stooltip = $"{pname}({session.ProcessID}) {mt}";
                                     if (mSet.AudioUnit != settings.AudioUnit) mSet.AudioUnit = settings.AudioUnit;
-                                    mSet.UpdateData(session.Volume, session.Volume * session.Peak, session.Volume * session.AveragePeak, session.Name, stooltip);
+                                    mSet.UpdateData(session.Volume, session.Volume * session.Peak, session.Volume * session.AveragePeak, name, stooltip);
                                     if (updateSessionDebug) { Console.WriteLine($"{session.Volume}, {session.Volume * session.Peak}, {session.Volume * session.AveragePeak}, {session.Name}, {stooltip}"); }
                                     if (session.Relative != (float)mSet.Relative) { session.Relative = (float)mSet.Relative; SaveSessionConfigToFile(); }
                                     // Sound mute check
@@ -867,9 +871,12 @@ namespace Wale.WPF
         }
         private void ApplyCurrentSessionConfig(Session s)
         {
-            SessionDataStructure sd = SavedSessionConfig.Find(sds => sds.SessionIdentifier == s.SessionIdentifier);
-            s.AutoIncluded = sd.AutoIncluded;
-            s.Relative = sd.Relative;
+            if (SavedSessionConfig.Exists(sds => sds.SessionIdentifier == s.SessionIdentifier))
+            {
+                SessionDataStructure sd = SavedSessionConfig.Find(sds => sds.SessionIdentifier == s.SessionIdentifier);
+                s.AutoIncluded = sd.AutoIncluded;
+                s.Relative = sd.Relative;
+            }
 
             Log("Session Config Applied on Session");
         }
@@ -980,8 +987,8 @@ namespace Wale.WPF
             if (settings.VFunc != LastValues.VFunc) { Audio?.UpdateVFunc(); }
             if (e.PropertyName == "AdvancedView" && nowConfig)
             {
-                if (settings.AdvancedView) DoChangeHeightSB(AppDatas.MainWindowConfigLongHeight);
-                else DoChangeHeightSB(AppDatas.MainWindowConfigHeight);
+                if (settings.AdvancedView) DoChangeHeightSB(AppDatas.ConfigSetLongHeight + AppDatas.MainWindowBaseHeight);
+                else DoChangeHeightSB(AppDatas.ConfigSetHeight + AppDatas.MainWindowBaseHeight);
             }
             if(e.PropertyName == "AudioUnit") { TargetLabel.Content = VFunction.Level(settings.TargetLevel, settings.AudioUnit).ToString(); }
         }
@@ -1045,8 +1052,8 @@ namespace Wale.WPF
                 {
                     if (tab.Header.ToString().Contains("Config") && !nowConfig)
                     {
-                        if (settings.AdvancedView) DoChangeHeightSB(AppDatas.MainWindowConfigLongHeight);
-                        else DoChangeHeightSB(AppDatas.MainWindowConfigHeight);
+                        if (settings.AdvancedView) DoChangeHeightSB(AppDatas.ConfigSetLongHeight + AppDatas.MainWindowBaseHeight);
+                        else DoChangeHeightSB(AppDatas.ConfigSetHeight + AppDatas.MainWindowBaseHeight);
                         nowConfig = true;
                     }
                     else if (!tab.Header.ToString().Contains("Config") && nowConfig)

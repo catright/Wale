@@ -19,12 +19,12 @@
             <Setter Property="MinWidth" Value="{Binding Width, RelativeSource={RelativeSource Self}}"/>
             <Setter Property="MaxWidth" Value="{Binding Width, RelativeSource={RelativeSource Self}}"/>
 
-            <Setter Property="Height" Value="245"/>
+            <Setter Property="Height" Value="{Binding Path=ConfigSetHeight, Source={x:Static prop:Settings.Default}, Mode=OneWay}"/>
             <Setter Property="MinHeight" Value="{Binding Height, RelativeSource={RelativeSource Self}}"/>
             <Setter Property="MaxHeight" Value="{Binding Height, RelativeSource={RelativeSource Self}}"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding Path=AdvancedView, Source={x:Static prop:Settings.Default}, Mode=OneWay}" Value="True">
-                    <Setter Property="Height" Value="415"/>
+                    <Setter Property="Height" Value="{Binding Path=ConfigSetLongHeight, Source={x:Static prop:Settings.Default}, Mode=OneWay}"/>
                 </DataTrigger>
             </Style.Triggers>
         </Style>
@@ -308,7 +308,8 @@
                         </Grid>
                         <Grid Style="{StaticResource LineItem}" Visibility="Visible">
                             <WrapPanel>
-                                <CheckBox Content="Static Mode" IsChecked="{Binding Path=StaticMode, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
+                                <CheckBox Content="Static Mode" IsChecked="{Binding Path=StaticMode, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"
+                                          ToolTip="Set all apps' volume to target level"/>
                                 <TextBlock Visibility="Collapsed" Text="Critical" Margin="3,0" FontSize="10" Foreground="Orange"/>
                             </WrapPanel>
                         </Grid>
@@ -318,18 +319,11 @@
                                 <TextBlock Text="Critical" Margin="3,0" FontSize="10" Foreground="OrangeRed"/>
                             </WrapPanel>
                         </Grid>
-                        <Grid Style="{StaticResource LineItem}" Visibility="Visible">
-                            <WrapPanel>
-                                <CheckBox Content="Collapse Sub Sessions" IsChecked="{Binding Path=CollapseSubSessions, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"
-                                          ToolTip="Collapse all sub sessions on session group of individual app to one"/>
-                                <TextBlock Visibility="Collapsed" Text="Critical" Margin="3,0" FontSize="10" Foreground="OrangeRed"/>
-                            </WrapPanel>
-                        </Grid>
                         <!--CheckBox Content="Combine processes by app name" ToolTip="Combine session processes by application name and control them together" IsChecked="{Binding Path=CombineSession, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/-->
                     </StackPanel>
                 </Grid>
             </GroupBox>
-            <GroupBox Header="Window" Height="94" Padding="5">
+            <GroupBox Header="Visual" Height="114" Padding="5">
                 <StackPanel>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -337,13 +331,29 @@
                             <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0">
+                            <CheckBox Content="Advanced View(F9)" IsChecked="{Binding Path=AdvancedView, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
                             <CheckBox x:Name="runAtWindowsStartup" Content="Run at Windows Startup"/>
-                            <CheckBox Content="Show Session Icon" IsChecked="{Binding Path=ShowSessionIcon, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
+                            <CheckBox Content="Detailed Log" IsEnabled="False"/>
                             <CheckBox Visibility="Collapsed" IsEnabled="False" x:Name="CheckForUpdateCB" Content="Check for Update"/>
                         </StackPanel>
                         <StackPanel Grid.Column="1">
-                            <CheckBox Content="Advanced View(F9)" IsChecked="{Binding Path=AdvancedView, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
-                            <CheckBox Content="Detailed Log" IsEnabled="False"/>
+                            <CheckBox Content="Show Session Icon" IsChecked="{Binding Path=ShowSessionIcon, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
+                            <Grid Visibility="Collapsed" Style="{StaticResource LineItem}">
+                                <WrapPanel>
+                                    <CheckBox Content="Collapse Sub Sessions" IsChecked="{Binding Path=CollapseSubSessions, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"
+                                          ToolTip="Collapse all sub sessions on session group of individual app to one"/>
+                                    <TextBlock Visibility="Collapsed" Text="Critical" Margin="3,0" FontSize="10" Foreground="OrangeRed"/>
+                                </WrapPanel>
+                            </Grid>
+                            <CheckBox Content="Show ProcessName as AppName" IsChecked="{Binding Path=PnameForAppname, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
+                            <Grid Visibility="Visible" Style="{StaticResource LineItem}">
+                                <WrapPanel>
+                                    <CheckBox Content="Main Title in AppName" IsChecked="{Binding Path=MainTitleforAppname, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"
+                                          />
+                                    <!--ToolTip="Calculation time might be longer if you activate this option"-->
+                                    <TextBlock Visibility="Collapsed" Text="Caution" Margin="3,0" FontSize="10" Foreground="Orange"/>
+                                </WrapPanel>
+                            </Grid>
                         </StackPanel>
                     </Grid>
                     <WrapPanel>
@@ -354,10 +364,11 @@
                     </WrapPanel>
                 </StackPanel>
             </GroupBox>
+            
             <Grid>
                 <Button x:Name="SaveButton" Content="Save" HorizontalAlignment="Left" Margin="10,5,0,5" Style="{StaticResource FinalButtons}" Click="ConfigSave_Click"/>
-                <Grid HorizontalAlignment="Left" Margin="10,5,0,5" Width="130" Height="20">
-                    <TextBlock x:Name="SavedNoti" Opacity="0" Text="Saved" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Grid HorizontalAlignment="Left" Margin="10,5,0,5" Width="130" Height="20" IsHitTestVisible="False">
+                    <TextBlock x:Name="SavedNoti" Opacity="0" Text="Saved" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False"/>
                 </Grid>
                 <Button Content="Return to Default" HorizontalAlignment="Center" Margin="10,5" Style="{StaticResource FinalButtons}" Click="resetToDafault_Click"/>
                 <Button x:Name="CancelButton" Content="Cancel" IsEnabled="False" Visibility="Hidden" IsCancel="True" IsDefault="True" HorizontalAlignment="Right" Margin="0,5,10,5" Style="{StaticResource FinalButtons}" Click="Cancel_Click"/>

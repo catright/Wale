@@ -12,6 +12,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Wale.WPF.Properties;
 
 namespace Wale.WPF
 {
@@ -40,18 +41,28 @@ namespace Wale.WPF
                 //cs.LogInvokedEvent += Cs_LogInvokedEvent;
                 Margin = new Thickness(0, 35, 0, 0)
             };
-            cs.SizeChanged += ConfigSet_SizeChanged;
+            //cs.SizeChanged += ConfigSet_SizeChanged;
+            Settings.Default.PropertyChanged += Default_PropertyChanged;
             MainGrid.Children.Add(cs);
-            this.Height = cs.Height + AppDatas.TitleBarHeight;
+            this.Height = (Settings.Default.AdvancedView ? AppDatas.ConfigSetLongHeight : AppDatas.ConfigSetHeight) + AppDatas.TitleBarHeight;
             //this.Width = 280;
 
             this.Title = "Wale " + Localization.Interpreter.Current.Configuration;
         }
 
+        private void Default_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "AdvancedView")
+            {
+                DoChangeHeightSB((Settings.Default.AdvancedView ? AppDatas.ConfigSetLongHeight : AppDatas.ConfigSetHeight) + AppDatas.TitleBarHeight);
+            }
+        }
+
         private void ConfigSet_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             //this.Height = (MainGrid.Children[1] as ConfigSet).Height + AppDatas.TitleBarHeight;
-            DoChangeHeightSB((MainGrid.Children[1] as ConfigSet).Height + AppDatas.TitleBarHeight);
+            //DoChangeHeightSB((MainGrid.Children[1] as ConfigSet).Height + AppDatas.TitleBarHeight);
+            DoChangeHeightSB((Settings.Default.AdvancedView ? AppDatas.ConfigSetLongHeight : AppDatas.ConfigSetHeight) + AppDatas.TitleBarHeight);
         }
 
         private void Cs_LogInvokedEvent(object sender, ConfigSet.LogEventArgs e)

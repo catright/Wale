@@ -30,13 +30,13 @@ namespace Wale
         public static double TitleBarHeight { get => 35; }
 
         /// <summary>
-        /// Final height of main window when selected config tab
+        /// Height of config set
         /// </summary>
-        public static double MainWindowConfigHeight { get => 305; }
+        public static double ConfigSetHeight { get => 265; }
         /// <summary>
-        /// Final long height of main window when selected config tab
+        /// Long height of config set when advanced view is selected
         /// </summary>
-        public static double MainWindowConfigLongHeight { get => 475; }
+        public static double ConfigSetLongHeight { get => 415; }
 
         /// <summary>
         /// Default height of windows except main window

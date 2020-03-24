@@ -27,7 +27,8 @@ namespace Wale.CoreAudio
                 asc2.SessionIdentifier
             );
             //AutoIncluded = ExcList.Contains(NameSet.Name) ? false : true;
-            if (ExcList.Contains(NameSet.Name)){
+            if (ExcList == null) { JDPack.FileLog.Log($"Error: ExcList is null. {NameSet.SessionIdentifier}"); }
+            if (ExcList != null && ExcList.Contains(NameSet.Name)){
                 //LastIncluded = false;
                 AutoIncluded = false;
             }
@@ -186,7 +187,7 @@ namespace Wale.CoreAudio
         /// <summary>
         /// The session is included to Auto controller when this flag is True. Default is True.
         /// </summary>
-        public bool AutoIncluded { get; set; }
+        public bool AutoIncluded { get; set; } = true;
         //public bool AutoIncluded { get=> _AutoIncluded; set { _AutoIncluded = value; LastIncluded = value; } }
         //private bool _AutoIncluded = true;
         //private bool LastIncluded = true;

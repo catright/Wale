@@ -121,7 +121,6 @@ namespace Wale.WPF
             TargetdB.Content = VFunction.Level(settings.TargetLevel, 1);
             MinPeakdB.Content = VFunction.Level(settings.MinPeak, 1);
         }
-
         private void ConfigSet_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.F9) settings.AdvancedView = !settings.AdvancedView;
