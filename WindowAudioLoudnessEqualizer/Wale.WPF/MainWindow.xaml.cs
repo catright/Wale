@@ -581,6 +581,7 @@ namespace Wale.WPF
                         if (reAlign)
                         {//re-align when there is(are) added or removed session(s)
                             Log("Re-aligning");
+                            //SessionPanel.Children.Cast<List>().ToList().Sort();
                             double lastHeight = this.Height, spacing = settings.AdvancedView ? AppDatas.SessionBlockHeightDetail : AppDatas.SessionBlockHeightNormal;
                             double newHeight = (double)(SessionPanel.Children.Count) * spacing + 60 + 2;
                             if (newHeight < this.MinHeight) { newHeight = AppDatas.MainWindowHeightDefault; }

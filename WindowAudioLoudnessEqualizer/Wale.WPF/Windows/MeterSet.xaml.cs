@@ -28,7 +28,7 @@ namespace Wale.WPF
         private LabelMode labelMode = LabelMode.AveragePeak;
         private string lastName, lastTooltip;
 
-        //public variables
+        #region public variables
         //public List<double> LastPeaks;
         public int ProcessID { get; }
         public string SessionName { get => NameLabel.Text.ToString(); }
@@ -41,8 +41,9 @@ namespace Wale.WPF
         public bool SoundEnabled { get => SoundOnCBox.IsChecked.Value; set { SoundOnCBox.IsChecked = value; } }
         public bool SoundEnableChanged { get; set; } = false;
         public int AudioUnit { get; set; } = 0;
+        #endregion
 
-        //Initialization and init methods
+        #region Initialization and init methods
         public MeterSet()
         {
             InitializeComponent();
@@ -91,9 +92,10 @@ namespace Wale.WPF
             NameToolTip.Content = string.IsNullOrEmpty(tooltip) ? name : tooltip;
             //Console.WriteLine($"{LevelBar.DesiredSize}");
         }
+        #endregion
 
 
-        //Item events
+        #region Item events
         private void LSessionNameLabel_Click(object sender, MouseButtonEventArgs e) { SoundEnabled = !SoundEnabled; SoundEnableChanged = true; }
         private void SoundOnCBox_Click(object sender, RoutedEventArgs e) { SoundEnableChanged = true; }
         private void AutoIncludedCBox_Click(object sender, RoutedEventArgs e) { AutoIncludedChanged = true; NameLabel.Foreground = AutoIncluded ? ColorSet.ForeColorBrush : ColorSet.MainColorBrush; }
@@ -133,11 +135,11 @@ namespace Wale.WPF
         {
             Relative = e.NewValue > 1 ? 1 : (e.NewValue < -1 ? -1 : e.NewValue);
         }
+        #endregion
 
 
 
-
-        //public functions
+        #region public functions
         public void UpdateLocation(Thickness p) { SetLocation(p); }
         public void ResetUpdate() { Updated = false; }
         public void UpdateData(double vol, double level, double Avl, string name, string tooltip = null)
@@ -217,6 +219,7 @@ namespace Wale.WPF
                 detailChanged = true;
             }
         }
+        #endregion
 
 
         #region Funcion delegates for MeterSet UI
@@ -386,7 +389,15 @@ namespace Wale.WPF
         {
             // A null value means that this object is greater.
             if (other == null) return 1;
-            else return this.ProcessID.CompareTo(other.ProcessID);
+            //else return this.ProcessID.CompareTo(other.ProcessID);
+            //else return this.SessionName.CompareTo(other.SessionName);
+            else
+            {
+                if (this.ProcessID == 0) { return 1; }
+                int res = this.SessionName.CompareTo(other.SessionName);
+                //if (res != 0) res = this.ProcessID.CompareTo(other.ProcessID);
+                return res;
+            }
         }
         /*protected override void OnPaint(PaintEventArgs pe)
         {
