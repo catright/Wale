@@ -357,5 +357,17 @@ namespace Wale.WPF.Properties {
                 this["MainTitleforAppname"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool AutoExcludeOnManualSet {
+            get {
+                return ((bool)(this["AutoExcludeOnManualSet"]));
+            }
+            set {
+                this["AutoExcludeOnManualSet"] = value;
+            }
+        }
     }
 }

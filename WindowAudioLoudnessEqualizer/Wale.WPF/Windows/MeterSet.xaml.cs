@@ -27,6 +27,7 @@ namespace Wale.WPF
         private bool detailed;
         private LabelMode labelMode = LabelMode.AveragePeak;
         private string lastName, lastTooltip;
+        public Window Owner;
 
         #region public variables
         //public List<double> LastPeaks;
@@ -48,8 +49,9 @@ namespace Wale.WPF
         {
             InitializeComponent();
         }
-        public MeterSet(int pid, string name, string iconpath, bool detail, bool autoinc, bool dbg = false, string tooltip = null)
+        public MeterSet(Window owner, int pid, string name, string iconpath, bool detail, bool autoinc, bool dbg = false, string tooltip = null)
         {
+            this.Owner = owner;
             Console.WriteLine($"make new meterset with: {pid}, {name}, {iconpath}, {detail}, {autoinc}, {dbg}, {tooltip}");
             InitializeComponent();Console.WriteLine("meterset init ok");
             ProcessID = pid;Console.WriteLine("meterset pid ok");
@@ -133,7 +135,8 @@ namespace Wale.WPF
         }
         private void RelBar_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            Relative = e.NewValue > 1 ? 1 : (e.NewValue < -1 ? -1 : e.NewValue);
+            double lim = AudConf.RelativeEnd;
+            Relative = e.NewValue > lim ? lim : (e.NewValue < -lim ? -lim : e.NewValue);
         }
         #endregion
 
@@ -348,6 +351,20 @@ namespace Wale.WPF
         }/**/
 
         delegate void SetdoubleConsumer(double height);
+
+        private void ManualSet_Click(object sender, RoutedEventArgs e)
+        {
+            SessionManualSet sms = new SessionManualSet(this.Owner, $"PID{ProcessID}:{SessionName}", Relative);
+            var stay = Properties.Settings.Default.StayOn;
+            Properties.Settings.Default.StayOn = true;
+            if (sms.ShowDialog() == true)
+            {
+                if (this.AutoIncluded) { this.AutoIncluded = false; this.AutoIncludedChanged = true; }
+
+                this.Relative = sms.Relative;
+            }
+            Properties.Settings.Default.StayOn = stay;
+        }
 
         private void SetHeight(double height)
         {

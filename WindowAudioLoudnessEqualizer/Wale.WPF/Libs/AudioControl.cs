@@ -105,7 +105,7 @@ namespace Wale
             {
                 double peak = s.Peak;
                 // math 2^0=1 but skip math calculation and set relFactor to 1 for calc speed when relative is 0
-                double relFactor = (s.Relative == 0 ? 1 : Math.Pow(4, s.Relative));
+                double relFactor = (s.Relative == 0 ? 1 : Math.Pow(AudConf.RelativeBase, s.Relative));
                 double volume = s.Volume / relFactor;
                 dm.Append($" P:{peak:n3} V:{volume:n3}");
 

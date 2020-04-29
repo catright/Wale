@@ -23,6 +23,10 @@ namespace Wale
         public static bool Averaging { get; set; }
         public static double AverageTime { get; set; }
 
+        public static double RelativeBase { get; } = 3;
+        public static float RelativeEnd { get; } = 2;
+        public static float RelativeEndInv { get; } = -2;
+
         public static void Default()
         {
             upRate = AudioSettingsDefault.upRate;

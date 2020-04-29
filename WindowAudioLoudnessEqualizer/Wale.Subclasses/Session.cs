@@ -168,7 +168,7 @@ namespace Wale.CoreAudio
         /// <summary>
         /// Final volume would be multiplied by 2^Relative. This value is kept in -1~1.
         /// </summary>
-        public float Relative { get => _Relative; set { _Relative = (value > 1) ? 1 : ((value < -1) ? -1 : (Math.Abs(value) < 0.00001) ? 0 : value); } }
+        public float Relative { get => _Relative; set { _Relative = (value > AudConf.RelativeEnd) ? AudConf.RelativeEnd : ((value < AudConf.RelativeEndInv) ? AudConf.RelativeEndInv : (Math.Abs(value) < 0.00001) ? 0 : value); } }
         /// <summary>
         /// Minimum volume. Session volume is kept above this value.
         /// </summary>

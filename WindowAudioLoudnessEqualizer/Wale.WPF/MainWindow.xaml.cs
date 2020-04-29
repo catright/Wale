@@ -439,7 +439,7 @@ namespace Wale.WPF
                                         //Console.WriteLine($"{sc.Name}({sc.ProcessID}) {sc.DisplayName} / {sc.ProcessName} / {sc.Icon} / {sc.MainWindowTitle} / {sc.SessionIdentifier}");
                                         //string stooltip = string.IsNullOrEmpty(sc.MainWindowTitle) ? $"{sc.Name}({sc.ProcessID})" : $"{sc.Name}({sc.ProcessID}) - {sc.MainWindowTitle}";
                                         string stooltip = $"{sc.Name}({sc.ProcessID})";
-                                        MeterSet set = new MeterSet(sc.ProcessID, sc.Name, sc.Icon, settings.AdvancedView, sc.AutoIncluded, updateSessionDebug, stooltip) { SoundEnabled = sc.SoundEnabled };
+                                        MeterSet set = new MeterSet(this, sc.ProcessID, sc.Name, sc.Icon, settings.AdvancedView, sc.AutoIncluded, updateSessionDebug, stooltip) { SoundEnabled = sc.SoundEnabled };
                                         int idx = SessionPanel.Children.Count;
                                         foreach (MeterSet item in SessionPanel.Children) { if (set.CompareTo(item) < 0) { idx = SessionPanel.Children.IndexOf(item); break; } }
                                         if (idx < SessionPanel.Children.Count) SessionPanel.Children.Insert(idx, set);
@@ -530,13 +530,13 @@ namespace Wale.WPF
                                         //if (sc.Name != sc.DisplayName && !string.IsNullOrWhiteSpace(sc.DisplayName)) { Log($"Remake name of {sc.Name}({sc.ProcessID})"); sc.Name = sc.DisplayName; }
                                         Log($"Make proper name of {sc.Name}({sc.ProcessID})");
                                         sc.Name = sc.DisplayName;//Make proper NameSet
-                                        string mt = sc.MainWindowTitle, name = (settings.MainTitleforAppname? $"{sc.Name} {mt}" : sc.Name), pname = sc.NameSet.ProcessName;
+                                        string mt = (sc.Name != sc.MainWindowTitle ? sc.MainWindowTitle : ""), name = (settings.MainTitleforAppname ? $"{sc.Name} {mt}" : sc.Name), pname = sc.NameSet.ProcessName;
                                         if (settings.PnameForAppname) { name = (settings.MainTitleforAppname ? $"{sc.NameSet.ProcessName} {mt}" : sc.NameSet.ProcessName); pname = sc.Name; }
                                         if (updateSessionDebug) { Console.WriteLine($"{name}({sc.ProcessID}) {sc.DisplayName} / {sc.ProcessName} / {sc.Icon} / {mt} / {sc.SessionIdentifier}"); }
                                         //string stooltip = string.IsNullOrEmpty(sc.MainWindowTitle) ? $"{sc.Name}({sc.ProcessID})" : $"{sc.Name}({sc.ProcessID}) - {sc.MainWindowTitle}";
-                                        string stooltip = $"{pname}({sc.ProcessID}) {mt}";Console.WriteLine(stooltip);
+                                        string stooltip = $"{pname}({sc.ProcessID}) {mt}"; Console.WriteLine(stooltip);
                                         if (GetSessionConfigFromFile()) ApplyCurrentSessionConfig(sc);//Get saved session config
-                                        MeterSet set = new MeterSet(sc.ProcessID, name, sc.Icon, settings.AdvancedView, sc.AutoIncluded, updateSessionDebug, stooltip) { SoundEnabled = sc.SoundEnabled, Relative = sc.Relative };
+                                        MeterSet set = new MeterSet(this, sc.ProcessID, name, sc.Icon, settings.AdvancedView, sc.AutoIncluded, updateSessionDebug, stooltip) { SoundEnabled = sc.SoundEnabled, Relative = sc.Relative };
                                         int idx = SessionPanel.Children.Count; //Console.WriteLine($"new meterset idx={idx}");
                                         foreach (MeterSet item in SessionPanel.Children) { if (set.CompareTo(item) < 0) { idx = SessionPanel.Children.IndexOf(item); break; } }
                                         if (idx < SessionPanel.Children.Count) { SessionPanel.Children.Insert(idx, set); }//Console.WriteLine("new meterset inserted"); }
@@ -556,7 +556,7 @@ namespace Wale.WPF
                                     if (settings.AdvancedView) mSet.DetailOn();
                                     else mSet.DetailOff();
                                     if (mSet.detailChanged) { reAlign = true; mSet.detailChanged = false; }
-                                    string mt=session.MainWindowTitle, name = (settings.MainTitleforAppname ? $"{session.Name} {mt}" : session.Name), pname = session.NameSet.ProcessName;
+                                    string mt = (session.Name != session.MainWindowTitle ? session.MainWindowTitle : ""), name = (settings.MainTitleforAppname ? $"{session.Name} {mt}" : session.Name), pname = session.NameSet.ProcessName;
                                     if (settings.PnameForAppname) { name = (settings.MainTitleforAppname ? $"{session.NameSet.ProcessName} {mt}" : session.NameSet.ProcessName); pname = session.Name; }
                                     //if (session.Name != session.DisplayName && !string.IsNullOrWhiteSpace(session.DisplayName)) { Log($"Remake name of {session.Name}({session.ProcessID})"); session.Name = session.DisplayName; }
                                     //string stooltip = string.IsNullOrEmpty(session.MainWindowTitle) ? $"{session.Name}({session.ProcessID})" : $"{session.Name}({session.ProcessID}) - {session.MainWindowTitle}";
@@ -1453,7 +1453,7 @@ namespace Wale.WPF
         }
     }
     //Datalink for VM
-    public class Datalink : INotifyPropertyChanged
+    public class Datalink : CDatalink
     {
         private string _SubVersion = "";
         public string SubVersion { get => _SubVersion; set => SetData(ref _SubVersion, value); }
@@ -1507,9 +1507,11 @@ namespace Wale.WPF
         //private double _AudioUnit = 0;
         //public double AudioUnit { get => _AudioUnit; set => SetData(ref _AudioUnit, value); }
 
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void Notify([System.Runtime.CompilerServices.CallerMemberName]string name = null) { PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name)); }
+    }
+    public class CDatalink : System.ComponentModel.INotifyPropertyChanged
+    {
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        protected void Notify([System.Runtime.CompilerServices.CallerMemberName]string name = null) { PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(name)); }
         protected bool SetData<T>(ref T storage, T value, [System.Runtime.CompilerServices.CallerMemberName] string name = null)
         {
             if (Equals(storage, value))
