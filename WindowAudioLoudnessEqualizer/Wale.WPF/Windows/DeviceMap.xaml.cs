@@ -46,7 +46,7 @@ namespace Wale.WPF
         #region Data control
         private Task GetData()
         {
-            return Task.Run(() => { data = new Wale.CoreAudio.Audio().GetDeviceList(); });
+            return Task.Run(() => { data = new Wale.CoreAudio.Core().GetDeviceList(); });
         }
         private void DrawMap()
         {

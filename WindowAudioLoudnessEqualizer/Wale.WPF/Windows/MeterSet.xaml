@@ -6,6 +6,7 @@
              xmlns:local="clr-namespace:Wale.WPF"
              xmlns:prop="clr-namespace:Wale.WPF.Properties"
              xmlns:wale="clr-namespace:Wale;assembly=WaleBase"
+             xmlns:conf="clr-namespace:Wale.Configuration;assembly=WaleBase"
              xmlns:locale="clr-namespace:Wale.Localization;assembly=Wale.Localization"
              mc:Ignorable="d" 
              ScrollViewer.VerticalScrollBarVisibility="Disabled"
@@ -241,7 +242,7 @@
             <StackPanel>
                 <Grid>
                     <ProgressBar x:Name="VolumeBar" Value=".5" Foreground="{Binding Source={x:Static local:ColorSet.VolumeColorBrush}}" Style="{DynamicResource PBarDef}"/>
-                    <Slider x:Name="RelBar" Value="0" Maximum="{Binding Source={x:Static wale:AudConf.RelativeEnd}}" Minimum="{Binding Source={x:Static wale:AudConf.RelativeEndInv}}" Opacity=".55" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Style="{DynamicResource SliderDef}" ValueChanged="RelBar_ValueChanged"/>
+                    <Slider x:Name="RelBar" Value="0" Maximum="{Binding Source={x:Static conf:Audio.RelativeEnd}}" Minimum="{Binding Source={x:Static conf:Audio.RelativeEndInv}}" Opacity=".55" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Style="{DynamicResource SliderDef}" ValueChanged="RelBar_ValueChanged"/>
                 </Grid>
                 <Grid>
                     <ProgressBar x:Name="LevelBar" Margin="0,0,0,0" Value=".5" Foreground="{Binding Source={x:Static local:ColorSet.PeakColorBrush}}" Style="{DynamicResource PBarDef}"/>

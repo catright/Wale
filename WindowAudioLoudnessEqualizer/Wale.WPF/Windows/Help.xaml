@@ -6,11 +6,12 @@
         xmlns:local="clr-namespace:Wale.WPF"
         xmlns:prop="clr-namespace:Wale.WPF.Properties"
         xmlns:wale="clr-namespace:Wale;assembly=WaleBase"
+        xmlns:conf="clr-namespace:Wale.Configuration;assembly=WaleBase"
         xmlns:locale="clr-namespace:Wale.Localization;assembly=Wale.Localization"
         mc:Ignorable="d"
         Title="Wale Help"
-        Height="{Binding Source={x:Static wale:AppDatas.SubWindowHeightDefault}}"
-        Width="{Binding Source={x:Static wale:AppDatas.MainWindowWidth}}"
+        Height="{Binding Source={x:Static conf:Visual.SubWindowHeightDefault}}"
+        Width="{Binding Source={x:Static conf:Visual.MainWindowWidth}}"
         WindowStyle="None"
         Background="{Binding Source={x:Static local:ColorSet.BackColorBrush}}">
     <Window.Resources>

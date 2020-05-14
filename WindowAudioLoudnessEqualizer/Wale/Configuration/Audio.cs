@@ -4,12 +4,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Wale
+namespace Wale.Configuration
 {
-    public static class AudConf
+    public static class Audio
     {
-        public static double AutoControlInterval { get => _AutoControlInterval; set { _AutoControlInterval = value; ACInterval = (int)(value * 1000); } }
+        #region Readonly Values
+        public static double RelativeBase => 3;
+        public static float RelativeEnd => 2;
+        public static float RelativeEndInv => -2;
+
+        #endregion
+
         private static double _AutoControlInterval;
+        public static double AutoControlInterval { get => _AutoControlInterval; set { _AutoControlInterval = value; ACInterval = (int)(value * 1000); } }
         public static int ACInterval { get; private set; }
 
         public static double MinPeak { get; set; }
@@ -23,11 +30,7 @@ namespace Wale
         public static bool Averaging { get; set; }
         public static double AverageTime { get; set; }
 
-        public static double RelativeBase { get; } = 3;
-        public static float RelativeEnd { get; } = 2;
-        public static float RelativeEndInv { get; } = -2;
-
-        public static void Default()
+        public static void ResetToDefault()
         {
             upRate = AudioSettingsDefault.upRate;
             Kurtosis = AudioSettingsDefault.kurtosis;

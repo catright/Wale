@@ -7,6 +7,7 @@
         xmlns:local="clr-namespace:Wale.WPF"
         xmlns:prop="clr-namespace:Wale.WPF.Properties"
         xmlns:wale="clr-namespace:Wale;assembly=WaleBase"
+        xmlns:conf="clr-namespace:Wale.Configuration;assembly=WaleBase"
         xmlns:locale="clr-namespace:Wale.Localization;assembly=Wale.Localization"
         mc:Ignorable="d"
         x:Name="confwindow"
@@ -18,7 +19,7 @@
             <Setter Property="Foreground" Value="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
             <Setter Property="Background" Value="{Binding Source={x:Static local:ColorSet.BackColorBrush}}"/>
 
-            <Setter Property="Width" Value="{Binding Source={x:Static wale:AppDatas.MainWindowWidth}}"/>
+            <Setter Property="Width" Value="{Binding Source={x:Static conf:Visual.MainWindowWidth}}"/>
             <!--Setter Property="MinWidth" Value="{Binding Width, RelativeSource={RelativeSource Self}}"/>
             <Setter Property="MaxWidth" Value="{Binding Width, RelativeSource={RelativeSource Self}}"/-->
 

@@ -27,7 +27,7 @@ namespace Wale.CoreAudio
                 asc2.SessionIdentifier
             );
             //AutoIncluded = ExcList.Contains(NameSet.Name) ? false : true;
-            if (ExcList == null) { JDPack.FileLog.Log($"Error: ExcList is null. {NameSet.SessionIdentifier}"); }
+            if (ExcList == null) { JPack.FileLog.Log($"Error: ExcList is null. {NameSet.SessionIdentifier}"); }
             if (ExcList != null && ExcList.Contains(NameSet.Name)){
                 //LastIncluded = false;
                 AutoIncluded = false;
@@ -80,7 +80,7 @@ namespace Wale.CoreAudio
             {
                 string l = $"Error: failed to re-make NameSet of {Name}";
                 Console.WriteLine(l);
-                JDPack.FileLog.Log(l);
+                JPack.FileLog.Log(l);
                 return;
             }
             NameSet.MakeName();
@@ -115,8 +115,8 @@ namespace Wale.CoreAudio
                 if (string.IsNullOrWhiteSpace(path))
                 {
                     Console.WriteLine($"PID({ProcessID}):there is no icon information. try to get it from process");
-                    JDPack.FileLog.Log($"PID({ProcessID}):there is no icon information. try to get it from process");
-                    try { path = asc2?.Process.MainModule.FileName; } catch { Console.WriteLine($"PID({ProcessID}):FAILED to get icon from process"); JDPack.FileLog.Log($"PID({ProcessID}):FAILED to get icon from process"); }
+                    JPack.FileLog.Log($"PID({ProcessID}):there is no icon information. try to get it from process");
+                    try { path = asc2?.Process.MainModule.FileName; } catch { Console.WriteLine($"PID({ProcessID}):FAILED to get icon from process"); JPack.FileLog.Log($"PID({ProcessID}):FAILED to get icon from process"); }
                     if (string.IsNullOrWhiteSpace(path)) { Console.WriteLine($"PID({ProcessID}):FAILED to get icon"); }
                     else { Console.WriteLine($"PID({ProcessID}):Suceed to get Icon from process"); }
                 }
@@ -168,7 +168,7 @@ namespace Wale.CoreAudio
         /// <summary>
         /// Final volume would be multiplied by 2^Relative. This value is kept in -1~1.
         /// </summary>
-        public float Relative { get => _Relative; set { _Relative = (value > AudConf.RelativeEnd) ? AudConf.RelativeEnd : ((value < AudConf.RelativeEndInv) ? AudConf.RelativeEndInv : (Math.Abs(value) < 0.00001) ? 0 : value); } }
+        public float Relative { get => _Relative; set { _Relative = (value > Wale.Configuration.Audio.RelativeEnd) ? Wale.Configuration.Audio.RelativeEnd : ((value < Wale.Configuration.Audio.RelativeEndInv) ? Wale.Configuration.Audio.RelativeEndInv : (Math.Abs(value) < 0.00001) ? 0 : value); } }
         /// <summary>
         /// Minimum volume. Session volume is kept above this value.
         /// </summary>
@@ -215,13 +215,13 @@ namespace Wale.CoreAudio
         {
             AvCount = (uint)Convert.ToUInt32(averagingTime / unitTime);
             //Console.WriteLine($"Average Time Updated Cnt:{AvCount}");
-            //JDPack.FileLog.Log($"Average Time Updated Cnt:{AvCount}");
+            //JPack.FileLog.Log($"Average Time Updated Cnt:{AvCount}");
             ResetAverage();
         }
         /// <summary>
         /// Clear all stacked peak values and set average to 0.
         /// </summary>
-        public void ResetAverage() { Peaks.Clear(); AveragePeak = 0; }// JDPack.FileLog.Log("Average Reset"); }//Console.WriteLine("Average Reset");
+        public void ResetAverage() { Peaks.Clear(); AveragePeak = 0; }// JPack.FileLog.Log("Average Reset"); }//Console.WriteLine("Average Reset");
         /// <summary>
         /// Add new peak value to peaks container and re-calculate AveragePeak value.
         /// </summary>
@@ -247,7 +247,7 @@ namespace Wale.CoreAudio
         private CancellationTokenSource cTokenS = null;
         private bool AutoControlEnabled = false;
         private Task ControlTask, AverageTask;
-        private int AutoInterval => AudConf.ACInterval;
+        private int AutoInterval => Wale.Configuration.Audio.ACInterval;
         public void AutoControlEnable()
         {
             AutoControlEnabled = true;
@@ -271,7 +271,7 @@ namespace Wale.CoreAudio
             }
             catch (OperationCanceledException e)
             {
-                string msg = $"{nameof(OperationCanceledException)} thrown with message: {e.Message}"; JDPack.FileLog.Log(msg); JDPack.Debug.DML(msg);
+                string msg = $"{nameof(OperationCanceledException)} thrown with message: {e.Message}"; JPack.FileLog.Log(msg); JPack.Debug.DML(msg);
             }
             finally { cTokenS.Dispose(); }
         }
@@ -316,34 +316,34 @@ namespace Wale.CoreAudio
 
                 if (cT.IsCancellationRequested) { cT.ThrowIfCancellationRequested(); }// Cancellation Check
                 // control volume when audio session makes sound
-                if (peak > AudConf.MinPeak)
+                if (peak > Wale.Configuration.Audio.MinPeak)
                 {
                     double tVol, UpLimit;
 
                     // update average
-                    if (AudConf.Averaging) SetAverage(peak);
+                    if (Wale.Configuration.Audio.Averaging) SetAverage(peak);
 
                     // when averaging, lower volume once if current peak exceeds average or set volume along average.
-                    if (AudConf.Averaging && peak < AveragePeak) tVol = AudConf.TargetLevel / AveragePeak;
-                    else tVol = AudConf.TargetLevel / peak;
+                    if (Wale.Configuration.Audio.Averaging && peak < AveragePeak) tVol = Wale.Configuration.Audio.TargetLevel / AveragePeak;
+                    else tVol = Wale.Configuration.Audio.TargetLevel / peak;
 
                     // calc upLimit by vfunc
-                    switch (AudConf.VFunc)
+                    switch (Wale.Configuration.Audio.VFunc)
                     {
                         case VFunction.Func.Linear:
-                            UpLimit = VFunction.Linear(volume, AudConf.UpRate) + volume;
+                            UpLimit = VFunction.Linear(volume, Wale.Configuration.Audio.UpRate) + volume;
                             break;
                         case VFunction.Func.SlicedLinear:
-                            UpLimit = VFunction.SlicedLinear(volume, AudConf.UpRate, AudConf.TargetLevel, AudConf.SliceFactors.A, AudConf.SliceFactors.B) + volume;
+                            UpLimit = VFunction.SlicedLinear(volume, Wale.Configuration.Audio.UpRate, Wale.Configuration.Audio.TargetLevel, Wale.Configuration.Audio.SliceFactors.A, Wale.Configuration.Audio.SliceFactors.B) + volume;
                             break;
                         case VFunction.Func.Reciprocal:
-                            UpLimit = VFunction.Reciprocal(volume, AudConf.UpRate, AudConf.Kurtosis) + volume;
+                            UpLimit = VFunction.Reciprocal(volume, Wale.Configuration.Audio.UpRate, Wale.Configuration.Audio.Kurtosis) + volume;
                             break;
                         case VFunction.Func.FixedReciprocal:
-                            UpLimit = VFunction.FixedReciprocal(volume, AudConf.UpRate, AudConf.Kurtosis) + volume;
+                            UpLimit = VFunction.FixedReciprocal(volume, Wale.Configuration.Audio.UpRate, Wale.Configuration.Audio.Kurtosis) + volume;
                             break;
                         default:
-                            UpLimit = AudConf.UpRate + volume;
+                            UpLimit = Wale.Configuration.Audio.UpRate + volume;
                             break;
                     }
 
@@ -352,7 +352,7 @@ namespace Wale.CoreAudio
                     dm.Append($" T={tVol:n3} UL={UpLimit:n3}");//Console.WriteLine($" T={tVol:n3} UL={UpLimit:n3}");
                     Volume = (float)((tVol > UpLimit ? UpLimit : tVol) * relFactor);
                 }
-                JDPack.Debug.DML(dm.ToString());// print debug message
+                JPack.Debug.DML(dm.ToString());// print debug message
             }
             return Task.FromResult(0);
         }
@@ -402,6 +402,8 @@ namespace Wale.CoreAudio
         #endregion
 
     }//End class Session
+
+
     /// <summary>
     /// List object of SessionData. List&lt;Session&gt;
     /// </summary>
@@ -425,15 +427,15 @@ namespace Wale.CoreAudio
             try { return this.Find(sc => sc.PID == pid); }
             catch (ArgumentNullException)
             {
-                JDPack.FileLog.Log($"Error(GetSession): ArgumentNullException");
+                JPack.FileLog.Log($"Error(GetSession): ArgumentNullException");
             }
             catch (NullReferenceException)
             {
-                JDPack.FileLog.Log($"Error(GetSession): NullReferenceException");
+                JPack.FileLog.Log($"Error(GetSession): NullReferenceException");
             }
             catch (Exception e)
             {
-                JDPack.FileLog.Log($"Error(GetSession): {e.ToString()}");
+                JPack.FileLog.Log($"Error(GetSession): {e.ToString()}");
             }
             return null;
         }*/
@@ -450,15 +452,15 @@ namespace Wale.CoreAudio
             try { return this.Find(sc => sc.ProcessID == pid); }
             catch (ArgumentNullException)
             {
-                JDPack.FileLog.Log($"Error(GetSession): ArgumentNullException");
+                JPack.FileLog.Log($"Error(GetSession): ArgumentNullException");
             }
             catch (NullReferenceException)
             {
-                JDPack.FileLog.Log($"Error(GetSession): NullReferenceException");
+                JPack.FileLog.Log($"Error(GetSession): NullReferenceException");
             }
             catch (Exception e)
             {
-                JDPack.FileLog.Log($"Error(GetSession): {e.ToString()}");
+                JPack.FileLog.Log($"Error(GetSession): {e.ToString()}");
             }
             return null;
         }
@@ -472,11 +474,11 @@ namespace Wale.CoreAudio
             try { return GetSession(pid).Relative; }
             catch (NullReferenceException)
             {
-                JDPack.FileLog.Log($"Error(GetRelative): NullReferenceException");
+                JPack.FileLog.Log($"Error(GetRelative): NullReferenceException");
             }
             catch (Exception e)
             {
-                JDPack.FileLog.Log($"Error(GetRelative): {e.ToString()}");
+                JPack.FileLog.Log($"Error(GetRelative): {e.ToString()}");
             }
             return 0.0;
         }
@@ -495,15 +497,15 @@ namespace Wale.CoreAudio
             try { return this.Find(sc => sc.GroupParam == grparam); }
             catch (ArgumentNullException)
             {
-                JDPack.FileLog.Log($"Error(GetSession): ArgumentNullException");
+                JPack.FileLog.Log($"Error(GetSession): ArgumentNullException");
             }
             catch (NullReferenceException)
             {
-                JDPack.FileLog.Log($"Error(GetSession): NullReferenceException");
+                JPack.FileLog.Log($"Error(GetSession): NullReferenceException");
             }
             catch (Exception e)
             {
-                JDPack.FileLog.Log($"Error(GetSession): {e.ToString()}");
+                JPack.FileLog.Log($"Error(GetSession): {e.ToString()}");
             }
             return null;
         }
@@ -517,11 +519,11 @@ namespace Wale.CoreAudio
             try { return GetSession(grparam).Relative; }
             catch (NullReferenceException)
             {
-                JDPack.FileLog.Log($"Error(GetRelative): NullReferenceException");
+                JPack.FileLog.Log($"Error(GetRelative): NullReferenceException");
             }
             catch (Exception e)
             {
-                JDPack.FileLog.Log($"Error(GetRelative): {e.ToString()}");
+                JPack.FileLog.Log($"Error(GetRelative): {e.ToString()}");
             }
             return 0.0;
         }
@@ -540,15 +542,15 @@ namespace Wale.CoreAudio
             try { return this.FindAll(sc => sc.SessionIdentifier == sid); }
             catch (ArgumentNullException)
             {
-                JDPack.FileLog.Log($"Error(GetSession): ArgumentNullException");
+                JPack.FileLog.Log($"Error(GetSession): ArgumentNullException");
             }
             catch (NullReferenceException)
             {
-                JDPack.FileLog.Log($"Error(GetSession): NullReferenceException");
+                JPack.FileLog.Log($"Error(GetSession): NullReferenceException");
             }
             catch (Exception e)
             {
-                JDPack.FileLog.Log($"Error(GetSession): {e.ToString()}");
+                JPack.FileLog.Log($"Error(GetSession): {e.ToString()}");
             }
             return null;
         }

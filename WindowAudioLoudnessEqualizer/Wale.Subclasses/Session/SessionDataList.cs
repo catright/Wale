@@ -25,15 +25,15 @@ namespace Wale.CoreAudio
             try { return this.Find(sc => sc.PID == pid); }
             catch (ArgumentNullException)
             {
-                JDPack.FileLog.Log($"Error(GetSession): ArgumentNullException");
+                JPack.FileLog.Log($"Error(GetSession): ArgumentNullException");
             }
             catch (NullReferenceException)
             {
-                JDPack.FileLog.Log($"Error(GetSession): NullReferenceException");
+                JPack.FileLog.Log($"Error(GetSession): NullReferenceException");
             }
             catch (Exception e)
             {
-                JDPack.FileLog.Log($"Error(GetSession): {e.ToString()}");
+                JPack.FileLog.Log($"Error(GetSession): {e.ToString()}");
             }
             return null;
         }
@@ -47,11 +47,11 @@ namespace Wale.CoreAudio
             try { return GetSession(pid).Relative; }
             catch (NullReferenceException)
             {
-                JDPack.FileLog.Log($"Error(GetRelative): NullReferenceException");
+                JPack.FileLog.Log($"Error(GetRelative): NullReferenceException");
             }
             catch (Exception e)
             {
-                JDPack.FileLog.Log($"Error(GetRelative): {e.ToString()}");
+                JPack.FileLog.Log($"Error(GetRelative): {e.ToString()}");
             }
             return 0.0;
         }

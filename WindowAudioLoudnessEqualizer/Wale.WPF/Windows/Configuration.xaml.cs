@@ -44,7 +44,7 @@ namespace Wale.WPF
             //cs.SizeChanged += ConfigSet_SizeChanged;
             Settings.Default.PropertyChanged += Default_PropertyChanged;
             MainGrid.Children.Add(cs);
-            this.Height = (Settings.Default.AdvancedView ? AppDatas.ConfigSetLongHeight : AppDatas.ConfigSetHeight) + AppDatas.TitleBarHeight;
+            this.Height = (Settings.Default.AdvancedView ? Wale.Configuration.Visual.ConfigSetLongHeight : Wale.Configuration.Visual.ConfigSetHeight) + Wale.Configuration.Visual.TitleBarHeight;
             //this.Width = 280;
 
             this.Title = "Wale " + Localization.Interpreter.Current.Configuration;
@@ -54,15 +54,15 @@ namespace Wale.WPF
         {
             if (e.PropertyName == "AdvancedView")
             {
-                DoChangeHeightSB((Settings.Default.AdvancedView ? AppDatas.ConfigSetLongHeight : AppDatas.ConfigSetHeight) + AppDatas.TitleBarHeight);
+                DoChangeHeightSB((Settings.Default.AdvancedView ? Wale.Configuration.Visual.ConfigSetLongHeight : Wale.Configuration.Visual.ConfigSetHeight) + Wale.Configuration.Visual.TitleBarHeight);
             }
         }
 
         private void ConfigSet_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            //this.Height = (MainGrid.Children[1] as ConfigSet).Height + AppDatas.TitleBarHeight;
-            //DoChangeHeightSB((MainGrid.Children[1] as ConfigSet).Height + AppDatas.TitleBarHeight);
-            DoChangeHeightSB((Settings.Default.AdvancedView ? AppDatas.ConfigSetLongHeight : AppDatas.ConfigSetHeight) + AppDatas.TitleBarHeight);
+            //this.Height = (MainGrid.Children[1] as ConfigSet).Height + Wale.Configuration.Visual.TitleBarHeight;
+            //DoChangeHeightSB((MainGrid.Children[1] as ConfigSet).Height + Wale.Configuration.Visual.TitleBarHeight);
+            DoChangeHeightSB((Settings.Default.AdvancedView ? Wale.Configuration.Visual.ConfigSetLongHeight : Wale.Configuration.Visual.ConfigSetHeight) + Wale.Configuration.Visual.TitleBarHeight);
         }
 
         private void Cs_LogInvokedEvent(object sender, ConfigSet.LogEventArgs e)

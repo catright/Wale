@@ -86,9 +86,9 @@
               KeyPath="yes" />
       </Component>
 
-      <Component Id="JDPackComp">
-        <File Id="JDPack" Name="JDPack.dll"
-              Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Debug\JDPack.dll"
+      <Component Id="JPackComp">
+        <File Id="JPack" Name="JPack.dll"
+              Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Debug\JPack.dll"
               KeyPath="yes" />
       </Component>
       

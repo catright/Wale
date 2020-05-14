@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:Wale.WPF"
         xmlns:prop="clr-namespace:Wale.WPF.Properties"
         xmlns:wale="clr-namespace:Wale;assembly=WaleBase"
+        xmlns:conf="clr-namespace:Wale.Configuration;assembly=WaleBase"
         xmlns:oxy="http://oxyplot.org/wpf"
         xmlns:locale="clr-namespace:Wale.Localization;assembly=Wale.Localization"
         mc:Ignorable="d" Icon="Icon/WaleLeftOn.ico" ShowInTaskbar="False" WindowStyle="None" ResizeMode="NoResize"
@@ -14,10 +15,10 @@
         <Style TargetType="Window">
             <Setter Property="Foreground" Value="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
             <Setter Property="Background" Value="{Binding Source={x:Static local:ColorSet.BackColorBrush}}"/>
-            <Setter Property="Width" Value="{Binding Source={x:Static wale:AppDatas.MainWindowWidth}}"/>
+            <Setter Property="Width" Value="{Binding Source={x:Static conf:Visual.MainWindowWidth}}"/>
             <Setter Property="MaxWidth" Value="{Binding Width, RelativeSource={RelativeSource self}}"/>
             <Setter Property="Height" Value="285"/>
-            <Setter Property="MinHeight" Value="{Binding Source={x:Static wale:AppDatas.MainWindowHeightDefault}}"/>
+            <Setter Property="MinHeight" Value="{Binding Source={x:Static conf:Visual.MainWindowHeightDefault}}"/>
             <Setter Property="Topmost" Value="{Binding Path=AlwaysTop, Source={x:Static prop:Settings.Default}}"/>
         </Style>
     </Window.Style>

@@ -46,14 +46,14 @@ namespace Wale.WPF
             // is constructed and visible
 
             //foreach (string arg in e.Args) { Console.WriteLine(arg); }
-
-            //JDPack.FileLog.SetWorkDirectory(System.IO.Path.Combine(Environment.ExpandEnvironmentVariables("%appdata%"), "WaleAudioControl"));
-            string path=(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "WaleAudioControl"));
-            JDPack.FileLog.SetWorkDirectory(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "WaleAudioControl"));
-            JDPack.FileLog.Open("WaleLog");
-            JDPack.FileLog.Erase(7);
-            JDPack.FileLog.Log($"Wale {AppVersion.Version}.{AppVersion.SubVersion}");
-            JDPack.FileLog.Log(path);
+            //string installedPath = System.AppDomain.CurrentDomain.BaseDirectory;
+            //string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            string path = Conf.WorkingPath;
+            JPack.FileLog.SetWorkDirectory(path);
+            JPack.FileLog.Open("WaleLog");
+            JPack.FileLog.Erase(7);
+            JPack.FileLog.Log($"Wale {AppVersion.Version}.{AppVersion.SubVersion}");
+            JPack.FileLog.Log(path);
 
             int UICreation = 0;
             try
@@ -63,12 +63,12 @@ namespace Wale.WPF
                 mw.Show();
                 UICreation = 2;
             }
-            catch (Exception uice) { JDPack.FileLog.Log($"Failed to create and show UI on stage {UICreation}, {uice.ToString()}"); }
+            catch (Exception uice) { JPack.FileLog.Log($"Failed to create and show UI on stage {UICreation}, {uice.ToString()}"); }
         }
         void App_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
         {
             // Process unhandled exception
-            JDPack.FileLog.Log($"{e.Exception.Message} {e.Exception.StackTrace}");
+            JPack.FileLog.Log($"{e.Exception.Message} {e.Exception.StackTrace}");
             // Prevent default unhandled exception processing
             //e.Handled = true;
         }
@@ -78,5 +78,11 @@ namespace Wale.WPF
             base.OnExit(e);
         }
 
+    }
+
+    public static class Conf
+    {
+        public static Wale.Configuration.General settings = new Wale.Configuration.General();
+        public static string WorkingPath = settings.WorkingPath;
     }
 }

@@ -44,7 +44,7 @@ namespace Wale.WPF
         {
             this.Owner = owner;
             DL.SessionName = sessionName;
-            DL.RelativeTooltop = $"{AudConf.RelativeEndInv}~{AudConf.RelativeEnd}";
+            DL.RelativeTooltop = $"{Wale.Configuration.Audio.RelativeEndInv}~{Wale.Configuration.Audio.RelativeEnd}";
             Relative = DL.Relative = rel;
         }
 
@@ -54,17 +54,29 @@ namespace Wale.WPF
             DialogResult = true;
             Close();
         }
+
+        private void Relative_TextBox_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter || e.Key == Key.Return) { OK_Click(sender, new RoutedEventArgs()); }
+        }
+
+        private void Window_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Escape) { DialogResult = false; Close(); }
+        }
     }
 
-    public class SMSDatalink : CDatalink
+    public class SMSDatalink : JPack.NotifyPropertyChanged
     {
-        private string _SessionName = "Session Name";
-        public string SessionName { get => _SessionName; set => SetData(ref _SessionName, value); }
+        public SMSDatalink()
+        {
+            SessionName = "Session Name";
+        }
 
-        private string _RelativeTooltop = "";
-        public string RelativeTooltop { get => _RelativeTooltop; set => SetData(ref _RelativeTooltop, value); }
-        private double _Relative = 0;
-        public double Relative { get => _Relative; set => SetData(ref _Relative, Math.Round(value, 3)); }
+        public string SessionName { get => Get<string>(); set => Set(value); }
+
+        public string RelativeTooltop { get => Get<string>(); set => Set(value); }
+        public double Relative { get => Get<double>(); set => Set(Math.Round(value, 3)); }
     }
 
 }

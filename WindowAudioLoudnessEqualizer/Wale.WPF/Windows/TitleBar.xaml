@@ -6,10 +6,11 @@
              xmlns:local="clr-namespace:Wale.WPF"
              xmlns:prop="clr-namespace:Wale.WPF.Properties"
              xmlns:wale="clr-namespace:Wale;assembly=WaleBase"
-            xmlns:locale="clr-namespace:Wale.Localization;assembly=Wale.Localization"
+             xmlns:conf="clr-namespace:Wale.Configuration;assembly=WaleBase"
+             xmlns:locale="clr-namespace:Wale.Localization;assembly=Wale.Localization"
              mc:Ignorable="d"
-             Height="{Binding Source={x:Static wale:AppDatas.TitleBarHeight}}" MinHeight="{Binding Height, RelativeSource={RelativeSource Self}}" MaxHeight="{Binding Height, RelativeSource={RelativeSource Self}}"
-             Width="{Binding Source={x:Static wale:AppDatas.MainWindowWidth}}"
+             Height="{Binding Source={x:Static conf:Visual.TitleBarHeight}}" MinHeight="{Binding Height, RelativeSource={RelativeSource Self}}" MaxHeight="{Binding Height, RelativeSource={RelativeSource Self}}"
+             Width="{Binding Source={x:Static conf:Visual.MainWindowWidth}}"
              VerticalAlignment="Top">
 
     <Grid x:Name="TitleGrid"

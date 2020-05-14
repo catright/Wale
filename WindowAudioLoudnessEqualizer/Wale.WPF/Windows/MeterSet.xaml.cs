@@ -20,7 +20,7 @@ namespace Wale.WPF
     /// </summary>
     public partial class MeterSet : UserControl, IComparable<MeterSet>
     {
-        private readonly JDPack.DebugPack DP;
+        private readonly JPack.DebugPack DP;
         private readonly Brush foreColor = ColorSet.ForeColorBrush, mainColor = ColorSet.MainColorBrush, peakColor = ColorSet.PeakColorBrush, averageColor = ColorSet.AverageColorBrush;
         private enum LabelMode { Relative, Volume, Peak, AveragePeak };
 
@@ -69,7 +69,7 @@ namespace Wale.WPF
             Icon.Source = System.Windows.Interop.Imaging.CreateBitmapSourceFromHIcon(icon.Handle, new Int32Rect(0, 0, icon.Width, icon.Height), BitmapSizeOptions.FromEmptyOptions());
             //Icon.Source = new BitmapImage(new Uri(iconpath, UriKind.Relative));
 
-            DP = new JDPack.DebugPack(dbg);
+            DP = new JPack.DebugPack(dbg);
 
             Initialization(name, tooltip);
             detailed = !detail;
@@ -129,14 +129,13 @@ namespace Wale.WPF
         private void MeterSet_MouseWheel(object sender, MouseWheelEventArgs e)
         {
             DP.DM($"{SessionName}({ProcessID}) MeterSet_MouseWheel {e.Delta}");
-            if (e.Delta > 0) { Relative += 0.05; if (Relative > 1) Relative = 1; }
-            else if (e.Delta < 0) { Relative -= 0.05; if (Relative < -1) Relative = -1; }
+            if (e.Delta > 0) { Relative += 0.05; if (Relative > Wale.Configuration.Audio.RelativeEnd) Relative = Wale.Configuration.Audio.RelativeEnd; }
+            else if (e.Delta < 0) { Relative -= 0.05; if (Relative < Wale.Configuration.Audio.RelativeEndInv) Relative = Wale.Configuration.Audio.RelativeEndInv; }
             DP.DML($", {Relative}");
         }
         private void RelBar_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            double lim = AudConf.RelativeEnd;
-            Relative = e.NewValue > lim ? lim : (e.NewValue < -lim ? -lim : e.NewValue);
+            Relative = e.NewValue > Wale.Configuration.Audio.RelativeEnd ? Wale.Configuration.Audio.RelativeEnd : (e.NewValue < Wale.Configuration.Audio.RelativeEndInv ? Wale.Configuration.Audio.RelativeEndInv : e.NewValue);
         }
         #endregion
 
@@ -191,7 +190,7 @@ namespace Wale.WPF
                 //SessionLabel.MouseDown -= LVolume_Click;
                 labelMode = LabelMode.Volume;
                 SetForeColor(SessionLabel, mainColor);
-                SetHeight(AppDatas.SessionBlockHeightDetail);
+                SetHeight(Wale.Configuration.Visual.SessionBlockHeightDetail);
                 ControlShowHide(SessionLabel, Visibility.Hidden);
                 ControlShowHide(RelLabel, Visibility.Visible);
                 ControlShowHide(PeakLabel, Visibility.Visible);
@@ -210,7 +209,7 @@ namespace Wale.WPF
                 //SessionLabel.MouseDown += LVolume_Click;
                 labelMode = LabelMode.AveragePeak;
                 SetForeColor(SessionLabel, averageColor);
-                SetHeight(AppDatas.SessionBlockHeightNormal);
+                SetHeight(Wale.Configuration.Visual.SessionBlockHeightNormal);
                 ControlShowHide(SessionLabel, Visibility.Visible);
                 ControlShowHide(RelLabel, Visibility.Hidden);
                 ControlShowHide(PeakLabel, Visibility.Hidden);

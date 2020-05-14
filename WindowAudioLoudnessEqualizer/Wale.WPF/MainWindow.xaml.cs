@@ -57,6 +57,8 @@ namespace Wale.WPF
         /// stored setting that users can modify
         /// </summary>
         readonly Wale.WPF.Properties.Settings settings = Wale.WPF.Properties.Settings.Default;
+        //readonly Wale.Configuration.General settings = Conf.settings;
+        //readonly Wale.Configuration.General settings = new Wale.Configuration.General();
         /// <summary>
         /// datalink between MVVM
         /// </summary>
@@ -72,7 +74,7 @@ namespace Wale.WPF
         /// <summary>
         /// Debug message pack
         /// </summary>
-        JDPack.DebugPack DP;
+        JPack.DebugPack DP;
         /// <summary>
         /// window update task list
         /// </summary>
@@ -122,7 +124,7 @@ namespace Wale.WPF
                 //settings.Upgrade();// MessageBox.Show("Settings Upgraded.");
                 settings.Version = AppVersion.FullVersion;// MessageBox.Show("Settings Version Upgraded");
                 settings.Save();// MessageBox.Show("Settings Saved");
-                try { JDPack.FileLog.Log($"Settings are Upgraded from {settings.GetPreviousVersion("Version")}"); } catch { MessageBox.Show("FileLog Error on settings upgrade"); }
+                try { JPack.FileLog.Log($"Settings are Upgraded from {settings.GetPreviousVersion("Version")}"); } catch { MessageBox.Show("FileLog Error on settings upgrade"); }
             });
 
             string ver = String.Empty;
@@ -134,7 +136,7 @@ namespace Wale.WPF
         /// </summary>
         private void MakeComponents()
         {
-            DP = new JDPack.DebugPack(debug);
+            DP = new JPack.DebugPack(debug);
 
             // clear contents for design
             LogScroll.Content = string.Empty;
@@ -360,7 +362,7 @@ namespace Wale.WPF
             {
                 if (Active)
                 {
-                    JDPack.DebugPack VDP = new JDPack.DebugPack(updateVolumeDebug);
+                    JPack.DebugPack VDP = new JPack.DebugPack(updateVolumeDebug);
                     VDP.DMML($"base={settings.TargetLevel} vol={Audio.MasterVolume}({Audio.MasterPeak})");
 
                     Tuple<string, string> nbuf = Audio.GetDeviceName();
@@ -376,8 +378,8 @@ namespace Wale.WPF
 
                     Dispatcher?.Invoke(() =>
                     {
-                        double hbuf = MasterPanel.Height + AppDatas.MainWindowBaseHeight;
-                        hbuf = hbuf > AppDatas.MainWindowHeightDefault ? hbuf : AppDatas.MainWindowHeightDefault;
+                        double hbuf = MasterPanel.Height + Wale.Configuration.Visual.MainWindowBaseHeight;
+                        hbuf = hbuf > Wale.Configuration.Visual.MainWindowHeightDefault ? hbuf : Wale.Configuration.Visual.MainWindowHeightDefault;
                         window.MinHeight = hbuf;
                     });
                 }
@@ -415,10 +417,10 @@ namespace Wale.WPF
                 else
                 {
                     // the "functional part", executing only on the main thread
-                    JDPack.DebugPack SDP = new JDPack.DebugPack(updateSessionDebug);
+                    JPack.DebugPack SDP = new JPack.DebugPack(updateSessionDebug);
                     SDP.DMM("Getting Sessions");
                     int count = 0;
-                    lock (Lockers.Sessions) { count = Audio.Sessions.Count; }// count of all sessions
+                    lock (Locks.Session) { count = Audio.Sessions.Count; }// count of all sessions
                     SDP.DMML("  Count:" + count);
 
                     // do when there is session
@@ -426,7 +428,7 @@ namespace Wale.WPF
                     {
                         bool reAlign = false; // re-alignment flag
                         List<MeterSet> expired = new List<MeterSet>(); //expired tabSession.controls buffer
-                        lock (Lockers.Sessions)
+                        lock (Locks.Session)
                         {
                             foreach (var sc in Audio.Sessions)
                             {//check and insert new session data as meterset to tabSession.controls
@@ -479,9 +481,9 @@ namespace Wale.WPF
                         if (reAlign)
                         {//re-align when there is(are) added or removed session(s)
                             Log("Re-aligning");
-                            double lastHeight = this.Height, spacing = settings.AdvancedView ? AppDatas.SessionBlockHeightDetail : AppDatas.SessionBlockHeightNormal;
+                            double lastHeight = this.Height, spacing = settings.AdvancedView ? Wale.Configuration.Visual.SessionBlockHeightDetail : Wale.Configuration.Visual.SessionBlockHeightNormal;
                             double newHeight = (double)(SessionPanel.Children.Count) * spacing + 60 + 2;
-                            if (newHeight < this.MinHeight) { newHeight = AppDatas.MainWindowHeightDefault; }
+                            if (newHeight < this.MinHeight) { newHeight = Wale.Configuration.Visual.MainWindowHeightDefault; }
                             //Console.WriteLine($"fsgH:{fsgHeight},DF:{dif}");
                             mainHeight = newHeight;
                             if (!nowConfig) DoChangeHeightSB(newHeight, "0:0:.1");
@@ -505,10 +507,10 @@ namespace Wale.WPF
                 else
                 {
                     // the "functional part", executing only on the main thread
-                    JDPack.DebugPack SDP = new JDPack.DebugPack(updateSessionDebug);
+                    JPack.DebugPack SDP = new JPack.DebugPack(updateSessionDebug);
                     SDP.CMM("Getting Sessions");
                     int count = 0;
-                    lock (Lockers.Sessions) { count = Audio.Sessions.Count; }// count of all sessions
+                    lock (Locks.Session) { count = Audio.Sessions.Count; }// count of all sessions
                     SDP.CMML("  Count:" + count);
 
                     // do when there is session
@@ -516,7 +518,7 @@ namespace Wale.WPF
                     {
                         bool reAlign = false; // re-alignment flag
                         List<MeterSet> expired = new List<MeterSet>(); //expired tabSession.controls buffer
-                        lock (Lockers.Sessions)
+                        lock (Locks.Session)
                         {
                             // Add new session
                             foreach (var sc in Audio.Sessions)
@@ -582,9 +584,9 @@ namespace Wale.WPF
                         {//re-align when there is(are) added or removed session(s)
                             Log("Re-aligning");
                             //SessionPanel.Children.Cast<List>().ToList().Sort();
-                            double lastHeight = this.Height, spacing = settings.AdvancedView ? AppDatas.SessionBlockHeightDetail : AppDatas.SessionBlockHeightNormal;
+                            double lastHeight = this.Height, spacing = settings.AdvancedView ? Wale.Configuration.Visual.SessionBlockHeightDetail : Wale.Configuration.Visual.SessionBlockHeightNormal;
                             double newHeight = (double)(SessionPanel.Children.Count) * spacing + 60 + 2;
-                            if (newHeight < this.MinHeight) { newHeight = AppDatas.MainWindowHeightDefault; }
+                            if (newHeight < this.MinHeight) { newHeight = Wale.Configuration.Visual.MainWindowHeightDefault; }
                             //Console.WriteLine($"fsgH:{fsgHeight},DF:{dif}");
                             mainHeight = newHeight;
                             if (!nowConfig) DoChangeHeightSB(newHeight, "0:0:.1");
@@ -654,9 +656,9 @@ namespace Wale.WPF
         private void ConfigToolStripMenuItem_Click(object sender, RoutedEventArgs e)
         {
             DP.DMM("Settings");
-            JDPack.FormPack FWP = new JDPack.FormPack();
+            JPack.FormPack FWP = new JPack.FormPack();
             Configuration form = new Configuration(Audio, DL) { Icon = this.Icon };
-            System.Drawing.Point p = FWP.PointFromMouse(-(int)(form.Width / 2), -(int)form.Height, JDPack.FormPack.PointMode.AboveTaskbar);
+            System.Drawing.Point p = FWP.PointFromMouse(-(int)(form.Width / 2), -(int)form.Height, JPack.FormPack.PointMode.AboveTaskbar);
             form.Left = p.X;
             form.Top = p.Y;
             form.Closed += Config_FormClosed;
@@ -677,9 +679,9 @@ namespace Wale.WPF
         private void deviceMapToolStripMenuItem_Click(object sender, EventArgs e)
         {
             DP.DMM("DeviceMap");
-            JDPack.FormPack FWP = new JDPack.FormPack();
+            JPack.FormPack FWP = new JPack.FormPack();
             DeviceMap form = new DeviceMap() { Icon = this.Icon };
-            System.Drawing.Point p = FWP.PointFromMouse(-(int)(form.Width / 2), -(int)form.Height, JDPack.FormPack.PointMode.AboveTaskbar);
+            System.Drawing.Point p = FWP.PointFromMouse(-(int)(form.Width / 2), -(int)form.Height, JPack.FormPack.PointMode.AboveTaskbar);
             form.Left = p.X;
             form.Top = p.Y;
             form.ShowDialog();
@@ -687,9 +689,9 @@ namespace Wale.WPF
         private void helpToolStripMenuItem_Click(object sender, EventArgs e)
         {
             DP.DMM("Help");
-            JDPack.FormPack FWP = new JDPack.FormPack();
+            JPack.FormPack FWP = new JPack.FormPack();
             Help form = new Help() { Icon = this.Icon };
-            System.Drawing.Point p = FWP.PointFromMouse(-(int)(form.Width / 2), -(int)form.Height, JDPack.FormPack.PointMode.AboveTaskbar);
+            System.Drawing.Point p = FWP.PointFromMouse(-(int)(form.Width / 2), -(int)form.Height, JPack.FormPack.PointMode.AboveTaskbar);
             form.Left = p.X;
             form.Top = p.Y;
             form.ShowDialog();
@@ -697,9 +699,9 @@ namespace Wale.WPF
         private void licensesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             DP.DMM("Licenses");
-            JDPack.FormPack FWP = new JDPack.FormPack();
+            JPack.FormPack FWP = new JPack.FormPack();
             License form = new License { Icon = this.Icon };
-            System.Drawing.Point p = FWP.PointFromMouse(-(int)(form.Width / 2), -(int)form.Height, JDPack.FormPack.PointMode.AboveTaskbar);
+            System.Drawing.Point p = FWP.PointFromMouse(-(int)(form.Width / 2), -(int)form.Height, JPack.FormPack.PointMode.AboveTaskbar);
             form.Left = p.X;
             form.Top = p.Y;
             form.ShowDialog();
@@ -707,10 +709,10 @@ namespace Wale.WPF
 
         private void openLogDirectoryToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //System.Diagnostics.Process.Start(JDPack.FileLog.WorkDirectory.FullName);
-            Console.WriteLine($"{JDPack.FileLog.WorkDirectory.FullName}");
-            JDPack.FileLog.Log(JDPack.FileLog.File.FullName);
-            JDPack.FileLog.OpenWorkDirectoryOnExplorer();
+            //System.Diagnostics.Process.Start(JPack.FileLog.WorkDirectory.FullName);
+            Console.WriteLine($"{JPack.FileLog.WorkDirectory.FullName}");
+            JPack.FileLog.Log(JPack.FileLog.File.FullName);
+            JPack.FileLog.OpenWorkDirectoryOnExplorer();
         }
 
         private void WindowsSoundSetting_Click(object sender, RoutedEventArgs e)
@@ -801,7 +803,7 @@ namespace Wale.WPF
         }
 
         #endregion
-        #region Session Control mothods and events
+        #region Session Control methods and events
         private const string SessionDataFile = "SessionData.conf", cmtind = "###";
         private List<SessionDataStructure> SavedSessionConfig = new List<SessionDataStructure>();
         struct SessionDataStructure
@@ -812,7 +814,7 @@ namespace Wale.WPF
         }
         private bool ReadSessionConfigFile(out string d)
         {
-            string f = System.IO.Path.Combine(JDPack.FileLog.WorkDirectory.FullName, SessionDataFile);
+            string f = System.IO.Path.Combine(Conf.WorkingPath, SessionDataFile);
             if (File.Exists(f))
             {
                 d = File.ReadAllText(f, Encoding.UTF8);
@@ -863,7 +865,7 @@ namespace Wale.WPF
         {
             SavedSessionConfig?.ForEach((sd) =>
             {
-                lock (Lockers.Sessions)
+                lock (Locks.Session)
                 {
                     Audio.Sessions.GetSessionBySID(sd.SessionIdentifier).ForEach((s) => { s.AutoIncluded = sd.AutoIncluded; s.Relative = sd.Relative; });
                 }
@@ -887,7 +889,7 @@ namespace Wale.WPF
 
             List<string> sidList = new List<string>();
 
-            lock (Lockers.Sessions)
+            lock (Locks.Session)
             {
                 Audio.Sessions.ForEach((s) =>
                 {
@@ -898,7 +900,7 @@ namespace Wale.WPF
 
             sidList.ForEach((sid) =>
             {
-                lock (Lockers.Sessions)
+                lock (Locks.Session)
                 {
                     List<Session> ss = Audio.Sessions.GetSessionBySID(sid);
                     if (ss.Count == 1) { sessionDatas.Add(new SessionDataStructure() { SessionIdentifier = ss[0].SessionIdentifier, AutoIncluded = ss[0].AutoIncluded, Relative = ss[0].Relative }); }
@@ -928,7 +930,7 @@ namespace Wale.WPF
         }
         private void SaveSessionConfigToFile()
         {
-            string f = System.IO.Path.Combine(JDPack.FileLog.WorkDirectory.FullName, SessionDataFile);
+            string f = System.IO.Path.Combine(Conf.WorkingPath, SessionDataFile);
 
             List<SessionDataStructure> data = ParseSessionConfig();
 
@@ -988,8 +990,8 @@ namespace Wale.WPF
             if (settings.VFunc != LastValues.VFunc) { Audio?.UpdateVFunc(); }
             if (e.PropertyName == "AdvancedView" && nowConfig)
             {
-                if (settings.AdvancedView) DoChangeHeightSB(AppDatas.ConfigSetLongHeight + AppDatas.MainWindowBaseHeight);
-                else DoChangeHeightSB(AppDatas.ConfigSetHeight + AppDatas.MainWindowBaseHeight);
+                if (settings.AdvancedView) DoChangeHeightSB(Wale.Configuration.Visual.ConfigSetLongHeight + Wale.Configuration.Visual.MainWindowBaseHeight);
+                else DoChangeHeightSB(Wale.Configuration.Visual.ConfigSetHeight + Wale.Configuration.Visual.MainWindowBaseHeight);
             }
             if(e.PropertyName == "AudioUnit") { TargetLabel.Content = VFunction.Level(settings.TargetLevel, settings.AudioUnit).ToString(); }
         }
@@ -1053,8 +1055,8 @@ namespace Wale.WPF
                 {
                     if (tab.Header.ToString().Contains("Config") && !nowConfig)
                     {
-                        if (settings.AdvancedView) DoChangeHeightSB(AppDatas.ConfigSetLongHeight + AppDatas.MainWindowBaseHeight);
-                        else DoChangeHeightSB(AppDatas.ConfigSetHeight + AppDatas.MainWindowBaseHeight);
+                        if (settings.AdvancedView) DoChangeHeightSB(Wale.Configuration.Visual.ConfigSetLongHeight + Wale.Configuration.Visual.MainWindowBaseHeight);
+                        else DoChangeHeightSB(Wale.Configuration.Visual.ConfigSetHeight + Wale.Configuration.Visual.MainWindowBaseHeight);
                         nowConfig = true;
                     }
                     else if (!tab.Header.ToString().Contains("Config") && nowConfig)
@@ -1104,7 +1106,7 @@ namespace Wale.WPF
                 case "Above Normal": ppc = ProcessPriorityClass.AboveNormal; break;
                 case "Normal": ppc = ProcessPriorityClass.Normal; break;
             }
-            JDPack.Debug.CML($"SPP H={DL.ProcessPriorityHigh} A={DL.ProcessPriorityAboveNormal} N={DL.ProcessPriorityNormal}");
+            JPack.Debug.CML($"SPP H={DL.ProcessPriorityHigh} A={DL.ProcessPriorityAboveNormal} N={DL.ProcessPriorityNormal}");
             //settings.Save();
             using (Process p = Process.GetCurrentProcess()) { p.PriorityClass = ppc; }
         }
@@ -1367,7 +1369,7 @@ namespace Wale.WPF
         /// <param name="newLine">flag for making newline after the end of the <paramref name="msg"/>.</param>
         private void Log(string msg, bool newLine = true)
         {
-            JDPack.FileLog.Log(msg, newLine);
+            JPack.FileLog.Log(msg, newLine);
             DateTime t = DateTime.Now.ToLocalTime();
             string content = $"{t.Hour:d2}:{t.Minute:d2}>{msg}";
             if (newLine) content += "\r\n";
@@ -1453,75 +1455,46 @@ namespace Wale.WPF
         }
     }
     //Datalink for VM
-    public class Datalink : CDatalink
+    public class Datalink : JPack.NotifyPropertyChanged
     {
-        private string _SubVersion = "";
-        public string SubVersion { get => _SubVersion; set => SetData(ref _SubVersion, value); }
-        private Visibility _AppUpdateMsg = Visibility.Hidden;
-        public Visibility AppUpdateMsg { get => _AppUpdateMsg; set => SetData(ref _AppUpdateMsg, value); }
-        private string _UpdateLink = "";
-        public string UpdateLink { get => _UpdateLink; set => SetData(ref _UpdateLink, value); }
+        public Datalink()
+        {
+            AppUpdateMsg = Visibility.Hidden;
+            ACDevShow = Visibility.Hidden;
+            Transition = "0:0:.2";
+        }
 
-        private bool _ProcessPriorityHigh = false;
-        public bool ProcessPriorityHigh { get => _ProcessPriorityHigh; set => SetData(ref _ProcessPriorityHigh, value); }
-        private bool _ProcessPriorityAboveNormal = false;
-        public bool ProcessPriorityAboveNormal { get => _ProcessPriorityAboveNormal; set => SetData(ref _ProcessPriorityAboveNormal, value); }
-        private bool _ProcessPriorityNormal = false;
-        public bool ProcessPriorityNormal { get => _ProcessPriorityNormal; set => SetData(ref _ProcessPriorityNormal, value); }
+        public string SubVersion { get => Get<string>(); set => Set(value); }
+        public Visibility AppUpdateMsg { get => Get<Visibility>(); set => Set(value); }
+        public string UpdateLink { get => Get<string>(); set => Set(value); }
 
+        public bool ProcessPriorityHigh { get => Get<bool>(); set => Set(value); }
+        public bool ProcessPriorityAboveNormal { get => Get<bool>(); set => Set(value); }
+        public bool ProcessPriorityNormal { get => Get<bool>(); set => Set(value); }
 
-        private string _CurrentDevice = "";
-        public string CurrentDevice { get => _CurrentDevice; set => SetData(ref _CurrentDevice, value); }
-        private string _CurrentDeviceLong = "";
-        public string CurrentDeviceLong { get => _CurrentDeviceLong; set => SetData(ref _CurrentDeviceLong, value); }
+        public string CurrentDevice { get => Get<string>(); set => Set(value); }
+        public string CurrentDeviceLong { get => Get<string>(); set => Set(value); }
 
-        private double _MasterVolume = 0;
-        public double MasterVolume { get => _MasterVolume; set => SetData(ref _MasterVolume, Math.Round(value, 3)); }
-        private double _MasterPeak = 0;
-        public double MasterPeak { get => _MasterPeak; set => SetData(ref _MasterPeak, Math.Round(value, 3)); }
+        public double MasterVolume { get => Get<double>(); set => Set(Math.Round(value, 3)); }
+        public double MasterPeak { get => Get<double>(); set => Set(Math.Round(value, 3)); }
 
 
-        private Visibility _ACDevShow = Visibility.Hidden;
-        public Visibility ACDevShow { get => _ACDevShow; set => SetData(ref _ACDevShow, value); }
-        private double _ACElapsed = 0;
-        public double ACElapsed { get => _ACElapsed; set => SetData(ref _ACElapsed, Math.Round(value, 3)); }
-        private double _ACWaited = 0;
-        public double ACWaited { get => _ACWaited; set => SetData(ref _ACWaited, Math.Round(value, 3)); }
-        private double _ACEWdif = 0;
-        public double ACEWdif { get => _ACEWdif; set => SetData(ref _ACEWdif, Math.Round(value, 3)); }
+        public Visibility ACDevShow { get => Get<Visibility>(); set => Set(value); }
+        public double ACElapsed { get => Get<double>(); set => Set(Math.Round(value, 3)); }
+        public double ACWaited { get => Get<double>(); set => Set(Math.Round(value, 3)); }
+        public double ACEWdif { get => Get<double>(); set => Set(Math.Round(value, 3)); }
 
-        private double _ACAvCnt = 0;
-        public double ACAvCnt { get => _ACAvCnt; set => SetData(ref _ACAvCnt, Math.Round(value, 0)); }
-        private double _ACHz = 0;
-        public double ACHz { get => _ACHz; set => SetData(ref _ACHz, Math.Round(value, 2)); }
+        public double ACAvCnt { get => Get<double>(); set => Set(Math.Round(value, 0)); }
+        public double ACHz { get => Get<double>(); set => Set(Math.Round(value, 2)); }
 
         // window height change storyboard parameters
-        private double _WindowHeight = 0;
-        public double WindowHeight { get => _WindowHeight; set => SetData(ref _WindowHeight, value); }
-        private double _WindowTop = 0;
-        public double WindowTop { get => _WindowTop; set => SetData(ref _WindowTop, value); }
-        private string _Transition = "0:0:.2";
-        public string Transition { get => _Transition; set => SetData(ref _Transition, value); }
+        public double WindowHeight { get => Get<double>(); set => Set(value); }
+        public double WindowTop { get => Get<double>(); set => Set(value); }
+        public string Transition { get => Get<string>(); set => Set(value); }
 
         // slider storyboard on configset
-        //private double _AudioUnit = 0;
-        //public double AudioUnit { get => _AudioUnit; set => SetData(ref _AudioUnit, value); }
+        //public double AudioUnit { get => Get<double>(); set => Set(value); }
 
     }
-    public class CDatalink : System.ComponentModel.INotifyPropertyChanged
-    {
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        protected void Notify([System.Runtime.CompilerServices.CallerMemberName]string name = null) { PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(name)); }
-        protected bool SetData<T>(ref T storage, T value, [System.Runtime.CompilerServices.CallerMemberName] string name = null)
-        {
-            if (Equals(storage, value))
-            {
-                return false;
-            }
-
-            storage = value;
-            Notify(name);
-            return true;
-        }
-    }
+    
 }

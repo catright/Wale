@@ -17,14 +17,14 @@ namespace Wale
         /// <summary>
         /// List&lt;Session&gt;
         /// </summary>
-        public SessionList Sessions => audio?.Sessions;
+        public SessionList Sessions => core?.Sessions;
         public bool Debug { get => DP.DebugMode; set => DP.DebugMode = value; }
         public double MasterPeak
         {
             get
             {
-                if (audio != null && !audio.NoDevice) { return audio.MasterPeak; }
-                else if (audio != null && audio.NoDevice) { return -2; }
+                if (core != null && !core.NoDevice) { return core.MasterPeak; }
+                else if (core != null && core.NoDevice) { return -2; }
                 else return 0;
             }
         }
@@ -32,8 +32,8 @@ namespace Wale
         {
             get
             {
-                if (audio != null && !audio.NoDevice) { return audio.MasterVolume; }
-                else if (audio != null && audio.NoDevice) { return -2; }
+                if (core != null && !core.NoDevice) { return core.MasterVolume; }
+                else if (core != null && core.NoDevice) { return -2; }
                 else return 0;
             }
         }
@@ -46,7 +46,7 @@ namespace Wale
         public AudioControl(WPF.Datalink dl)
         {
             DL = dl;
-            DP = new JDPack.DebugPack(false);
+            DP = new JPack.DebugPack(false);
         }
         /// <summary>
         /// Start audio controller
@@ -58,11 +58,11 @@ namespace Wale
 
             UpdateVFunc();
 
-            audio = new Audio((float)settings.TargetLevel, settings.AverageTime, settings.AutoControlInterval, true)
+            core = new Core((float)settings.TargetLevel, settings.AverageTime, settings.AutoControlInterval, true)
             {
                 ExcludeList = settings.ExcList.Cast<string>().ToList()
             };
-            audio.RestartRequested += Audio_RestartRequested;
+            core.RestartRequested += Audio_RestartRequested;
             ControlTasks.Add(ControllerCleanTask());
             //controllerCleanTask = new Task(ControllerCleanTask);
             //controllerCleanTask.Start();
@@ -76,19 +76,19 @@ namespace Wale
         #endregion
 
 
-        public List<DeviceData> GetDeviceMap() => audio.GetDeviceList();
-        public Tuple<string, string> GetDeviceName() => audio.DeviceNameTpl;
+        public List<DeviceData> GetDeviceMap() => core.GetDeviceList();
+        public Tuple<string, string> GetDeviceName() => core.DeviceNameTpl;
 
         #region Master Volume controls
         public void VolumeUp(double v) { SetMasterVolume(MasterVolume + v); }
         public void VolumeDown(double v) { SetMasterVolume(MasterVolume - v); }
         public void SetMasterVolume(double v)
         {
-            if (v < 0) { JDPack.FileLog.Log($"Set Volume Error: {v}"); return; }
+            if (v < 0) { JPack.FileLog.Log($"Set Volume Error: {v}"); return; }
             v = v > 1 ? 1 : v < 0.01 ? 0.01 : v;
 
             DP.DML($"SetTo:{v}");
-            audio.MasterVolume = (float)v;
+            core.MasterVolume = (float)v;
         }
         #endregion
 
@@ -96,7 +96,7 @@ namespace Wale
         #region Session Control
         private void SessionControl(Session s)
         {
-            if (s?.ProcessID < 0) { JDPack.FileLog.Log($"{s.Name} is changed. Dispose session"); s.Dispose(); RestartRequest(); return; }
+            if (s?.ProcessID < 0) { JPack.FileLog.Log($"{s.Name} is changed. Dispose session"); s.Dispose(); RestartRequest(); return; }
 
             StringBuilder dm = new StringBuilder().Append($"AutoVolume:{s.Name}({s.ProcessID}), inc={s.AutoIncluded}");
             
@@ -105,7 +105,7 @@ namespace Wale
             {
                 double peak = s.Peak;
                 // math 2^0=1 but skip math calculation and set relFactor to 1 for calc speed when relative is 0
-                double relFactor = (s.Relative == 0 ? 1 : Math.Pow(AudConf.RelativeBase, s.Relative));
+                double relFactor = (s.Relative == 0 ? 1 : Math.Pow(Wale.Configuration.Audio.RelativeBase, s.Relative));
                 double volume = s.Volume / relFactor;
                 dm.Append($" P:{peak:n3} V:{volume:n3}");
 
@@ -153,7 +153,7 @@ namespace Wale
         }
         private void SessionControlinStaticMode(Session s)
         {
-            if (s?.ProcessID < 0) { JDPack.FileLog.Log($"{s.Name} is changed. Dispose session"); s.Dispose(); RestartRequest(); return; }
+            if (s?.ProcessID < 0) { JPack.FileLog.Log($"{s.Name} is changed. Dispose session"); s.Dispose(); RestartRequest(); return; }
 
             StringBuilder dm = new StringBuilder().Append($"AutoVolume:{s.Name}({s.ProcessID}), inc={s.AutoIncluded}");
 
@@ -164,14 +164,14 @@ namespace Wale
                 s.Volume = (float)(settings.TargetLevel * relFactor);
             }
         }
-        public void UpdateAverageParam() { lock (Lockers.Sessions) { audio.UpdateAvTimeAll(settings.AverageTime, settings.AutoControlInterval); } }
-        public void UpdateVFunc() { if (!Enum.TryParse(settings.VFunc, out _VFunc)) JDPack.FileLog.Log("Invalid function for session control"); return; }
+        public void UpdateAverageParam() { lock (Locks.Session) { core.UpdateAvTimeAll(settings.AverageTime, settings.AutoControlInterval); } }
+        public void UpdateVFunc() { if (!Enum.TryParse(settings.VFunc, out _VFunc)) JPack.FileLog.Log("Invalid function for session control"); return; }
         #endregion
 
         #region Automatic volume control
         private async Task AudioControlTask()
         {
-            JDPack.FileLog.Log("Audio Control Task Start");
+            JPack.FileLog.Log("Audio Control Task Start");
             List<Task> aas = new List<Task>();
             uint logCounter = 0, logCritical = 100000, swCritical = (uint)(settings.UIUpdateInterval / settings.AutoControlInterval);
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
@@ -184,23 +184,23 @@ namespace Wale
                 {
                     try
                     {
-                        lock (Lockers.Sessions)
+                        lock (Locks.Session)
                         {
-                            //if (audio.MasterDeviceIsDisposed != true) { JDPack.FileLog.Log("Master Device is changed. Restart."); audio.Restart(); }
-                            //if (audio.MasterDeviceIsDisposed != true) { JDPack.FileLog.Log("Master Device is changed. Restart."); RestartRequest(); }
+                            //if (audio.MasterDeviceIsDisposed != true) { JPack.FileLog.Log("Master Device is changed. Restart."); audio.Restart(); }
+                            //if (audio.MasterDeviceIsDisposed != true) { JPack.FileLog.Log("Master Device is changed. Restart."); RestartRequest(); }
                             if (settings.StaticMode) { Sessions.ForEach(s => aas.Add(new Task(() => SessionControlinStaticMode(s)))); }
                             else { Sessions.ForEach(s => aas.Add(new Task(() => SessionControl(s)))); }
 
                             if (logCounter > logCritical)
                             {
-                                aas.Add(new Task(() => JDPack.FileLog.Log($"Auto control task passed for {logCritical} times.")));
+                                aas.Add(new Task(() => JPack.FileLog.Log($"Auto control task passed for {logCritical} times.")));
                                 logCounter = 0;
                             }
                             aas.ForEach(t => t.Start());
                         }
                     }
-                    catch (InvalidOperationException e) { JDPack.FileLog.Log($"Error(AudioControlTask): Session collection was modified.\r\n\t{e.ToString()}"); }
-                    catch (Exception e) { JDPack.FileLog.Log($"Error(AudioControlTask): Unknown.\r\n\t{e.ToString()}"); }
+                    catch (InvalidOperationException e) { JPack.FileLog.Log($"Error(AudioControlTask): Session collection was modified.\r\n\t{e.ToString()}"); }
+                    catch (Exception e) { JPack.FileLog.Log($"Error(AudioControlTask): Unknown.\r\n\t{e.ToString()}"); }
                 }
 
                 await Task.WhenAll(aas);
@@ -230,11 +230,11 @@ namespace Wale
                 }
             }// end while loop
 
-            JDPack.FileLog.Log("Audio Control Task End");
+            JPack.FileLog.Log("Audio Control Task End");
         }// end AudioControlTask
         private async Task ControllerCleanTask()
         {
-            JDPack.FileLog.Log("Controller Clean Task(GC) Start");
+            JPack.FileLog.Log("Controller Clean Task(GC) Start");
             List<Task> aas = new List<Task>();
             uint logCounter = uint.MaxValue, logCritical = (uint)(1800000 / settings.GCInterval);
 
@@ -248,7 +248,7 @@ namespace Wale
                         {
                             aas.Add(new Task(new Action(() =>
                             {
-                                if (s.AutoIncluded && !audio.ExcludeList.Contains(s.Name))
+                                if (s.AutoIncluded && !core.ExcludeList.Contains(s.Name))
                                 {
                                     SessionState state = s.State;
                                     if (state != SessionState.Active && s.Volume != 0.01)
@@ -263,7 +263,7 @@ namespace Wale
 
                         aas.ForEach(t => t.Start());
                     }
-                    catch (InvalidOperationException e) { JDPack.FileLog.Log($"Error(ControllerCleanTask): Session collection was modified.\r\n\t{e.ToString()}"); }
+                    catch (InvalidOperationException e) { JPack.FileLog.Log($"Error(ControllerCleanTask): Session collection was modified.\r\n\t{e.ToString()}"); }
                 }
                 
                 await Task.Delay(new TimeSpan((long)(settings.GCInterval * 10000)));
@@ -278,14 +278,14 @@ namespace Wale
                 if (Debug) { Console.WriteLine($"Total Memory: {mmc:n0}"); }
                 if (logCounter > logCritical)
                 {
-                    JDPack.FileLog.Log($"Memory Cleaned, Total Memory: {mmc:n0}");
+                    JPack.FileLog.Log($"Memory Cleaned, Total Memory: {mmc:n0}");
                     logCounter = 0;
                 }
 
                 logCounter++;
 
             }
-            JDPack.FileLog.Log("Controller Clean Task(GC) End");
+            JPack.FileLog.Log("Controller Clean Task(GC) End");
         }
 
         protected virtual void RestartRequest() => RestartRequested?.Invoke(this, new EventArgs());
@@ -294,11 +294,13 @@ namespace Wale
 
 
     }//End Class AudioControl
+
+
     public class AudioControlInternal : IDisposable
     {
         #region private variables
-        protected JDPack.DebugPack DP;
-        protected CoreAudio.Audio audio;
+        protected JPack.DebugPack DP;
+        protected CoreAudio.Core core;
 
         protected object terminatelock = new object(), autoconlock = new object(), AClocker = new object(), AccuTimerlock = new object();
         private bool _Terminate = false;
@@ -340,7 +342,7 @@ namespace Wale
                     //audioControlTask.Dispose();
                     //controllerCleanTask.Dispose();
 
-                    audio?.Dispose();
+                    core?.Dispose();
 
                     await Task.Delay(250);
                 }

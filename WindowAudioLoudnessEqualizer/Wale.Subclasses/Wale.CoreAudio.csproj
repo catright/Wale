@@ -43,8 +43,8 @@
     <Reference Include="CSCore, Version=1.2.1.2, Culture=neutral, PublicKeyToken=5a08f2b6f4415dea, processorArchitecture=MSIL">
       <HintPath>..\packages\CSCore.1.2.1.2\lib\net35-client\CSCore.dll</HintPath>
     </Reference>
-    <Reference Include="JDPack">
-      <HintPath>..\..\..\..\JLLibrary\JDPack.dll</HintPath>
+    <Reference Include="JPack">
+      <HintPath>..\..\..\..\JLLibrary\JPack.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -56,14 +56,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Audio.cs" />
-    <Compile Include="DeviceData.cs" />
-    <Compile Include="MasterDevice.cs" />
-    <Compile Include="NameSet.cs" />
-    <Compile Include="Session.cs" />
-    <Compile Include="SessionData.cs" />
-    <Compile Include="SessionDataList.cs" />
-    <Compile Include="Sessions.cs" />
+    <Compile Include="Core\Core.cs" />
+    <Compile Include="Core\DeviceData.cs" />
+    <Compile Include="Core\NameSet.cs" />
+    <Compile Include="Session\Session.cs" />
+    <Compile Include="Session\SessionData.cs" />
+    <Compile Include="Session\SessionDataList.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
