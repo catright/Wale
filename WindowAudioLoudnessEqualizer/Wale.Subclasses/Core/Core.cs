@@ -919,15 +919,22 @@ namespace Wale.CoreAudio
                     using (var ase = (asm?.GetSessionEnumerator()))
                     {
                         if (defaultDevice == null) { JPack.FileLog.Log("SetSessionVolume: Fail to get master device."); return; }
+                        //AudioSessionControl2 s2 = ase.AsParallel().Where(asc => asc.QueryInterface<AudioSessionControl2>().ProcessID == session.PID).Select(AudioSessionControl);
+                        //var s2 = from asc in ase.AsParallel()
+                        //         where asc.QueryInterface<AudioSessionControl2>().ProcessID == session.PID
+                        //         select asc;
                         foreach (var asc in ase)
                         {
                             using (var session2 = asc.QueryInterface<AudioSessionControl2>())
-                            using (var simpleAudioVolume = asc.QueryInterface<SimpleAudioVolume>())
                             {
                                 if (session2.ProcessID == session.PID)
                                 {
-                                    simpleAudioVolume.MasterVolume = volume;
+                                    using (var simpleAudioVolume = asc.QueryInterface<SimpleAudioVolume>())
+                                    {
+                                        simpleAudioVolume.MasterVolume = volume;
+                                    }
                                     if (_debug) { System.Diagnostics.Debug.WriteLine($"{session.Name}({session.PID}): {volume}"); }
+                                    break;
                                 }
                             }
                         }

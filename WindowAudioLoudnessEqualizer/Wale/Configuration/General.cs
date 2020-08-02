@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -85,7 +86,7 @@ namespace Wale.Configuration
             VFunc = "None";
             AppTitle = "WALE";
             ProcessPriority = "High";
-            ExcList = new StringCollection() { };
+            ExcList = new StringCollection() { "audacity", "obs64", "Studio One", "shotcut", "Resolve", "Cakewalk", "amddvr", "ShellExperienceHost", "Windows Shell Experience Host" };
             CombineSession = false;
             AudioUnit = 0;
             Version = "";
@@ -198,4 +199,5 @@ namespace Wale.Configuration
         #endregion
 
     }
+	
 }

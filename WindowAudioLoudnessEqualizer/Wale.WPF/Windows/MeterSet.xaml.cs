@@ -32,14 +32,14 @@ namespace Wale.WPF
         #region public variables
         //public List<double> LastPeaks;
         public int ProcessID { get; }
-        public string SessionName { get => NameLabel.Text.ToString(); }
+        public string SessionName { get => Dispatcher?.Invoke(() => NameLabel.Text.ToString()); }
         public double Relative { get; set; } = 0;
-        public bool AutoIncluded { get => AutoIncludeCBox.IsChecked.Value; set => AutoIncludeCBox.IsChecked = value; }
+        public bool AutoIncluded { get => (bool)Dispatcher?.Invoke(() => AutoIncludeCBox.IsChecked.Value); set => Dispatcher?.Invoke(() => AutoIncludeCBox.IsChecked = value); }
         public bool AutoIncludedChanged { get; set; } = false;
         public bool Updated { get; private set; }
         public bool Debug { get => DP.DebugMode; set => DP.DebugMode = value; }
         public bool detailChanged = false;
-        public bool SoundEnabled { get => SoundOnCBox.IsChecked.Value; set { SoundOnCBox.IsChecked = value; } }
+        public bool SoundEnabled { get => (bool)Dispatcher?.Invoke(() => SoundOnCBox.IsChecked.Value); set => Dispatcher?.Invoke(() => SoundOnCBox.IsChecked = value); }
         public bool SoundEnableChanged { get; set; } = false;
         public int AudioUnit { get; set; } = 0;
         #endregion
@@ -71,20 +71,29 @@ namespace Wale.WPF
 
             DP = new JPack.DebugPack(dbg);
 
-            Initialization(name, tooltip);
-            detailed = !detail;
             AutoIncluded = autoinc;
+            detailed = detail;
+            if (!detailed) HideDetailedItems();
+
+            SetFinalMake(name, tooltip);
             NameLabel.Foreground = AutoIncluded ? ColorSet.ForeColorBrush : ColorSet.MainColorBrush;
             //if (detail) DetailOn();
             //else DetailOff();
 
         }
-        private void Initialization(string name, string tooltip) { DetailedItems(); SetFinalMake(name, tooltip); }
-        private void DetailedItems()
+        //private void Initialization(string name, string tooltip) { DetailedItems(); SetFinalMake(name, tooltip); }
+        private void HideDetailedItems()
         {
-            RelLabel.Visibility = Visibility.Hidden;
-            PeakLabel.Visibility = Visibility.Hidden;
-            AvPeakLabel.Visibility = Visibility.Hidden;
+            //RelLabel.Visibility = Visibility.Hidden;
+            //PeakLabel.Visibility = Visibility.Hidden;
+            //AvPeakLabel.Visibility = Visibility.Hidden;
+            labelMode = LabelMode.AveragePeak;
+            SetForeColor(SessionLabel, averageColor);
+            SetHeight(Wale.Configuration.Visual.SessionBlockHeightNormal);
+            ControlShowHide(SessionLabel, Visibility.Visible);
+            ControlShowHide(RelLabel, Visibility.Hidden);
+            ControlShowHide(PeakLabel, Visibility.Hidden);
+            ControlShowHide(AvPeakLabel, Visibility.Hidden);
         }
         private void SetFinalMake(string name, string tooltip)
         {
@@ -200,6 +209,7 @@ namespace Wale.WPF
                 //ControlAddRemove(dlAvPeak, true);
                 detailed = true;
                 detailChanged = true;
+                DetailChanged?.Invoke(this, new EventArgs());
             }
         }
         public void DetailOff()
@@ -219,8 +229,10 @@ namespace Wale.WPF
                 //ControlAddRemove(dlAvPeak, false);
                 detailed = false;
                 detailChanged = true;
+                DetailChanged?.Invoke(this, new EventArgs());
             }
         }
+        public event EventHandler DetailChanged;
         #endregion
 
 

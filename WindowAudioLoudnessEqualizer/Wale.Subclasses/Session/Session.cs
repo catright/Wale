@@ -28,7 +28,7 @@ namespace Wale.CoreAudio
             );
             //AutoIncluded = ExcList.Contains(NameSet.Name) ? false : true;
             if (ExcList == null) { JPack.FileLog.Log($"Error: ExcList is null. {NameSet.SessionIdentifier}"); }
-            if (ExcList != null && ExcList.Contains(NameSet.Name)){
+            if (ExcList != null && ExcList.Contains(NameSet.Name)) {
                 //LastIncluded = false;
                 AutoIncluded = false;
             }
@@ -93,18 +93,18 @@ namespace Wale.CoreAudio
         /// ProcessID
         /// </summary>
         //public uint PID { get => (uint)ProcessID; }
-        
+
         public int ProcessID { get { try { return (int)asc2?.ProcessID; } catch { return -1; } } }
         public string GroupParam { get { try { return asc2?.GroupingParam.ToString(); } catch { return Guid.Empty.ToString(); } } }
         public string DisplayName { get { try { return asc2?.DisplayName; } catch { return string.Empty; } } }
         /// <summary>
         /// Take VERY LONG TIME when read this property. Because you will access process object when you use this.
         /// </summary>
-        public string ProcessName { get { try { return asc2?.Process.ProcessName; } catch { return string.Empty; } } }
+        public string ProcessName { get { try { return asc2?.Process?.ProcessName; } catch { return string.Empty; } } }
         /// <summary>
         /// Take VERY LONG TIME when read this property. Because you will access process object when you use this.
         /// </summary>
-        public string MainWindowTitle { get { try { return asc2?.Process.MainWindowTitle; } catch { return string.Empty; } } }
+        public string MainWindowTitle { get { try { return asc2?.Process?.MainWindowTitle; } catch { return string.Empty; } } }
         public string SessionIdentifier { get { try { return asc2?.SessionIdentifier; } catch { return string.Empty; } } }
         public bool IsSystemSoundSession { get { try { return (bool)asc2?.IsSystemSoundSession; } catch { return false; } } }
         public string Icon
@@ -164,6 +164,8 @@ namespace Wale.CoreAudio
         #endregion
 
         #region Customized Datas
+        public object Locker { get; set; } = new object();
+        public bool NewlyAdded { get; set; } = true;
         private float _Relative = 0f;
         /// <summary>
         /// Final volume would be multiplied by 2^Relative. This value is kept in -1~1.
@@ -250,11 +252,11 @@ namespace Wale.CoreAudio
         private int AutoInterval => Wale.Configuration.Audio.ACInterval;
         public void AutoControlEnable()
         {
-            AutoControlEnabled = true;
             cTokenS = new CancellationTokenSource();
-            CancellationToken cT = cTokenS.Token;
-            ControlTask = AutoController(cT);
-            AverageTask = Averaging(cT);
+            //CancellationToken cT = cTokenS.Token;
+            ControlTask = AutoController(cTokenS.Token);
+            AverageTask = Averaging(cTokenS.Token);
+            AutoControlEnabled = true;
         }
         public async void AutoControlDisable()
         {
@@ -273,7 +275,7 @@ namespace Wale.CoreAudio
             {
                 string msg = $"{nameof(OperationCanceledException)} thrown with message: {e.Message}"; JPack.FileLog.Log(msg); JPack.Debug.DML(msg);
             }
-            finally { cTokenS.Dispose(); }
+            finally { cTokenS?.Dispose(); }
         }
         private async Task Averaging(CancellationToken cT)
         {
@@ -366,6 +368,7 @@ namespace Wale.CoreAudio
             else return this.ProcessID.CompareTo(other.ProcessID);
         }
         #region IDisposable Support
+        public bool Disposed => disposedValue;
         private bool disposedValue = false; // To detect redundant calls
 
         protected virtual void Dispose(bool disposing)
@@ -375,7 +378,7 @@ namespace Wale.CoreAudio
                 if (disposing)
                 {
                     // TODO: dispose managed state (managed objects).
-                    Task.WaitAll(AutoControlDisableI());
+                    if (AutoControlEnabled) AutoControlDisable();
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
@@ -410,6 +413,8 @@ namespace Wale.CoreAudio
     public class SessionList : List<Session>
     {
         public SessionList() { this.Clear(); }
+        public void DisposedCheck() { int i = this.RemoveAll(s => s.Disposed == true); }
+
         /// <summary>
         /// Find session by its process id.
         /// <para>

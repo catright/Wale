@@ -19,7 +19,7 @@ namespace Wale.WPF
         // declare the mutex
         private readonly Mutex _mutex;
         // overload the constructor
-        bool createdNew, StartRequire = true;
+        bool createdNew, StartRequire = true, mutexOwned = false;
         public App()
         {
             // overloaded mutex constructor which outs a boolean
@@ -36,6 +36,7 @@ namespace Wale.WPF
                     MessageBox.Show("The Wale is already breathing");
                     Application.Current.Shutdown(0);
                 }
+                else mutexOwned = true;
             }
 
         }
@@ -74,7 +75,7 @@ namespace Wale.WPF
         }
         protected override void OnExit(ExitEventArgs e)
         {
-            _mutex.ReleaseMutex();
+            if (mutexOwned) _mutex.ReleaseMutex();
             base.OnExit(e);
         }
 

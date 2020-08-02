@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Collections;
 using System.Runtime.InteropServices;
 using Wale.CoreAudio;
+using System.Windows;
 
 namespace Wale
 {
@@ -94,76 +95,93 @@ namespace Wale
 
 
         #region Session Control
+        public class SesseionEventArgs : EventArgs
+        {
+            public SesseionEventArgs(Session session) { Session = session; }
+            public Session Session { get; }
+        }
+        public delegate void SessionAddedDelegate(object sender, SesseionEventArgs e);
+        public event SessionAddedDelegate SessionAdded;
+        public event SessionAddedDelegate SesseionRemoved;
+        //public event SessionAddedDelegate PeakVolumeChanged;
         private void SessionControl(Session s)
         {
-            if (s?.ProcessID < 0) { JPack.FileLog.Log($"{s.Name} is changed. Dispose session"); s.Dispose(); RestartRequest(); return; }
-
-            StringBuilder dm = new StringBuilder().Append($"AutoVolume:{s.Name}({s.ProcessID}), inc={s.AutoIncluded}");
-            
-            // Control session(=s) when s is not in exclude list, auto included, active, and not muted
-            if (!settings.ExcList.Contains(s.Name) && s.AutoIncluded && s.State == SessionState.Active && s.SoundEnabled)
+            lock (s.Locker)
             {
-                double peak = s.Peak;
-                // math 2^0=1 but skip math calculation and set relFactor to 1 for calc speed when relative is 0
-                double relFactor = (s.Relative == 0 ? 1 : Math.Pow(Wale.Configuration.Audio.RelativeBase, s.Relative));
-                double volume = s.Volume / relFactor;
-                dm.Append($" P:{peak:n3} V:{volume:n3}");
+                // occur when got session change which is not intended
+                if (s?.ProcessID < 0) { JPack.FileLog.Log($"{s.Name} is changed. Dispose session"); s.Dispose(); RestartRequest(); return; }
 
-                // control volume when audio session makes sound
-                if (peak > settings.MinPeak)
+                // New session added
+                if (s.NewlyAdded) { s.NewlyAdded = false; SessionAdded?.Invoke(this, new SesseionEventArgs(s)); }
+                // Session removed
+                if (s == null || s.State == SessionState.Expired) { SesseionRemoved?.Invoke(this, new SesseionEventArgs(s)); return; }
+
+                // Control session(=s) when s is not in exclude list, auto included, and not muted
+                if (!settings.ExcList.Contains(s.Name) && s.AutoIncluded && s.SoundEnabled)
                 {
-                    double tVol, UpLimit;
-
-                    // update average
-                    if (s.State != SessionState.Active) { return; }//Check session activity
-                    if (settings.Averaging) s.SetAverage(peak);
-
-                    // when averaging, lower volume once if current peak exceeds average or set volume along average.
-                    if (s.State != SessionState.Active) { return; }//Check session activity
-                    if (settings.Averaging && peak < s.AveragePeak) tVol = settings.TargetLevel / s.AveragePeak;
-                    else tVol = settings.TargetLevel / peak;
-
-                    // calc upLimit by vfunc
-                    switch (VFunc)
-                    {
-                        case VFunction.Func.Linear:
-                            UpLimit = VFunction.Linear(volume, UpRate) + volume;
-                            break;
-                        case VFunction.Func.SlicedLinear:
-                            UpLimit = VFunction.SlicedLinear(volume, UpRate, settings.TargetLevel, sliceFactors.A, sliceFactors.B) + volume;
-                            break;
-                        case VFunction.Func.Reciprocal:
-                            UpLimit = VFunction.Reciprocal(volume, UpRate, kurtosis) + volume;
-                            break;
-                        case VFunction.Func.FixedReciprocal:
-                            UpLimit = VFunction.FixedReciprocal(volume, UpRate, kurtosis) + volume;
-                            break;
-                        default:
-                            UpLimit = upRate + volume;
-                            break;
-                    }
-
-                    // set volume
-                    if (s.State != SessionState.Active) { return; }//Check session activity
-                    dm.Append($" T={tVol:n3} UL={UpLimit:n3}");//Console.WriteLine($" T={tVol:n3} UL={UpLimit:n3}");
-                    s.Volume = (float)((tVol > UpLimit ? UpLimit : tVol) * relFactor);
+                    // static control when in static mode
+                    if (settings.StaticMode) StaticControl(s);
+                    // active control only when session is active
+                    else if (s.State == SessionState.Active) ActiveControl(s);
                 }
-                DP.DML(dm.ToString());// print debug message
             }
         }
-        private void SessionControlinStaticMode(Session s)
+        private void ActiveControl(Session s)
         {
-            if (s?.ProcessID < 0) { JPack.FileLog.Log($"{s.Name} is changed. Dispose session"); s.Dispose(); RestartRequest(); return; }
-
             StringBuilder dm = new StringBuilder().Append($"AutoVolume:{s.Name}({s.ProcessID}), inc={s.AutoIncluded}");
+            double peak = s.Peak;
+            // math 2^0=1 but skip math calculation and set relFactor to 1 for calc speed when relative is 0
+            double relFactor = (s.Relative == 0 ? 1 : Math.Pow(Wale.Configuration.Audio.RelativeBase, s.Relative));
+            double volume = s.Volume / relFactor;
+            dm.Append($" P:{peak:n3} V:{volume:n3}");
 
-            // Control session(=s) when s is not in exclude list, auto included, and not muted. doesn't care it's active or not.
-            if (!settings.ExcList.Contains(s.Name) && s.AutoIncluded && s.SoundEnabled)
+            // control volume when audio session makes sound
+            if (peak > settings.MinPeak)
             {
-                double relFactor = (s.Relative == 0 ? 1 : Math.Pow(4, s.Relative));
-                s.Volume = (float)(settings.TargetLevel * relFactor);
+                double tVol, UpLimit;
+
+                // update average
+                if (s.State != SessionState.Active) { return; }//Check session activity
+                if (settings.Averaging) s.SetAverage(peak);
+
+                // when averaging, lower volume once if current peak exceeds average or set volume along average.
+                if (s.State != SessionState.Active) { return; }//Check session activity
+                if (settings.Averaging && peak < s.AveragePeak) tVol = settings.TargetLevel / s.AveragePeak;
+                else tVol = settings.TargetLevel / peak;
+
+                // calc upLimit by vfunc, deprecated
+                switch (VFunc)
+                {
+                    case VFunction.Func.Linear:
+                        UpLimit = VFunction.Linear(volume, UpRate) + volume;
+                        break;
+                    case VFunction.Func.SlicedLinear:
+                        UpLimit = VFunction.SlicedLinear(volume, UpRate, settings.TargetLevel, sliceFactors.A, sliceFactors.B) + volume;
+                        break;
+                    case VFunction.Func.Reciprocal:
+                        UpLimit = VFunction.Reciprocal(volume, UpRate, kurtosis) + volume;
+                        break;
+                    case VFunction.Func.FixedReciprocal:
+                        UpLimit = VFunction.FixedReciprocal(volume, UpRate, kurtosis) + volume;
+                        break;
+                    default:
+                        UpLimit = upRate + volume;
+                        break;
+                }
+
+                // set volume
+                if (s.State != SessionState.Active) { return; }//Check session activity
+                dm.Append($" T={tVol:n3} UL={UpLimit:n3}");//Console.WriteLine($" T={tVol:n3} UL={UpLimit:n3}");
+                s.Volume = (float)((tVol > UpLimit ? UpLimit : tVol) * relFactor);
             }
+            DP.DML(dm.ToString());// print debug message
         }
+        private void StaticControl(Session s)
+        {
+            double relFactor = (s.Relative == 0 ? 1 : Math.Pow(4, s.Relative));
+            s.Volume = (float)(settings.TargetLevel * relFactor);
+        }
+
         public void UpdateAverageParam() { lock (Locks.Session) { core.UpdateAvTimeAll(settings.AverageTime, settings.AutoControlInterval); } }
         public void UpdateVFunc() { if (!Enum.TryParse(settings.VFunc, out _VFunc)) JPack.FileLog.Log("Invalid function for session control"); return; }
         #endregion
@@ -173,7 +191,7 @@ namespace Wale
         {
             JPack.FileLog.Log("Audio Control Task Start");
             List<Task> aas = new List<Task>();
-            uint logCounter = 0, logCritical = 100000, swCritical = (uint)(settings.UIUpdateInterval / settings.AutoControlInterval);
+            uint logCounter = 0, logCritical = 100000, swCritical = (uint)(1);//settings.UIUpdateInterval / settings.AutoControlInterval
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
             List<double> elapsed = new List<double>(), ewdif = new List<double>(), waited = new List<double>();
             //System.Timers.Timer timer = new System.Timers.Timer();
@@ -188,8 +206,9 @@ namespace Wale
                         {
                             //if (audio.MasterDeviceIsDisposed != true) { JPack.FileLog.Log("Master Device is changed. Restart."); audio.Restart(); }
                             //if (audio.MasterDeviceIsDisposed != true) { JPack.FileLog.Log("Master Device is changed. Restart."); RestartRequest(); }
-                            if (settings.StaticMode) { Sessions.ForEach(s => aas.Add(new Task(() => SessionControlinStaticMode(s)))); }
-                            else { Sessions.ForEach(s => aas.Add(new Task(() => SessionControl(s)))); }
+                            //if (settings.StaticMode) { Sessions.ForEach(s => aas.Add(new Task(() => SessionControlinStaticMode(s)))); }
+                            Sessions.DisposedCheck();
+                            Sessions.ForEach(s => { aas.Add(new Task(() => SessionControl(s))); });
 
                             if (logCounter > logCritical)
                             {
@@ -210,23 +229,23 @@ namespace Wale
                 sw.Stop();
                 TimeSpan el = sw.Elapsed;
                 sw.Start();
-                TimeSpan d = new TimeSpan();
+                TimeSpan d;
                 if (settings.StaticMode) { d = new TimeSpan((long)(settings.UIUpdateInterval * 10000)).Subtract(el); }
                 else { d = new TimeSpan((long)(settings.AutoControlInterval * 10000)).Subtract(el); }
                 //Console.WriteLine($"ACTaskElapsed={sw.ElapsedMilliseconds}(-{d.Ticks / 10000:n3})[ms]");
-                elapsed.Add((double)el.Ticks / 10000);
-                ewdif.Add((double)d.Ticks / 10000);
+                elapsed.Add(el.TotalMilliseconds);//(double)el.Ticks / 10000
+                ewdif.Add(d.TotalMilliseconds);//(double)d.Ticks / 10000
                 //if (d.Ticks > 0) { System.Threading.Thread.Sleep(d); }
-                if (d.Ticks > 0) { await Task.Delay(d); }
+                if ((int)d.TotalMilliseconds > 1) { await Task.Delay((int)d.TotalMilliseconds - 1); }
                 sw.Stop();
                 //Console.WriteLine($"ACTaskWaited ={(double)sw.ElapsedTicks / System.Diagnostics.Stopwatch.Frequency * 1000:n3}[ms]");// *10000000 T[100ns]
-                waited.Add((double)sw.ElapsedTicks / System.Diagnostics.Stopwatch.Frequency * 1000);
+                waited.Add(sw.Elapsed.TotalMilliseconds);//(double)sw.ElapsedTicks / System.Diagnostics.Stopwatch.Frequency * 1000
 
-                if (waited.Count > swCritical)
+                if (waited.Count >= swCritical)
                 {
-                    DL.ACElapsed = elapsed.Average(); DL.ACEWdif = elapsed.Average(); DL.ACWaited = waited.Average();
+                    DL.ACElapsed = elapsed.Average(); DL.ACEWdif = ewdif.Average(); DL.ACWaited = waited.Average();
                     elapsed.Clear(); ewdif.Clear(); waited.Clear();
-                    swCritical = 0;
+                    //swCritical = 0;
                 }
             }// end while loop
 
