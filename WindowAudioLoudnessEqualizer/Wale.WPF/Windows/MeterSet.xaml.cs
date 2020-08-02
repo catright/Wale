@@ -1,17 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace Wale.WPF
 {
@@ -52,21 +47,37 @@ namespace Wale.WPF
         public MeterSet(Window owner, int pid, string name, string iconpath, bool detail, bool autoinc, bool dbg = false, string tooltip = null)
         {
             this.Owner = owner;
-            Console.WriteLine($"make new meterset with: {pid}, {name}, {iconpath}, {detail}, {autoinc}, {dbg}, {tooltip}");
-            InitializeComponent();Console.WriteLine("meterset init ok");
-            ProcessID = pid;Console.WriteLine("meterset pid ok");
+            Console.WriteLine($@"make new meterset with: {pid}, {name}, {iconpath}, {detail}, {autoinc}, {dbg}, {tooltip}");
+            InitializeComponent();
+            Console.WriteLine(@"meterset init ok");
+            ProcessID = pid;
+            Console.WriteLine(@"meterset pid ok");
 
             // get session icon
             if (iconpath.StartsWith("@"))
             {
-                iconpath = iconpath.Substring(iconpath.IndexOf('@') + 1, iconpath.LastIndexOf(",-") - 1); Console.WriteLine("@sub ok");
-                if (iconpath.Contains("%SystemRoot%")) { iconpath = iconpath.Replace("%SystemRoot%", Environment.GetFolderPath(Environment.SpecialFolder.Windows)); Console.WriteLine("%path% ok"); }
+                iconpath = iconpath.Substring(iconpath.IndexOf('@') + 1, iconpath.LastIndexOf(",-", StringComparison.Ordinal) - 1);
+                Console.WriteLine(@"@sub ok");
+                if (iconpath.Contains("%SystemRoot%"))
+                {
+                    iconpath = iconpath.Replace("%SystemRoot%", Environment.GetFolderPath(Environment.SpecialFolder.Windows));
+                    Console.WriteLine(@"%path% ok");
+                }
             }
-            else if (string.IsNullOrWhiteSpace(iconpath)) { iconpath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "AudioSrv.Dll"); Console.WriteLine("Default Icon ok"); }
-            iconpath = System.IO.Path.GetFullPath(iconpath);
-            Console.WriteLine(iconpath);
-            System.Drawing.Icon icon = System.Drawing.Icon.ExtractAssociatedIcon(iconpath);
-            Icon.Source = System.Windows.Interop.Imaging.CreateBitmapSourceFromHIcon(icon.Handle, new Int32Rect(0, 0, icon.Width, icon.Height), BitmapSizeOptions.FromEmptyOptions());
+            else if (string.IsNullOrWhiteSpace(iconpath))
+            {
+                iconpath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "AudioSrv.Dll");
+                Console.WriteLine("Default Icon ok");
+            }
+            if (!string.IsNullOrWhiteSpace(iconpath)) iconpath = Path.GetFullPath(Regex.Replace(iconpath, @"\r\n?|\n", ""));
+            if (File.Exists(iconpath))
+            {
+                //Console.WriteLine(iconpath);
+                var icon = System.Drawing.Icon.ExtractAssociatedIcon(iconpath);
+
+                if (icon != null)
+                    Icon.Source = Imaging.CreateBitmapSourceFromHIcon(icon.Handle, new Int32Rect(0, 0, icon.Width, icon.Height), BitmapSizeOptions.FromEmptyOptions());
+            }
             //Icon.Source = new BitmapImage(new Uri(iconpath, UriKind.Relative));
 
             DP = new JPack.DebugPack(dbg);
@@ -242,27 +253,28 @@ namespace Wale.WPF
         {
             try
             {
+                if (control?.Visibility == null || control.Visibility == value) return;
                 if (!Dispatcher.CheckAccess())
                 {
-                    if (control != null) Dispatcher.Invoke(new ControlVisibilityConsumer(ControlShowHide), new object[] { control, value });  // invoking itself
-                    return;
+                    Dispatcher.Invoke(new ControlVisibilityConsumer(ControlShowHide), control, value);  // invoking itself
                 }
                 else
                 {// the "functional part", executing only on the main thread
                     control.Visibility = value;
                 }
             }
-            catch { DP.CML($"fail to invoke {control.Name}"); }
+            catch { if (control != null) DP.CML($"fail to invoke {control.Name}"); }
         }/**/
-        
+
         delegate void PointConsumer(Thickness loc);
         private void SetLocation(Thickness loc)
         {
             try
             {
+                if (this.Margin == loc) return;
                 if (!Dispatcher.CheckAccess())
                 {
-                    Dispatcher.Invoke(new PointConsumer(SetLocation), new object[] { loc });  // invoking itself
+                    Dispatcher.Invoke(new PointConsumer(SetLocation), loc);  // invoking itself
                 }
                 else
                 {
@@ -278,48 +290,51 @@ namespace Wale.WPF
         {
             try
             {
+                if (control?.Text == null || control.Text == text) return;
                 if (!Dispatcher.CheckAccess())
                 {
-                    if (control != null) Dispatcher.Invoke(new TextBlockStringConsumer(SetTextBlockText), new object[] { control, text });  // invoking itself
+                    Dispatcher.Invoke(new TextBlockStringConsumer(SetTextBlockText), control, text);  // invoking itself
                 }
                 else
                 {
                     control.Text = text;      // the "functional part", executing only on the main thread
                 }
             }
-            catch { DP.CML($"fail to invoke {control.Name}"); }
+            catch { if (control != null) DP.CML($"fail to invoke {control.Name}"); }
         }/**/
         delegate void ControlStringConsumer(Label control, string text);
         private void SetLabelText(Label control, string text)
         {
             try
             {
+                if (control?.Content == null || (string)control.Content == text) return;
                 if (!Dispatcher.CheckAccess())
                 {
-                    if (control != null) Dispatcher.Invoke(new ControlStringConsumer(SetLabelText), new object[] { control, text });  // invoking itself
+                    Dispatcher.Invoke(new ControlStringConsumer(SetLabelText), control, text);  // invoking itself
                 }
                 else
                 {
                     control.Content = text;      // the "functional part", executing only on the main thread
                 }
             }
-            catch { DP.CML($"fail to invoke {control.Name}"); }
+            catch { if (control != null) DP.CML($"fail to invoke {control.Name}"); }
         }/**/
         delegate void ControlTooltipConsumer(ToolTip control, string text);
         private void SetTooltip(ToolTip control, string text)
         {
             try
             {
+                if (control?.Content == null || (string)control.Content == text) return;
                 if (!Dispatcher.CheckAccess())
                 {
-                    if (control != null) Dispatcher.Invoke(new ControlTooltipConsumer(SetTooltip), new object[] { control, text });  // invoking itself
+                    Dispatcher.Invoke(new ControlTooltipConsumer(SetTooltip), control, text);  // invoking itself
                 }
                 else
                 {
                     control.Content = text;// the "functional part", executing only on the main thread
                 }
             }
-            catch { DP.CML($"fail to invoke {control.Name}"); }
+            catch { if (control != null) DP.CML($"fail to invoke {control.Name}"); }
         }
 
         delegate void ControldoubleConsumer(ProgressBar control, double value);
@@ -327,9 +342,10 @@ namespace Wale.WPF
         {
             try
             {
+                if (control?.Value == null || Math.Abs(control.Value - value) == 0) return;
                 if (!Dispatcher.CheckAccess())
                 {
-                    if (control != null) Dispatcher.Invoke(new ControldoubleConsumer(SetBar), new object[] { control, value });  // invoking itself
+                    Dispatcher.Invoke(new ControldoubleConsumer(SetBar), control, value);  // invoking itself
                 }
                 else
                 {
@@ -346,9 +362,10 @@ namespace Wale.WPF
         {
             try
             {
+                if (control?.Value == null || Math.Abs(control.Value - value) == 0) return;
                 if (!Dispatcher.CheckAccess())
                 {
-                    if (control != null) Dispatcher.Invoke(new ControlSliderConsumer(SetBar), new object[] { control, value });  // invoking itself
+                    Dispatcher.Invoke(new ControlSliderConsumer(SetBar), control, value);  // invoking itself
                 }
                 else
                 {
@@ -362,28 +379,14 @@ namespace Wale.WPF
         }/**/
 
         delegate void SetdoubleConsumer(double height);
-
-        private void ManualSet_Click(object sender, RoutedEventArgs e)
-        {
-            SessionManualSet sms = new SessionManualSet(this.Owner, $"PID{ProcessID}:{SessionName}", Relative);
-            var stay = Properties.Settings.Default.StayOn;
-            Properties.Settings.Default.StayOn = true;
-            if (sms.ShowDialog() == true)
-            {
-                if (this.AutoIncluded) { this.AutoIncluded = false; this.AutoIncludedChanged = true; }
-
-                this.Relative = sms.Relative;
-            }
-            Properties.Settings.Default.StayOn = stay;
-        }
-
         private void SetHeight(double height)
         {
             try
             {
+                if (Math.Abs(Height - height) == 0) return;
                 if (!Dispatcher.CheckAccess())
                 {
-                    Dispatcher.Invoke(new SetdoubleConsumer(SetHeight), new object[] { height });  // invoking itself
+                    Dispatcher.Invoke(new SetdoubleConsumer(SetHeight), height);  // invoking itself
                 }
                 else
                 {
@@ -399,17 +402,32 @@ namespace Wale.WPF
         {
             try
             {
+                if (control?.Foreground == null || control.Foreground == color) return;
                 if (!Dispatcher.CheckAccess())
                 {
-                    if (control != null) Dispatcher.Invoke(new ControlColorConsumer(SetForeColor), new object[] { control, color });  // invoking itself
+                    Dispatcher.Invoke(new ControlColorConsumer(SetForeColor), control, color);  // invoking itself
                 }
                 else
                 {
                     control.Foreground = color;      // the "functional part", executing only on the main thread
                 }
             }
-            catch { DP.CML($"fail to invoke {control.Name}"); }
+            catch { if (control != null) DP.CML($"fail to invoke {control.Name}"); }
         }/**/
+
+        private void ManualSet_Click(object sender, RoutedEventArgs e)
+        {
+            SessionManualSet sms = new SessionManualSet(this.Owner, $"PID{ProcessID}:{SessionName}", Relative);
+            var stay = Properties.Settings.Default.StayOn;
+            Properties.Settings.Default.StayOn = true;
+            if (sms.ShowDialog() == true)
+            {
+                if (this.AutoIncluded) { this.AutoIncluded = false; this.AutoIncludedChanged = true; }
+
+                this.Relative = sms.Relative;
+            }
+            Properties.Settings.Default.StayOn = stay;
+        }
 
         #endregion
 

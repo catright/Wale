@@ -97,14 +97,36 @@ namespace Wale.CoreAudio
         public int ProcessID { get { try { return (int)asc2?.ProcessID; } catch { return -1; } } }
         public string GroupParam { get { try { return asc2?.GroupingParam.ToString(); } catch { return Guid.Empty.ToString(); } } }
         public string DisplayName { get { try { return asc2?.DisplayName; } catch { return string.Empty; } } }
+        private string processName;
         /// <summary>
         /// Take VERY LONG TIME when read this property. Because you will access process object when you use this.
         /// </summary>
-        public string ProcessName { get { try { return asc2?.Process?.ProcessName; } catch { return string.Empty; } } }
+        public string ProcessName
+        {
+            get
+            {
+                try
+                {
+                    return processName ?? (processName = asc2?.Process.ProcessName);
+                }
+                catch { return string.Empty; }
+            }
+        }
+        private string mainWindowTitle;
         /// <summary>
         /// Take VERY LONG TIME when read this property. Because you will access process object when you use this.
         /// </summary>
-        public string MainWindowTitle { get { try { return asc2?.Process?.MainWindowTitle; } catch { return string.Empty; } } }
+        public string MainWindowTitle
+        {
+            get
+            {
+                try
+                {
+                    return mainWindowTitle ?? (mainWindowTitle = asc2?.Process.MainWindowTitle);
+                }
+                catch { return string.Empty; }
+            }
+        }
         public string SessionIdentifier { get { try { return asc2?.SessionIdentifier; } catch { return string.Empty; } } }
         public bool IsSystemSoundSession { get { try { return (bool)asc2?.IsSystemSoundSession; } catch { return false; } } }
         public string Icon
@@ -116,9 +138,18 @@ namespace Wale.CoreAudio
                 {
                     Console.WriteLine($"PID({ProcessID}):there is no icon information. try to get it from process");
                     JPack.FileLog.Log($"PID({ProcessID}):there is no icon information. try to get it from process");
-                    try { path = asc2?.Process.MainModule.FileName; } catch { Console.WriteLine($"PID({ProcessID}):FAILED to get icon from process"); JPack.FileLog.Log($"PID({ProcessID}):FAILED to get icon from process"); }
-                    if (string.IsNullOrWhiteSpace(path)) { Console.WriteLine($"PID({ProcessID}):FAILED to get icon"); }
-                    else { Console.WriteLine($"PID({ProcessID}):Suceed to get Icon from process"); }
+                    try
+                    {
+                        if (asc2?.Process.MainModule != null) path = asc2?.Process.MainModule.FileName;
+                    }
+                    catch
+                    {
+                        Console.WriteLine($"PID({ProcessID}):FAILED to get icon from process");
+                        JPack.FileLog.Log($"PID({ProcessID}):FAILED to get icon from process");
+                    }
+                    Console.WriteLine(string.IsNullOrWhiteSpace(path)
+                        ? $"PID({ProcessID}):FAILED to get icon"
+                        : $"PID({ProcessID}):Suceed to get Icon from process");
                 }
                 else { Console.WriteLine($"PID({ProcessID}):Suceed to get Icon from session control"); }
                 return path;
