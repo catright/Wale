@@ -4,8 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Runtime.InteropServices;
-using System.Runtime.Remoting.Messaging;
 
 namespace Wale.CoreAudio
 {
@@ -28,7 +26,8 @@ namespace Wale.CoreAudio
             );
             //AutoIncluded = ExcList.Contains(NameSet.Name) ? false : true;
             if (ExcList == null) { JDPack.FileLog.Log($"Error: ExcList is null. {NameSet.SessionIdentifier}"); }
-            if (ExcList != null && ExcList.Contains(NameSet.Name)){
+            if (ExcList != null && ExcList.Contains(NameSet.Name))
+            {
                 //LastIncluded = false;
                 AutoIncluded = false;
             }
@@ -45,7 +44,8 @@ namespace Wale.CoreAudio
         /// <summary>
         /// Converted from CoreAudioApi
         /// </summary>
-        public SessionState State {
+        public SessionState State
+        {
             get
             {
                 try
@@ -93,18 +93,50 @@ namespace Wale.CoreAudio
         /// ProcessID
         /// </summary>
         //public uint PID { get => (uint)ProcessID; }
-        
+
         public int ProcessID { get { try { return (int)asc2?.ProcessID; } catch { return -1; } } }
         public string GroupParam { get { try { return asc2?.GroupingParam.ToString(); } catch { return Guid.Empty.ToString(); } } }
         public string DisplayName { get { try { return asc2?.DisplayName; } catch { return string.Empty; } } }
+
+        // Let's save that string in memory so that we don't have to get it everytime
+        private string processName;
         /// <summary>
         /// Take VERY LONG TIME when read this property. Because you will access process object when you use this.
         /// </summary>
-        public string ProcessName { get { try { return asc2?.Process.ProcessName; } catch { return string.Empty; } } }
+        public string ProcessName
+        {
+            get
+            {
+                try
+                {
+                    return processName ?? (processName = asc2?.Process.ProcessName);
+                }
+                catch
+                {
+                    return string.Empty;
+                }
+            }
+        }
+
+        // Let's save that string in memory so that we don't have to get it everytime
+        private string mainWindowTitle;
         /// <summary>
         /// Take VERY LONG TIME when read this property. Because you will access process object when you use this.
         /// </summary>
-        public string MainWindowTitle { get { try { return asc2?.Process.MainWindowTitle; } catch { return string.Empty; } } }
+        public string MainWindowTitle
+        {
+            get
+            {
+                try
+                {
+                    return mainWindowTitle ?? (mainWindowTitle = asc2?.Process.MainWindowTitle);
+                }
+                catch
+                {
+                    return string.Empty;
+                }
+            }
+        }
         public string SessionIdentifier { get { try { return asc2?.SessionIdentifier; } catch { return string.Empty; } } }
         public bool IsSystemSoundSession { get { try { return (bool)asc2?.IsSystemSoundSession; } catch { return false; } } }
         public string Icon
@@ -116,9 +148,15 @@ namespace Wale.CoreAudio
                 {
                     Console.WriteLine($"PID({ProcessID}):there is no icon information. try to get it from process");
                     JDPack.FileLog.Log($"PID({ProcessID}):there is no icon information. try to get it from process");
-                    try { path = asc2?.Process.MainModule.FileName; } catch { Console.WriteLine($"PID({ProcessID}):FAILED to get icon from process"); JDPack.FileLog.Log($"PID({ProcessID}):FAILED to get icon from process"); }
-                    if (string.IsNullOrWhiteSpace(path)) { Console.WriteLine($"PID({ProcessID}):FAILED to get icon"); }
-                    else { Console.WriteLine($"PID({ProcessID}):Suceed to get Icon from process"); }
+                    try
+                    {
+                        if (asc2?.Process.MainModule != null) path = asc2?.Process.MainModule.FileName;
+                    }
+                    catch { Console.WriteLine($"PID({ProcessID}):FAILED to get icon from process"); JDPack.FileLog.Log($"PID({ProcessID}):FAILED to get icon from process"); }
+
+                    Console.WriteLine(string.IsNullOrWhiteSpace(path)
+                        ? $"PID({ProcessID}):FAILED to get icon"
+                        : $"PID({ProcessID}):Suceed to get Icon from process");
                 }
                 else { Console.WriteLine($"PID({ProcessID}):Suceed to get Icon from session control"); }
                 return path;
@@ -152,11 +190,17 @@ namespace Wale.CoreAudio
         public bool SoundEnabled
         {
             get { using (var v = asc2?.QueryInterface<CSCore.CoreAudioAPI.SimpleAudioVolume>()) { try { _SoundEnabled = !v.IsMuted; } catch { _SoundEnabled = false; } } return _SoundEnabled; }
-            set { using (var v = asc2?.QueryInterface<CSCore.CoreAudioAPI.SimpleAudioVolume>()) {
+            set
+            {
+                using (var v = asc2?.QueryInterface<CSCore.CoreAudioAPI.SimpleAudioVolume>())
+                {
                     bool buffer = !value;
-                    try { v.IsMuted = buffer;
+                    try
+                    {
+                        v.IsMuted = buffer;
                         //if (v.IsMuted) { LastIncluded = AutoIncluded; AutoIncluded = false; } else { AutoIncluded = LastIncluded; }
-                    } catch { return; }
+                    }
+                    catch { return; }
                     _SoundEnabled = buffer;
                 }
             }

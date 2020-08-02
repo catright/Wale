@@ -63,7 +63,6 @@
     <Compile Include="Session.cs" />
     <Compile Include="SessionData.cs" />
     <Compile Include="SessionDataList.cs" />
-    <Compile Include="Sessions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
