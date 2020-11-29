@@ -12,8 +12,10 @@ namespace Wale
 {
     public class AudioControl : AudioControlInternal
     {
-        private Wale.WPF.Properties.Settings settings = Wale.WPF.Properties.Settings.Default;
-        private Wale.WPF.Datalink DL;
+        //private Wale.WPF.Properties.Settings settings = Wale.WPF.Properties.Settings.Default;
+        private Wale.Configuration.General settings;
+        //private Wale.WPF.Datalink DL;
+        private Wale.Configuration.General DL => settings;
         #region global variables
         /// <summary>
         /// List&lt;Session&gt;
@@ -44,9 +46,11 @@ namespace Wale
         #endregion
 
         #region class loads
-        public AudioControl(WPF.Datalink dl)
+        public AudioControl(Wale.Configuration.General gn)
         {
-            DL = dl;
+            //DL = dl;
+            settings = gn;
+            if (settings.Version == "") JPack.FileLog.Log("AutioControl: Using new config");
             DP = new JPack.DebugPack(false);
         }
         /// <summary>
@@ -61,7 +65,7 @@ namespace Wale
 
             core = new Core((float)settings.TargetLevel, settings.AverageTime, settings.AutoControlInterval, true)
             {
-                ExcludeList = settings.ExcList.Cast<string>().ToList()
+                ExcludeList = settings.ExcList.Cast<string>().Distinct().ToList()
             };
             core.RestartRequested += Audio_RestartRequested;
             ControlTasks.Add(ControllerCleanTask());
@@ -194,10 +198,15 @@ namespace Wale
             uint logCounter = 0, logCritical = 100000, swCritical = (uint)(1);//settings.UIUpdateInterval / settings.AutoControlInterval
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
             List<double> elapsed = new List<double>(), ewdif = new List<double>(), waited = new List<double>();
+            bool acDev = false;
             //System.Timers.Timer timer = new System.Timers.Timer();
+
             while (!Terminate)
             {
+                TimeSpan d = new TimeSpan((long)(settings.StaticMode ? settings.UIUpdateInterval : settings.AutoControlInterval) * 10000);
+                Task waitTask = ((int)d.TotalMilliseconds > 1) ? Task.Delay((int)d.TotalMilliseconds) : null;
                 sw.Restart();
+
                 if (settings.AutoControl)
                 {
                     try
@@ -208,7 +217,10 @@ namespace Wale
                             //if (audio.MasterDeviceIsDisposed != true) { JPack.FileLog.Log("Master Device is changed. Restart."); RestartRequest(); }
                             //if (settings.StaticMode) { Sessions.ForEach(s => aas.Add(new Task(() => SessionControlinStaticMode(s)))); }
                             Sessions.DisposedCheck();
-                            Sessions.ForEach(s => { aas.Add(new Task(() => SessionControl(s))); });
+                            Sessions.ForEach(s =>
+                            {
+                                aas.Add(new Task(() => SessionControl(s)));
+                            });
 
                             if (logCounter > logCritical)
                             {
@@ -222,26 +234,26 @@ namespace Wale
                     catch (Exception e) { JPack.FileLog.Log($"Error(AudioControlTask): Unknown.\r\n\t{e.ToString()}"); }
                 }
 
+                acDev = DL.ACDevShow == Visibility.Visible;
+
+                logCounter++;
                 await Task.WhenAll(aas);
                 aas.Clear();
-                logCounter++;
-
                 sw.Stop();
                 TimeSpan el = sw.Elapsed;
+
                 sw.Start();
-                TimeSpan d;
-                if (settings.StaticMode) { d = new TimeSpan((long)(settings.UIUpdateInterval * 10000)).Subtract(el); }
-                else { d = new TimeSpan((long)(settings.AutoControlInterval * 10000)).Subtract(el); }
                 //Console.WriteLine($"ACTaskElapsed={sw.ElapsedMilliseconds}(-{d.Ticks / 10000:n3})[ms]");
-                elapsed.Add(el.TotalMilliseconds);//(double)el.Ticks / 10000
-                ewdif.Add(d.TotalMilliseconds);//(double)d.Ticks / 10000
+                if (acDev) elapsed.Add(el.TotalMilliseconds);//(double)el.Ticks / 10000
                 //if (d.Ticks > 0) { System.Threading.Thread.Sleep(d); }
-                if ((int)d.TotalMilliseconds > 1) { await Task.Delay((int)d.TotalMilliseconds - 1); }
+                if (waitTask != null) await waitTask;
+                else JPack.FileLog.Log("waitTask is null");
                 sw.Stop();
                 //Console.WriteLine($"ACTaskWaited ={(double)sw.ElapsedTicks / System.Diagnostics.Stopwatch.Frequency * 1000:n3}[ms]");// *10000000 T[100ns]
-                waited.Add(sw.Elapsed.TotalMilliseconds);//(double)sw.ElapsedTicks / System.Diagnostics.Stopwatch.Frequency * 1000
+                if (acDev) waited.Add(sw.Elapsed.TotalMilliseconds);//(double)sw.ElapsedTicks / System.Diagnostics.Stopwatch.Frequency * 1000
+                if (acDev) ewdif.Add(d.Subtract(el).TotalMilliseconds);//(double)d.Ticks / 10000
 
-                if (waited.Count >= swCritical)
+                if (acDev && waited.Count >= swCritical)
                 {
                     DL.ACElapsed = elapsed.Average(); DL.ACEWdif = ewdif.Average(); DL.ACWaited = waited.Average();
                     elapsed.Clear(); ewdif.Clear(); waited.Clear();

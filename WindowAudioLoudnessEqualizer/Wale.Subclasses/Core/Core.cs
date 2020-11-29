@@ -78,11 +78,12 @@ namespace Wale.CoreAudio
         /// <summary>
         /// The name set of current device
         /// </summary>
-        public Tuple<string,string> DeviceNameTpl { get; private set; }
+        public Tuple<string, string> DeviceNameTpl { get; private set; }
+        public bool MasterMute { get => _MasterMute; set { if (MasterEPVolume != null) { MasterEPVolume.IsMuted = value; } } }
         /// <summary>
         /// Volume of default device.
         /// </summary>
-        public float MasterVolume { get { return MasterEPVolume != null ? MasterEPVolume.MasterVolumeLevelScalar : -1; } set { if (MasterEPVolume != null) { MasterEPVolume.MasterVolumeLevelScalar = value; } } }
+        public float MasterVolume { get => _MasterVol; set { if (MasterEPVolume != null) { MasterEPVolume.MasterVolumeLevelScalar = value; } } }// { get { return MasterEPVolume != null ? MasterEPVolume.MasterVolumeLevelScalar : -1; } set { if (MasterEPVolume != null) { MasterEPVolume.MasterVolumeLevelScalar = value; } } }
         /// <summary>
         /// Peak level of default device.
         /// </summary>
@@ -300,6 +301,8 @@ namespace Wale.CoreAudio
         #region Private Audio Device Items
         //Master Volume Items
         private AudioEndpointVolume MasterEPVolume { get; set; }
+        private bool _MasterMute;
+        private float _MasterVol;
         private int GetMasterVolume()
         {
             try
@@ -307,33 +310,25 @@ namespace Wale.CoreAudio
                 var defaultDevice = GetDefaultDevice();
                 {
                     if (defaultDevice == null) { JPack.FileLog.Log("GetMasterVolume: Fail to get master device."); return -1; }
-                    Guid IID_IAudioEndpointVolume = typeof(AudioEndpointVolume).GUID;
-                    IntPtr i = defaultDevice.Activate(IID_IAudioEndpointVolume, 0, IntPtr.Zero);
-                    MasterEPVolume = new AudioEndpointVolume(i);
+                    //Guid IID_IAudioEndpointVolume = typeof(AudioEndpointVolume).GUID;
+                    //IntPtr i = defaultDevice.Activate(IID_IAudioEndpointVolume, 0, IntPtr.Zero);
+                    //MasterEPVolume = new AudioEndpointVolume(i);
+                    MasterEPVolume = AudioEndpointVolume.FromDevice(defaultDevice);
+                    _MasterMute = MasterEPVolume.IsMuted;
+                    _MasterVol = MasterEPVolume.MasterVolumeLevelScalar;
+                    var aevcallback = new AudioEndpointVolumeCallback();
+                    aevcallback.NotifyRecived += Aevcallback_NotifyRecived;
+                    MasterEPVolume.RegisterControlChangeNotify(aevcallback);
                     return 0;
                 }
             }
             catch (Exception e) { JPack.FileLog.Log($"Error(GetMasterVolume): {e.ToString()}"); return -2; }
         }
-        /*private void SetMasterVolume(float volume)
+        private void Aevcallback_NotifyRecived(object sender, AudioEndpointVolumeCallbackEventArgs e)
         {
-            try
-            {
-                //using (var defaultDevice = GetDefaultDevice())
-                var defaultDevice = GetDefaultDevice();
-                {
-                    if (defaultDevice == null) { JPack.FileLog.Log("SetMasterVolume: Fail to get master device."); return; }
-                    Guid IID_IAudioEndpointVolume = typeof(AudioEndpointVolume).GUID;
-                    IntPtr i = defaultDevice.Activate(IID_IAudioEndpointVolume, 0, IntPtr.Zero);
-                    //using (var aev = new AudioEndpointVolume(i))
-                    //{
-                        //aev.MasterVolumeLevelScalar = volume;
-                    //}
-                }
-            }
-            catch (Exception e) { JPack.FileLog.Log($"Error(SetMasterVolume): {e.ToString()}"); return; }
-            //defaultDevice.AudioEndpointVolume.MasterVolumeLevelScalar = volume;
-        }*/
+            _MasterMute = e.IsMuted;
+            _MasterVol = e.MasterVolume;
+        }
 
         //Master Peak Items
         private AudioMeterInformation MasterEPPeak { get; set; }
@@ -382,6 +377,7 @@ namespace Wale.CoreAudio
         private void MMDE_DefaultDeviceChanged(object sender, DefaultDeviceChangedEventArgs e)
         {
             Log($"Default Audio Device is changed {e.DeviceId} {e.DataFlow} {e.Role}");
+            GetDefaultDevice(true);
         }
         private void MMDE_DevicePropertyChanged(object sender, DevicePropertyChangedEventArgs e)
         {
@@ -419,26 +415,21 @@ namespace Wale.CoreAudio
             else return key.ToString();
         }
 
-        MMDevice DefDevice { get; set; }
-        private MMDevice GetDefaultDevice()
+        private MMDevice DefDevice { get; set; }
+        private MMDevice GetDefaultDevice(bool force = false)
         {
+            if (!force && DefDevice != null && !DefDevice.IsDisposed) return DefDevice;
             try
             {
-                //if (MMDE != null)
-                //{
-                //MasterEPPeak = null;
-                //MasterEPVolume = null;
-                //if (DefDevice != null) DefDevice.Dispose();
-
-                //using (var obj = new CSCore.CoreAudioAPI.MMDeviceEnumerator())
                 {
-                    //MMDevice device = obj.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
                     DefDevice = MMDE.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
                     if (DefDevice == null) JPack.FileLog.Log("GetSessionData: Fail to get master device.");
                     DeviceName = DefDevice.PropertyStore.First(p=>p.Key.PropertyID == CSCore.Win32.PropertyStore.DeviceDesc.PropertyID).Value.GetValue() as string;
                     DeviceNameTpl = new Tuple<string, string>(DeviceName, DefDevice.FriendlyName);
-                    //GetMasterVolume();
-                    //GetMasterPeak();
+
+                    var mmn = new MMNotificationClient();
+                    mmn.DefaultDeviceChanged += MMDE_DefaultDeviceChanged;
+                    mmn.DeviceStateChanged += MMDE_DeviceStateChanged;
                     NoDevice = false;
                 }
                 //}
@@ -459,7 +450,6 @@ namespace Wale.CoreAudio
             }
         }
 
-        //private IEnumerable<MMDevice> deviceList;
         private List<DeviceData> EnumerateWasapiDevices()
         {
             try

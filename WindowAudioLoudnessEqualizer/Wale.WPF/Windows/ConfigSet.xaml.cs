@@ -31,11 +31,13 @@ namespace Wale.WPF
         /// <summary>
         /// stored setting that users can modify
         /// </summary>
-        Wale.WPF.Properties.Settings settings = Wale.WPF.Properties.Settings.Default;
+        Wale.Configuration.General settings;
+        //Wale.WPF.Properties.Settings settings = Wale.WPF.Properties.Settings.Default;
         /// <summary>
         /// datalink between MVVM
         /// </summary>
-        Datalink DL = new Datalink();
+        //Datalink DL = new Datalink();
+        Wale.Configuration.General DL => settings;
         /// <summary>
         /// Debug message pack
         /// </summary>
@@ -55,21 +57,20 @@ namespace Wale.WPF
         #endregion
 
         #region Initialization
-        public ConfigSet()
+        public ConfigSet() { InitializeComponent(); }
+        public ConfigSet(AudioControl audio, Wale.Configuration.General cf, Window owner, bool debug, bool newWindow = false)
         {
             InitializeComponent();
-        }
-        public ConfigSet(AudioControl audio, Datalink dl, Window owner, bool debug, bool newWindow = false)
-        {
-            InitializeComponent();
-            MakeComponents(audio, dl, owner, debug, newWindow);
+            MakeComponents(audio, cf, owner, debug, newWindow);
             MakeConfigs();
             MakeFinal();
         }
-        private void MakeComponents(AudioControl audio, Datalink dl, Window owner, bool debug, bool newWindow)
+        private void MakeComponents(AudioControl audio, Wale.Configuration.General cf, Window owner, bool debug, bool newWindow)
         {
-            this.DL = dl;
-            this.DataContext = this.DL;
+            //this.DL = dl;
+            //this.DataContext = this.DL;
+            this.settings = cf;
+            this.DataContext = this.settings;
 
             DP = new JPack.DebugPack(debug);
 
@@ -118,8 +119,11 @@ namespace Wale.WPF
         }
         private void MakeFinal()
         {
-            TargetdB.Content = VFunction.Level(settings.TargetLevel, 1);
-            MinPeakdB.Content = VFunction.Level(settings.MinPeak, 1);
+            Dispatcher?.Invoke(() =>
+            {
+                TargetdB.Content = VFunction.Level(settings.TargetLevel, 1);
+                MinPeakdB.Content = VFunction.Level(settings.MinPeak, 1);
+            });
         }
         private void ConfigSet_KeyDown(object sender, KeyEventArgs e)
         {
@@ -386,7 +390,7 @@ namespace Wale.WPF
         /// <summary>
         /// Draw new present graph
         /// </summary>
-        private void DrawNew() { DrawGraph("Graph"); }
+        private void DrawNew() { return; DrawGraph("Graph"); }
         /// <summary>
         /// Draw a graph of decrement function
         /// </summary>
@@ -485,6 +489,7 @@ namespace Wale.WPF
         /// </summary>
         private void DrawBase()
         {
+            return;
             List<Series> exc = new List<Series>();
             foreach (Series s in plotView.Model.Series) { if (s.Title == "Base") exc.Add(s); }
             foreach (Series s in exc) { plotView.Model.Series.Remove(s); }

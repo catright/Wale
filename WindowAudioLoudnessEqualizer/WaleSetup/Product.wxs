@@ -63,50 +63,56 @@
       <Component Id="MainExecutable">
         <!-- Assembly=".net" AssemblyApplication="WaleEXE"-->
         <File Id="WaleEXE" Name="Wale.exe" Assembly=".net" AssemblyApplication="WaleEXE"
-              Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Debug\Wale.exe"
+              Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Release\Wale.exe"
               KeyPath="yes">
         </File>
       </Component>
       
       <Component Id="WaleBaseComp">
         <File Id="WaleBase" Name="WaleBase.dll"
-              Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Debug\WaleBase.dll"
+              Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Release\WaleBase.dll"
               KeyPath="yes" />
       </Component>
       
       <Component Id="WaleCoreAudioComp">
         <File Id="WaleCoreAudio" Name="Wale.CoreAudio.dll"
-              Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Debug\Wale.CoreAudio.dll"
+              Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Release\Wale.CoreAudio.dll"
               KeyPath="yes" />
       </Component>
 
       <Component Id="WaleLocalizationComp">
         <File Id="WaleLocalization" Name="Wale.Localization.dll"
-              Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Debug\Wale.Localization.dll"
+              Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Release\Wale.Localization.dll"
               KeyPath="yes" />
       </Component>
 
       <Component Id="JPackComp">
         <File Id="JPack" Name="JPack.dll"
-              Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Debug\JPack.dll"
+              Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Release\JPack.dll"
               KeyPath="yes" />
       </Component>
       
       <Component Id="CSCoreComp">
         <File Id="CSCore" Name="CSCore.dll"
-              Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Debug\CSCore.dll"
+              Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Release\CSCore.dll"
               KeyPath="yes" />
       </Component>
-      
+
+      <Component Id="NJsonComp">
+        <File Id="NJson" Name="Newtonsoft.Json.dll"
+              Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Release\Newtonsoft.Json.dll"
+              KeyPath="yes" />
+      </Component>
+
       <Component Id="OxyComp">
         <File Id="Oxy" Name="OxyPlot.dll"
-              Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Debug\OxyPlot.dll"
+              Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Release\OxyPlot.dll"
               KeyPath="yes" />
       </Component>
       
       <Component Id="OxyWpfComp">
         <File Id="OxyWpf" Name="OxyPlot.Wpf.dll"
-              Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Debug\OxyPlot.Wpf.dll"
+              Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Release\OxyPlot.Wpf.dll"
               KeyPath="yes" />
       </Component>
 		</ComponentGroup>

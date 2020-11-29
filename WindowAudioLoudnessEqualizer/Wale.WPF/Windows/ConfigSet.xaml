@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:Wale.WPF"
              xmlns:prop="clr-namespace:Wale.WPF.Properties"
              xmlns:wale="clr-namespace:Wale;assembly=WaleBase"
-            xmlns:locale="clr-namespace:Wale.Localization;assembly=Wale.Localization"
+             xmlns:locale="clr-namespace:Wale.Localization;assembly=Wale.Localization"
              xmlns:oxy="http://oxyplot.org/wpf"
              mc:Ignorable="d"
              x:Name="confset">
@@ -19,18 +19,18 @@
             <Setter Property="MinWidth" Value="{Binding Width, RelativeSource={RelativeSource Self}}"/>
             <Setter Property="MaxWidth" Value="{Binding Width, RelativeSource={RelativeSource Self}}"/>
 
-            <Setter Property="Height" Value="{Binding Path=ConfigSetHeight, Source={x:Static prop:Settings.Default}, Mode=OneWay}"/>
+            <Setter Property="Height" Value="{Binding Path=ConfigSetHeight, Mode=OneWay}"/>
             <Setter Property="MinHeight" Value="{Binding Height, RelativeSource={RelativeSource Self}}"/>
             <Setter Property="MaxHeight" Value="{Binding Height, RelativeSource={RelativeSource Self}}"/>
             <Style.Triggers>
-                <DataTrigger Binding="{Binding Path=AdvancedView, Source={x:Static prop:Settings.Default}, Mode=OneWay}" Value="True">
-                    <Setter Property="Height" Value="{Binding Path=ConfigSetLongHeight, Source={x:Static prop:Settings.Default}, Mode=OneWay}"/>
+                <DataTrigger Binding="{Binding Path=AdvancedView, Mode=OneWay}" Value="True">
+                    <Setter Property="Height" Value="{Binding Path=ConfigSetLongHeight, Mode=OneWay}"/>
                 </DataTrigger>
             </Style.Triggers>
         </Style>
     </UserControl.Style>
     <UserControl.Resources>
-
+        
         <Style x:Key="LineItem" TargetType="Grid">
             <Setter Property="Width" Value="220"/>
             <Setter Property="Height" Value="20"/>
@@ -38,7 +38,7 @@
             <Setter Property="HorizontalAlignment" Value="Left"/>
             <Setter Property="Visibility" Value="Visible"/>
             <Style.Triggers>
-                <DataTrigger Binding="{Binding Path=AdvancedView, Source={x:Static prop:Settings.Default}, Mode=OneWay}" Value="False">
+                <DataTrigger Binding="{Binding Path=AdvancedView, Mode=OneWay}" Value="False">
                     <Setter Property="Visibility" Value="Collapsed"/>
                 </DataTrigger>
             </Style.Triggers>
@@ -93,17 +93,17 @@
                         <Grid Style="{StaticResource LineItem}" Visibility="Visible">
                             <Label Content="UI Update [ms]"/>
                             <Label Content="{Binding Path=(local:LastValues.UIUpdateInterval), Mode=TwoWay}" Style="{StaticResource LLastVal}"/>
-                            <TextBox Text="{Binding Path=UIUpdateInterval, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
+                            <TextBox Text="{Binding Path=UIUpdateInterval, Mode=TwoWay}"/>
                         </Grid>
                         <Grid Style="{StaticResource LineItem}" Visibility="Visible">
                             <Label Content="Auto Control [ms]"/>
                             <Label Content="{Binding Path=(local:LastValues.AutoControlInterval), Mode=TwoWay}" Style="{StaticResource LLastVal}"/>
-                            <TextBox Text="{Binding Path=AutoControlInterval, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
+                            <TextBox Text="{Binding Path=AutoControlInterval, Mode=TwoWay}"/>
                         </Grid>
                         <Grid Style="{StaticResource LineItem}">
                             <Label Content="GC Interval [ms]"/>
                             <Label Content="{Binding Path=(local:LastValues.GCInterval), Mode=TwoWay}" Style="{StaticResource LLastVal}"/>
-                            <TextBox Text="{Binding Path=GCInterval, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
+                            <TextBox Text="{Binding Path=GCInterval, Mode=TwoWay}"/>
                         </Grid>
                         <Grid Style="{StaticResource LineItem}" Visibility="Visible">
                             <WrapPanel>
@@ -113,7 +113,7 @@
                                 <Label Content="dB" FontSize="10"/>
                             </WrapPanel>
                             <Label Content="{Binding Path=(local:LastValues.TargetLevel), Mode=TwoWay}" Style="{StaticResource LLastVal}"/>
-                            <TextBox Text="{Binding Path=TargetLevel, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" TextChanged="TargetLevel_Changed"/>
+                            <TextBox Text="{Binding Path=TargetLevel, Mode=TwoWay}" TextChanged="TargetLevel_Changed"/>
                         </Grid>
                         <Grid Style="{StaticResource LineItem}" Visibility="Visible">
                             <WrapPanel>
@@ -126,7 +126,7 @@
                                             <Setter Property="Foreground" Value="{Binding Foreground, ElementName=confset}"/>
                                             <Setter Property="Content" Value=" [L]"/>
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Path=AudioUnit, Source={x:Static prop:Settings.Default}, Mode=OneWay}" Value="1">
+                                                <DataTrigger Binding="{Binding Path=AudioUnit, Mode=OneWay}" Value="1">
                                                     <Setter Property="Content" Value=" [dB]"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
@@ -135,7 +135,7 @@
                                 </Label>
                             </WrapPanel>
                             <Label Content="{Binding Path=(local:LastValues.AudioUnit), Mode=TwoWay}" Style="{StaticResource LLastVal}"/>
-                            <Slider x:Name="AudioUnitSlider" Value="{Binding Path=AudioUnit, Source={x:Static prop:Settings.Default}, Mode=TwoWay}">
+                            <Slider x:Name="AudioUnitSlider" Value="{Binding Path=AudioUnit, Mode=TwoWay}">
                                 <Slider.Resources>
                                     <Storyboard x:Key="Inc">
                                         <DoubleAnimation Storyboard.TargetName="AudioUnitSlider" Storyboard.TargetProperty="RangeBase.Value" Duration="0:0:0.1" To="1" BeginTime="0:0:0"/>
@@ -256,12 +256,12 @@
                         <Grid Style="{StaticResource LineItem}">
                             <Label Content="Up Rate"/>
                             <Label Content="{Binding Path=(local:LastValues.UpRate), Mode=TwoWay}" Style="{StaticResource LLastVal}"/>
-                            <TextBox Text="{Binding Path=UpRate, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" TextChanged="UpRate_Changed"/>
+                            <TextBox Text="{Binding Path=UpRate, Mode=TwoWay}" TextChanged="UpRate_Changed"/>
                         </Grid>
                         <Grid Style="{StaticResource LineItem}">
                             <Label Content="Kurtosis"/>
                             <Label Content="{Binding Path=(local:LastValues.Kurtosis), Mode=TwoWay}" Style="{StaticResource LLastVal}"/>
-                            <TextBox x:Name="KurtosisBox" Text="{Binding Path=Kurtosis, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" TextChanged="Kurtosis_Changed"/>
+                            <TextBox x:Name="KurtosisBox" Text="{Binding Path=Kurtosis, Mode=TwoWay}" TextChanged="Kurtosis_Changed"/>
                         </Grid>
                         <Grid Height="40" Style="{StaticResource LineItem}">
                             <Label Content="Function"/>
@@ -271,7 +271,7 @@
                         <Grid Style="{StaticResource LineItem}">
                             <Label Content="Average Time [ms]"/>
                             <Label Content="{Binding Path=(local:LastValues.AverageTime), Mode=TwoWay}" Style="{StaticResource LLastVal}"/>
-                            <TextBox Text="{Binding Path=AverageTime, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
+                            <TextBox Text="{Binding Path=AverageTime, Mode=TwoWay}"/>
                         </Grid>
                         <Grid Style="{StaticResource LineItem}">
                             <WrapPanel>
@@ -281,7 +281,7 @@
                                 <Label Content="dB" FontSize="10"/>
                             </WrapPanel>
                             <Label Content="{Binding Path=(local:LastValues.MinPeak), Mode=TwoWay}" Style="{StaticResource LLastVal}"/>
-                            <TextBox Text="{Binding Path=MinPeak, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
+                            <TextBox Text="{Binding Path=MinPeak, Mode=TwoWay}"/>
                         </Grid>
 
                     </StackPanel>
@@ -291,7 +291,7 @@
                                 <Style TargetType="oxy:PlotView">
                                     <Setter Property="Visibility" Value="Visible"/>
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Path=AdvancedView, Source={x:Static prop:Settings.Default}, Mode=OneWay}" Value="False">
+                                        <DataTrigger Binding="{Binding Path=AdvancedView, Mode=OneWay}" Value="False">
                                             <Setter Property="Visibility" Value="Collapsed"/>
                                         </DataTrigger>
                                     </Style.Triggers>
@@ -302,24 +302,24 @@
                         <!--TextBlock Text="These two options are critical for functioning of Wale" TextWrapping="Wrap"/-->
                         <Grid Style="{StaticResource LineItem}" Visibility="Visible">
                             <WrapPanel>
-                                <CheckBox Content="Average Enabled" IsChecked="{Binding Path=Averaging, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
+                                <CheckBox Content="Average Enabled" IsChecked="{Binding Path=Averaging, Mode=TwoWay}"/>
                                 <TextBlock Visibility="Collapsed" Text="Critical" Margin="3,0" FontSize="10" Foreground="OrangeRed"/>
                             </WrapPanel>
                         </Grid>
                         <Grid Style="{StaticResource LineItem}" Visibility="Visible">
                             <WrapPanel>
-                                <CheckBox Content="Static Mode" IsChecked="{Binding Path=StaticMode, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"
+                                <CheckBox Content="Static Mode" IsChecked="{Binding Path=StaticMode, Mode=TwoWay}"
                                           ToolTip="Set all apps' volume to target level"/>
                                 <TextBlock Visibility="Collapsed" Text="Critical" Margin="3,0" FontSize="10" Foreground="Orange"/>
                             </WrapPanel>
                         </Grid>
                         <Grid Style="{StaticResource LineItem}" Visibility="Visible">
                             <WrapPanel>
-                                <CheckBox Content="Auto Control Enabled" IsChecked="{Binding Path=AutoControl, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
+                                <CheckBox Content="Auto Control Enabled" IsChecked="{Binding Path=AutoControl, Mode=TwoWay}"/>
                                 <TextBlock Text="Critical" Margin="3,0" FontSize="10" Foreground="OrangeRed"/>
                             </WrapPanel>
                         </Grid>
-                        <!--CheckBox Content="Combine processes by app name" ToolTip="Combine session processes by application name and control them together" IsChecked="{Binding Path=CombineSession, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/-->
+                        <!--CheckBox Content="Combine processes by app name" ToolTip="Combine session processes by application name and control them together" IsChecked="{Binding Path=CombineSession, Mode=TwoWay}"/-->
                     </StackPanel>
                 </Grid>
             </GroupBox>
@@ -331,24 +331,24 @@
                             <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0">
-                            <CheckBox Content="Advanced View(F9)" IsChecked="{Binding Path=AdvancedView, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
+                            <CheckBox Content="Advanced View(F9)" IsChecked="{Binding Path=AdvancedView, Mode=TwoWay}"/>
                             <CheckBox x:Name="runAtWindowsStartup" Content="Run at Windows Startup"/>
                             <CheckBox Content="Detailed Log" IsEnabled="False"/>
                             <CheckBox Visibility="Collapsed" IsEnabled="False" x:Name="CheckForUpdateCB" Content="Check for Update"/>
                         </StackPanel>
                         <StackPanel Grid.Column="1">
-                            <CheckBox Content="Show Session Icon" IsChecked="{Binding Path=ShowSessionIcon, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
+                            <CheckBox Content="Show Session Icon" IsChecked="{Binding Path=ShowSessionIcon, Mode=TwoWay}"/>
                             <Grid Visibility="Collapsed" Style="{StaticResource LineItem}">
                                 <WrapPanel>
-                                    <CheckBox Content="Collapse Sub Sessions" IsChecked="{Binding Path=CollapseSubSessions, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"
+                                    <CheckBox Content="Collapse Sub Sessions" IsChecked="{Binding Path=CollapseSubSessions, Mode=TwoWay}"
                                           ToolTip="Collapse all sub sessions on session group of individual app to one"/>
                                     <TextBlock Visibility="Collapsed" Text="Critical" Margin="3,0" FontSize="10" Foreground="OrangeRed"/>
                                 </WrapPanel>
                             </Grid>
-                            <CheckBox Content="Show ProcessName as AppName" IsChecked="{Binding Path=PnameForAppname, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"/>
+                            <CheckBox Content="Show ProcessName as AppName" IsChecked="{Binding Path=PnameForAppname, Mode=TwoWay}"/>
                             <Grid Visibility="Visible" Style="{StaticResource LineItem}">
                                 <WrapPanel>
-                                    <CheckBox Content="Main Title in AppName" IsChecked="{Binding Path=MainTitleforAppname, Source={x:Static prop:Settings.Default}, Mode=TwoWay}"
+                                    <CheckBox Content="Main Title in AppName" IsChecked="{Binding Path=MainTitleforAppname, Mode=TwoWay}"
                                           />
                                     <!--ToolTip="Calculation time might be longer if you activate this option"-->
                                     <TextBlock Visibility="Collapsed" Text="Caution" Margin="3,0" FontSize="10" Foreground="Orange"/>

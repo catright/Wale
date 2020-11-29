@@ -112,7 +112,10 @@ namespace Wale.CoreAudio
                 catch { return string.Empty; }
             }
         }
+        // we can not update main title if we using a cache.
         private string mainWindowTitle;
+        // Force update main window title when needed. 
+        public void ForceGetMainTitle() { try { mainWindowTitle = asc2?.Process.MainWindowTitle; } catch { } }
         /// <summary>
         /// Take VERY LONG TIME when read this property. Because you will access process object when you use this.
         /// </summary>
@@ -123,6 +126,7 @@ namespace Wale.CoreAudio
                 try
                 {
                     return mainWindowTitle ?? (mainWindowTitle = asc2?.Process.MainWindowTitle);
+                    //return asc2?.Process.MainWindowTitle;
                 }
                 catch { return string.Empty; }
             }

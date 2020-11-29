@@ -49,6 +49,7 @@ namespace Wale.WPF
             //foreach (string arg in e.Args) { Console.WriteLine(arg); }
             //string installedPath = System.AppDomain.CurrentDomain.BaseDirectory;
             //string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            Conf.settings.Init();
             string path = Conf.WorkingPath;
             JPack.FileLog.SetWorkDirectory(path);
             JPack.FileLog.Open("WaleLog");
@@ -84,6 +85,6 @@ namespace Wale.WPF
     public static class Conf
     {
         public static Wale.Configuration.General settings = new Wale.Configuration.General();
-        public static string WorkingPath = settings.WorkingPath;
+        public static string WorkingPath => settings.WorkingPath;
     }
 }

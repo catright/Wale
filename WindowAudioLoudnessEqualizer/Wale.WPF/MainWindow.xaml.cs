@@ -56,13 +56,14 @@ namespace Wale.WPF
         /// <summary>
         /// stored setting that users can modify
         /// </summary>
-        readonly Wale.WPF.Properties.Settings settings = Wale.WPF.Properties.Settings.Default;
+        //readonly Wale.WPF.Properties.Settings settings = Wale.WPF.Properties.Settings.Default;
         //readonly Wale.Configuration.General settings = Conf.settings;
-        //readonly Wale.Configuration.General settings = new Wale.Configuration.General();
+        Wale.Configuration.General settings = Conf.settings;
         /// <summary>
         /// datalink between MVVM
         /// </summary>
-        readonly Datalink DL = new Datalink();
+        //readonly Datalink DL = new Datalink();
+        Wale.Configuration.General DL => settings;
         /// <summary>
         /// Tray icon
         /// </summary>
@@ -118,11 +119,11 @@ namespace Wale.WPF
             //try { MessageBox.Show($"V. {AppVersion.FullVersion}, {settings.Version}, pre {settings.GetPreviousVersion("Version")}"); }
             //catch (System.Configuration.SettingsPropertyNotFoundException) { MessageBox.Show("Property not found"); }
 
-            Action action = new Action(() => {
+            Action<string> actionUpgrade1 = new Action<string>((v) => {
                 //MessageBox.Show("Settings Upgrade Entry");
                 try
                 {
-                    settings.Upgrade(); // MessageBox.Show("Settings Upgraded.");
+                    settings.Upgrade(v); // MessageBox.Show("Settings Upgraded.");
 
                     try { JPack.FileLog.Log($"Settings are Upgraded from {settings.GetPreviousVersion("Version")}"); }
                     catch { MessageBox.Show("FileLog Error on settings upgrade"); }
@@ -130,14 +131,66 @@ namespace Wale.WPF
                 catch (Exception e) { MessageBox.Show($"Unknown Error on upgrade settings\r{e.Message}\rYour setting would be reset to default"); settings.Reset(); }
                 finally
                 {
-                    settings.Version = AppVersion.FullVersion;// MessageBox.Show("Settings Version Upgraded");
-                    settings.Save();// MessageBox.Show("Settings Saved");
+                    //settings.Version = v;// MessageBox.Show("Settings Version Upgraded");
+                    //settings.Save();// MessageBox.Show("Settings Saved");
                 }
             });
+            Action<Properties.Settings> actionUpgrade2 = new Action<Properties.Settings>((old) =>
+            {
+                try
+                {
+                    settings.AutoControl = old.AutoControl;
+                    settings.AlwaysTop = old.AlwaysTop;
+                    settings.StayOn = old.StayOn;
+                    settings.RunAtWindowsStartup = old.RunAtWindowsStartup;
+                    settings.Averaging = old.Averaging;
+                    settings.AdvancedView = old.AdvancedView;
 
+                    settings.TargetLevel = old.TargetLevel;
+                    settings.AverageTime = old.AverageTime;
+                    settings.Kurtosis = old.Kurtosis;
+                    settings.MasterVolumeInterval = old.MasterVolumeInterval;
+                    settings.MinPeak = old.MinPeak;
+                    settings.UpRate = old.UpRate;
+                    settings.GCInterval = old.GCInterval;
+                    settings.UIUpdateInterval = old.UIUpdateInterval;
+                    settings.AutoControlInterval = old.AutoControlInterval;
+
+                    settings.VFunc = old.VFunc;
+                    settings.AppTitle = old.AppTitle;
+                    settings.ProcessPriority = old.ProcessPriority;
+                    settings.ExcList = old.ExcList.Cast<string>().Distinct().ToList();
+                    settings.CombineSession = old.CombineSession;
+                    settings.AudioUnit = old.AudioUnit;
+                    settings.Version = old.Version;
+                    settings.PreviousVersion = old.GetPreviousVersion("Version").ToString();
+
+                    settings.ShowSessionIcon = old.ShowSessionIcon;
+                    settings.CollapseSubSessions = old.CollapseSubSessions;
+                    settings.StaticMode = old.StaticMode;
+                    settings.PnameForAppname = old.PnameForAppname;
+                    settings.MainTitleforAppname = old.MainTitleforAppname;
+                    settings.AutoExcludeOnManualSet = old.AutoExcludeOnManualSet;
+
+                    //try { JPack.FileLog.Log($"Settings are Upgraded from {settings.PreviousVersion}"); }
+                    //catch { MessageBox.Show("FileLog Error on settings upgrade"); }
+                }
+                catch (Exception e) { MessageBox.Show($"Unknown Error on upgrade settings\r{e.Message}\rYour setting would be reset to default"); settings.Reset(); }
+                finally { settings.Save(); }
+            });
+
+            bool er = false;
             string ver = String.Empty;
-            try { ver = settings.Version; } catch { action(); }
-            if (ver != AppVersion.FullVersion) { action(); }
+            try { ver = settings.Version; } catch { er = true; }
+
+            //upgrade windows default settings to wale customized config
+            if (ver == "") { actionUpgrade2(Properties.Settings.Default); }
+            //upgrade config to new version
+            if (er || ver != AppVersion.FullVersion)
+            {
+                try { actionUpgrade1(AppVersion.FullVersion); }
+                catch { }
+            }
         }
         /// <summary>
         /// Make UI components
@@ -266,11 +319,11 @@ namespace Wale.WPF
         private void StartAudio(bool restart = false)
         {
             // start audio controller
-            Audio = new AudioControl(DL) { UpRate = settings.UpRate };
+            Audio = new AudioControl(settings) { UpRate = settings.UpRate };
             while (Audio.MasterVolume == -1)
             {
                 Audio.Dispose();
-                Audio = new AudioControl(DL) { UpRate = settings.UpRate };
+                Audio = new AudioControl(settings) { UpRate = settings.UpRate };
             }
             Audio.RestartRequested += Audio_RestartRequested;
             Audio.SessionAdded += Audio_SessionAdded;
@@ -318,7 +371,7 @@ namespace Wale.WPF
         private void MakeConfigs()
         {
             // make config tab
-            ConfigSet cs = new ConfigSet(Audio, DL, this, debug);
+            ConfigSet cs = new ConfigSet(Audio, settings, this, debug);
             cs.LogInvokedEvent += Cs_LogInvokedEvent;
             ConfTab.Content = cs;
         }
@@ -406,6 +459,7 @@ namespace Wale.WPF
         private void UpdateSessionTask()
         {
             Log("Start UpdateSessionTask");
+            nameGetStd = (uint)Math.Round(1000 / settings.UIUpdateInterval, 0);
             //UpdateSession3(SessionPanel);
             while (!FinishApp)
             {
@@ -650,6 +704,7 @@ namespace Wale.WPF
                 DP.DMML($"fail to invoke UpdateSession");
             }
         }
+        private uint nameGetCount = 0, nameGetStd = 1;
         private void UpdateSession3(StackPanel SessionPanel)
         {
             try
@@ -685,6 +740,7 @@ namespace Wale.WPF
                                 else mSet.DetailOff();
 
                                 // make proper name to update
+                                if (settings.MainTitleforAppname && nameGetCount > nameGetStd) { session.ForceGetMainTitle(); nameGetCount = 0; }
                                 string mt = (session.Name != session.MainWindowTitle ? session.MainWindowTitle : "");
                                 string name = (settings.MainTitleforAppname ? $"{session.Name} {mt}" : session.Name);
                                 string pname = session.NameSet.ProcessName;
@@ -714,13 +770,15 @@ namespace Wale.WPF
                             }
                         }
                     }
+
+                    if (settings.MainTitleforAppname) nameGetCount++;
                     // realign if requested
                     if (reAlignRequested) Realign();
                 }
             }
             catch (Exception e)
             {
-                MessageBox.Show($"Error: {e}");
+                MessageBox.Show($"Error: {e.StackTrace}");
                 DP.DMML($"fail to invoke UpdateSession");
             }
         }
@@ -855,7 +913,7 @@ namespace Wale.WPF
                 FinishApp = true;
                 NI.Visible = false;
                 NI.Dispose();
-                await Task.WhenAll(UpdateTasks);
+                if (UpdateTasks != null) await Task.WhenAll(UpdateTasks);
                 this.Close();
                 Audio.Dispose();
                 Log("Closed"); DP.DMML("Closed");
@@ -893,7 +951,7 @@ namespace Wale.WPF
         {
             DP.DMM("Settings");
             JPack.FormPack FWP = new JPack.FormPack();
-            Configuration form = new Configuration(Audio, DL) { Icon = this.Icon };
+            Configuration form = new Configuration(Audio, settings) { Icon = this.Icon };
             System.Drawing.Point p = FWP.PointFromMouse(-(int)(form.Width / 2), -(int)form.Height, JPack.FormPack.PointMode.AboveTaskbar);
             form.Left = p.X;
             form.Top = p.Y;
@@ -947,7 +1005,7 @@ namespace Wale.WPF
         {
             //System.Diagnostics.Process.Start(JPack.FileLog.WorkDirectory.FullName);
             Console.WriteLine($"{JPack.FileLog.WorkDirectory.FullName}");
-            JPack.FileLog.Log(JPack.FileLog.File.FullName);
+            //JPack.FileLog.Log(JPack.FileLog.File.FullName);
             JPack.FileLog.OpenWorkDirectoryOnExplorer();
         }
 
@@ -1127,7 +1185,7 @@ namespace Wale.WPF
 
             lock (Locks.Session)
             {
-                Audio.Sessions.ForEach((s) =>
+                Audio.Sessions?.ForEach((s) =>
                 {
                     string sid = s.SessionIdentifier;
                     if (!sidList.Contains(sid)) { sidList.Add(sid); }
@@ -1715,46 +1773,5 @@ namespace Wale.WPF
         }
     }
     //Datalink for VM
-    public class Datalink : JPack.NotifyPropertyChanged
-    {
-        public Datalink()
-        {
-            AppUpdateMsg = Visibility.Hidden;
-            ACDevShow = Visibility.Hidden;
-            Transition = "0:0:.2";
-        }
-
-        public string SubVersion { get => Get<string>(); set => Set(value); }
-        public Visibility AppUpdateMsg { get => Get<Visibility>(); set => Set(value); }
-        public string UpdateLink { get => Get<string>(); set => Set(value); }
-
-        public bool ProcessPriorityHigh { get => Get<bool>(); set => Set(value); }
-        public bool ProcessPriorityAboveNormal { get => Get<bool>(); set => Set(value); }
-        public bool ProcessPriorityNormal { get => Get<bool>(); set => Set(value); }
-
-        public string CurrentDevice { get => Get<string>(); set => Set(value); }
-        public string CurrentDeviceLong { get => Get<string>(); set => Set(value); }
-
-        public double MasterVolume { get => Get<double>(); set => Set(Math.Round(value, 3)); }
-        public double MasterPeak { get => Get<double>(); set => Set(Math.Round(value, 3)); }
-
-
-        public Visibility ACDevShow { get => Get<Visibility>(); set => Set(value); }
-        public double ACElapsed { get => Get<double>(); set => Set(Math.Round(value, 3)); }
-        public double ACWaited { get => Get<double>(); set => Set(Math.Round(value, 3)); }
-        public double ACEWdif { get => Get<double>(); set => Set(Math.Round(value, 3)); }
-
-        public double ACAvCnt { get => Get<double>(); set => Set(Math.Round(value, 0)); }
-        public double ACHz { get => Get<double>(); set => Set(Math.Round(value, 2)); }
-
-        // window height change storyboard parameters
-        public double WindowHeight { get => Get<double>(); set => Set(value); }
-        public double WindowTop { get => Get<double>(); set => Set(value); }
-        public string Transition { get => Get<string>(); set => Set(value); }
-
-        // slider storyboard on configset
-        //public double AudioUnit { get => Get<double>(); set => Set(value); }
-
-    }
     
 }
