@@ -10,9 +10,7 @@ using System.Windows.Input;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-
-using JDPack;
-
+using JPack;
 using Wale.CoreAudio;
 
 namespace Wale.WPF

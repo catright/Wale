@@ -12,7 +12,7 @@ using System.Windows;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Wale.WPF")]
-[assembly: AssemblyCopyright("Copyright © 2017-2019 Jongtae, Park (catright)")]
+[assembly: AssemblyCopyright("Copyright © 2017-2020 Jongtae, Park (catright)")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
