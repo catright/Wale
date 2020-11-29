@@ -6,25 +6,28 @@ using System.Threading.Tasks;
 using System.Collections;
 using System.Runtime.InteropServices;
 using Wale.CoreAudio;
+using System.Windows;
 
 namespace Wale
 {
     public class AudioControl : AudioControlInternal
     {
-        private Wale.WPF.Properties.Settings settings = Wale.WPF.Properties.Settings.Default;
-        private Wale.WPF.Datalink DL;
+        //private Wale.WPF.Properties.Settings settings = Wale.WPF.Properties.Settings.Default;
+        private Wale.Configuration.General settings;
+        //private Wale.WPF.Datalink DL;
+        private Wale.Configuration.General DL => settings;
         #region global variables
         /// <summary>
         /// List&lt;Session&gt;
         /// </summary>
-        public SessionList Sessions => audio?.Sessions;
+        public SessionList Sessions => core?.Sessions;
         public bool Debug { get => DP.DebugMode; set => DP.DebugMode = value; }
         public double MasterPeak
         {
             get
             {
-                if (audio != null && !audio.NoDevice) { return audio.MasterPeak; }
-                else if (audio != null && audio.NoDevice) { return -2; }
+                if (core != null && !core.NoDevice) { return core.MasterPeak; }
+                else if (core != null && core.NoDevice) { return -2; }
                 else return 0;
             }
         }
@@ -32,8 +35,8 @@ namespace Wale
         {
             get
             {
-                if (audio != null && !audio.NoDevice) { return audio.MasterVolume; }
-                else if (audio != null && audio.NoDevice) { return -2; }
+                if (core != null && !core.NoDevice) { return core.MasterVolume; }
+                else if (core != null && core.NoDevice) { return -2; }
                 else return 0;
             }
         }
@@ -43,10 +46,12 @@ namespace Wale
         #endregion
 
         #region class loads
-        public AudioControl(WPF.Datalink dl)
+        public AudioControl(Wale.Configuration.General gn)
         {
-            DL = dl;
-            DP = new JDPack.DebugPack(false);
+            //DL = dl;
+            settings = gn;
+            if (settings.Version == "") JPack.FileLog.Log("AutioControl: Using new config");
+            DP = new JPack.DebugPack(false);
         }
         /// <summary>
         /// Start audio controller
@@ -58,11 +63,11 @@ namespace Wale
 
             UpdateVFunc();
 
-            audio = new Audio((float)settings.TargetLevel, settings.AverageTime, settings.AutoControlInterval, true)
+            core = new Core((float)settings.TargetLevel, settings.AverageTime, settings.AutoControlInterval, true)
             {
-                ExcludeList = settings.ExcList.Cast<string>().ToList()
+                ExcludeList = settings.ExcList.Cast<string>().Distinct().ToList()
             };
-            audio.RestartRequested += Audio_RestartRequested;
+            core.RestartRequested += Audio_RestartRequested;
             ControlTasks.Add(ControllerCleanTask());
             //controllerCleanTask = new Task(ControllerCleanTask);
             //controllerCleanTask.Start();
@@ -76,165 +81,191 @@ namespace Wale
         #endregion
 
 
-        public List<DeviceData> GetDeviceMap() => audio.GetDeviceList();
-        public Tuple<string, string> GetDeviceName() => audio.DeviceNameTpl;
+        public List<DeviceData> GetDeviceMap() => core.GetDeviceList();
+        public Tuple<string, string> GetDeviceName() => core.DeviceNameTpl;
 
         #region Master Volume controls
         public void VolumeUp(double v) { SetMasterVolume(MasterVolume + v); }
         public void VolumeDown(double v) { SetMasterVolume(MasterVolume - v); }
         public void SetMasterVolume(double v)
         {
-            if (v < 0) { JDPack.FileLog.Log($"Set Volume Error: {v}"); return; }
+            if (v < 0) { JPack.FileLog.Log($"Set Volume Error: {v}"); return; }
             v = v > 1 ? 1 : v < 0.01 ? 0.01 : v;
 
             DP.DML($"SetTo:{v}");
-            audio.MasterVolume = (float)v;
+            core.MasterVolume = (float)v;
         }
         #endregion
 
 
         #region Session Control
+        public class SesseionEventArgs : EventArgs
+        {
+            public SesseionEventArgs(Session session) { Session = session; }
+            public Session Session { get; }
+        }
+        public delegate void SessionAddedDelegate(object sender, SesseionEventArgs e);
+        public event SessionAddedDelegate SessionAdded;
+        public event SessionAddedDelegate SesseionRemoved;
+        //public event SessionAddedDelegate PeakVolumeChanged;
         private void SessionControl(Session s)
         {
-            if (s?.ProcessID < 0) { JDPack.FileLog.Log($"{s.Name} is changed. Dispose session"); s.Dispose(); RestartRequest(); return; }
-
-            StringBuilder dm = new StringBuilder().Append($"AutoVolume:{s.Name}({s.ProcessID}), inc={s.AutoIncluded}");
-            
-            // Control session(=s) when s is not in exclude list, auto included, active, and not muted
-            if (!settings.ExcList.Contains(s.Name) && s.AutoIncluded && s.State == SessionState.Active && s.SoundEnabled)
+            lock (s.Locker)
             {
-                double peak = s.Peak;
-                // math 2^0=1 but skip math calculation and set relFactor to 1 for calc speed when relative is 0
-                double relFactor = (s.Relative == 0 ? 1 : Math.Pow(AudConf.RelativeBase, s.Relative));
-                double volume = s.Volume / relFactor;
-                dm.Append($" P:{peak:n3} V:{volume:n3}");
+                // occur when got session change which is not intended
+                if (s?.ProcessID < 0) { JPack.FileLog.Log($"{s.Name} is changed. Dispose session"); s.Dispose(); RestartRequest(); return; }
 
-                // control volume when audio session makes sound
-                if (peak > settings.MinPeak)
+                // New session added
+                if (s.NewlyAdded) { s.NewlyAdded = false; SessionAdded?.Invoke(this, new SesseionEventArgs(s)); }
+                // Session removed
+                if (s == null || s.State == SessionState.Expired) { SesseionRemoved?.Invoke(this, new SesseionEventArgs(s)); return; }
+
+                // Control session(=s) when s is not in exclude list, auto included, and not muted
+                if (!settings.ExcList.Contains(s.Name) && s.AutoIncluded && s.SoundEnabled)
                 {
-                    double tVol, UpLimit;
-
-                    // update average
-                    if (s.State != SessionState.Active) { return; }//Check session activity
-                    if (settings.Averaging) s.SetAverage(peak);
-
-                    // when averaging, lower volume once if current peak exceeds average or set volume along average.
-                    if (s.State != SessionState.Active) { return; }//Check session activity
-                    if (settings.Averaging && peak < s.AveragePeak) tVol = settings.TargetLevel / s.AveragePeak;
-                    else tVol = settings.TargetLevel / peak;
-
-                    // calc upLimit by vfunc
-                    switch (VFunc)
-                    {
-                        case VFunction.Func.Linear:
-                            UpLimit = VFunction.Linear(volume, UpRate) + volume;
-                            break;
-                        case VFunction.Func.SlicedLinear:
-                            UpLimit = VFunction.SlicedLinear(volume, UpRate, settings.TargetLevel, sliceFactors.A, sliceFactors.B) + volume;
-                            break;
-                        case VFunction.Func.Reciprocal:
-                            UpLimit = VFunction.Reciprocal(volume, UpRate, kurtosis) + volume;
-                            break;
-                        case VFunction.Func.FixedReciprocal:
-                            UpLimit = VFunction.FixedReciprocal(volume, UpRate, kurtosis) + volume;
-                            break;
-                        default:
-                            UpLimit = upRate + volume;
-                            break;
-                    }
-
-                    // set volume
-                    if (s.State != SessionState.Active) { return; }//Check session activity
-                    dm.Append($" T={tVol:n3} UL={UpLimit:n3}");//Console.WriteLine($" T={tVol:n3} UL={UpLimit:n3}");
-                    s.Volume = (float)((tVol > UpLimit ? UpLimit : tVol) * relFactor);
+                    // static control when in static mode
+                    if (settings.StaticMode) StaticControl(s);
+                    // active control only when session is active
+                    else if (s.State == SessionState.Active) ActiveControl(s);
                 }
-                DP.DML(dm.ToString());// print debug message
             }
         }
-        private void SessionControlinStaticMode(Session s)
+        private void ActiveControl(Session s)
         {
-            if (s?.ProcessID < 0) { JDPack.FileLog.Log($"{s.Name} is changed. Dispose session"); s.Dispose(); RestartRequest(); return; }
-
             StringBuilder dm = new StringBuilder().Append($"AutoVolume:{s.Name}({s.ProcessID}), inc={s.AutoIncluded}");
+            double peak = s.Peak;
+            // math 2^0=1 but skip math calculation and set relFactor to 1 for calc speed when relative is 0
+            double relFactor = (s.Relative == 0 ? 1 : Math.Pow(Wale.Configuration.Audio.RelativeBase, s.Relative));
+            double volume = s.Volume / relFactor;
+            dm.Append($" P:{peak:n3} V:{volume:n3}");
 
-            // Control session(=s) when s is not in exclude list, auto included, and not muted. doesn't care it's active or not.
-            if (!settings.ExcList.Contains(s.Name) && s.AutoIncluded && s.SoundEnabled)
+            // control volume when audio session makes sound
+            if (peak > settings.MinPeak)
             {
-                double relFactor = (s.Relative == 0 ? 1 : Math.Pow(4, s.Relative));
-                s.Volume = (float)(settings.TargetLevel * relFactor);
+                double tVol, UpLimit;
+
+                // update average
+                if (s.State != SessionState.Active) { return; }//Check session activity
+                if (settings.Averaging) s.SetAverage(peak);
+
+                // when averaging, lower volume once if current peak exceeds average or set volume along average.
+                if (s.State != SessionState.Active) { return; }//Check session activity
+                if (settings.Averaging && peak < s.AveragePeak) tVol = settings.TargetLevel / s.AveragePeak;
+                else tVol = settings.TargetLevel / peak;
+
+                // calc upLimit by vfunc, deprecated
+                switch (VFunc)
+                {
+                    case VFunction.Func.Linear:
+                        UpLimit = VFunction.Linear(volume, UpRate) + volume;
+                        break;
+                    case VFunction.Func.SlicedLinear:
+                        UpLimit = VFunction.SlicedLinear(volume, UpRate, settings.TargetLevel, sliceFactors.A, sliceFactors.B) + volume;
+                        break;
+                    case VFunction.Func.Reciprocal:
+                        UpLimit = VFunction.Reciprocal(volume, UpRate, kurtosis) + volume;
+                        break;
+                    case VFunction.Func.FixedReciprocal:
+                        UpLimit = VFunction.FixedReciprocal(volume, UpRate, kurtosis) + volume;
+                        break;
+                    default:
+                        UpLimit = upRate + volume;
+                        break;
+                }
+
+                // set volume
+                if (s.State != SessionState.Active) { return; }//Check session activity
+                dm.Append($" T={tVol:n3} UL={UpLimit:n3}");//Console.WriteLine($" T={tVol:n3} UL={UpLimit:n3}");
+                s.Volume = (float)((tVol > UpLimit ? UpLimit : tVol) * relFactor);
             }
+            DP.DML(dm.ToString());// print debug message
         }
-        public void UpdateAverageParam() { lock (Lockers.Sessions) { audio.UpdateAvTimeAll(settings.AverageTime, settings.AutoControlInterval); } }
-        public void UpdateVFunc() { if (!Enum.TryParse(settings.VFunc, out _VFunc)) JDPack.FileLog.Log("Invalid function for session control"); return; }
+        private void StaticControl(Session s)
+        {
+            double relFactor = (s.Relative == 0 ? 1 : Math.Pow(4, s.Relative));
+            s.Volume = (float)(settings.TargetLevel * relFactor);
+        }
+
+        public void UpdateAverageParam() { lock (Locks.Session) { core.UpdateAvTimeAll(settings.AverageTime, settings.AutoControlInterval); } }
+        public void UpdateVFunc() { if (!Enum.TryParse(settings.VFunc, out _VFunc)) JPack.FileLog.Log("Invalid function for session control"); return; }
         #endregion
 
         #region Automatic volume control
         private async Task AudioControlTask()
         {
-            JDPack.FileLog.Log("Audio Control Task Start");
+            JPack.FileLog.Log("Audio Control Task Start");
             List<Task> aas = new List<Task>();
-            uint logCounter = 0, logCritical = 100000, swCritical = (uint)(settings.UIUpdateInterval / settings.AutoControlInterval);
+            uint logCounter = 0, logCritical = 100000, swCritical = (uint)(1);//settings.UIUpdateInterval / settings.AutoControlInterval
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
             List<double> elapsed = new List<double>(), ewdif = new List<double>(), waited = new List<double>();
+            bool acDev = false;
             //System.Timers.Timer timer = new System.Timers.Timer();
+
             while (!Terminate)
             {
+                TimeSpan d = new TimeSpan((long)(settings.StaticMode ? settings.UIUpdateInterval : settings.AutoControlInterval) * 10000);
+                Task waitTask = ((int)d.TotalMilliseconds > 1) ? Task.Delay((int)d.TotalMilliseconds) : null;
                 sw.Restart();
+
                 if (settings.AutoControl)
                 {
                     try
                     {
-                        lock (Lockers.Sessions)
+                        lock (Locks.Session)
                         {
-                            //if (audio.MasterDeviceIsDisposed != true) { JDPack.FileLog.Log("Master Device is changed. Restart."); audio.Restart(); }
-                            //if (audio.MasterDeviceIsDisposed != true) { JDPack.FileLog.Log("Master Device is changed. Restart."); RestartRequest(); }
-                            if (settings.StaticMode) { Sessions.ForEach(s => aas.Add(new Task(() => SessionControlinStaticMode(s)))); }
-                            else { Sessions.ForEach(s => aas.Add(new Task(() => SessionControl(s)))); }
+                            //if (audio.MasterDeviceIsDisposed != true) { JPack.FileLog.Log("Master Device is changed. Restart."); audio.Restart(); }
+                            //if (audio.MasterDeviceIsDisposed != true) { JPack.FileLog.Log("Master Device is changed. Restart."); RestartRequest(); }
+                            //if (settings.StaticMode) { Sessions.ForEach(s => aas.Add(new Task(() => SessionControlinStaticMode(s)))); }
+                            Sessions.DisposedCheck();
+                            Sessions.ForEach(s =>
+                            {
+                                aas.Add(new Task(() => SessionControl(s)));
+                            });
 
                             if (logCounter > logCritical)
                             {
-                                aas.Add(new Task(() => JDPack.FileLog.Log($"Auto control task passed for {logCritical} times.")));
+                                aas.Add(new Task(() => JPack.FileLog.Log($"Auto control task passed for {logCritical} times.")));
                                 logCounter = 0;
                             }
                             aas.ForEach(t => t.Start());
                         }
                     }
-                    catch (InvalidOperationException e) { JDPack.FileLog.Log($"Error(AudioControlTask): Session collection was modified.\r\n\t{e.ToString()}"); }
-                    catch (Exception e) { JDPack.FileLog.Log($"Error(AudioControlTask): Unknown.\r\n\t{e.ToString()}"); }
+                    catch (InvalidOperationException e) { JPack.FileLog.Log($"Error(AudioControlTask): Session collection was modified.\r\n\t{e.ToString()}"); }
+                    catch (Exception e) { JPack.FileLog.Log($"Error(AudioControlTask): Unknown.\r\n\t{e.ToString()}"); }
                 }
 
+                acDev = DL.ACDevShow == Visibility.Visible;
+
+                logCounter++;
                 await Task.WhenAll(aas);
                 aas.Clear();
-                logCounter++;
-
                 sw.Stop();
                 TimeSpan el = sw.Elapsed;
+
                 sw.Start();
-                TimeSpan d = new TimeSpan();
-                if (settings.StaticMode) { d = new TimeSpan((long)(settings.UIUpdateInterval * 10000)).Subtract(el); }
-                else { d = new TimeSpan((long)(settings.AutoControlInterval * 10000)).Subtract(el); }
                 //Console.WriteLine($"ACTaskElapsed={sw.ElapsedMilliseconds}(-{d.Ticks / 10000:n3})[ms]");
-                elapsed.Add((double)el.Ticks / 10000);
-                ewdif.Add((double)d.Ticks / 10000);
+                if (acDev) elapsed.Add(el.TotalMilliseconds);//(double)el.Ticks / 10000
                 //if (d.Ticks > 0) { System.Threading.Thread.Sleep(d); }
-                if (d.Ticks > 0) { await Task.Delay(d); }
+                if (waitTask != null) await waitTask;
+                else JPack.FileLog.Log("waitTask is null");
                 sw.Stop();
                 //Console.WriteLine($"ACTaskWaited ={(double)sw.ElapsedTicks / System.Diagnostics.Stopwatch.Frequency * 1000:n3}[ms]");// *10000000 T[100ns]
-                waited.Add((double)sw.ElapsedTicks / System.Diagnostics.Stopwatch.Frequency * 1000);
+                if (acDev) waited.Add(sw.Elapsed.TotalMilliseconds);//(double)sw.ElapsedTicks / System.Diagnostics.Stopwatch.Frequency * 1000
+                if (acDev) ewdif.Add(d.Subtract(el).TotalMilliseconds);//(double)d.Ticks / 10000
 
-                if (waited.Count > swCritical)
+                if (acDev && waited.Count >= swCritical)
                 {
-                    DL.ACElapsed = elapsed.Average(); DL.ACEWdif = elapsed.Average(); DL.ACWaited = waited.Average();
+                    DL.ACElapsed = elapsed.Average(); DL.ACEWdif = ewdif.Average(); DL.ACWaited = waited.Average();
                     elapsed.Clear(); ewdif.Clear(); waited.Clear();
-                    swCritical = 0;
+                    //swCritical = 0;
                 }
             }// end while loop
 
-            JDPack.FileLog.Log("Audio Control Task End");
+            JPack.FileLog.Log("Audio Control Task End");
         }// end AudioControlTask
         private async Task ControllerCleanTask()
         {
-            JDPack.FileLog.Log("Controller Clean Task(GC) Start");
+            JPack.FileLog.Log("Controller Clean Task(GC) Start");
             List<Task> aas = new List<Task>();
             uint logCounter = uint.MaxValue, logCritical = (uint)(1800000 / settings.GCInterval);
 
@@ -248,7 +279,7 @@ namespace Wale
                         {
                             aas.Add(new Task(new Action(() =>
                             {
-                                if (s.AutoIncluded && !audio.ExcludeList.Contains(s.Name))
+                                if (s.AutoIncluded && !core.ExcludeList.Contains(s.Name))
                                 {
                                     SessionState state = s.State;
                                     if (state != SessionState.Active && s.Volume != 0.01)
@@ -263,7 +294,7 @@ namespace Wale
 
                         aas.ForEach(t => t.Start());
                     }
-                    catch (InvalidOperationException e) { JDPack.FileLog.Log($"Error(ControllerCleanTask): Session collection was modified.\r\n\t{e.ToString()}"); }
+                    catch (InvalidOperationException e) { JPack.FileLog.Log($"Error(ControllerCleanTask): Session collection was modified.\r\n\t{e.ToString()}"); }
                 }
                 
                 await Task.Delay(new TimeSpan((long)(settings.GCInterval * 10000)));
@@ -278,14 +309,14 @@ namespace Wale
                 if (Debug) { Console.WriteLine($"Total Memory: {mmc:n0}"); }
                 if (logCounter > logCritical)
                 {
-                    JDPack.FileLog.Log($"Memory Cleaned, Total Memory: {mmc:n0}");
+                    JPack.FileLog.Log($"Memory Cleaned, Total Memory: {mmc:n0}");
                     logCounter = 0;
                 }
 
                 logCounter++;
 
             }
-            JDPack.FileLog.Log("Controller Clean Task(GC) End");
+            JPack.FileLog.Log("Controller Clean Task(GC) End");
         }
 
         protected virtual void RestartRequest() => RestartRequested?.Invoke(this, new EventArgs());
@@ -294,11 +325,13 @@ namespace Wale
 
 
     }//End Class AudioControl
+
+
     public class AudioControlInternal : IDisposable
     {
         #region private variables
-        protected JDPack.DebugPack DP;
-        protected CoreAudio.Audio audio;
+        protected JPack.DebugPack DP;
+        protected CoreAudio.Core core;
 
         protected object terminatelock = new object(), autoconlock = new object(), AClocker = new object(), AccuTimerlock = new object();
         private bool _Terminate = false;
@@ -340,7 +373,7 @@ namespace Wale
                     //audioControlTask.Dispose();
                     //controllerCleanTask.Dispose();
 
-                    audio?.Dispose();
+                    core?.Dispose();
 
                     await Task.Delay(250);
                 }

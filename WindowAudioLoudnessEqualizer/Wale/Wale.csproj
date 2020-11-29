@@ -37,6 +37,13 @@
     <AssemblyOriginatorKeyFile>Wale.WPF_TemporaryKey.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="JPack">
+      <HintPath>..\..\..\..\JLLibrary\JPack.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
@@ -48,16 +55,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AppDatas.cs" />
-    <Compile Include="AppVersion.cs" />
-    <Compile Include="AudConf.cs" />
-    <Compile Include="EBUR128.cs" />
-    <Compile Include="FFT.cs" />
-    <Compile Include="Lockers.cs" />
+    <Compile Include="Configuration\General.cs" />
+    <Compile Include="Configuration\Manager.cs" />
+    <Compile Include="Tests\AppVersion.cs" />
+    <Compile Include="Configuration\Audio.cs" />
+    <Compile Include="Tests\EBUR128.cs" />
+    <Compile Include="Tests\FFT.cs" />
+    <Compile Include="General\Locks.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="VFunction.cs" />
+    <Compile Include="General\VFunction.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
     <None Include="Wale.WPF_TemporaryKey.pfx" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

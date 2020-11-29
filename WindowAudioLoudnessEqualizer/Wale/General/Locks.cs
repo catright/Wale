@@ -9,9 +9,9 @@ namespace Wale
     /// <summary>
     /// Objects for Lock states of asychronous tasks
     /// </summary>
-    public static class Lockers
+    public static class Locks
     {
-        public static object Sessions = new object();
+        public static object Session = new object();
         public static object Logger = new object();
         public static object AudioObject = new object();
     }

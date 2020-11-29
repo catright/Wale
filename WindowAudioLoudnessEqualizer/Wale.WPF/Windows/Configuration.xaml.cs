@@ -22,29 +22,31 @@ namespace Wale.WPF
     public partial class Configuration : Window
     {
         ConfigDatalink CDL;
+        Wale.Configuration.General CF;
         /// <summary>
         /// Initialization when window is poped up. Read all setting values, store all values as original, draw all graphs.
         /// </summary>
-        public Configuration(AudioControl audio, Datalink dl)
+        public Configuration(AudioControl audio, Wale.Configuration.General cf)
         {
             InitializeComponent();
 
             this.CDL = new ConfigDatalink();
             this.DataContext = this.CDL;
+            this.CF = cf;
 
             MainGrid.Children.Clear();
 
             MainGrid.Children.Add(new TitleBar(this));
 
-            ConfigSet cs = new ConfigSet(audio, dl, this, false, true)
+            ConfigSet cs = new ConfigSet(audio, cf, this, false, true)
             {
                 //cs.LogInvokedEvent += Cs_LogInvokedEvent;
                 Margin = new Thickness(0, 35, 0, 0)
             };
             //cs.SizeChanged += ConfigSet_SizeChanged;
-            Settings.Default.PropertyChanged += Default_PropertyChanged;
+            CF.PropertyChanged += Default_PropertyChanged;
             MainGrid.Children.Add(cs);
-            this.Height = (Settings.Default.AdvancedView ? AppDatas.ConfigSetLongHeight : AppDatas.ConfigSetHeight) + AppDatas.TitleBarHeight;
+            this.Height = (CF.AdvancedView ? Wale.Configuration.Visual.ConfigSetLongHeight : Wale.Configuration.Visual.ConfigSetHeight) + Wale.Configuration.Visual.TitleBarHeight;
             //this.Width = 280;
 
             this.Title = "Wale " + Localization.Interpreter.Current.Configuration;
@@ -54,15 +56,15 @@ namespace Wale.WPF
         {
             if (e.PropertyName == "AdvancedView")
             {
-                DoChangeHeightSB((Settings.Default.AdvancedView ? AppDatas.ConfigSetLongHeight : AppDatas.ConfigSetHeight) + AppDatas.TitleBarHeight);
+                DoChangeHeightSB((CF.AdvancedView ? Wale.Configuration.Visual.ConfigSetLongHeight : Wale.Configuration.Visual.ConfigSetHeight) + Wale.Configuration.Visual.TitleBarHeight);
             }
         }
 
         private void ConfigSet_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            //this.Height = (MainGrid.Children[1] as ConfigSet).Height + AppDatas.TitleBarHeight;
-            //DoChangeHeightSB((MainGrid.Children[1] as ConfigSet).Height + AppDatas.TitleBarHeight);
-            DoChangeHeightSB((Settings.Default.AdvancedView ? AppDatas.ConfigSetLongHeight : AppDatas.ConfigSetHeight) + AppDatas.TitleBarHeight);
+            //this.Height = (MainGrid.Children[1] as ConfigSet).Height + Wale.Configuration.Visual.TitleBarHeight;
+            //DoChangeHeightSB((MainGrid.Children[1] as ConfigSet).Height + Wale.Configuration.Visual.TitleBarHeight);
+            DoChangeHeightSB((CF.AdvancedView ? Wale.Configuration.Visual.ConfigSetLongHeight : Wale.Configuration.Visual.ConfigSetHeight) + Wale.Configuration.Visual.TitleBarHeight);
         }
 
         private void Cs_LogInvokedEvent(object sender, ConfigSet.LogEventArgs e)

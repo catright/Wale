@@ -31,17 +31,19 @@ namespace Wale.WPF
         /// <summary>
         /// stored setting that users can modify
         /// </summary>
-        Wale.WPF.Properties.Settings settings = Wale.WPF.Properties.Settings.Default;
+        Wale.Configuration.General settings;
+        //Wale.WPF.Properties.Settings settings = Wale.WPF.Properties.Settings.Default;
         /// <summary>
         /// datalink between MVVM
         /// </summary>
-        Datalink DL = new Datalink();
+        //Datalink DL = new Datalink();
+        Wale.Configuration.General DL => settings;
         /// <summary>
         /// Debug message pack
         /// </summary>
-        JDPack.DebugPack DP;
+        JPack.DebugPack DP;
         /// <summary>
-        /// Debug flag for JDPack.DebugPack
+        /// Debug flag for JPack.DebugPack
         /// </summary>
         public bool Debug { get => DP.DebugMode; set => DP.DebugMode = value; }
 
@@ -55,23 +57,22 @@ namespace Wale.WPF
         #endregion
 
         #region Initialization
-        public ConfigSet()
+        public ConfigSet() { InitializeComponent(); }
+        public ConfigSet(AudioControl audio, Wale.Configuration.General cf, Window owner, bool debug, bool newWindow = false)
         {
             InitializeComponent();
-        }
-        public ConfigSet(AudioControl audio, Datalink dl, Window owner, bool debug, bool newWindow = false)
-        {
-            InitializeComponent();
-            MakeComponents(audio, dl, owner, debug, newWindow);
+            MakeComponents(audio, cf, owner, debug, newWindow);
             MakeConfigs();
             MakeFinal();
         }
-        private void MakeComponents(AudioControl audio, Datalink dl, Window owner, bool debug, bool newWindow)
+        private void MakeComponents(AudioControl audio, Wale.Configuration.General cf, Window owner, bool debug, bool newWindow)
         {
-            this.DL = dl;
-            this.DataContext = this.DL;
+            //this.DL = dl;
+            //this.DataContext = this.DL;
+            this.settings = cf;
+            this.DataContext = this.settings;
 
-            DP = new JDPack.DebugPack(debug);
+            DP = new JPack.DebugPack(debug);
 
             this.Owner = owner;
 
@@ -118,8 +119,11 @@ namespace Wale.WPF
         }
         private void MakeFinal()
         {
-            TargetdB.Content = VFunction.Level(settings.TargetLevel, 1);
-            MinPeakdB.Content = VFunction.Level(settings.MinPeak, 1);
+            Dispatcher?.Invoke(() =>
+            {
+                TargetdB.Content = VFunction.Level(settings.TargetLevel, 1);
+                MinPeakdB.Content = VFunction.Level(settings.MinPeak, 1);
+            });
         }
         private void ConfigSet_KeyDown(object sender, KeyEventArgs e)
         {
@@ -180,7 +184,7 @@ namespace Wale.WPF
             {
                 settings.Reset();
                 Makes();
-                JDPack.FileLog.Log("All configs are reset.");
+                JPack.FileLog.Log("All configs are reset.");
             }
         }
         private async void ConfigSave_Click(object sender, RoutedEventArgs e)
@@ -215,7 +219,7 @@ namespace Wale.WPF
             System.Threading.CancellationTokenSource SavedMessageCancelTKSource = new System.Threading.CancellationTokenSource();
             SavedMessageCancelTKSources.Add(SavedMessageCancelTKSource);
             try { await ShowSavedMessage(SavedMessageCancelTKSource.Token); }
-            catch (OperationCanceledException) { JDPack.Debug.CML("Saved Msg Canceled. This is normal operation"); }
+            catch (OperationCanceledException) { JPack.Debug.CML("Saved Msg Canceled. This is normal operation"); }
             finally { SavedMessageCancelTKSources.Remove(SavedMessageCancelTKSource); SavedMessageCancelTKSource.Dispose(); }
         }
         private void Cancel_Click(object sender, RoutedEventArgs e)
@@ -286,7 +290,7 @@ namespace Wale.WPF
                 //settings.MinPeak = Convert.ToDouble(textBox8.Text);
                 //settings.VFunc = comboBox1.SelectedValue.ToString();
             }
-            catch { success = false; JDPack.FileLog.Log("Error: Config - Convert failure"); }
+            catch { success = false; JPack.FileLog.Log("Error: Config - Convert failure"); }
             finally { settings.AutoControl = auto; }
             //Console.WriteLine("Convert End");
             return success;
@@ -318,7 +322,7 @@ namespace Wale.WPF
                     }
                 }
             }
-            catch { success = false; JDPack.FileLog.Log("Error: Config - Register failure"); }
+            catch { success = false; JPack.FileLog.Log("Error: Config - Register failure"); }
             //Console.WriteLine("resister End");
             return success;
         }
@@ -341,7 +345,7 @@ namespace Wale.WPF
                 case "Above Normal": ppc = ProcessPriorityClass.AboveNormal; break;
                 case "Normal": ppc = ProcessPriorityClass.Normal; break;
             }
-            JDPack.Debug.CML($"SPP H={DL.ProcessPriorityHigh} A={DL.ProcessPriorityAboveNormal} N={DL.ProcessPriorityNormal}");
+            JPack.Debug.CML($"SPP H={DL.ProcessPriorityHigh} A={DL.ProcessPriorityAboveNormal} N={DL.ProcessPriorityNormal}");
             //settings.Save();
             using (Process p = Process.GetCurrentProcess()) { p.PriorityClass = ppc; }
         }
@@ -386,7 +390,7 @@ namespace Wale.WPF
         /// <summary>
         /// Draw new present graph
         /// </summary>
-        private void DrawNew() { DrawGraph("Graph"); }
+        private void DrawNew() { return; DrawGraph("Graph"); }
         /// <summary>
         /// Draw a graph of decrement function
         /// </summary>
@@ -485,6 +489,7 @@ namespace Wale.WPF
         /// </summary>
         private void DrawBase()
         {
+            return;
             List<Series> exc = new List<Series>();
             foreach (Series s in plotView.Model.Series) { if (s.Title == "Base") exc.Add(s); }
             foreach (Series s in exc) { plotView.Model.Series.Remove(s); }
@@ -522,7 +527,7 @@ namespace Wale.WPF
         /// <param name="newLine">flag for making newline after the end of the <paramref name="msg"/>.</param>
         private void Log(string msg, bool newLine = true)
         {
-            //JDPack.FileLog.Log(msg, newLine);
+            //JPack.FileLog.Log(msg, newLine);
             //DateTime t = DateTime.Now.ToLocalTime();
             //string content = $"{t.Hour:d2}:{t.Minute:d2}>{msg}";
             //if (newLine) content += "\r\n";

@@ -51,11 +51,14 @@ namespace Wale.WPF
         /// <summary>
         /// stored setting that users can modify
         /// </summary>
-        readonly Wale.WPF.Properties.Settings settings = Wale.WPF.Properties.Settings.Default;
+        //readonly Wale.WPF.Properties.Settings settings = Wale.WPF.Properties.Settings.Default;
+        //readonly Wale.Configuration.General settings = Conf.settings;
+        Wale.Configuration.General settings = Conf.settings;
         /// <summary>
         /// datalink between MVVM
         /// </summary>
-        readonly Datalink DL = new Datalink();
+        //readonly Datalink DL = new Datalink();
+        Wale.Configuration.General DL => settings;
         /// <summary>
         /// Tray icon
         /// </summary>
@@ -67,7 +70,7 @@ namespace Wale.WPF
         /// <summary>
         /// Debug message pack
         /// </summary>
-        JDPack.DebugPack DP;
+        JPack.DebugPack DP;
         /// <summary>
         /// window update task list
         /// </summary>
@@ -111,25 +114,85 @@ namespace Wale.WPF
             //try { MessageBox.Show($"V. {AppVersion.FullVersion}, {settings.Version}, pre {settings.GetPreviousVersion("Version")}"); }
             //catch (System.Configuration.SettingsPropertyNotFoundException) { MessageBox.Show("Property not found"); }
 
-            Action action = new Action(() => {
+            Action<string> actionUpgrade1 = new Action<string>((v) => {
                 //MessageBox.Show("Settings Upgrade Entry");
-                try { settings.Upgrade(); } catch (Exception e) { MessageBox.Show($"Unknown Error on upgrade settings\r{e.Message}\rYour setting would be reset to default"); settings.Reset(); }
-                //settings.Upgrade();// MessageBox.Show("Settings Upgraded.");
-                settings.Version = AppVersion.FullVersion;// MessageBox.Show("Settings Version Upgraded");
-                settings.Save();// MessageBox.Show("Settings Saved");
-                try { JDPack.FileLog.Log($"Settings are Upgraded from {settings.GetPreviousVersion("Version")}"); } catch { MessageBox.Show("FileLog Error on settings upgrade"); }
+                try
+                {
+                    settings.Upgrade(v); // MessageBox.Show("Settings Upgraded.");
+
+                    try { JPack.FileLog.Log($"Settings are Upgraded from {settings.GetPreviousVersion("Version")}"); }
+                    catch { MessageBox.Show("FileLog Error on settings upgrade"); }
+                }
+                catch (Exception e) { MessageBox.Show($"Unknown Error on upgrade settings\r{e.Message}\rYour setting would be reset to default"); settings.Reset(); }
+                finally
+                {
+                    //settings.Version = v;// MessageBox.Show("Settings Version Upgraded");
+                    //settings.Save();// MessageBox.Show("Settings Saved");
+                }
+            });
+            Action<Properties.Settings> actionUpgrade2 = new Action<Properties.Settings>((old) =>
+            {
+                try
+                {
+                    settings.AutoControl = old.AutoControl;
+                    settings.AlwaysTop = old.AlwaysTop;
+                    settings.StayOn = old.StayOn;
+                    settings.RunAtWindowsStartup = old.RunAtWindowsStartup;
+                    settings.Averaging = old.Averaging;
+                    settings.AdvancedView = old.AdvancedView;
+
+                    settings.TargetLevel = old.TargetLevel;
+                    settings.AverageTime = old.AverageTime;
+                    settings.Kurtosis = old.Kurtosis;
+                    settings.MasterVolumeInterval = old.MasterVolumeInterval;
+                    settings.MinPeak = old.MinPeak;
+                    settings.UpRate = old.UpRate;
+                    settings.GCInterval = old.GCInterval;
+                    settings.UIUpdateInterval = old.UIUpdateInterval;
+                    settings.AutoControlInterval = old.AutoControlInterval;
+
+                    settings.VFunc = old.VFunc;
+                    settings.AppTitle = old.AppTitle;
+                    settings.ProcessPriority = old.ProcessPriority;
+                    settings.ExcList = old.ExcList.Cast<string>().Distinct().ToList();
+                    settings.CombineSession = old.CombineSession;
+                    settings.AudioUnit = old.AudioUnit;
+                    settings.Version = old.Version;
+                    settings.PreviousVersion = old.GetPreviousVersion("Version").ToString();
+
+                    settings.ShowSessionIcon = old.ShowSessionIcon;
+                    settings.CollapseSubSessions = old.CollapseSubSessions;
+                    settings.StaticMode = old.StaticMode;
+                    settings.PnameForAppname = old.PnameForAppname;
+                    settings.MainTitleforAppname = old.MainTitleforAppname;
+                    settings.AutoExcludeOnManualSet = old.AutoExcludeOnManualSet;
+
+                    //try { JPack.FileLog.Log($"Settings are Upgraded from {settings.PreviousVersion}"); }
+                    //catch { MessageBox.Show("FileLog Error on settings upgrade"); }
+                }
+                catch (Exception e) { MessageBox.Show($"Unknown Error on upgrade settings\r{e.Message}\rYour setting would be reset to default"); settings.Reset(); }
+                finally { settings.Save(); }
             });
 
+            bool er = false;
             string ver = String.Empty;
-            try { ver = settings.Version; } catch { action(); }
-            if (ver != AppVersion.FullVersion) { action(); }
+            try { ver = settings.Version; } catch { er = true; }
+
+            //upgrade windows default settings to wale customized config
+            if (ver == "") { actionUpgrade2(Properties.Settings.Default); }
+            //upgrade config to new version
+            if (er || ver != AppVersion.FullVersion)
+            {
+                try { actionUpgrade1(AppVersion.FullVersion); }
+                catch { }
+            }
         }
         /// <summary>
         /// Make UI components
         /// </summary>
         private void MakeComponents()
         {
-            DP = new JDPack.DebugPack(debug);
+            DP = new JPack.DebugPack(debug);
 
             // clear contents for design
             LogScroll.Content = string.Empty;
@@ -164,10 +227,11 @@ namespace Wale.WPF
             //Tuple<bool, string> uc = AppUpdateCheck.Check();
             //if (uc.Item1)
             //{
-                //DL.AppUpdateMsg = uc.Item1 ? Visibility.Visible : Visibility.Hidden;
-                //DL.UpdateLink = uc.Item2;
+            //DL.AppUpdateMsg = uc.Item1 ? Visibility.Visible : Visibility.Hidden;
+            //DL.UpdateLink = uc.Item2;
             //}
 
+            Dispatcher?.Invoke(() => { SessionPanel.Children.Clear(); });
             Log("OK1");
         }
         /// <summary>
@@ -250,13 +314,15 @@ namespace Wale.WPF
         private void StartAudio(bool restart = false)
         {
             // start audio controller
-            Audio = new AudioControl(DL) { UpRate = settings.UpRate };
+            Audio = new AudioControl(settings) { UpRate = settings.UpRate };
             while (Audio.MasterVolume == -1)
             {
                 Audio.Dispose();
-                Audio = new AudioControl(DL) { UpRate = settings.UpRate };
+                Audio = new AudioControl(settings) { UpRate = settings.UpRate };
             }
             Audio.RestartRequested += Audio_RestartRequested;
+            Audio.SessionAdded += Audio_SessionAdded;
+            Audio.SesseionRemoved += Audio_SesseionRemoved;
             Audio.Start(audioDebug);
 
             // start window update tasks
@@ -270,6 +336,7 @@ namespace Wale.WPF
             RestartQueued = false;
             Log("OK2");
         }
+
         private async void RestartAudio()
         {
             DP.DMML("Restart Audio");
@@ -299,7 +366,7 @@ namespace Wale.WPF
         private void MakeConfigs()
         {
             // make config tab
-            ConfigSet cs = new ConfigSet(Audio, DL, this, debug);
+            ConfigSet cs = new ConfigSet(Audio, settings, this, debug);
             cs.LogInvokedEvent += Cs_LogInvokedEvent;
             ConfTab.Content = cs;
         }
@@ -355,7 +422,7 @@ namespace Wale.WPF
             {
                 if (Active)
                 {
-                    JDPack.DebugPack VDP = new JDPack.DebugPack(updateVolumeDebug);
+                    JPack.DebugPack VDP = new JPack.DebugPack(updateVolumeDebug);
                     VDP.DMML($"base={settings.TargetLevel} vol={Audio.MasterVolume}({Audio.MasterPeak})");
 
                     Tuple<string, string> nbuf = Audio.GetDeviceName();
@@ -371,8 +438,8 @@ namespace Wale.WPF
 
                     Dispatcher?.Invoke(() =>
                     {
-                        double hbuf = MasterPanel.Height + AppDatas.MainWindowBaseHeight;
-                        hbuf = hbuf > AppDatas.MainWindowHeightDefault ? hbuf : AppDatas.MainWindowHeightDefault;
+                        double hbuf = MasterPanel.Height + Wale.Configuration.Visual.MainWindowBaseHeight;
+                        hbuf = hbuf > Wale.Configuration.Visual.MainWindowHeightDefault ? hbuf : Wale.Configuration.Visual.MainWindowHeightDefault;
                         window.MinHeight = hbuf;
                     });
                 }
@@ -387,11 +454,11 @@ namespace Wale.WPF
         private void UpdateSessionTask()
         {
             Log("Start UpdateSessionTask");
-            Dispatcher?.Invoke(() => { SessionPanel.Children.Clear(); });
-            UpdateSession2(SessionPanel);
+            nameGetStd = (uint)Math.Round(1000 / settings.UIUpdateInterval, 0);
+            //UpdateSession3(SessionPanel);
             while (!FinishApp)
             {
-                if (Active) UpdateSession2(SessionPanel);
+                if (Active) { UpdateSession3(SessionPanel); }
                 System.Threading.Thread.Sleep(Convert.ToInt32(settings.UIUpdateInterval));
             }
             Log("End UpdateSessionTask");
@@ -410,10 +477,10 @@ namespace Wale.WPF
                 else
                 {
                     // the "functional part", executing only on the main thread
-                    JDPack.DebugPack SDP = new JDPack.DebugPack(updateSessionDebug);
+                    JPack.DebugPack SDP = new JPack.DebugPack(updateSessionDebug);
                     SDP.DMM("Getting Sessions");
                     int count = 0;
-                    lock (Lockers.Sessions) { count = Audio.Sessions.Count; }// count of all sessions
+                    lock (Locks.Session) { count = Audio.Sessions.Count; }// count of all sessions
                     SDP.DMML("  Count:" + count);
 
                     // do when there is session
@@ -421,7 +488,7 @@ namespace Wale.WPF
                     {
                         bool reAlign = false; // re-alignment flag
                         List<MeterSet> expired = new List<MeterSet>(); //expired tabSession.controls buffer
-                        lock (Lockers.Sessions)
+                        lock (Locks.Session)
                         {
                             foreach (var sc in Audio.Sessions)
                             {//check and insert new session data as meterset to tabSession.controls
@@ -474,9 +541,9 @@ namespace Wale.WPF
                         if (reAlign)
                         {//re-align when there is(are) added or removed session(s)
                             Log("Re-aligning");
-                            double lastHeight = this.Height, spacing = settings.AdvancedView ? AppDatas.SessionBlockHeightDetail : AppDatas.SessionBlockHeightNormal;
+                            double lastHeight = this.Height, spacing = settings.AdvancedView ? Wale.Configuration.Visual.SessionBlockHeightDetail : Wale.Configuration.Visual.SessionBlockHeightNormal;
                             double newHeight = (double)(SessionPanel.Children.Count) * spacing + 60 + 2;
-                            if (newHeight < this.MinHeight) { newHeight = AppDatas.MainWindowHeightDefault; }
+                            if (newHeight < this.MinHeight) { newHeight = Wale.Configuration.Visual.MainWindowHeightDefault; }
                             //Console.WriteLine($"fsgH:{fsgHeight},DF:{dif}");
                             mainHeight = newHeight;
                             if (!nowConfig) DoChangeHeightSB(newHeight, "0:0:.1");
@@ -489,9 +556,7 @@ namespace Wale.WPF
             }
             catch { DP.DMML($"fail to invoke UpdateSession"); }
         }
-
         private string activeTabName = "MAIN";
-
         private void UpdateSession2(StackPanel SessionPanel)
         {
             try
@@ -501,166 +566,126 @@ namespace Wale.WPF
 
                 if (!Dispatcher.CheckAccess())
                 {
-                    Dispatcher.Invoke(new StackPanelConsumer(UpdateSession2), SessionPanel); // invoking itself
+                    Dispatcher.Invoke(new StackPanelConsumer(UpdateSession2), SessionPanel);  // invoking itself
                 }
                 else
                 {
                     // the "functional part", executing only on the main thread
-                    var SDP = new DebugPack(updateSessionDebug);
+                    JPack.DebugPack SDP = new JPack.DebugPack(updateSessionDebug);
                     SDP.CMM("Getting Sessions");
-                    var count = 0;
-                    lock (Lockers.Sessions) count = Audio.Sessions.Count;
+                    int count = 0;
+                    lock (Locks.Session) { count = Audio.Sessions.Count; }// count of all sessions
                     SDP.CMML("  Count:" + count);
 
                     // do when there is session
                     if (count <= 0) return;
 
-                    var reAlign = false; // re-alignment flag
-                    var expired = new List<MeterSet>(); //expired tabSession.controls buffer
-                    lock (Lockers.Sessions)
+                    bool reAlign = false; // re-alignment flag
+                    List<MeterSet> expired = new List<MeterSet>(); //expired tabSession.controls buffer
+                    lock (Locks.Session)
                     {
                         // Add new session
-                        foreach (var sc in Audio.Sessions.Where(session => session.State != SessionState.Expired &&
-                                                                           SessionPanel.Children.Cast<MeterSet>()
-                                                                               .All(item =>
-                                                                                   session.ProcessID !=
-                                                                                   item.ProcessID)))
-                        {
+                        foreach (var sc in Audio.Sessions.Where(session =>
+                            session.State != SessionState.Expired &&
+                            SessionPanel.Children.Cast<MeterSet>().All(item => session.ProcessID != item.ProcessID))
+                        )
+                        {//check and insert new session data as meterset to tabSession.controls
                             //if (sc.Name != sc.DisplayName && !string.IsNullOrWhiteSpace(sc.DisplayName)) { Log($"Remake name of {sc.Name}({sc.ProcessID})"); sc.Name = sc.DisplayName; }
                             Log($"Make proper name of {sc.Name}({sc.ProcessID})");
-                            sc.Name = sc.DisplayName; //Make proper NameSet
-                            string mt = sc.Name != sc.MainWindowTitle ? sc.MainWindowTitle : "",
-                                name = settings.MainTitleforAppname ? $"{sc.Name} {mt}" : sc.Name,
+                            sc.Name = sc.DisplayName;//Make proper NameSet
+                            string mt = (sc.Name != sc.MainWindowTitle ? sc.MainWindowTitle : ""),
+                                name = (settings.MainTitleforAppname ? $"{sc.Name} {mt}" : sc.Name),
                                 pname = sc.NameSet.ProcessName;
                             if (settings.PnameForAppname)
                             {
-                                name = settings.MainTitleforAppname
+                                name = (settings.MainTitleforAppname
                                     ? $"{sc.NameSet.ProcessName} {mt}"
-                                    : sc.NameSet.ProcessName;
+                                    : sc.NameSet.ProcessName);
                                 pname = sc.Name;
                             }
 
-                            Console.WriteLine(
-                                $@"{name}({sc.ProcessID}) {sc.DisplayName} / {sc.ProcessName} / {sc.Icon} / {mt} / {sc.SessionIdentifier}");
-
                             if (updateSessionDebug)
-                                Console.WriteLine(
-                                    $@"{name}({sc.ProcessID}) {sc.DisplayName} / {sc.ProcessName} / {sc.Icon} / {mt} / {sc.SessionIdentifier}");
+                                Console.WriteLine($@"{name}({sc.ProcessID}) {sc.DisplayName} / {sc.ProcessName} / {sc.Icon} / {mt} / {sc.SessionIdentifier}");
                             //string stooltip = string.IsNullOrEmpty(sc.MainWindowTitle) ? $"{sc.Name}({sc.ProcessID})" : $"{sc.Name}({sc.ProcessID}) - {sc.MainWindowTitle}";
-                            var stooltip = $"{pname}({sc.ProcessID}) {mt}";
+                            string stooltip = $"{pname}({sc.ProcessID}) {mt}";
                             Console.WriteLine(stooltip);
-                            if (GetSessionConfigFromFile())
-                                ApplyCurrentSessionConfig(sc); //Get saved session config
-                            var set = new MeterSet(this, sc.ProcessID, name, sc.Icon, settings.AdvancedView,
-                                    sc.AutoIncluded, updateSessionDebug, stooltip)
-                                {SoundEnabled = sc.SoundEnabled, Relative = sc.Relative};
-                            var idx = SessionPanel.Children
-                                .Count; //Console.WriteLine($"new meterset idx={idx}");
-                            foreach (MeterSet item in SessionPanel.Children)
-                                if (set.CompareTo(item) < 0)
-                                {
-                                    idx = SessionPanel.Children.IndexOf(item);
-                                    break;
-                                }
-
+                            //if (GetSessionConfigFromFile())
+                            //    ApplyCurrentSessionConfig(sc);//Get saved session config
+                            MeterSet set = new MeterSet(this, sc.ProcessID, name, sc.Icon, settings.AdvancedView,
+                                sc.AutoIncluded, updateSessionDebug, stooltip)
+                            { SoundEnabled = sc.SoundEnabled, Relative = sc.Relative };
+                            int idx = SessionPanel.Children.Count; //Console.WriteLine($"new meterset idx={idx}");
+                            foreach (MeterSet item in SessionPanel.Children) { if (set.CompareTo(item) < 0) { idx = SessionPanel.Children.IndexOf(item); break; } }
                             if (idx < SessionPanel.Children.Count)
-                                SessionPanel.Children.Insert(idx, set);
+                                SessionPanel.Children.Insert(idx, set); //Console.WriteLine("new meterset inserted"); }
                             else
-                                SessionPanel.Children.Add(set);
+                                SessionPanel.Children.Add(set); //Console.WriteLine("new meterset added"); }
                             reAlign = true;
                             Log($"New MeterSet:{sc.Name}({sc.ProcessID}) {sc.SessionIdentifier}");
                         }
 
                         // Update exist session
                         foreach (MeterSet mSet in SessionPanel.Children)
-                        {
-                            //check expired session and update not expired session
+                        {//check expired session and update not expired session
                             var session = Audio.Sessions.GetSession(mSet.ProcessID);
-                            if (session == null || session.State == SessionState.Expired)
-                            {
-                                expired.Add(mSet);
-                                reAlign = true;
-                            }
+                            if (session == null || session.State == Wale.CoreAudio.SessionState.Expired) { expired.Add(mSet); reAlign = true; }
                             else
                             {
                                 if (settings.AdvancedView) mSet.DetailOn();
                                 else mSet.DetailOff();
-                                if (mSet.detailChanged)
+                                if (mSet.detailChanged) { reAlign = true; mSet.detailChanged = false; }
+
+                                string mt = (session.Name != session.MainWindowTitle ? session.MainWindowTitle : ""),
+                                    name = (settings.MainTitleforAppname ? $"{session.Name} {mt}" : session.Name),
+                                    pname = session.NameSet.ProcessName;
+                                if (settings.PnameForAppname)
                                 {
-                                    reAlign = true;
-                                    mSet.detailChanged = false;
+                                    name = (settings.MainTitleforAppname ? $"{session.NameSet.ProcessName} {mt}" : session.NameSet.ProcessName);
+                                    pname = session.Name;
                                 }
+                                string stooltip = $"{pname}({session.ProcessID}) {mt}";
 
-                                var mt = session.Name != session.MainWindowTitle
-                                    ? $" {session.MainWindowTitle}"
-                                    : "";
-                                var name = settings.MainTitleforAppname ? $"{session.NameSet.ProcessName}{mt}" : $"{session.Name}";
-                                var pname = settings.MainTitleforAppname ? session.Name : session.NameSet.ProcessName;
-
-                                //if (session.Name != session.DisplayName && !string.IsNullOrWhiteSpace(session.DisplayName)) { Log($"Remake name of {session.Name}({session.ProcessID})"); session.Name = session.DisplayName; }
-                                //string stooltip = string.IsNullOrEmpty(session.MainWindowTitle) ? $"{session.Name}({session.ProcessID})" : $"{session.Name}({session.ProcessID}) - {session.MainWindowTitle}";
-                                var stooltip = $"{pname}({session.ProcessID}){mt}";
                                 if (mSet.AudioUnit != settings.AudioUnit) mSet.AudioUnit = settings.AudioUnit;
-                                mSet.UpdateData(session.Volume, session.Volume * session.Peak,
-                                    session.Volume * session.AveragePeak, name, stooltip);
+                                mSet.UpdateData(session.Volume, session.Volume * session.Peak, session.Volume * session.AveragePeak, name, stooltip);
                                 if (updateSessionDebug)
-                                    Console.WriteLine(
-                                        $@"{session.Volume}, {session.Volume * session.Peak}, {session.Volume * session.AveragePeak}, {session.Name}, {stooltip}");
-                                if (Math.Abs(session.Relative - (float) mSet.Relative) > 0)
+                                    Console.WriteLine($@"{session.Volume}, {session.Volume * session.Peak}, {session.Volume * session.AveragePeak}, {session.Name}, {stooltip}");
+                                if (Math.Abs(session.Relative - (float)mSet.Relative) > 0)
                                 {
-                                    session.Relative = (float)
-                                        mSet.Relative;
+                                    session.Relative = (float)mSet.Relative;
                                     SaveSessionConfigToFile();
                                 }
-
                                 // Sound mute check
-                                if (mSet.SoundEnableChanged)
-                                {
-                                    session.SoundEnabled = mSet.SoundEnabled;
-                                    mSet.SoundEnableChanged = false;
-                                }
-
-                                if (session.SoundEnabled != mSet.SoundEnabled)
-                                    mSet.SoundEnabled = session.SoundEnabled;
+                                if (mSet.SoundEnableChanged) { session.SoundEnabled = mSet.SoundEnabled; mSet.SoundEnableChanged = false; }
+                                if (session.SoundEnabled != mSet.SoundEnabled) mSet.SoundEnabled = session.SoundEnabled;
                                 // Auto include check
-                                if (mSet.AutoIncludedChanged)
-                                {
-                                    session.AutoIncluded = mSet.AutoIncluded;
-                                    mSet.AutoIncludedChanged = false;
-                                    SaveSessionConfigToFile();
-                                }
-
-                                if (session.AutoIncluded != mSet.AutoIncluded)
-                                    mSet.AutoIncluded = session.AutoIncluded;
+                                if (mSet.AutoIncludedChanged) { session.AutoIncluded = mSet.AutoIncluded; mSet.AutoIncludedChanged = false; SaveSessionConfigToFile(); }
+                                if (session.AutoIncluded != mSet.AutoIncluded) { mSet.AutoIncluded = session.AutoIncluded; }
                             }
                         }
                     }
-
-                    // Let's only clear it when we need to
                     if (expired.Count > 0)
                     {
                         // Find expired session
-                        foreach (var item in expired)
+                        foreach (MeterSet item in expired)
                         {
                             SetTabControl(SessionPanel, item, true);
                             Log($"Remove MeterSet:{item.SessionName}({item.ProcessID})");
                         } //remove expired session as meterset from tabSession.controls
-
                         expired.Clear(); //clear expire buffer
+                                         //realign when there are one or more new set or removed set.
                     }
 
-                    //realign when there are one or more new set or removed set.
+                    //re-align when there is(are) added or removed session(s)
                     if (!reAlign) return;
 
-                    //re-align when there is(are) added or removed session(s)
                     Log("Re-aligning");
                     //SessionPanel.Children.Cast<List>().ToList().Sort();
-                    double lastHeight = Height,
+                    double lastHeight = this.Height,
                         spacing = settings.AdvancedView
-                            ? AppDatas.SessionBlockHeightDetail
-                            : AppDatas.SessionBlockHeightNormal;
-                    var newHeight = SessionPanel.Children.Count * spacing + 60 + 2;
-                    if (newHeight < MinHeight) newHeight = AppDatas.MainWindowHeightDefault;
+                            ? Wale.Configuration.Visual.SessionBlockHeightDetail
+                            : Wale.Configuration.Visual.SessionBlockHeightNormal;
+                    double newHeight = (double)(SessionPanel.Children.Count) * spacing + 60 + 2;
+                    if (newHeight < this.MinHeight) newHeight = Wale.Configuration.Visual.MainWindowHeightDefault;
                     //Console.WriteLine($"fsgH:{fsgHeight},DF:{dif}");
                     mainHeight = newHeight;
                     if (!nowConfig) DoChangeHeightSB(newHeight, "0:0:.1");
@@ -671,9 +696,198 @@ namespace Wale.WPF
             catch (Exception e)
             {
                 MessageBox.Show($"Error: {e}");
-                DP.DMML("fail to invoke UpdateSession");
+                DP.DMML($"fail to invoke UpdateSession");
             }
         }
+        private uint nameGetCount = 0, nameGetStd = 1;
+        private void UpdateSession3(StackPanel SessionPanel)
+        {
+            try
+            {
+                // We don't need to update the main tab if we are currently not using it
+                if (!string.IsNullOrWhiteSpace(activeTabName) && activeTabName != "MAIN") return;
+
+                if (!Dispatcher.CheckAccess())
+                    Dispatcher.Invoke(new StackPanelConsumer(UpdateSession3), SessionPanel);// invoke self
+                else
+                {
+                    // the "functional part", executing only on the main thread
+                    JPack.DebugPack SDP = new JPack.DebugPack(updateSessionDebug);
+                    SDP.CMM("Getting Sessions");
+                    // do when there is session
+                    int count = Audio.Sessions.Count;
+                    SDP.CMML("  Count:" + count);
+                    if (count <= 0) return;
+
+                    // Update exist session
+                    //System.Diagnostics.Debug.WriteLine($"msets:{SessionPanel.Children.Count}");
+                    foreach (MeterSet mSet in SessionPanel.Children)
+                    {
+                        var session = Audio.Sessions.GetSession(mSet.ProcessID);
+                        lock (session.Locker)
+                        {
+                            //check expired session and update not expired
+                            if (session == null || session.State == SessionState.Expired) { }
+                            else
+                            {
+                                // detailed view check
+                                if (settings.AdvancedView) mSet.DetailOn();
+                                else mSet.DetailOff();
+
+                                // make proper name to update
+                                if (settings.MainTitleforAppname && nameGetCount > nameGetStd) { session.ForceGetMainTitle(); nameGetCount = 0; }
+                                string mt = (session.Name != session.MainWindowTitle ? session.MainWindowTitle : "");
+                                string name = (settings.MainTitleforAppname ? $"{session.Name} {mt}" : session.Name);
+                                string pname = session.NameSet.ProcessName;
+                                if (settings.PnameForAppname)
+                                {
+                                    name = (settings.MainTitleforAppname ? $"{session.NameSet.ProcessName} {mt}" : session.NameSet.ProcessName);
+                                    pname = session.Name;
+                                }
+                                // make tooltip msg
+                                string stooltip = $"{pname}({session.ProcessID}) {mt}";
+
+                                // audio unit check linear/dB
+                                if (mSet.AudioUnit != settings.AudioUnit) mSet.AudioUnit = settings.AudioUnit;
+
+                                // update audio data
+                                mSet.UpdateData(session.Volume, session.Volume * session.Peak, session.Volume * session.AveragePeak, name, stooltip);
+                                if (updateSessionDebug) { Console.WriteLine($"{session.Volume}, {session.Volume * session.Peak}, {session.Volume * session.AveragePeak}, {session.Name}, {stooltip}"); }
+
+                                // relative check
+                                if (Math.Abs(session.Relative - (float)mSet.Relative) > 0) { session.Relative = (float)mSet.Relative; SaveSessionConfigToFile(); }
+                                // Sound mute check
+                                if (mSet.SoundEnableChanged) { session.SoundEnabled = mSet.SoundEnabled; mSet.SoundEnableChanged = false; }
+                                if (session.SoundEnabled != mSet.SoundEnabled) mSet.SoundEnabled = session.SoundEnabled;
+                                // Auto include check
+                                if (mSet.AutoIncludedChanged) { session.AutoIncluded = mSet.AutoIncluded; mSet.AutoIncludedChanged = false; SaveSessionConfigToFile(); }
+                                if (session.AutoIncluded != mSet.AutoIncluded) { mSet.AutoIncluded = session.AutoIncluded; }
+                            }
+                        }
+                    }
+
+                    if (settings.MainTitleforAppname) nameGetCount++;
+                    // realign if requested
+                    if (reAlignRequested) Realign();
+                }
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show($"Error: {e.StackTrace}");
+                DP.DMML($"fail to invoke UpdateSession");
+            }
+        }
+
+        private void Audio_SessionAdded(object sender, AudioControl.SesseionEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("mainwindow:sessionadded");
+            lock (e.Session.Locker)
+            {
+                // new session added, event from audio controller
+                Session sc = e.Session;
+
+                // get saved session config
+                if (GetSessionConfigFromFile()) ApplyCurrentSessionConfig(sc);
+
+                // make proper name
+                Log($"Make proper name of {sc.Name}({sc.ProcessID})");
+                sc.Name = sc.DisplayName;// make proper NameSet
+                string mt = (sc.Name != sc.MainWindowTitle ? sc.MainWindowTitle : ""),
+                    name = (settings.MainTitleforAppname ? $"{sc.Name} {mt}" : sc.Name),
+                    pname = sc.NameSet.ProcessName;
+                if (settings.PnameForAppname)
+                {
+                    name = (settings.MainTitleforAppname ? $"{sc.NameSet.ProcessName} {mt}" : sc.NameSet.ProcessName);
+                    pname = sc.Name;
+                }
+                if (updateSessionDebug)
+                    Console.WriteLine($"{name}({sc.ProcessID}) {sc.DisplayName} / {sc.ProcessName} / {sc.Icon} / {mt} / {sc.SessionIdentifier}"); // debug msg with proper name
+                string stooltip = $"{pname}({sc.ProcessID}) {mt}";
+                Console.WriteLine(stooltip);// make tooltip msg
+
+                MeterSet set = null;
+                Dispatcher?.Invoke(() => {
+                    // make new MeterSet
+                    set = new MeterSet(this, sc.ProcessID, name, sc.Icon, settings.AdvancedView, sc.AutoIncluded, updateSessionDebug, stooltip) { SoundEnabled = sc.SoundEnabled, Relative = sc.Relative };
+                    set.DetailChanged += Set_DetailChanged;
+                });
+                if (set != null)
+                {
+                    // add the MeterSet
+                    SetTabControl(SessionPanel, set);
+
+                    // realign SessionPanel
+                    reAlignRequested = true;
+
+                    // log new MeterSet added
+                    Log($"New MeterSet:{sc.Name}({sc.ProcessID}) {sc.SessionIdentifier}");
+                }
+            }
+        }
+        private void Audio_SesseionRemoved(object sender, AudioControl.SesseionEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("mainwindow:sessionremoved");
+            bool found = false;
+            string name = "";
+            int id = -1;
+
+            // get session info
+            lock (e.Session.Locker)
+            {
+                name = e.Session.Name;
+                id = e.Session.ProcessID;
+                e.Session.Dispose();
+            }
+
+            // find MeterSet equivalent of removed Session
+            MeterSet item = null;
+            Dispatcher?.Invoke(() =>
+            {
+                foreach (MeterSet m in SessionPanel.Children) { if (id == m.ProcessID) { item = m; break; } }
+            });
+
+            // remove found MeterSet when it exists
+            if (item != null)
+            {
+                SetTabControl(SessionPanel, item, true);
+
+                // realign SessionPanel
+                reAlignRequested = true;
+
+                found = true;
+                name = item.SessionName;
+                id = item.ProcessID;
+            }
+
+            if (found) Log($"Remove MeterSet:{name}({id})");
+            else Log($"Remove MeterSet:not found {name}({id}), maybe already removed");
+            // log MeterSet removed
+        }
+
+        private void Set_DetailChanged(object sender, EventArgs e) { reAlignRequested = true; }
+
+        private bool reAlignRequested = false;
+        private void Realign()
+        {
+            //re-align when there is(are) added or removed session(s)
+            Log("Re-aligning");
+            Dispatcher?.Invoke(() =>
+            {
+                //SessionPanel.Children.Cast<List>().ToList().Sort();
+                double lastHeight = this.Height,
+                    spacing = settings.AdvancedView
+                        ? Wale.Configuration.Visual.SessionBlockHeightDetail
+                        : Wale.Configuration.Visual.SessionBlockHeightNormal;
+                double newHeight = (double)(SessionPanel.Children.Count) * spacing + 60 + 2;
+                if (newHeight < this.MinHeight) { newHeight = Wale.Configuration.Visual.MainWindowHeightDefault; }
+                //Console.WriteLine($"fsgH:{fsgHeight},DF:{dif}");
+                mainHeight = newHeight;
+                if (!nowConfig) DoChangeHeightSB(newHeight, "0:0:.1");
+            });
+            reAlignRequested = false;
+            Log("Re-aligned");
+        }
+
         #endregion
 
 
@@ -694,7 +908,7 @@ namespace Wale.WPF
                 FinishApp = true;
                 NI.Visible = false;
                 NI.Dispose();
-                await Task.WhenAll(UpdateTasks);
+                if (UpdateTasks != null) await Task.WhenAll(UpdateTasks);
                 this.Close();
                 Audio.Dispose();
                 Log("Closed"); DP.DMML("Closed");
@@ -731,9 +945,9 @@ namespace Wale.WPF
         private void ConfigToolStripMenuItem_Click(object sender, RoutedEventArgs e)
         {
             DP.DMM("Settings");
-            JDPack.FormPack FWP = new JDPack.FormPack();
-            Configuration form = new Configuration(Audio, DL) { Icon = this.Icon };
-            System.Drawing.Point p = FWP.PointFromMouse(-(int)(form.Width / 2), -(int)form.Height, JDPack.FormPack.PointMode.AboveTaskbar);
+            JPack.FormPack FWP = new JPack.FormPack();
+            Configuration form = new Configuration(Audio, settings) { Icon = this.Icon };
+            System.Drawing.Point p = FWP.PointFromMouse(-(int)(form.Width / 2), -(int)form.Height, JPack.FormPack.PointMode.AboveTaskbar);
             form.Left = p.X;
             form.Top = p.Y;
             form.Closed += Config_FormClosed;
@@ -754,9 +968,9 @@ namespace Wale.WPF
         private void deviceMapToolStripMenuItem_Click(object sender, EventArgs e)
         {
             DP.DMM("DeviceMap");
-            JDPack.FormPack FWP = new JDPack.FormPack();
+            JPack.FormPack FWP = new JPack.FormPack();
             DeviceMap form = new DeviceMap() { Icon = this.Icon };
-            System.Drawing.Point p = FWP.PointFromMouse(-(int)(form.Width / 2), -(int)form.Height, JDPack.FormPack.PointMode.AboveTaskbar);
+            System.Drawing.Point p = FWP.PointFromMouse(-(int)(form.Width / 2), -(int)form.Height, JPack.FormPack.PointMode.AboveTaskbar);
             form.Left = p.X;
             form.Top = p.Y;
             form.ShowDialog();
@@ -764,9 +978,9 @@ namespace Wale.WPF
         private void helpToolStripMenuItem_Click(object sender, EventArgs e)
         {
             DP.DMM("Help");
-            JDPack.FormPack FWP = new JDPack.FormPack();
+            JPack.FormPack FWP = new JPack.FormPack();
             Help form = new Help() { Icon = this.Icon };
-            System.Drawing.Point p = FWP.PointFromMouse(-(int)(form.Width / 2), -(int)form.Height, JDPack.FormPack.PointMode.AboveTaskbar);
+            System.Drawing.Point p = FWP.PointFromMouse(-(int)(form.Width / 2), -(int)form.Height, JPack.FormPack.PointMode.AboveTaskbar);
             form.Left = p.X;
             form.Top = p.Y;
             form.ShowDialog();
@@ -774,9 +988,9 @@ namespace Wale.WPF
         private void licensesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             DP.DMM("Licenses");
-            JDPack.FormPack FWP = new JDPack.FormPack();
+            JPack.FormPack FWP = new JPack.FormPack();
             License form = new License { Icon = this.Icon };
-            System.Drawing.Point p = FWP.PointFromMouse(-(int)(form.Width / 2), -(int)form.Height, JDPack.FormPack.PointMode.AboveTaskbar);
+            System.Drawing.Point p = FWP.PointFromMouse(-(int)(form.Width / 2), -(int)form.Height, JPack.FormPack.PointMode.AboveTaskbar);
             form.Left = p.X;
             form.Top = p.Y;
             form.ShowDialog();
@@ -784,10 +998,10 @@ namespace Wale.WPF
 
         private void openLogDirectoryToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //System.Diagnostics.Process.Start(JDPack.FileLog.WorkDirectory.FullName);
-            Console.WriteLine($"{JDPack.FileLog.WorkDirectory.FullName}");
-            JDPack.FileLog.Log(JDPack.FileLog.File.FullName);
-            JDPack.FileLog.OpenWorkDirectoryOnExplorer();
+            //System.Diagnostics.Process.Start(JPack.FileLog.WorkDirectory.FullName);
+            Console.WriteLine($"{JPack.FileLog.WorkDirectory.FullName}");
+            //JPack.FileLog.Log(JPack.FileLog.File.FullName);
+            JPack.FileLog.OpenWorkDirectoryOnExplorer();
         }
 
         private void WindowsSoundSetting_Click(object sender, RoutedEventArgs e)
@@ -878,7 +1092,7 @@ namespace Wale.WPF
         }
 
         #endregion
-        #region Session Control mothods and events
+        #region Session Control methods and events
         private const string SessionDataFile = "SessionData.conf", cmtind = "###";
         private List<SessionDataStructure> SavedSessionConfig = new List<SessionDataStructure>();
         struct SessionDataStructure
@@ -889,7 +1103,7 @@ namespace Wale.WPF
         }
         private bool ReadSessionConfigFile(out string d)
         {
-            string f = System.IO.Path.Combine(JDPack.FileLog.WorkDirectory.FullName, SessionDataFile);
+            string f = System.IO.Path.Combine(Conf.WorkingPath, SessionDataFile);
             if (File.Exists(f))
             {
                 d = File.ReadAllText(f, Encoding.UTF8);
@@ -940,7 +1154,7 @@ namespace Wale.WPF
         {
             SavedSessionConfig?.ForEach((sd) =>
             {
-                lock (Lockers.Sessions)
+                lock (Locks.Session)
                 {
                     Audio.Sessions.GetSessionBySID(sd.SessionIdentifier).ForEach((s) => { s.AutoIncluded = sd.AutoIncluded; s.Relative = sd.Relative; });
                 }
@@ -964,9 +1178,9 @@ namespace Wale.WPF
 
             List<string> sidList = new List<string>();
 
-            lock (Lockers.Sessions)
+            lock (Locks.Session)
             {
-                Audio.Sessions.ForEach((s) =>
+                Audio.Sessions?.ForEach((s) =>
                 {
                     string sid = s.SessionIdentifier;
                     if (!sidList.Contains(sid)) { sidList.Add(sid); }
@@ -975,7 +1189,7 @@ namespace Wale.WPF
 
             sidList.ForEach((sid) =>
             {
-                lock (Lockers.Sessions)
+                lock (Locks.Session)
                 {
                     List<Session> ss = Audio.Sessions.GetSessionBySID(sid);
                     if (ss.Count == 1) { sessionDatas.Add(new SessionDataStructure() { SessionIdentifier = ss[0].SessionIdentifier, AutoIncluded = ss[0].AutoIncluded, Relative = ss[0].Relative }); }
@@ -1005,7 +1219,7 @@ namespace Wale.WPF
         }
         private void SaveSessionConfigToFile()
         {
-            string f = System.IO.Path.Combine(JDPack.FileLog.WorkDirectory.FullName, SessionDataFile);
+            string f = System.IO.Path.Combine(Conf.WorkingPath, SessionDataFile);
 
             List<SessionDataStructure> data = ParseSessionConfig();
 
@@ -1065,8 +1279,8 @@ namespace Wale.WPF
             if (settings.VFunc != LastValues.VFunc) { Audio?.UpdateVFunc(); }
             if (e.PropertyName == "AdvancedView" && nowConfig)
             {
-                if (settings.AdvancedView) DoChangeHeightSB(AppDatas.ConfigSetLongHeight + AppDatas.MainWindowBaseHeight);
-                else DoChangeHeightSB(AppDatas.ConfigSetHeight + AppDatas.MainWindowBaseHeight);
+                if (settings.AdvancedView) DoChangeHeightSB(Wale.Configuration.Visual.ConfigSetLongHeight + Wale.Configuration.Visual.MainWindowBaseHeight);
+                else DoChangeHeightSB(Wale.Configuration.Visual.ConfigSetHeight + Wale.Configuration.Visual.MainWindowBaseHeight);
             }
             if(e.PropertyName == "AudioUnit") { TargetLabel.Content = VFunction.Level(settings.TargetLevel, settings.AudioUnit).ToString(); }
         }
@@ -1136,8 +1350,9 @@ namespace Wale.WPF
                 {
                     case string a when a.Contains("Config") && !nowConfig:
                         if (settings.AdvancedView)
-                            DoChangeHeightSB(AppDatas.ConfigSetLongHeight + AppDatas.MainWindowBaseHeight);
-                        else DoChangeHeightSB(AppDatas.ConfigSetHeight + AppDatas.MainWindowBaseHeight);
+                            DoChangeHeightSB(Wale.Configuration.Visual.ConfigSetLongHeight + Wale.Configuration.Visual.MainWindowBaseHeight);
+                        else
+                            DoChangeHeightSB(Wale.Configuration.Visual.ConfigSetHeight + Wale.Configuration.Visual.MainWindowBaseHeight);
                         nowConfig = true;
                         activeTabName = "CONFIG";
                         break;
@@ -1194,7 +1409,7 @@ namespace Wale.WPF
                 case "Above Normal": ppc = ProcessPriorityClass.AboveNormal; break;
                 case "Normal": ppc = ProcessPriorityClass.Normal; break;
             }
-            JDPack.Debug.CML($"SPP H={DL.ProcessPriorityHigh} A={DL.ProcessPriorityAboveNormal} N={DL.ProcessPriorityNormal}");
+            JPack.Debug.CML($"SPP H={DL.ProcessPriorityHigh} A={DL.ProcessPriorityAboveNormal} N={DL.ProcessPriorityNormal}");
             //settings.Save();
             using (Process p = Process.GetCurrentProcess()) { p.PriorityClass = ppc; }
         }
@@ -1413,9 +1628,20 @@ namespace Wale.WPF
                         Dispatcher.Invoke(new GridMeterSetConsumer(SetTabControl), new object[] { control, set, remove });  // invoking itself
                     }
                     else
-                    {
-                        if (remove) control.Children.Remove(set);      // the "functional part", executing only on the main thread
-                        else control.Children.Add(set);
+                    {// the "functional part", executing only on the main thread
+                        if (remove) control.Children.Remove(set);
+                        else
+                        {
+                            // sorting new MeterSet in existing MeterSet list of SessionPanel
+                            int idx = control.Children.Count;
+                            foreach (MeterSet item in control.Children) { if (set.CompareTo(item) < 0) { idx = control.Children.IndexOf(item); break; } }
+                            
+                            //Console.WriteLine($"new meterset idx={idx}/{control.Children.Count}");
+                            if (idx < control.Children.Count)
+                                control.Children.Insert(idx, set); //Console.WriteLine("new meterset inserted"); }
+                            else
+                                control.Children.Add(set); //Console.WriteLine("new meterset added"); }
+                        }
                     }
                 }
             }
@@ -1457,7 +1683,7 @@ namespace Wale.WPF
         /// <param name="newLine">flag for making newline after the end of the <paramref name="msg"/>.</param>
         private void Log(string msg, bool newLine = true)
         {
-            JDPack.FileLog.Log(msg, newLine);
+            JPack.FileLog.Log(msg, newLine);
             DateTime t = DateTime.Now.ToLocalTime();
             string content = $"{t.Hour:d2}:{t.Minute:d2}>{msg}";
             if (newLine) content += "\r\n";
@@ -1543,75 +1769,5 @@ namespace Wale.WPF
         }
     }
     //Datalink for VM
-    public class Datalink : CDatalink
-    {
-        private string _SubVersion = "";
-        public string SubVersion { get => _SubVersion; set => SetData(ref _SubVersion, value); }
-        private Visibility _AppUpdateMsg = Visibility.Hidden;
-        public Visibility AppUpdateMsg { get => _AppUpdateMsg; set => SetData(ref _AppUpdateMsg, value); }
-        private string _UpdateLink = "";
-        public string UpdateLink { get => _UpdateLink; set => SetData(ref _UpdateLink, value); }
-
-        private bool _ProcessPriorityHigh = false;
-        public bool ProcessPriorityHigh { get => _ProcessPriorityHigh; set => SetData(ref _ProcessPriorityHigh, value); }
-        private bool _ProcessPriorityAboveNormal = false;
-        public bool ProcessPriorityAboveNormal { get => _ProcessPriorityAboveNormal; set => SetData(ref _ProcessPriorityAboveNormal, value); }
-        private bool _ProcessPriorityNormal = false;
-        public bool ProcessPriorityNormal { get => _ProcessPriorityNormal; set => SetData(ref _ProcessPriorityNormal, value); }
-
-
-        private string _CurrentDevice = "";
-        public string CurrentDevice { get => _CurrentDevice; set => SetData(ref _CurrentDevice, value); }
-        private string _CurrentDeviceLong = "";
-        public string CurrentDeviceLong { get => _CurrentDeviceLong; set => SetData(ref _CurrentDeviceLong, value); }
-
-        private double _MasterVolume = 0;
-        public double MasterVolume { get => _MasterVolume; set => SetData(ref _MasterVolume, Math.Round(value, 3)); }
-        private double _MasterPeak = 0;
-        public double MasterPeak { get => _MasterPeak; set => SetData(ref _MasterPeak, Math.Round(value, 3)); }
-
-
-        private Visibility _ACDevShow = Visibility.Hidden;
-        public Visibility ACDevShow { get => _ACDevShow; set => SetData(ref _ACDevShow, value); }
-        private double _ACElapsed = 0;
-        public double ACElapsed { get => _ACElapsed; set => SetData(ref _ACElapsed, Math.Round(value, 3)); }
-        private double _ACWaited = 0;
-        public double ACWaited { get => _ACWaited; set => SetData(ref _ACWaited, Math.Round(value, 3)); }
-        private double _ACEWdif = 0;
-        public double ACEWdif { get => _ACEWdif; set => SetData(ref _ACEWdif, Math.Round(value, 3)); }
-
-        private double _ACAvCnt = 0;
-        public double ACAvCnt { get => _ACAvCnt; set => SetData(ref _ACAvCnt, Math.Round(value, 0)); }
-        private double _ACHz = 0;
-        public double ACHz { get => _ACHz; set => SetData(ref _ACHz, Math.Round(value, 2)); }
-
-        // window height change storyboard parameters
-        private double _WindowHeight = 0;
-        public double WindowHeight { get => _WindowHeight; set => SetData(ref _WindowHeight, value); }
-        private double _WindowTop = 0;
-        public double WindowTop { get => _WindowTop; set => SetData(ref _WindowTop, value); }
-        private string _Transition = "0:0:.2";
-        public string Transition { get => _Transition; set => SetData(ref _Transition, value); }
-
-        // slider storyboard on configset
-        //private double _AudioUnit = 0;
-        //public double AudioUnit { get => _AudioUnit; set => SetData(ref _AudioUnit, value); }
-
-    }
-    public class CDatalink : System.ComponentModel.INotifyPropertyChanged
-    {
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        protected void Notify([System.Runtime.CompilerServices.CallerMemberName]string name = null) { PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(name)); }
-        protected bool SetData<T>(ref T storage, T value, [System.Runtime.CompilerServices.CallerMemberName] string name = null)
-        {
-            if (Equals(storage, value))
-            {
-                return false;
-            }
-
-            storage = value;
-            Notify(name);
-            return true;
-        }
-    }
+    
 }

@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:Wale.WPF"
         xmlns:prop="clr-namespace:Wale.WPF.Properties"
         xmlns:wale="clr-namespace:Wale;assembly=WaleBase"
+        xmlns:conf="clr-namespace:Wale.Configuration;assembly=WaleBase"
         xmlns:oxy="http://oxyplot.org/wpf"
         xmlns:locale="clr-namespace:Wale.Localization;assembly=Wale.Localization"
         mc:Ignorable="d" Icon="Icon/WaleLeftOn.ico" ShowInTaskbar="False" WindowStyle="None" ResizeMode="NoResize"
@@ -14,11 +15,11 @@
         <Style TargetType="Window">
             <Setter Property="Foreground" Value="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
             <Setter Property="Background" Value="{Binding Source={x:Static local:ColorSet.BackColorBrush}}"/>
-            <Setter Property="Width" Value="{Binding Source={x:Static wale:AppDatas.MainWindowWidth}}"/>
+            <Setter Property="Width" Value="{Binding Source={x:Static conf:Visual.MainWindowWidth}}"/>
             <Setter Property="MaxWidth" Value="{Binding Width, RelativeSource={RelativeSource self}}"/>
             <Setter Property="Height" Value="285"/>
-            <Setter Property="MinHeight" Value="{Binding Source={x:Static wale:AppDatas.MainWindowHeightDefault}}"/>
-            <Setter Property="Topmost" Value="{Binding Path=AlwaysTop, Source={x:Static prop:Settings.Default}}"/>
+            <Setter Property="MinHeight" Value="{Binding Source={x:Static conf:Visual.MainWindowHeightDefault}}"/>
+            <Setter Property="Topmost" Value="{Binding Path=AlwaysTop}"/>
         </Style>
     </Window.Style>
     <Window.ContextMenu>
@@ -418,7 +419,7 @@
                     <DropShadowEffect BlurRadius="15" Color="White" Direction="60" Opacity="0.5"/>
                 </Image.Effect>
             </Image>
-                <TextBlock Text="{Binding Path=AppTitle, Source={x:Static prop:Settings.Default}}" Style="{StaticResource TBlockTitleDef}"/>
+                <TextBlock Text="{Binding Path=AppTitle}" Style="{StaticResource TBlockTitleDef}"/>
                 <TextBlock Text=" [" Visibility="{Binding ACDevShow}" Style="{StaticResource TBlockTitleDef}"/>
                 <TextBlock Text="{Binding SubVersion}" Visibility="{Binding ACDevShow}" Style="{StaticResource TBlockTitleDef}"/>
                 <TextBlock Text="]" Visibility="{Binding ACDevShow}" Style="{StaticResource TBlockTitleDef}"/>
@@ -442,7 +443,7 @@
                                 <Label Content="{Binding Target, Source={x:Static locale:Interpreter.Current}}" HorizontalAlignment="Left" Style="{StaticResource LDef}"/>
                                 <Label x:Name="TargetLabel" Content="0" HorizontalAlignment="Right" Foreground="{Binding Source={x:Static local:ColorSet.TargetColorBrush}}" Style="{StaticResource LDef}"/>
                             </Grid>
-                            <Slider x:Name="BaseSlider" Value="{Binding Path=TargetLevel, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Foreground="{Binding Source={x:Static local:ColorSet.TargetColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Style="{DynamicResource SliderBaseSlider}" ValueChanged="TargetSlider_ValueChanged"/>
+                            <Slider x:Name="BaseSlider" Value="{Binding Path=TargetLevel, Mode=TwoWay}" Foreground="{Binding Source={x:Static local:ColorSet.TargetColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Style="{DynamicResource SliderBaseSlider}" ValueChanged="TargetSlider_ValueChanged"/>
                         </StackPanel>
                         <WrapPanel Margin="5,5,5,0">
                             <Label Content="{Binding Device, Source={x:Static locale:Interpreter.Current}}" Margin="0,0,5,0" Style="{StaticResource LDef}"/>
@@ -465,7 +466,7 @@
                                 <ColumnDefinition Width="99*" MinWidth="80"/>
                                 <ColumnDefinition Width="1*" MinWidth="66"/>
                             </Grid.ColumnDefinitions>
-                            <TextBox x:Name="VolumeIntervalBox" Grid.Column="0" TextWrapping="Wrap" Text="{Binding Path=MasterVolumeInterval, Source={x:Static prop:Settings.Default}, Mode=TwoWay}" Style="{DynamicResource TBoxDef}"/>
+                            <TextBox x:Name="VolumeIntervalBox" Grid.Column="0" TextWrapping="Wrap" Text="{Binding Path=MasterVolumeInterval, Mode=TwoWay}" Style="{DynamicResource TBoxDef}"/>
                             <TextBox x:Name="TargetVolumeBox" Grid.Column="1" TextWrapping="Wrap" KeyDown="TargetVolumeBox_KeyDown">
                                 <TextBox.Style>
                                         <Style TargetType="TextBox" xmlns:sys="clr-namespace:System;assembly=mscorlib">
@@ -497,9 +498,9 @@
                             </Button>
                         </Grid>
                         <WrapPanel Margin="5,5,5,0">
-                            <CheckBox Content="{Binding AlwaysTop, Source={x:Static locale:Interpreter.Current}}" IsChecked="{Binding Path=AlwaysTop, Source={x:Static prop:Settings.Default}}" Style="{DynamicResource CboxDef}"/>
-                            <CheckBox Content="{Binding StayOn, Source={x:Static locale:Interpreter.Current}}" IsChecked="{Binding Path=StayOn, Source={x:Static prop:Settings.Default}}" Style="{DynamicResource CboxDef}"/>
-                            <CheckBox Content="{Binding AdvancedView, Source={x:Static locale:Interpreter.Current}}" IsChecked="{Binding Path=AdvancedView, Source={x:Static prop:Settings.Default}}" Style="{DynamicResource CboxDef}"/>
+                            <CheckBox Content="{Binding AlwaysTop, Source={x:Static locale:Interpreter.Current}}" IsChecked="{Binding Path=AlwaysTop}" Style="{DynamicResource CboxDef}"/>
+                            <CheckBox Content="{Binding StayOn, Source={x:Static locale:Interpreter.Current}}" IsChecked="{Binding Path=StayOn}" Style="{DynamicResource CboxDef}"/>
+                            <CheckBox Content="{Binding AdvancedView, Source={x:Static locale:Interpreter.Current}}" IsChecked="{Binding Path=AdvancedView}" Style="{DynamicResource CboxDef}"/>
                         </WrapPanel>
                         <!--Dev panel i-->
                         <Border Visibility="{Binding ACDevShow}" Margin="0,2" Padding="0"
