@@ -719,47 +719,52 @@ namespace Wale.WPF
 
                     // Update exist session
                     //System.Diagnostics.Debug.WriteLine($"msets:{SessionPanel.Children.Count}");
-                    foreach (MeterSet mSet in SessionPanel.Children)
+                    if (Audio.Restarting) return;//{ SessionPanel.Children.Clear(); reAlignRequested = true; }
+                    if (Audio.Restarted) { Audio.Restarted = false; }//SessionPanel.Children.Clear(); reAlignRequested = true; }
+                    else
                     {
-                        var session = Audio.Sessions.GetSession(mSet.ProcessID);
-                        lock (session.Locker)
+                        foreach (MeterSet mSet in SessionPanel.Children)
                         {
-                            //check expired session and update not expired
-                            if (session == null || session.State == SessionState.Expired) { }
-                            else
+                            var session = Audio.Sessions.GetSession(mSet.ProcessID);
+                            lock (session.Locker)
                             {
-                                // detailed view check
-                                if (settings.AdvancedView) mSet.DetailOn();
-                                else mSet.DetailOff();
-
-                                // make proper name to update
-                                if (settings.MainTitleforAppname && nameGetCount > nameGetStd) { session.ForceGetMainTitle(); nameGetCount = 0; }
-                                string mt = (session.Name != session.MainWindowTitle ? session.MainWindowTitle : "");
-                                string name = (settings.MainTitleforAppname ? $"{session.Name} {mt}" : session.Name);
-                                string pname = session.NameSet.ProcessName;
-                                if (settings.PnameForAppname)
+                                //check expired session and update not expired
+                                if (session == null || session.State == SessionState.Expired) { }
+                                else
                                 {
-                                    name = (settings.MainTitleforAppname ? $"{session.NameSet.ProcessName} {mt}" : session.NameSet.ProcessName);
-                                    pname = session.Name;
+                                    // detailed view check
+                                    if (settings.AdvancedView) mSet.DetailOn();
+                                    else mSet.DetailOff();
+
+                                    // make proper name to update
+                                    if (settings.MainTitleforAppname && nameGetCount > nameGetStd) { session.ForceGetMainTitle(); nameGetCount = 0; }
+                                    string mt = (session.Name != session.MainWindowTitle ? session.MainWindowTitle : "");
+                                    string name = (settings.MainTitleforAppname ? $"{session.Name} {mt}" : session.Name);
+                                    string pname = session.NameSet.ProcessName;
+                                    if (settings.PnameForAppname)
+                                    {
+                                        name = (settings.MainTitleforAppname ? $"{session.NameSet.ProcessName} {mt}" : session.NameSet.ProcessName);
+                                        pname = session.Name;
+                                    }
+                                    // make tooltip msg
+                                    string stooltip = $"{pname}({session.ProcessID}) {mt}";
+
+                                    // audio unit check linear/dB
+                                    if (mSet.AudioUnit != settings.AudioUnit) mSet.AudioUnit = settings.AudioUnit;
+
+                                    // update audio data
+                                    mSet.UpdateData(session.Volume, session.Volume * session.Peak, session.Volume * session.AveragePeak, name, stooltip);
+                                    if (updateSessionDebug) { Console.WriteLine($"{session.Volume}, {session.Volume * session.Peak}, {session.Volume * session.AveragePeak}, {session.Name}, {stooltip}"); }
+
+                                    // relative check
+                                    if (Math.Abs(session.Relative - (float)mSet.Relative) > 0) { session.Relative = (float)mSet.Relative; SaveSessionConfigToFile(); }
+                                    // Sound mute check
+                                    if (mSet.SoundEnableChanged) { session.SoundEnabled = mSet.SoundEnabled; mSet.SoundEnableChanged = false; }
+                                    if (session.SoundEnabled != mSet.SoundEnabled) mSet.SoundEnabled = session.SoundEnabled;
+                                    // Auto include check
+                                    if (mSet.AutoIncludedChanged) { session.AutoIncluded = mSet.AutoIncluded; mSet.AutoIncludedChanged = false; SaveSessionConfigToFile(); }
+                                    if (session.AutoIncluded != mSet.AutoIncluded) { mSet.AutoIncluded = session.AutoIncluded; }
                                 }
-                                // make tooltip msg
-                                string stooltip = $"{pname}({session.ProcessID}) {mt}";
-
-                                // audio unit check linear/dB
-                                if (mSet.AudioUnit != settings.AudioUnit) mSet.AudioUnit = settings.AudioUnit;
-
-                                // update audio data
-                                mSet.UpdateData(session.Volume, session.Volume * session.Peak, session.Volume * session.AveragePeak, name, stooltip);
-                                if (updateSessionDebug) { Console.WriteLine($"{session.Volume}, {session.Volume * session.Peak}, {session.Volume * session.AveragePeak}, {session.Name}, {stooltip}"); }
-
-                                // relative check
-                                if (Math.Abs(session.Relative - (float)mSet.Relative) > 0) { session.Relative = (float)mSet.Relative; SaveSessionConfigToFile(); }
-                                // Sound mute check
-                                if (mSet.SoundEnableChanged) { session.SoundEnabled = mSet.SoundEnabled; mSet.SoundEnableChanged = false; }
-                                if (session.SoundEnabled != mSet.SoundEnabled) mSet.SoundEnabled = session.SoundEnabled;
-                                // Auto include check
-                                if (mSet.AutoIncludedChanged) { session.AutoIncluded = mSet.AutoIncluded; mSet.AutoIncludedChanged = false; SaveSessionConfigToFile(); }
-                                if (session.AutoIncluded != mSet.AutoIncluded) { mSet.AutoIncluded = session.AutoIncluded; }
                             }
                         }
                     }
@@ -783,6 +788,14 @@ namespace Wale.WPF
             {
                 // new session added, event from audio controller
                 Session sc = e.Session;
+                
+                // Check already added session
+                bool found = false;
+                Dispatcher?.Invoke(() =>
+                {
+                    foreach (MeterSet m in SessionPanel.Children) { if (sc.ProcessID == m.ProcessID) { found = true; break; } }
+                });
+                if (found) return;
 
                 // get saved session config
                 if (GetSessionConfigFromFile()) ApplyCurrentSessionConfig(sc);

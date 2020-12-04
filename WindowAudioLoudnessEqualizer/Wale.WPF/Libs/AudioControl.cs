@@ -21,6 +21,8 @@ namespace Wale
         /// List&lt;Session&gt;
         /// </summary>
         public SessionList Sessions => core?.Sessions;
+        public bool Restarting => (bool)core?.Restarting;
+        public bool Restarted { get => (bool)core?.Restarted; set { if (core != null) core.Restarted = false; } }
         public bool Debug { get => DP.DebugMode; set => DP.DebugMode = value; }
         public double MasterPeak
         {
@@ -110,6 +112,9 @@ namespace Wale
         //public event SessionAddedDelegate PeakVolumeChanged;
         private void SessionControl(Session s)
         {
+            // Session removed
+            if (s == null || s.State == SessionState.Expired || s.Disposed) { SesseionRemoved?.Invoke(this, new SesseionEventArgs(s)); return; }
+
             lock (s.Locker)
             {
                 // occur when got session change which is not intended
@@ -118,7 +123,7 @@ namespace Wale
                 // New session added
                 if (s.NewlyAdded) { s.NewlyAdded = false; SessionAdded?.Invoke(this, new SesseionEventArgs(s)); }
                 // Session removed
-                if (s == null || s.State == SessionState.Expired) { SesseionRemoved?.Invoke(this, new SesseionEventArgs(s)); return; }
+                if (s == null || s.State == SessionState.Expired || s.Disposed) { SesseionRemoved?.Invoke(this, new SesseionEventArgs(s)); return; }
 
                 // Control session(=s) when s is not in exclude list, auto included, and not muted
                 if (!settings.ExcList.Contains(s.Name) && s.AutoIncluded && s.SoundEnabled)

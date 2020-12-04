@@ -132,10 +132,13 @@ namespace Wale.CoreAudio
             UpdateDevice();
             GetSessionManager();
         }
+        public bool Restarting { get; private set; } = false;
+        public bool Restarted { get; set; } = false;
         public void Restart()
         {
             lock (sessionLocker)
             {
+                Restarting = true;
                 Sessions?.ForEach(s => s?.Dispose());
                 Sessions?.Clear();
 
@@ -145,7 +148,10 @@ namespace Wale.CoreAudio
                 DefDevice?.Dispose();
                 //Log("Restart AC: Master cleared");
                 UpdateDevice();// Log("Restart AC: Master device is restarted");
+                Restarted = true;
                 GetSessionManager();// Log("Restart AC: Session manager is restarted");
+                //Start();
+                Restarting = false;
             }
             Log("Restart AC: OK");
         }
@@ -356,9 +362,9 @@ namespace Wale.CoreAudio
         {
             MMDE = new CSCore.CoreAudioAPI.MMDeviceEnumerator();
             MMDE.EnumAudioEndpoints(DataFlow.All, CSCore.CoreAudioAPI.DeviceState.All);
-            //MMDE.DefaultDeviceChanged += MMDE_DefaultDeviceChanged;
-            MMDE.DevicePropertyChanged += MMDE_DevicePropertyChanged;
-            //MMDE.DeviceStateChanged += MMDE_DeviceStateChanged;
+            MMDE.DefaultDeviceChanged += MMDE_DefaultDeviceChanged;
+            //MMDE.DevicePropertyChanged += MMDE_DevicePropertyChanged;
+            MMDE.DeviceStateChanged += MMDE_DeviceStateChanged;
             //MMDE.DeviceAdded += MMDE_DeviceAdded;
             //MMDE.DeviceRemoved += MMDE_DeviceRemoved;
         }
@@ -376,8 +382,12 @@ namespace Wale.CoreAudio
         }
         private void MMDE_DefaultDeviceChanged(object sender, DefaultDeviceChangedEventArgs e)
         {
-            Log($"Default Audio Device is changed {e.DeviceId} {e.DataFlow} {e.Role}");
-            GetDefaultDevice(true);
+            if ((e.DataFlow == DataFlow.Render || e.DataFlow == DataFlow.All) && e.Role == Role.Multimedia)
+            {
+                Log($"Default {e.Role} Audio {e.DataFlow} Device is changed {e.DeviceId}");
+                //GetDefaultDevice(true);
+                Restart();
+            }
         }
         private void MMDE_DevicePropertyChanged(object sender, DevicePropertyChangedEventArgs e)
         {
@@ -428,8 +438,8 @@ namespace Wale.CoreAudio
                     DeviceNameTpl = new Tuple<string, string>(DeviceName, DefDevice.FriendlyName);
 
                     var mmn = new MMNotificationClient();
-                    mmn.DefaultDeviceChanged += MMDE_DefaultDeviceChanged;
-                    mmn.DeviceStateChanged += MMDE_DeviceStateChanged;
+                    //mmn.DefaultDeviceChanged += MMDE_DefaultDeviceChanged;
+                    //mmn.DeviceStateChanged += MMDE_DeviceStateChanged;
                     NoDevice = false;
                 }
                 //}
@@ -599,6 +609,7 @@ namespace Wale.CoreAudio
         public void GetSessionManager()
         {
             if (DefDevice == null) { JPack.FileLog.Log("GetSessionData: Fail to get master device."); return; }
+            //ASClist.Clear();
             //Console.WriteLine(System.Threading.Thread.CurrentThread.GetApartmentState());
             //System.Threading.Thread thread = new System.Threading.Thread(() => {
             //ASM = (DefDevice != null ? AudioSessionManager2.FromMMDevice(DefDevice) : null);
