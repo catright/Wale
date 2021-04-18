@@ -700,6 +700,7 @@ namespace Wale.WPF
         private uint nameGetCount = 0, nameGetStd = 1;
         private void UpdateSession3(StackPanel SessionPanel)
         {
+            int workingPID = -1;
             try
             {
                 // We don't need to update the main tab if we are currently not using it
@@ -720,11 +721,17 @@ namespace Wale.WPF
                     // Update exist session
                     //System.Diagnostics.Debug.WriteLine($"msets:{SessionPanel.Children.Count}");
                     if (Audio.Restarting) return;//{ SessionPanel.Children.Clear(); reAlignRequested = true; }
-                    if (Audio.Restarted) { Audio.Restarted = false; }//SessionPanel.Children.Clear(); reAlignRequested = true; }
+                    //if (Audio.Restarted)
+                    //{
+                    //    if (SessionPanel.Children.Count > 0) { SessionPanel.Children.Clear(); reAlignRequested = true; }
+                    //    else { Audio.Restarted = false; }
+                    //}
+                    if (Audio.Restarted) Audio.Restarted = false;
                     else
                     {
                         foreach (MeterSet mSet in SessionPanel.Children)
                         {
+                            workingPID = mSet.ProcessID;
                             var session = Audio.Sessions.GetSession(mSet.ProcessID);
                             lock (session.Locker)
                             {
@@ -774,9 +781,17 @@ namespace Wale.WPF
                     if (reAlignRequested) Realign();
                 }
             }
+            catch (NullReferenceException) {
+                if (!Dispatcher.CheckAccess())
+                    Dispatcher.Invoke(new StackPanelConsumer(UpdateSession3), SessionPanel);// invoke self
+                else {
+                    if (workingPID > 0) GUI_SessionRemoved(workingPID);
+                }
+            }
             catch (Exception e)
             {
-                MessageBox.Show($"Error: {e.StackTrace}");
+                //MessageBox.Show($"Error: {e.StackTrace}\n\n{e.InnerException}");
+                Log($"Error: {e.Message}\n\t{e.InnerException}\n\t{e.StackTrace}");
                 DP.DMML($"fail to invoke UpdateSession");
             }
         }
@@ -838,7 +853,6 @@ namespace Wale.WPF
         private void Audio_SesseionRemoved(object sender, AudioControl.SesseionEventArgs e)
         {
             System.Diagnostics.Debug.WriteLine("mainwindow:sessionremoved");
-            bool found = false;
             string name = "";
             int id = -1;
 
@@ -850,6 +864,11 @@ namespace Wale.WPF
                 e.Session.Dispose();
             }
 
+            GUI_SessionRemoved(id, name);
+        }
+        private void GUI_SessionRemoved(int id, string name = "")
+        {
+            bool found = false;
             // find MeterSet equivalent of removed Session
             MeterSet item = null;
             Dispatcher?.Invoke(() =>
