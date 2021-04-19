@@ -239,7 +239,7 @@ namespace Wale.WPF
         {
             // make icon
             NI = new System.Windows.Forms.NotifyIcon() {
-                Text = this.Title,
+                Text = $"{this.Title}.{AppVersion.SubVersion}",
                 Icon = Properties.Resources.WaleLeftOn,
                 Visible = true
             };
@@ -1115,6 +1115,14 @@ namespace Wale.WPF
             LastValues.TargetLevel = settings.TargetLevel;
             settings.Save();
         }
+        private void LimitSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            Console.WriteLine($"{settings.LimitLevel}");
+            LimitLabel.Content = VFunction.Level(settings.LimitLevel, settings.AudioUnit).ToString();
+            //if (settings.BaseLevel.ToString().Length > 4) { settings.BaseLevel = Math.Round(settings.BaseLevel, 2); }
+            LastValues.LimitLevel = settings.LimitLevel;
+            settings.Save();
+        }
 
         private void MasterVolumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
@@ -1312,7 +1320,11 @@ namespace Wale.WPF
                 if (settings.AdvancedView) DoChangeHeightSB(Wale.Configuration.Visual.ConfigSetLongHeight + Wale.Configuration.Visual.MainWindowBaseHeight);
                 else DoChangeHeightSB(Wale.Configuration.Visual.ConfigSetHeight + Wale.Configuration.Visual.MainWindowBaseHeight);
             }
-            if(e.PropertyName == "AudioUnit") { TargetLabel.Content = VFunction.Level(settings.TargetLevel, settings.AudioUnit).ToString(); }
+            if (e.PropertyName == "AudioUnit")
+            {
+                TargetLabel.Content = VFunction.Level(settings.TargetLevel, settings.AudioUnit).ToString();
+                LimitLabel.Content = VFunction.Level(settings.LimitLevel, settings.AudioUnit).ToString();
+            }
         }
 
         private void window_Deactivated(object sender, EventArgs e)

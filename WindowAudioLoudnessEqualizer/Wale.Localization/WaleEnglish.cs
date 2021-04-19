@@ -14,7 +14,7 @@ namespace Wale.Localization
             Locale = "English";
 
             View = "View(F2)";
-            Target = "Target";
+            Target = "Target & Limit";
             Device = "Device";
             Master = "Master";
             AlwaysTop = "AlwaysTop(F7)";

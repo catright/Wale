@@ -240,17 +240,19 @@ namespace Wale.CoreAudio
         /// Average peak value within AvTime.
         /// </summary>
         public double AveragePeak { get; private set; }
-        private uint AvCount = 0;
+        private uint AvCount = 0, ChunkSize = 5;
         private List<double> Peaks = new List<double>();
+        private List<double> AvBuffer = new List<double>();
 
         /// <summary>
         /// Set stacking time for average calculation.
         /// </summary>
         /// <param name="averagingTime">Total stacking time.[ms](=AvTime)</param>
         /// <param name="unitTime">Passing time when calculate the average once.[ms]</param>
-        public void SetAvTime(double averagingTime, double unitTime)
+        public void SetAvTime(double averagingTime, double unitTime, int chunkSize = 5)
         {
-            AvCount = (uint)Convert.ToUInt32(averagingTime / unitTime);
+            ChunkSize = chunkSize > 0 ? (uint)chunkSize : 0;
+            AvCount = (uint)Convert.ToUInt32((averagingTime / unitTime) / chunkSize);
             //Console.WriteLine($"Average Time Updated Cnt:{AvCount}");
             //JPack.FileLog.Log($"Average Time Updated Cnt:{AvCount}");
             ResetAverage();
@@ -258,23 +260,33 @@ namespace Wale.CoreAudio
         /// <summary>
         /// Clear all stacked peak values and set average to 0.
         /// </summary>
-        public void ResetAverage() { Peaks.Clear(); AveragePeak = 0; }// JPack.FileLog.Log("Average Reset"); }//Console.WriteLine("Average Reset");
+        public void ResetAverage() { Peaks.Clear(); AvBuffer.Clear(); AveragePeak = 0; }// JPack.FileLog.Log("Average Reset"); }//Console.WriteLine("Average Reset");
         /// <summary>
         /// Add new peak value to peaks container and re-calculate AveragePeak value.
         /// </summary>
         /// <param name="peak"></param>
         public void SetAverage(double peak)
         {
-            if (Peaks.Count > AvCount) Peaks.RemoveAt(0);
+            if (Peaks.Count >= ChunkSize)
+            {
+                if (AvBuffer.Count() > AvCount) AvBuffer.RemoveAt(0);
+                AvBuffer.Add(Peaks.Average());
+                Peaks.Clear();
+                AveragePeak = AvBuffer.Average();
+            }
             Peaks.Add(peak);
-            AveragePeak = Peaks.Average();
             //Console.WriteLine($"Av={AveragePeak}, PC={Peaks.Count}, AvT={AvTime}");
         }
         public void SetAverage2()
         {
-            if (Peaks.Count > AvCount) Peaks.RemoveAt(0);
-            Peaks.Add(Peak);
-            AveragePeak = Peaks.Average();
+            if (Peaks.Count >= ChunkSize)
+            {
+                if (AvBuffer.Count() > AvCount) AvBuffer.RemoveAt(0);
+                AvBuffer.Add(Peaks.Average());
+                Peaks.Clear();
+                AveragePeak = AvBuffer.Average();
+            }
+            else Peaks.Add(Peak);
             //Console.WriteLine($"Av={AveragePeak}, PC={Peaks.Count}, AvT={AvTime}");
         }
         #endregion

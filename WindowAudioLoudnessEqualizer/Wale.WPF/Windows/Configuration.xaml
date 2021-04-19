@@ -22,8 +22,8 @@
             <Setter Property="Width" Value="{Binding Source={x:Static conf:Visual.MainWindowWidth}}"/>
             <!--Setter Property="MinWidth" Value="{Binding Width, RelativeSource={RelativeSource Self}}"/>
             <Setter Property="MaxWidth" Value="{Binding Width, RelativeSource={RelativeSource Self}}"/-->
-
-            <Setter Property="Height" Value="430"/>
+            <!-- height of one line of setting item is 24px -->
+            <Setter Property="Height" Value="454"/>
         </Style>
     </Window.Style>
     <Window.Resources>

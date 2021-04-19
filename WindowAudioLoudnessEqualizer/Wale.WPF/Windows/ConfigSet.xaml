@@ -90,7 +90,7 @@
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0">
-                        <Grid Style="{StaticResource LineItem}" Visibility="Visible">
+                        <Grid Style="{StaticResource LineItem}">
                             <Label Content="UI Update [ms]"/>
                             <Label Content="{Binding Path=(local:LastValues.UIUpdateInterval), Mode=TwoWay}" Style="{StaticResource LLastVal}"/>
                             <TextBox Text="{Binding Path=UIUpdateInterval, Mode=TwoWay}"/>
@@ -114,6 +114,17 @@
                             </WrapPanel>
                             <Label Content="{Binding Path=(local:LastValues.TargetLevel), Mode=TwoWay}" Style="{StaticResource LLastVal}"/>
                             <TextBox Text="{Binding Path=TargetLevel, Mode=TwoWay}" TextChanged="TargetLevel_Changed"/>
+                        </Grid>
+                        <Grid Style="{StaticResource LineItem}" Visibility="Visible">
+                            <WrapPanel>
+                                <Label Content="Limit Level" ToolTip="The value should never exceed" Foreground="{Binding Source={x:Static local:ColorSet.LimitColorBrush}}"/>
+                                <!--Ratio to target that will be added to target-->
+                                <Label Content=" " FontSize="10"/>
+                                <Label x:Name="LimitdB" Content="0" FontSize="10"/>
+                                <Label Content="dB" FontSize="10"/>
+                            </WrapPanel>
+                            <Label Content="{Binding Path=(local:LastValues.LimitLevel), Mode=TwoWay}" Style="{StaticResource LLastVal}"/>
+                            <TextBox Text="{Binding Path=LimitLevel, Mode=TwoWay}" TextChanged="LimitLevel_Changed"/>
                         </Grid>
                         <Grid Style="{StaticResource LineItem}" Visibility="Visible">
                             <WrapPanel>
@@ -268,7 +279,7 @@
                             <Label Content="{Binding Path=(local:LastValues.VFunc), Mode=TwoWay}" Margin="60,20,0,0"/>
                             <ComboBox x:Name="FunctionSelector" HorizontalAlignment="Left" Margin="60,0,0,0" VerticalAlignment="Top" Width="150" Height="20" SelectionChanged="Function_Changed"/>
                         </Grid>
-                        <Grid Style="{StaticResource LineItem}">
+                        <Grid Style="{StaticResource LineItem}" Visibility="Visible">
                             <Label Content="Average Time [ms]"/>
                             <Label Content="{Binding Path=(local:LastValues.AverageTime), Mode=TwoWay}" Style="{StaticResource LLastVal}"/>
                             <TextBox Text="{Binding Path=AverageTime, Mode=TwoWay}"/>
@@ -302,6 +313,12 @@
                         <!--TextBlock Text="These two options are critical for functioning of Wale" TextWrapping="Wrap"/-->
                         <Grid Style="{StaticResource LineItem}" Visibility="Visible">
                             <WrapPanel>
+                                <CheckBox Content="Auto Control Enabled" IsChecked="{Binding Path=AutoControl, Mode=TwoWay}"/>
+                                <TextBlock Text="Critical" Margin="3,0" FontSize="10" Foreground="OrangeRed"/>
+                            </WrapPanel>
+                        </Grid>
+                        <Grid Style="{StaticResource LineItem}" Visibility="Visible">
+                            <WrapPanel>
                                 <CheckBox Content="Average Enabled" IsChecked="{Binding Path=Averaging, Mode=TwoWay}"/>
                                 <TextBlock Visibility="Collapsed" Text="Critical" Margin="3,0" FontSize="10" Foreground="OrangeRed"/>
                             </WrapPanel>
@@ -311,12 +328,6 @@
                                 <CheckBox Content="Static Mode" IsChecked="{Binding Path=StaticMode, Mode=TwoWay}"
                                           ToolTip="Set all apps' volume to target level"/>
                                 <TextBlock Visibility="Collapsed" Text="Critical" Margin="3,0" FontSize="10" Foreground="Orange"/>
-                            </WrapPanel>
-                        </Grid>
-                        <Grid Style="{StaticResource LineItem}" Visibility="Visible">
-                            <WrapPanel>
-                                <CheckBox Content="Auto Control Enabled" IsChecked="{Binding Path=AutoControl, Mode=TwoWay}"/>
-                                <TextBlock Text="Critical" Margin="3,0" FontSize="10" Foreground="OrangeRed"/>
                             </WrapPanel>
                         </Grid>
                         <!--CheckBox Content="Combine processes by app name" ToolTip="Combine session processes by application name and control them together" IsChecked="{Binding Path=CombineSession, Mode=TwoWay}"/-->
@@ -365,6 +376,7 @@
                 </StackPanel>
             </GroupBox>
             
+            <!-- Save, Cancel -->
             <Grid>
                 <Button x:Name="SaveButton" Content="Save" HorizontalAlignment="Left" Margin="10,5,0,5" Style="{StaticResource FinalButtons}" Click="ConfigSave_Click"/>
                 <Grid HorizontalAlignment="Left" Margin="10,5,0,5" Width="130" Height="20" IsHitTestVisible="False">

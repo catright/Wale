@@ -441,9 +441,18 @@
                         <StackPanel Margin="5,5,5,0">
                             <Grid>
                                 <Label Content="{Binding Target, Source={x:Static locale:Interpreter.Current}}" HorizontalAlignment="Left" Style="{StaticResource LDef}"/>
-                                <Label x:Name="TargetLabel" Content="0" HorizontalAlignment="Right" Foreground="{Binding Source={x:Static local:ColorSet.TargetColorBrush}}" Style="{StaticResource LDef}"/>
+                                <Grid HorizontalAlignment="Right">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition Width="5"/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label x:Name="TargetLabel" Content="0" HorizontalAlignment="Right" Grid.Column="0" Foreground="{Binding Source={x:Static local:ColorSet.TargetColorBrush}}" Style="{StaticResource LDef}"/>
+                                    <Label x:Name="LimitLabel" Content="0" HorizontalAlignment="Right" Grid.Column="2" Foreground="{Binding Source={x:Static local:ColorSet.LimitColorBrush}}" Style="{StaticResource LDef}"/>
+                                </Grid>
                             </Grid>
                             <Slider x:Name="BaseSlider" Value="{Binding Path=TargetLevel, Mode=TwoWay}" Foreground="{Binding Source={x:Static local:ColorSet.TargetColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Style="{DynamicResource SliderBaseSlider}" ValueChanged="TargetSlider_ValueChanged"/>
+                            <Slider x:Name="LimitSlider" Value="{Binding Path=LimitLevel, Mode=TwoWay}" Foreground="{Binding Source={x:Static local:ColorSet.LimitColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Style="{DynamicResource SliderBaseSlider}" ValueChanged="LimitSlider_ValueChanged"/>
                         </StackPanel>
                         <WrapPanel Margin="5,5,5,0">
                             <Label Content="{Binding Device, Source={x:Static locale:Interpreter.Current}}" Margin="0,0,5,0" Style="{StaticResource LDef}"/>

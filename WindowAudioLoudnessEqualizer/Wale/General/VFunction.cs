@@ -62,9 +62,66 @@ namespace Wale
             double output = 0;
             switch (unit)
             {
-                case 1: output = Math.Round(20 * Math.Log10(input), 1);if (output < -99.9) { output = double.NegativeInfinity; } else if (output > 99.9) { output = double.PositiveInfinity; } break;
+                case 1:
+                    output = Math.Round(20 * Math.Log10(input), 1);
+                    if (output < -99.9) { output = double.NegativeInfinity; }
+                    else if (output > 99.9) { output = double.PositiveInfinity; }
+                    break;
                 case 0:
-                default: output = Math.Round(input, 3); break;
+                default:
+                    output = Math.Round(input, 3);
+                    break;
+            }
+            return output;
+        }
+        /// <summary>
+        /// Get output level difference (subtraction) for UI. 0=Linear, 1=dB.
+        /// Output would be rounded to 3digit when 0, 1digit when 1.
+        /// Output would be -∞ when it's below than -99.9 and unit is 1.
+        /// </summary>
+        /// <param name="input1">audio level, such as volume or peak</param>
+        /// <param name="input2">audio level, such as volume or peak</param>
+        /// <param name="unit">0=Linear(Windows default), 1=dB, else=Linear</param>
+        /// <returns></returns>
+        public static double LevelDiff(double input1, double input2, int unit = 0)
+        {
+            double output = 0;
+            switch (unit)
+            {
+                case 1:
+                    output = Math.Round(20 * (Math.Log10(input1) - Math.Log10(input2)), 1);
+                    if (output < -99.9) { output = double.NegativeInfinity; }
+                    else if (output > 99.9) { output = double.PositiveInfinity; }
+                    break;
+                case 0:
+                default:
+                    output = Math.Round(input1 - input2, 3);
+                    break;
+            }
+            return output;
+        }
+        /// <summary>
+        /// Get output level difference (multiplication) for UI. 0=Linear, 1=dB.
+        /// Output would be rounded to 3digit when 0, 1digit when 1.
+        /// Output would be -∞ when it's below than -99.9 and unit is 1.
+        /// </summary>
+        /// <param name="input">audio level, such as volume or peak</param>
+        /// <param name="unit">0=Linear(Windows default), 1=dB, else=Linear</param>
+        /// <returns></returns>
+        public static double LevelMult(double input, int unit = 0)
+        {
+            double output;
+            switch (unit)
+            {
+                case 1:
+                    output = Math.Round(20 * Math.Log10(1 + input), 1);
+                    if (output < -99.9) { output = double.NegativeInfinity; }
+                    else if (output > 99.9) { output = double.PositiveInfinity; }
+                    break;
+                case 0:
+                default:
+                    output = Math.Round(1 + input, 3);
+                    break;
             }
             return output;
         }
@@ -82,9 +139,15 @@ namespace Wale
             input = Math.Pow(4, input);
             switch (unit)
             {
-                case 1: output = Math.Round(20 * Math.Log10(input), 1); if (output < -99.9) { output = double.NegativeInfinity; } else if (output > 99.9) { output = double.PositiveInfinity; } break;
+                case 1:
+                    output = Math.Round(20 * Math.Log10(input), 1);
+                    if (output < -99.9) { output = double.NegativeInfinity; }
+                    else if (output > 99.9) { output = double.PositiveInfinity; }
+                    break;
                 case 0:
-                default: output = Math.Round(input, 3); break;
+                default:
+                    output = Math.Round(input, 3);
+                    break;
             }
             return output;
         }

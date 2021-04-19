@@ -122,6 +122,7 @@ namespace Wale.WPF
             Dispatcher?.Invoke(() =>
             {
                 TargetdB.Content = VFunction.Level(settings.TargetLevel, 1);
+                LimitdB.Content = VFunction.Level(settings.LimitLevel, 1);
                 MinPeakdB.Content = VFunction.Level(settings.MinPeak, 1);
             });
         }
@@ -143,6 +144,12 @@ namespace Wale.WPF
         }
 
         private void TargetLevel_Changed(object sender, TextChangedEventArgs e)
+        {
+            if (!loaded) return;
+            DrawBase();
+            DrawNew();
+        }
+        private void LimitLevel_Changed(object sender, TextChangedEventArgs e)
         {
             if (!loaded) return;
             DrawBase();
@@ -380,6 +387,7 @@ namespace Wale.WPF
             LastValues.AutoControlInterval = settings.AutoControlInterval;
             LastValues.GCInterval = settings.GCInterval;
             LastValues.TargetLevel = settings.TargetLevel;
+            LastValues.LimitLevel = settings.LimitLevel;
             LastValues.UpRate = settings.UpRate;
             LastValues.Kurtosis = settings.Kurtosis;
             LastValues.AverageTime = settings.AverageTime;
@@ -390,7 +398,7 @@ namespace Wale.WPF
         /// <summary>
         /// Draw new present graph
         /// </summary>
-        private void DrawNew() { return; DrawGraph("Graph"); }
+        private void DrawNew() { Owner.Dispatcher?.Invoke(() => { DrawGraph("Graph"); }); }
         /// <summary>
         /// Draw a graph of decrement function
         /// </summary>
@@ -501,6 +509,14 @@ namespace Wale.WPF
             lineSeries1.Points.Add(new DataPoint(settings.TargetLevel, 1));
             lineSeries1.Color = Color(ColorSet.TargetColor);
             plotView.Model.Series.Add(lineSeries1);
+
+            LineSeries lineSeries2 = new LineSeries();
+            lineSeries2.Title = "Limit";
+            lineSeries2.Points.Add(new DataPoint(settings.LimitLevel, 0));
+            lineSeries2.Points.Add(new DataPoint(settings.LimitLevel, 1));
+            lineSeries2.Color = Color(Colors.DarkRed);
+            plotView.Model.Series.Add(lineSeries1);
+
             plotView.InvalidatePlot();
         }
         /// <summary>
@@ -568,6 +584,7 @@ namespace Wale.WPF
         public static double AutoControlInterval { get => _AutoControlInterval; set { _AutoControlInterval = value; OnStaticPropertyChanged("AutoControlInterval"); } }
         public static double GCInterval { get => _GCInterval; set { _GCInterval = value; OnStaticPropertyChanged("GCInterval"); } }
         public static double TargetLevel { get => _TargetLevel; set { _TargetLevel = value; OnStaticPropertyChanged("TargetLevel"); } }
+        public static double LimitLevel { get => _LimitLevel; set { _LimitLevel = value; OnStaticPropertyChanged("LimitLevel"); } }
         public static double AverageTime { get => _AverageTime; set { _AverageTime = value; OnStaticPropertyChanged("AverageTime"); } }
         public static double UpRate { get => _UpRate; set { _UpRate = value; OnStaticPropertyChanged("UpRate"); } }
         public static double Kurtosis { get => _Kurtosis; set { _Kurtosis = value; OnStaticPropertyChanged("Kurtosis"); } }
@@ -576,7 +593,7 @@ namespace Wale.WPF
         public static int AudioUnit { get => _AudioUnit; set { _AudioUnit = value; OnStaticPropertyChanged("AudioUnit"); } }
 
         private static double _UIUpdate, _AutoControlInterval, _GCInterval;
-        private static double _TargetLevel, _AverageTime, _UpRate, _Kurtosis, _MinPeak;
+        private static double _TargetLevel, _LimitLevel, _AverageTime, _UpRate, _Kurtosis, _MinPeak;
         private static string _VFunc;
         private static int _AudioUnit;
         /*

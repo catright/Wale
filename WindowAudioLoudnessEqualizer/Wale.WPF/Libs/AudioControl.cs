@@ -154,8 +154,12 @@ namespace Wale
                 if (settings.Averaging) s.SetAverage(peak);
 
                 // when averaging, lower volume once if current peak exceeds average or set volume along average.
+                //double cutLv = settings.TargetLevel + (settings.TargetLevel * settings.LimitLevel);
                 if (s.State != SessionState.Active) { return; }//Check session activity
-                if (settings.Averaging && peak < s.AveragePeak) tVol = settings.TargetLevel / s.AveragePeak;
+                if (settings.Averaging)
+                {
+                    tVol = Volume1(peak, s.AveragePeak);
+                }
                 else tVol = settings.TargetLevel / peak;
 
                 // calc upLimit by vfunc, deprecated
@@ -184,6 +188,17 @@ namespace Wale
                 s.Volume = (float)((tVol > UpLimit ? UpLimit : tVol) * relFactor);
             }
             DP.DML(dm.ToString());// print debug message
+        }
+        private double Volume0(double peak, double average)
+        {
+            if (peak < settings.LimitLevel) return settings.TargetLevel / average;
+            else return settings.LimitLevel / peak;
+        }
+        private double Volume1(double peak, double average)
+        {
+            double tVol = settings.TargetLevel / average;
+            if (tVol * peak > settings.LimitLevel) tVol = settings.LimitLevel / peak;
+            return tVol;
         }
         private void StaticControl(Session s)
         {

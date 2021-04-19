@@ -37,11 +37,11 @@ namespace Wale.Configuration
         /// <summary>
         /// Height of config set
         /// </summary>
-        public static double ConfigSetHeight => 265;
+        public static double ConfigSetHeight => 289;
         /// <summary>
         /// Long height of config set when advanced view is selected
         /// </summary>
-        public static double ConfigSetLongHeight => 415;
+        public static double ConfigSetLongHeight => 439;
 
         /// <summary>
         /// Default height of windows except main window
@@ -75,6 +75,7 @@ namespace Wale.Configuration
             AdvancedView = false;
 
             TargetLevel = .15;
+            LimitLevel = .25;
             AverageTime = 3000;
             Kurtosis = .35;
             MasterVolumeInterval = .05;
@@ -115,6 +116,7 @@ namespace Wale.Configuration
         public bool AdvancedView { get => Get<bool>(); set => Set(value); }
 
         public double TargetLevel { get => Get<double>(); set => Set(value); }
+        public double LimitLevel { get => Get<double>(); set => Set(value); }
         public double AverageTime { get => Get<double>(); set => Set(value); }
         public double Kurtosis { get => Get<double>(); set => Set(value); }
         public double MasterVolumeInterval { get => Get<double>(); set => Set(value); }
@@ -244,6 +246,7 @@ namespace Wale.Configuration
             AdvancedView = old.AdvancedView;
 
             TargetLevel = old.TargetLevel;
+            LimitLevel = old.LimitLevel;
             AverageTime = old.AverageTime;
             Kurtosis = old.Kurtosis;
             MasterVolumeInterval = old.MasterVolumeInterval;
