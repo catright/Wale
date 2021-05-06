@@ -34,10 +34,11 @@ namespace Wale.Configuration
         /// </summary>
         public static double TitleBarHeight => 35;
 
+        // add 22px to conf heights when another lineitem is added
         /// <summary>
         /// Height of config set
         /// </summary>
-        public static double ConfigSetHeight => 289;
+        public static double ConfigSetHeight => 311;
         /// <summary>
         /// Long height of config set when advanced view is selected
         /// </summary>
@@ -71,11 +72,12 @@ namespace Wale.Configuration
             AlwaysTop = true;
             StayOn = false;
             RunAtWindowsStartup = false;
-            Averaging = true;
+            Averaging = false;
             AdvancedView = false;
 
             TargetLevel = .15;
             LimitLevel = .25;
+            CompRate = 0.9;
             AverageTime = 3000;
             Kurtosis = .35;
             MasterVolumeInterval = .05;
@@ -117,6 +119,7 @@ namespace Wale.Configuration
 
         public double TargetLevel { get => Get<double>(); set => Set(value); }
         public double LimitLevel { get => Get<double>(); set => Set(value); }
+        public double CompRate { get => Get<double>(); set => Set(value); }
         public double AverageTime { get => Get<double>(); set => Set(value); }
         public double Kurtosis { get => Get<double>(); set => Set(value); }
         public double MasterVolumeInterval { get => Get<double>(); set => Set(value); }

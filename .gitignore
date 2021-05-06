@@ -8,7 +8,9 @@
 *.sln.docstates
 *.dmp
 *WaleLog*.txt
+*walesim*.txt
 UnitTestProject*/
+simdata/
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
@@ -18,6 +20,7 @@ UnitTestProject*/
 *.lnk
 *.png
 *.ico
+*.py
 
 # Build results
 [Dd]ebug/

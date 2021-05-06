@@ -143,6 +143,7 @@ namespace Wale
             double relFactor = (s.Relative == 0 ? 1 : Math.Pow(Wale.Configuration.Audio.RelativeBase, s.Relative));
             double volume = s.Volume / relFactor;
             dm.Append($" P:{peak:n3} V:{volume:n3}");
+            if (volume == 0) volume = 0.001;
 
             // control volume when audio session makes sound
             if (peak > settings.MinPeak)
@@ -156,11 +157,7 @@ namespace Wale
                 // when averaging, lower volume once if current peak exceeds average or set volume along average.
                 //double cutLv = settings.TargetLevel + (settings.TargetLevel * settings.LimitLevel);
                 if (s.State != SessionState.Active) { return; }//Check session activity
-                if (settings.Averaging)
-                {
-                    tVol = Volume1(peak, s.AveragePeak);
-                }
-                else tVol = settings.TargetLevel / peak;
+                tVol = Volume(peak, s.AveragePeak, volume);
 
                 // calc upLimit by vfunc, deprecated
                 switch (VFunc)
@@ -185,9 +182,16 @@ namespace Wale
                 // set volume
                 if (s.State != SessionState.Active) { return; }//Check session activity
                 dm.Append($" T={tVol:n3} UL={UpLimit:n3}");//Console.WriteLine($" T={tVol:n3} UL={UpLimit:n3}");
-                s.Volume = (float)((tVol > UpLimit ? UpLimit : tVol) * relFactor);
+                float fVol = (float)((tVol > UpLimit ? UpLimit : tVol) * relFactor);
+                //System.Diagnostics.Debug.WriteLine($"{volume} {fVol} {tVol}");
+                s.Volume = fVol;
             }
             DP.DML(dm.ToString());// print debug message
+        }
+        private double Volume(double peak, double average, double volume)
+        {
+            if (settings.Averaging) return Volume1(peak, average);
+            else return Volume2(peak, volume, settings.CompRate);
         }
         private double Volume0(double peak, double average)
         {
@@ -197,6 +201,15 @@ namespace Wale
         private double Volume1(double peak, double average)
         {
             double tVol = settings.TargetLevel / average;
+            if (tVol * peak > settings.LimitLevel) tVol = settings.LimitLevel / peak;
+            return tVol;
+        }
+        private double Volume2(double peak, double volume, double rate = 2)
+        {
+            //System.Diagnostics.Debug.WriteLine("vol2 running");
+            //if (rate < 1) rate = 1;
+            //double tVol = settings.TargetLevel * (1 / (((settings.TargetLevel - peak) / rate) + peak));
+            double tVol = settings.TargetLevel / Math.Pow(peak, rate);
             if (tVol * peak > settings.LimitLevel) tVol = settings.LimitLevel / peak;
             return tVol;
         }

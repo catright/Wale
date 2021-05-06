@@ -50,6 +50,7 @@ namespace Wale
         }/**/
 
         /// <summary>
+        /// Unit conversion.
         /// Get output level for UI. 0=Linear, 1=dB.
         /// Output would be rounded to 3digit when 0, 1digit when 1.
         /// Output would be -∞ when it's below than -99.9 and unit is 1.
@@ -75,6 +76,7 @@ namespace Wale
             return output;
         }
         /// <summary>
+        /// Unit conversion.
         /// Get output level difference (subtraction) for UI. 0=Linear, 1=dB.
         /// Output would be rounded to 3digit when 0, 1digit when 1.
         /// Output would be -∞ when it's below than -99.9 and unit is 1.
@@ -101,6 +103,7 @@ namespace Wale
             return output;
         }
         /// <summary>
+        /// Unit conversion.
         /// Get output level difference (multiplication) for UI. 0=Linear, 1=dB.
         /// Output would be rounded to 3digit when 0, 1digit when 1.
         /// Output would be -∞ when it's below than -99.9 and unit is 1.
@@ -126,6 +129,7 @@ namespace Wale
             return output;
         }
         /// <summary>
+        /// Unit conversion.
         /// Get output level of Relative factor for UI. 0=Linear, 1=dB.
         /// Output would be rounded to 3digit when 0, 1digit when 1.
         /// Output would be ∞ when absolute value of output is above than 99.9 and unit is 1.
