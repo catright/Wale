@@ -326,13 +326,13 @@
                                 <TextBlock Visibility="Collapsed" Text="Critical" Margin="3,0" FontSize="10" Foreground="Orange"/>
                             </WrapPanel>
                         </Grid>
-                        <Grid Style="{StaticResource LineItem}">
+                        <Grid Style="{StaticResource LineItem}" Visibility="Visible">
                             <WrapPanel>
                                 <CheckBox Content="Average Enabled" IsChecked="{Binding Path=Averaging, Mode=TwoWay}"/>
                                 <TextBlock Visibility="Collapsed" Text="Critical" Margin="3,0" FontSize="10" Foreground="OrangeRed"/>
                             </WrapPanel>
                         </Grid>
-                        <Grid Style="{StaticResource LineItem}">
+                        <Grid Style="{StaticResource LineItem}" Visibility="Visible">
                             <Label Content="Average Time [ms]"/>
                             <Label Content="{Binding Path=(local:LastValues.AverageTime), Mode=TwoWay}" Style="{StaticResource LLastVal}"/>
                             <TextBox Text="{Binding Path=AverageTime, Mode=TwoWay}"/>

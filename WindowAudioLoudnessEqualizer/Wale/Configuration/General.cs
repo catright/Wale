@@ -250,6 +250,7 @@ namespace Wale.Configuration
 
             TargetLevel = old.TargetLevel;
             LimitLevel = old.LimitLevel;
+            CompRate = old.CompRate;
             AverageTime = old.AverageTime;
             Kurtosis = old.Kurtosis;
             MasterVolumeInterval = old.MasterVolumeInterval;
