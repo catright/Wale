@@ -10,6 +10,9 @@ Icons and 3rd party libraries are NOT included in this license. They are copyrig
 
 [Full License](https://github.com/catright/Wale/blob/master/LICENSE)
 
+> ## CAUTION!!!
+> ### Always pull down your speaker volume when update WALE or change your settings.
+
 ***
 
 # Before use
