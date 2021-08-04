@@ -51,6 +51,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Icon\WaleLeftOn.ico</ApplicationIcon>
@@ -111,7 +112,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Libs\HighPrecisionTimer.cs" />
     <Compile Include="Libs\KineticBehaviour.cs" />
+    <Compile Include="Libs\TaskSynchronize.cs" />
     <Compile Include="Windows\ConfigSet.xaml.cs">
       <DependentUpon>ConfigSet.xaml</DependentUpon>
     </Compile>

@@ -95,7 +95,7 @@
                             <Label Content="{Binding Path=(local:LastValues.UIUpdateInterval), Mode=TwoWay}" Style="{StaticResource LLastVal}"/>
                             <TextBox Text="{Binding Path=UIUpdateInterval, Mode=TwoWay}"/>
                         </Grid>
-                        <Grid Style="{StaticResource LineItem}" Visibility="Visible">
+                        <Grid Style="{StaticResource LineItem}" Visibility="Visible" ToolTip="Must be >=1, stable when >=15">
                             <Label Content="Auto Control [ms]"/>
                             <Label Content="{Binding Path=(local:LastValues.AutoControlInterval), Mode=TwoWay}" Style="{StaticResource LLastVal}"/>
                             <TextBox Text="{Binding Path=AutoControlInterval, Mode=TwoWay}"/>

@@ -72,12 +72,12 @@ namespace Wale.Configuration
             AlwaysTop = true;
             StayOn = false;
             RunAtWindowsStartup = false;
-            Averaging = false;
+            Averaging = true;
             AdvancedView = false;
 
             TargetLevel = .15;
             LimitLevel = .25;
-            CompRate = 0.9;
+            CompRate = 0.96;
             AverageTime = 3000;
             Kurtosis = .35;
             MasterVolumeInterval = .05;
@@ -90,7 +90,6 @@ namespace Wale.Configuration
             VFunc = "None";
             AppTitle = "WALE";
             ProcessPriority = "High";
-            //ExcList = new StringCollection() { "audacity", "obs64", "Studio One", "shotcut", "Resolve", "Cakewalk", "amddvr", "ShellExperienceHost", "Windows Shell Experience Host" };
             ExcList = new List<string>() { "audacity", "obs64", "Studio One", "shotcut", "Resolve", "Cakewalk", "amddvr", "ShellExperienceHost", "Windows Shell Experience Host" }.Distinct().ToList();
             CombineSession = false;
             AudioUnit = 0;

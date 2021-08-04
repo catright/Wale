@@ -56,8 +56,9 @@
         <Storyboard x:Key="changeTopSB">
             <DoubleAnimation Storyboard.TargetName="window" Storyboard.TargetProperty="Top" Duration="0:0:0" To="{Binding WindowTop}" BeginTime="0:0:0"/>
         </Storyboard>
-        
-        <local:ACdataconverter x:Key="ACdataconverter"/>
+
+        <local:ACwaitedConverter x:Key="ACwaitedConverter"/>
+        <local:WIdifConverter x:Key="WIdifConverter"/>
 
         <Style x:Key="BaseSliderRight" TargetType="RepeatButton">
             <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -521,50 +522,12 @@
                                     <Label Content="[ms]" Padding="0" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
                                 </WrapPanel>
                                 <WrapPanel Margin="0">
-                                    <Label Content="AC E-W dif" Padding="10,0,0,0" Width="80">
-                                        <Label.Style>
-                                            <Style TargetType="Label">
-                                                <Setter Property="Foreground" Value="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding ACEWdif, Converter={StaticResource ACdataconverter}}" Value="True">
-                                                        <Setter Property="Foreground" Value="Red"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Label.Style>
-                                    </Label>
-                                    <TextBlock Text="{Binding ACEWdif}" Padding="5,0,0,0" Width="50">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="Foreground" Value="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding ACEWdif, Converter={StaticResource ACdataconverter}}" Value="True">
-                                                        <Setter Property="Foreground" Value="Red"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                    <Label Content="[ms]" Padding="0">
-                                        <Label.Style>
-                                            <Style TargetType="Label">
-                                                <Setter Property="Foreground" Value="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding ACEWdif, Converter={StaticResource ACdataconverter}}" Value="True">
-                                                        <Setter Property="Foreground" Value="Red"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Label.Style>
-                                    </Label>
-                                </WrapPanel>
-                                <WrapPanel Margin="0">
                                     <Label Content="AC Waited" Padding="10,0,0,0" Width="80">
                                         <Label.Style>
                                             <Style TargetType="Label">
                                                 <Setter Property="Foreground" Value="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding ACWaited, Converter={StaticResource ACdataconverter}}" Value="True">
+                                                    <DataTrigger Binding="{Binding ACWaited, Converter={StaticResource ACwaitedConverter}}" Value="True">
                                                         <Setter Property="Foreground" Value="Red"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
@@ -576,7 +539,7 @@
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="Foreground" Value="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding ACWaited, Converter={StaticResource ACdataconverter}}" Value="True">
+                                                    <DataTrigger Binding="{Binding ACWaited, Converter={StaticResource ACwaitedConverter}}" Value="True">
                                                         <Setter Property="Foreground" Value="Red"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
@@ -588,7 +551,45 @@
                                             <Style TargetType="Label">
                                                 <Setter Property="Foreground" Value="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding ACWaited, Converter={StaticResource ACdataconverter}}" Value="True">
+                                                    <DataTrigger Binding="{Binding ACWaited, Converter={StaticResource ACwaitedConverter}}" Value="True">
+                                                        <Setter Property="Foreground" Value="Red"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Label.Style>
+                                    </Label>
+                                </WrapPanel>
+                                <WrapPanel Margin="0">
+                                    <Label Content="AC W-I diff" ToolTip="Waited-Interval difference" Padding="10,0,0,0" Width="80">
+                                        <Label.Style>
+                                            <Style TargetType="Label">
+                                                <Setter Property="Foreground" Value="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding ACEWdif, Converter={StaticResource WIdifConverter}, ConverterParameter=2}" Value="True">
+                                                        <Setter Property="Foreground" Value="Red"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Label.Style>
+                                    </Label>
+                                    <TextBlock Text="{Binding ACEWdif}" Padding="5,0,0,0" Width="50">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Foreground" Value="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding ACEWdif, Converter={StaticResource WIdifConverter}, ConverterParameter=2}" Value="True">
+                                                        <Setter Property="Foreground" Value="Red"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                    <Label Content="[ms]" Padding="0">
+                                        <Label.Style>
+                                            <Style TargetType="Label">
+                                                <Setter Property="Foreground" Value="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding ACEWdif, Converter={StaticResource WIdifConverter}, ConverterParameter=2}" Value="True">
                                                         <Setter Property="Foreground" Value="Red"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>

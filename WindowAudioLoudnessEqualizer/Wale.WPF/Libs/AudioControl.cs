@@ -7,6 +7,7 @@ using System.Collections;
 using System.Runtime.InteropServices;
 using Wale.CoreAudio;
 using System.Windows;
+using HighPrecisionTimer;
 
 namespace Wale
 {
@@ -65,10 +66,13 @@ namespace Wale
 
             UpdateVFunc();
 
-            core = new Core((float)settings.TargetLevel, settings.AverageTime, settings.AutoControlInterval, true)
-            {
-                ExcludeList = settings.ExcList.Cast<string>().Distinct().ToList()
-            };
+            core = new Core(
+                (float)settings.TargetLevel,
+                settings.AverageTime,
+                settings.AutoControlInterval,
+                settings.ExcList,
+                true
+            );
             core.RestartRequested += Audio_RestartRequested;
             ControlTasks.Add(ControllerCleanTask());
             //controllerCleanTask = new Task(ControllerCleanTask);
@@ -224,20 +228,27 @@ namespace Wale
         #endregion
 
         #region Automatic volume control
+        private Task HPTimer(int d) => HighPrecisionTimer.HPTimer.Delay(d);
+        //private readonly TaskSynchronize.AsyncLock TaskSync = new TaskSynchronize.AsyncLock();
+        //private volatile bool ACrunning = false, CCrunning = false;
         private async Task AudioControlTask()
         {
             JPack.FileLog.Log("Audio Control Task Start");
             List<Task> aas = new List<Task>();
             uint logCounter = 0, logCritical = 100000, swCritical = (uint)(1);//settings.UIUpdateInterval / settings.AutoControlInterval
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-            List<double> elapsed = new List<double>(), ewdif = new List<double>(), waited = new List<double>();
+            List<double> elapsed = new List<double>(), waited = new List<double>(), widif = new List<double>();
             bool acDev = false;
             //System.Timers.Timer timer = new System.Timers.Timer();
 
             while (!Terminate)
             {
-                TimeSpan d = new TimeSpan((long)(settings.StaticMode ? settings.UIUpdateInterval : settings.AutoControlInterval) * 10000);
-                Task waitTask = ((int)d.TotalMilliseconds > 1) ? Task.Delay((int)d.TotalMilliseconds) : null;
+                //ACrunning = true;
+                //while (CCrunning) { await HPTimer(1); }
+                TimeSpan d = new TimeSpan(0, 0, 0, 0, (int)(settings.StaticMode ? settings.UIUpdateInterval : settings.AutoControlInterval));
+                Task waitTask = HPTimer((int)d.TotalMilliseconds);
+                //Task waitTask = (int)d.TotalMilliseconds >= 15 ? Task.Delay((int)d.TotalMilliseconds) : ((int)d.TotalMilliseconds >= 1) ? MultimediaTimer.Delay((int)d.TotalMilliseconds) : null;
+                //Task waitTask = (int)d.TotalMilliseconds >= 15 ? Task.Delay((int)d.TotalMilliseconds) : ((int)d.TotalMilliseconds >= 1) ? TPreciseTimer((int)d.TotalMilliseconds) : null;
                 sw.Restart();
 
                 if (settings.AutoControl)
@@ -278,20 +289,27 @@ namespace Wale
                 sw.Start();
                 //Console.WriteLine($"ACTaskElapsed={sw.ElapsedMilliseconds}(-{d.Ticks / 10000:n3})[ms]");
                 if (acDev) elapsed.Add(el.TotalMilliseconds);//(double)el.Ticks / 10000
-                //if (d.Ticks > 0) { System.Threading.Thread.Sleep(d); }
-                if (waitTask != null) await waitTask;
-                else JPack.FileLog.Log("waitTask is null");
+                                                             //if (d.Ticks > 0) { System.Threading.Thread.Sleep(d); }
+                try
+                {
+                    if (waitTask != null) await waitTask;
+                    else JPack.FileLog.Log("waitTask is null");
+                }
+                catch (Exception e) { JPack.FileLog.Log($"AudioControlTask: Exception on waitTask. {e}"); }
+                finally { if (waitTask != null) waitTask.Dispose(); }
                 sw.Stop();
                 //Console.WriteLine($"ACTaskWaited ={(double)sw.ElapsedTicks / System.Diagnostics.Stopwatch.Frequency * 1000:n3}[ms]");// *10000000 T[100ns]
-                if (acDev) waited.Add(sw.Elapsed.TotalMilliseconds);//(double)sw.ElapsedTicks / System.Diagnostics.Stopwatch.Frequency * 1000
-                if (acDev) ewdif.Add(d.Subtract(el).TotalMilliseconds);//(double)d.Ticks / 10000
+                TimeSpan wt = sw.Elapsed;
+                if (acDev) waited.Add(wt.TotalMilliseconds);//(double)sw.ElapsedTicks / System.Diagnostics.Stopwatch.Frequency * 1000
+                if (acDev) widif.Add(wt.Subtract(d).TotalMilliseconds);//(double)d.Ticks / 10000
 
                 if (acDev && waited.Count >= swCritical)
                 {
-                    DL.ACElapsed = elapsed.Average(); DL.ACEWdif = ewdif.Average(); DL.ACWaited = waited.Average();
-                    elapsed.Clear(); ewdif.Clear(); waited.Clear();
+                    DL.ACElapsed = elapsed.Average(); DL.ACWaited = waited.Average(); DL.ACEWdif = widif.Average();
+                    elapsed.Clear(); waited.Clear(); widif.Clear();
                     //swCritical = 0;
                 }
+                //ACrunning = false;
             }// end while loop
 
             JPack.FileLog.Log("Audio Control Task End");
@@ -301,9 +319,14 @@ namespace Wale
             JPack.FileLog.Log("Controller Clean Task(GC) Start");
             List<Task> aas = new List<Task>();
             uint logCounter = uint.MaxValue, logCritical = (uint)(1800000 / settings.GCInterval);
+            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+            //TimeSpan elapsed = new TimeSpan();
 
             while (!Terminate)
             {
+                //CCrunning = true;
+                //while (ACrunning) { await HPTimer(1); }
+                sw.Restart();
                 if (settings.AutoControl)
                 {
                     try
@@ -317,8 +340,8 @@ namespace Wale
                                     SessionState state = s.State;
                                     if (state != SessionState.Active && s.Volume != 0.01)
                                     {
-                                        //SetSessionVolume(s.ProcessID, 0.01);
-                                        s.Volume = 0.01f;
+                                            //SetSessionVolume(s.ProcessID, 0.01);
+                                            s.Volume = 0.01f;
                                         s.ResetAverage();
                                     }
                                 }
@@ -329,7 +352,7 @@ namespace Wale
                     }
                     catch (InvalidOperationException e) { JPack.FileLog.Log($"Error(ControllerCleanTask): Session collection was modified.\r\n\t{e.ToString()}"); }
                 }
-                
+
                 await Task.Delay(new TimeSpan((long)(settings.GCInterval * 10000)));
 
                 if (settings.AutoControl)
@@ -338,16 +361,17 @@ namespace Wale
                     aas.Clear();
                 }
 
-                long mmc = GC.GetTotalMemory(true);
-                if (Debug) { Console.WriteLine($"Total Memory: {mmc:n0}"); }
+                long mmc = GC.GetTotalMemory(false);
+                TimeSpan el = sw.Elapsed;
+                if (Debug) { Console.WriteLine($"Total Memory: {mmc:n0}/{el.TotalMilliseconds}ms"); }
                 if (logCounter > logCritical)
                 {
-                    JPack.FileLog.Log($"Memory Cleaned, Total Memory: {mmc:n0}");
+                    JPack.FileLog.Log($"Memory Cleaned, Total Memory: {mmc:n0}/{el.TotalMilliseconds}ms");
                     logCounter = 0;
                 }
 
                 logCounter++;
-
+                //CCrunning = false;
             }
             JPack.FileLog.Log("Controller Clean Task(GC) End");
         }

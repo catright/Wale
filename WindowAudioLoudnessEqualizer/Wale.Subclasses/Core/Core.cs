@@ -105,7 +105,7 @@ namespace Wale.CoreAudio
 
         /// <summary>
         /// Instantiate new instance of Audio class.
-        /// TargetOutputLevel, AverageTime, AverageInterval must specified before Start
+        /// TargetOutputLevel, AverageTime, AverageInterval, and ExcludeList must specified before Start
         /// </summary>
         public Core() { }
         /// <summary>
@@ -115,12 +115,14 @@ namespace Wale.CoreAudio
         /// <param name="wBase">Target output level = base level of Wale</param>
         /// <param name="avTime"></param>
         /// <param name="avInterval"></param>
+        /// <param name="excList"></param>
         /// <param name="autoStart"></param>
-        public Core(float wBase, double avTime, double avInterval, bool autoStart = false)
+        public Core(float wBase, double avTime, double avInterval, List<string> excList, bool autoStart = false)
         {
             TargetOutputLevel = wBase;
             AverageTime = avTime;
             AverageInterval = avInterval;
+            ExcludeList = excList.Cast<string>().Distinct().ToList();
             if (autoStart) { Start(); }
         }
         /// <summary>
