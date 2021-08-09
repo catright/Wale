@@ -101,14 +101,16 @@ namespace Wale.CoreAudio
         /// <summary>
         /// A list of excluded sessions for automatic control
         /// </summary>
-        public List<string> ExcludeList = new List<string> { "audacity", "obs64", "amddvr", "ShellExperienceHost", "Windows Shell Experience Host", "Studio One" };
+        public List<string> ExcludeList => settings?.ExcList;
+        //public List<string> ExcludeList = new List<string> { "audacity", "obs64", "amddvr", "ShellExperienceHost", "Windows Shell Experience Host", "Studio One" };
 
         /// <summary>
         /// Instantiate new instance of Audio class.
-        /// TargetOutputLevel, AverageTime, AverageInterval, and ExcludeList must specified before Start
+        /// TargetOutputLevel, AverageTime, AverageInterval, and Configuration reference(settings) must be specified before Start
         /// </summary>
         public Core() { }
         /// <summary>
+        /// Obsolete.
         /// Instantiate new instance of Audio class.
         /// Automatically Start when <paramref name="autoStart"/> is true.
         /// </summary>
@@ -122,7 +124,16 @@ namespace Wale.CoreAudio
             TargetOutputLevel = wBase;
             AverageTime = avTime;
             AverageInterval = avInterval;
-            ExcludeList = excList.Cast<string>().Distinct().ToList();
+            //ExcludeList = excList.Cast<string>().Distinct().ToList();
+            if (autoStart) { Start(); }
+        }
+        public Core(ref Wale.Configuration.General setting, bool autoStart = false)
+        {
+            settings = setting;
+            TargetOutputLevel = (float)settings.TargetLevel;
+            AverageTime = settings.AverageTime;
+            AverageInterval = settings.AutoControlInterval;
+            //ExcludeList = settings.ExcList;
             if (autoStart) { Start(); }
         }
         /// <summary>
@@ -130,6 +141,7 @@ namespace Wale.CoreAudio
         /// </summary>
         public void Start()
         {
+            if (settings == null) { JPack.FileLog.Log("Core: Configuration reference(settings) is not set. Can not start core."); return; }
             GetAudio();
             UpdateDevice();
             GetSessionManager();
@@ -262,6 +274,7 @@ namespace Wale.CoreAudio
         #endregion
 
         #region Private Common Variables
+        private Wale.Configuration.General settings;
         private bool _debug = false;
         private object sessionLocker = new object();
         #endregion

@@ -312,11 +312,11 @@ namespace Wale.WPF
         private void StartAudio(bool restart = false)
         {
             // start audio controller
-            Audio = new AudioControl(settings) { UpRate = settings.UpRate };
+            Audio = new AudioControl(ref settings) { UpRate = settings.UpRate };
             while (Audio.MasterVolume == -1)
             {
                 Audio.Dispose();
-                Audio = new AudioControl(settings) { UpRate = settings.UpRate };
+                Audio = new AudioControl(ref settings) { UpRate = settings.UpRate };
             }
             Audio.RestartRequested += Audio_RestartRequested;
             Audio.SessionAdded += Audio_SessionAdded;
@@ -769,7 +769,15 @@ namespace Wale.WPF
                                     if (mSet.SoundEnableChanged) { session.SoundEnabled = mSet.SoundEnabled; mSet.SoundEnableChanged = false; }
                                     if (session.SoundEnabled != mSet.SoundEnabled) mSet.SoundEnabled = session.SoundEnabled;
                                     // Auto include check
-                                    if (mSet.AutoIncludedChanged) { session.AutoIncluded = mSet.AutoIncluded; mSet.AutoIncludedChanged = false; SaveSessionConfigToFile(); }
+                                    if (mSet.AutoIncludedChanged)
+                                    {
+                                        session.AutoIncluded = mSet.AutoIncluded;
+                                        if (session.AutoIncluded) { settings.ExcList.Remove(session.Name); }
+                                        else { settings.ExcList.Add(session.Name); }
+                                        settings.Save();
+                                        mSet.AutoIncludedChanged = false;
+                                        SaveSessionConfigToFile();
+                                    }
                                     if (session.AutoIncluded != mSet.AutoIncluded) { mSet.AutoIncluded = session.AutoIncluded; }
                                 }
                             }

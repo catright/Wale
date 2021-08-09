@@ -49,7 +49,7 @@ namespace Wale
         #endregion
 
         #region class loads
-        public AudioControl(Wale.Configuration.General gn)
+        public AudioControl(ref Wale.Configuration.General gn)
         {
             //DL = dl;
             settings = gn;
@@ -66,13 +66,14 @@ namespace Wale
 
             UpdateVFunc();
 
-            core = new Core(
-                (float)settings.TargetLevel,
-                settings.AverageTime,
-                settings.AutoControlInterval,
-                settings.ExcList,
-                true
-            );
+            //core = new Core(
+            //    (float)settings.TargetLevel,
+            //    settings.AverageTime,
+            //    settings.AutoControlInterval,
+            //    settings.ExcList,
+            //    true
+            //);
+            core = new Core(ref settings, true);
             core.RestartRequested += Audio_RestartRequested;
             ControlTasks.Add(ControllerCleanTask());
             //controllerCleanTask = new Task(ControllerCleanTask);
@@ -247,8 +248,6 @@ namespace Wale
                 //while (CCrunning) { await HPTimer(1); }
                 TimeSpan d = new TimeSpan(0, 0, 0, 0, (int)(settings.StaticMode ? settings.UIUpdateInterval : settings.AutoControlInterval));
                 Task waitTask = HPTimer((int)d.TotalMilliseconds);
-                //Task waitTask = (int)d.TotalMilliseconds >= 15 ? Task.Delay((int)d.TotalMilliseconds) : ((int)d.TotalMilliseconds >= 1) ? MultimediaTimer.Delay((int)d.TotalMilliseconds) : null;
-                //Task waitTask = (int)d.TotalMilliseconds >= 15 ? Task.Delay((int)d.TotalMilliseconds) : ((int)d.TotalMilliseconds >= 1) ? TPreciseTimer((int)d.TotalMilliseconds) : null;
                 sw.Restart();
 
                 if (settings.AutoControl)

@@ -12,23 +12,23 @@ namespace HighPrecisionTimer
     #region HPTimer
     public class HPTimer
     {
-        public static Task Delay(int millisecond) => millisecond >= 15 ? Task.Delay(millisecond) : (millisecond >= 1) ? MultimediaTimer.Delay(millisecond) : null;
-        public static Task Delay2(int millisecond) => millisecond >= 15 ? Task.Delay(millisecond) : (millisecond >= 1) ? TPreciseTimer(millisecond) : null;
-
-        private static async Task TPreciseTimer(int delay)
+        public enum Select { MMT, TQT, TPT }
+        public static Task Delay(int millisecond, Select sel = Select.MMT)
         {
-            if (delay <= 0) return;
-            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-
-            int ticks = (int)((double)delay * (double)System.Diagnostics.Stopwatch.Frequency / 1000);
-            sw.Start();
-
-            while (sw.IsRunning)
+            if (millisecond >= 15) return Task.Delay(millisecond);
+            else if (millisecond >= 1)
             {
-                if (sw.ElapsedTicks > ticks) { sw.Stop(); break; }
-                await Task.Run(() => { System.Threading.Thread.Sleep(new TimeSpan(ticks)); });
+                switch (sel)
+                {
+                    case Select.MMT: return MultimediaTimer.Delay(millisecond);
+                    case Select.TQT: return TQTDelay(millisecond);
+                    case Select.TPT: return TPreciseTimer(millisecond);
+                    default: return MultimediaTimer.Delay(millisecond);
+                }
             }
+            else return null;
         }
+
         private Task PreciseTimerWork(int delay)
         {
             if (delay <= 0) return Task.CompletedTask;
@@ -47,6 +47,52 @@ namespace HighPrecisionTimer
             return Task.CompletedTask;
         }
         private async Task APreciseTimer(int delay) => await PreciseTimerWork(delay);
+        private static async Task TPreciseTimer(int delay)
+        {
+            if (delay <= 0) return;
+            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+
+            int ticks = (int)((double)delay * (double)System.Diagnostics.Stopwatch.Frequency / 1000);
+            sw.Start();
+
+            while (sw.IsRunning)
+            {
+                if (sw.ElapsedTicks > ticks) { sw.Stop(); break; }
+                await Task.Run(() => { System.Threading.Thread.Sleep(new TimeSpan(ticks)); });
+            }
+        }
+
+
+        public static Task TQTDelay(int millisecondsDelay, CancellationToken token = default)
+        {
+            if (millisecondsDelay < 0)
+            {
+                throw new ArgumentOutOfRangeException("millisecondsDelay", millisecondsDelay, "The value cannot be less than 0.");
+            }
+
+            if (millisecondsDelay == 0)
+            {
+                return Task.CompletedTask;
+            }
+
+            token.ThrowIfCancellationRequested();
+
+            var completionSource = new TaskCompletionSource<object>();
+
+            //WaitOrTimerCallback callback = (object s, bool timedout) => { completionSource.TrySetResult(null); };
+            //var timerId = NativeMethods.CreateTimerQueueTimer(out IntPtr handle, IntPtr.Zero, callback, IntPtr.Zero, (uint)millisecondsDelay, (uint)0, 0x00000008);
+            //if (!timerId)
+            //{
+            //    int error = Marshal.GetLastWin32Error();
+            //    throw new Win32Exception(error);
+            //}
+
+            TimerQueueTimer timer = new TimerQueueTimer();
+            TimerQueueTimer.WaitOrTimerDelegate callback = new TimerQueueTimer.WaitOrTimerDelegate((IntPtr s, bool timedout) => { completionSource.TrySetResult(null); });
+            timer.Delay((uint)millisecondsDelay, callback);
+
+            return completionSource.Task;
+        }
     }
     #endregion
 
