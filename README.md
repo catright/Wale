@@ -29,10 +29,11 @@ If your sound card driver provides '_Loudness Equalization_' or its equivalent, 
 3. Switch to _Enhancements_ tab.
 4. Check _Loudness Equalization_.
 
-Accessing method varies with sound card vendors. On-board sound card users also use this feature same way.
+Accessing method varies with sound card vendors. On-board sound card users also can use this feature same way.
 
 ***
 
+[![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.com/paypalme/catright) [![Donate](https://img.shields.io/badge/Donate-BuyMeACoffee-orange.svg)](https://www.buymeacoffee.com/catright)
 ## Usage is on Wiki page
 [View Wiki](https://github.com/catright/Wale/wiki)
 
