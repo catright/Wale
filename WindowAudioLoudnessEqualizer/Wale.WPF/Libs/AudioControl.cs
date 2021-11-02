@@ -229,7 +229,7 @@ namespace Wale
         #endregion
 
         #region Automatic volume control
-        private Task HPTimer(int d) => HighPrecisionTimer.HPTimer.Delay(d);
+        //private Task HPTimer(int d) => HighPrecisionTimer.HPT.Delay(d, HPT.Select.MMT);
         //private readonly TaskSynchronize.AsyncLock TaskSync = new TaskSynchronize.AsyncLock();
         //private volatile bool ACrunning = false, CCrunning = false;
         private async Task AudioControlTask()
@@ -247,7 +247,7 @@ namespace Wale
                 //ACrunning = true;
                 //while (CCrunning) { await HPTimer(1); }
                 TimeSpan d = new TimeSpan(0, 0, 0, 0, (int)(settings.StaticMode ? settings.UIUpdateInterval : settings.AutoControlInterval));
-                Task waitTask = HPTimer((int)d.TotalMilliseconds);
+                Task waitTask = HPT.Delay((int)d.TotalMilliseconds, HPT.Select.MMT, DL.ForceMMT);//HPTimer((int)d.TotalMilliseconds);
                 sw.Restart();
 
                 if (settings.AutoControl)
@@ -291,11 +291,12 @@ namespace Wale
                                                              //if (d.Ticks > 0) { System.Threading.Thread.Sleep(d); }
                 try
                 {
-                    if (waitTask != null) await waitTask;
-                    else JPack.FileLog.Log("waitTask is null");
+                    await (waitTask == null ? Task.CompletedTask : waitTask);
+                    //if (waitTask != null) await waitTask;
+                    //else JPack.FileLog.Log("waitTask is null");
                 }
                 catch (Exception e) { JPack.FileLog.Log($"AudioControlTask: Exception on waitTask. {e}"); }
-                finally { if (waitTask != null) waitTask.Dispose(); }
+                //finally { if (waitTask != null) waitTask.Dispose(); }
                 sw.Stop();
                 //Console.WriteLine($"ACTaskWaited ={(double)sw.ElapsedTicks / System.Diagnostics.Stopwatch.Frequency * 1000:n3}[ms]");// *10000000 T[100ns]
                 TimeSpan wt = sw.Elapsed;

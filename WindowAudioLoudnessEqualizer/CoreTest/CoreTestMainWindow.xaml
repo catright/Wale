@@ -14,16 +14,17 @@
         <StackPanel Grid.Column="0">
             <TextBlock Text="{Binding Name}"/>
             <TextBlock Text="{Binding MMD}"/>
-            <TextBlock Text="{Binding MD.Muted}"/>
+            <TextBlock Text="{Binding MSD.Muted}"/>
             <Button Content="Vol" Click="VolButton_Click"/>
-            <TextBlock Text="{Binding MD.Volume}"/>
-            <TextBlock Text="{Binding MD.VolumedB}"/>
-            <TextBlock Text="{Binding MD.Peak}"/>
-            <TextBlock Text="{Binding MD.PeakdB}"/>
+            <TextBlock Text="{Binding MSD.Volume}"/>
+            <TextBlock Text="{Binding MSD.VolumedB}"/>
+            <TextBlock Text="{Binding MSD.Peak}"/>
+            <TextBlock Text="{Binding MSD.PeakdB}"/>
         </StackPanel>
         <Grid Grid.Column="1">
-            <!--<ListView ItemsSource="{Binding Ss}" DisplayMemberPath="Volume"/>-->
-            <ListView ItemsSource="{Binding SNames}"/>
+            <!--<ListView ItemsSource="{Binding SSD}" DisplayMemberPath="DisplayName"/>-->
+            <!--<ListView ItemsSource="{Binding SSN}"/>-->
+            <StackPanel x:Name="SSPanel"/>
         </Grid>
     </Grid>
 </Window>

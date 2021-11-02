@@ -12,8 +12,7 @@ namespace CoreTest
 {
     public class Session : AudioSessionControl//, INotifyPropertyChanged
     {
-        private void DW(object o) => System.Diagnostics.Debug.WriteLine(o);
-        public Session(IntPtr ptr, Linker l) : base(ptr)
+        public Session(IntPtr ptr, ref Linker l) : base(ptr)
         {
             L = l;
             SessionDisconnected += Session_SessionDisconnected;
@@ -21,7 +20,7 @@ namespace CoreTest
             SimpleVolumeChanged += Session_SimpleVolumeChanged;
 
             var sav = QueryInterface<SimpleAudioVolume>();
-            //SVM.Update(sav.IsMuted, sav.MasterVolume, QueryInterface<AudioMeterInformation>().PeakValue); ;
+            //SSD.Update(sav.IsMuted, sav.MasterVolume, QueryInterface<AudioMeterInformation>().PeakValue); ;
         }
         public void Unload()
         {
@@ -32,8 +31,9 @@ namespace CoreTest
 
 
         private Linker L;
-        private SessionData SVM => L.Ss?.FirstOrDefault(s => s.BasePtr == BasePtr);
+        private SessionData SSD => L.SSD?.FirstOrDefault(s => s.BasePtr == BasePtr);
 
+        //public new string DisplayName => base.DisplayName;
         //private bool _Muted;
         //public bool Muted { get => _Muted; set { SimpleAudioVolume.FromAudioClient(new AudioClient(BasePtr)).IsMuted = value; } }
         //private double _Volume;
@@ -45,10 +45,10 @@ namespace CoreTest
 
         private void Session_SimpleVolumeChanged(object sender, AudioSessionSimpleVolumeChangedEventArgs e)
         {
-            DW(201000);
+            M.D(201000);
             //_Muted = e.IsMuted;
             //_Volume = e.NewVolume;
-            //SVM.Update(e.IsMuted, e.NewVolume);
+            //SSD.Update(e.IsMuted, e.NewVolume);
             //Set("Muted");
             //Set("Vol");
         }

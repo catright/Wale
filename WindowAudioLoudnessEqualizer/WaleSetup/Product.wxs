@@ -3,7 +3,7 @@
 	<Product Id="*" Name="Wale" Language="1033" Manufacturer="Jongtae Park (catright)"
            UpgradeCode="7286072b-aa45-40bc-a835-88de5243a963" Version="!(bind.fileVersion.WaleEXE)">
 		<Package Id="*" Keywords="Installer" InstallerVersion="405" InstallScope="perMachine" Compressed="yes" Languages="1033"
-             Description="Windows Audio Loudness Equalizer" Manufacturer="Jongtae Park (catright)" Comments="Copyright @ Jongtae Park (catright)" />
+             Description="Windows Audio Loudness Equalizer" Manufacturer="Jongtae Park (catright)" Comments="Copyright @ 2017-2021 Jongtae Park (catright)" />
 
 		<MajorUpgrade AllowDowngrades="no" DowngradeErrorMessage="A newer version of [ProductName] is already installed."
                   AllowSameVersionUpgrades="yes"

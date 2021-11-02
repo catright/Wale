@@ -43,6 +43,14 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
+        <Style x:Key="AdvItem" TargetType="WrapPanel">
+            <Setter Property="Visibility" Value="Visible"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=AdvancedView, Mode=OneWay}" Value="False">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
         <Style TargetType="CheckBox">
             <Setter Property="Height" Value="20"/>
             <Setter Property="HorizontalAlignment" Value="Left"/>
@@ -89,6 +97,7 @@
                         <ColumnDefinition/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
+                    <!--Left-->
                     <StackPanel Grid.Column="0">
                         <Grid Style="{StaticResource LineItem}">
                             <Label Content="UI Update [ms]"/>
@@ -298,6 +307,7 @@
                         </Grid>
 
                     </StackPanel>
+                    <!--Right-->
                     <StackPanel Grid.Column="1">
                         <oxy:PlotView x:Name="plotView" Height="170" Margin="0,0,0,2" BorderThickness="1" BorderBrush="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" Background="{Binding Background, ElementName=confset}">
                             <oxy:PlotView.Style>
@@ -320,10 +330,19 @@
                             </WrapPanel>
                         </Grid>
                         <Grid Style="{StaticResource LineItem}" Visibility="Visible">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
                             <WrapPanel>
                                 <CheckBox Content="Static Mode" IsChecked="{Binding Path=StaticMode, Mode=TwoWay}"
                                           ToolTip="Set all apps' volume to target level"/>
                                 <TextBlock Visibility="Collapsed" Text="Critical" Margin="3,0" FontSize="10" Foreground="Orange"/>
+                            </WrapPanel>
+                            <WrapPanel Grid.Column="1" Style="{StaticResource AdvItem}">
+                                <CheckBox Content="Force MMT" IsChecked="{Binding Path=ForceMMT, Mode=TwoWay}"
+                                          ToolTip="!Very instable, Force to use Multimedia Timer"/>
+                                <TextBlock Text="Critical" Margin="3,0" FontSize="8" Foreground="Orange"/>
                             </WrapPanel>
                         </Grid>
                         <Grid Style="{StaticResource LineItem}" Visibility="Visible">

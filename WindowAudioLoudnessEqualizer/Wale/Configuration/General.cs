@@ -86,6 +86,7 @@ namespace Wale.Configuration
             GCInterval = 30000;
             UIUpdateInterval = 100;
             AutoControlInterval = 15;
+            ForceMMT = false;
 
             VFunc = "None";
             AppTitle = "WALE";
@@ -127,6 +128,7 @@ namespace Wale.Configuration
         public double GCInterval { get => Get<double>(); set => Set(value); }
         public double UIUpdateInterval { get => Get<double>(); set => Set(value); }
         public double AutoControlInterval { get => Get<double>(); set => Set(value); }
+        public bool ForceMMT { get => Get<bool>(); set => Set(value); }
 
         public string VFunc { get => Get<string>(); set => Set(value); }
         public string AppTitle { get => Get<string>(); set => Set(value); }
@@ -240,40 +242,49 @@ namespace Wale.Configuration
         }
         public void Update(General old)
         {
-            AutoControl = old.AutoControl;
-            AlwaysTop = old.AlwaysTop;
-            StayOn = old.StayOn;
-            RunAtWindowsStartup = old.RunAtWindowsStartup;
-            Averaging = old.Averaging;
-            AdvancedView = old.AdvancedView;
+            foreach (System.Reflection.PropertyInfo pi in this.GetType().GetProperties())
+            {
+                if (!Attribute.IsDefined(pi, typeof(Newtonsoft.Json.JsonIgnoreAttribute)))
+                {
+                    System.Reflection.PropertyInfo opi = old.GetType().GetProperty(pi.Name);
+                    if (opi != null && opi.GetValue(old) != null) pi.SetValue(this, opi.GetValue(old));
+                }
+            }
+            //AutoControl = old.AutoControl;
+            //AlwaysTop = old.AlwaysTop;
+            //StayOn = old.StayOn;
+            //RunAtWindowsStartup = old.RunAtWindowsStartup;
+            //Averaging = old.Averaging;
+            //AdvancedView = old.AdvancedView;
 
-            TargetLevel = old.TargetLevel;
-            LimitLevel = old.LimitLevel;
-            CompRate = old.CompRate;
-            AverageTime = old.AverageTime;
-            Kurtosis = old.Kurtosis;
-            MasterVolumeInterval = old.MasterVolumeInterval;
-            MinPeak = old.MinPeak;
-            UpRate = old.UpRate;
-            GCInterval = old.GCInterval;
-            UIUpdateInterval = old.UIUpdateInterval;
-            AutoControlInterval = old.AutoControlInterval;
+            //TargetLevel = old.TargetLevel;
+            //LimitLevel = old.LimitLevel;
+            //CompRate = old.CompRate;
+            //AverageTime = old.AverageTime;
+            //Kurtosis = old.Kurtosis;
+            //MasterVolumeInterval = old.MasterVolumeInterval;
+            //MinPeak = old.MinPeak;
+            //UpRate = old.UpRate;
+            //GCInterval = old.GCInterval;
+            //UIUpdateInterval = old.UIUpdateInterval;
+            //AutoControlInterval = old.AutoControlInterval;
+            //ForceMMT = old.ForceMMT;
 
-            VFunc = old.VFunc;
-            AppTitle = old.AppTitle;
-            ProcessPriority = old.ProcessPriority;
-            ExcList = old.ExcList.Distinct().ToList();
-            CombineSession = old.CombineSession;
-            AudioUnit = old.AudioUnit;
-            Version = old.Version;
-            PreviousVersion = old.PreviousVersion;
+            //VFunc = old.VFunc;
+            //AppTitle = old.AppTitle;
+            //ProcessPriority = old.ProcessPriority;
+            //ExcList = old.ExcList.Distinct().ToList();
+            //CombineSession = old.CombineSession;
+            //AudioUnit = old.AudioUnit;
+            //Version = old.Version;
+            //PreviousVersion = old.PreviousVersion;
 
-            ShowSessionIcon = old.ShowSessionIcon;
-            CollapseSubSessions = old.CollapseSubSessions;
-            StaticMode = old.StaticMode;
-            PnameForAppname = old.PnameForAppname;
-            MainTitleforAppname = old.MainTitleforAppname;
-            AutoExcludeOnManualSet = old.AutoExcludeOnManualSet;
+            //ShowSessionIcon = old.ShowSessionIcon;
+            //CollapseSubSessions = old.CollapseSubSessions;
+            //StaticMode = old.StaticMode;
+            //PnameForAppname = old.PnameForAppname;
+            //MainTitleforAppname = old.MainTitleforAppname;
+            //AutoExcludeOnManualSet = old.AutoExcludeOnManualSet;
         }
 
         /// <summary>

@@ -69,6 +69,7 @@
     </ApplicationDefinition>
     <Compile Include="AudioData.cs" />
     <Compile Include="Core.cs" />
+    <Compile Include="M.cs" />
     <Compile Include="MasterData.cs" />
     <Compile Include="Session.cs" />
     <Compile Include="SessionData.cs" />

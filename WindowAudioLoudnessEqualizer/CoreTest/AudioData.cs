@@ -9,21 +9,48 @@ namespace CoreTest
     public class AudioData : JPack.NotifyPropertyChanged
     {
         public AudioData() { Update(false, 0, 0); }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="b">Muted</param>
+        /// <param name="v">Volume</param>
         public AudioData(bool b, double v) { Update(b, v, 0); }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="b">Muted</param>
+        /// <param name="v">Volume</param>
+        /// <param name="p">Peak</param>
         public AudioData(bool b, double v, double p) { Update(b, v, p); }
 
-        public bool Muted { get => Get<bool>(); set => Set(value); }
-        public double Volume { get => Get<double>(); set => Set(value); }
-        public double VolumedB { get => Get<double>(); set => Set(value); }
-        public double Peak { get => Get<double>(); set => Set(value); }
-        public double PeakdB { get => Get<double>(); set => Set(value); }
+        public bool Muted { get => Get<bool>(); private set => Set(value); }
+        public double Volume { get => Get<double>(); private set => Set(value); }
+        public double VolumedB { get => DB(Get<double>()); }
+        public double Peak { get => Get<double>(); private set => Set(value); }
+        public double PeakdB { get => DB(Get<double>()); }
 
-        public void Mute(bool b) => Muted = b;
-        public void NewVolume(double v) { Volume = v; VolumedB = DB(v); }
-        public void NewPeak(double p) { Peak = p; PeakdB = DB(p); }
-        public void Update(bool b, double v) { Mute(b); NewVolume(v); }
-        public void Update(double p) => NewPeak(p);
-        public void Update(bool b, double v, double p) { Mute(b); NewVolume(v); NewPeak(p); }
+        public void SetMute(bool b) => Muted = b;
+        public void SetVolume(double v) { Volume = v; }
+        public void SetPeak(double p) { Peak = p; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="b">Muted</param>
+        /// <param name="v">Volume</param>
+        public void Update(bool b, double v) { SetMute(b); SetVolume(v); }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="p">Peak</param>
+        public void Update(double p) => SetPeak(p);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="b">Muted</param>
+        /// <param name="v">Volume</param>
+        /// <param name="p">Peak</param>
+        public void Update(bool b, double v, double p) { SetMute(b); SetVolume(v); SetPeak(p); }
 
         private double DB(double val) => 20 * Math.Log10(val / 1);
     }

@@ -10,26 +10,27 @@ using System.Threading.Tasks;
 namespace HighPrecisionTimer
 {
     #region HPTimer
-    public class HPTimer
+    public class HPT
     {
-        public enum Select { MMT, TQT, TPT }
-        public static Task Delay(int millisecond, Select sel = Select.MMT)
+        public enum Select { MMT, TQT, TRD, TSK }
+        public static Task Delay(int millisecond, Select sel = Select.TSK, bool force = false)
         {
-            if (millisecond >= 15) return Task.Delay(millisecond);
+            if (force != true && millisecond >= 15) return Task.Delay(millisecond);
             else if (millisecond >= 1)
             {
                 switch (sel)
                 {
                     case Select.MMT: return MultimediaTimer.Delay(millisecond);
                     case Select.TQT: return TQTDelay(millisecond);
-                    case Select.TPT: return TPreciseTimer(millisecond);
-                    default: return MultimediaTimer.Delay(millisecond);
+                    case Select.TRD: return StaticThreadTimer(millisecond);
+                    case Select.TSK:
+                    default: return Task.Delay(millisecond);
                 }
             }
             else return null;
         }
 
-        private Task PreciseTimerWork(int delay)
+        private Task SyncThreadTimer(int delay)
         {
             if (delay <= 0) return Task.CompletedTask;
 
@@ -46,8 +47,8 @@ namespace HighPrecisionTimer
             }
             return Task.CompletedTask;
         }
-        private async Task APreciseTimer(int delay) => await PreciseTimerWork(delay);
-        private static async Task TPreciseTimer(int delay)
+        private async Task AsyncThreadTimer(int delay) => await SyncThreadTimer(delay);
+        private static async Task StaticThreadTimer(int delay)
         {
             if (delay <= 0) return;
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
