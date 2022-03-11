@@ -27,8 +27,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoreTest", "CoreTest\CoreTe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NTest", "NTest\NTest.csproj", "{F9C8AA3E-7E5F-4B81-B447-616187BBFDD7}"
 EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Setup", "Setup\Setup.vdproj", "{456312C8-34EC-4F62-93F5-C983D7662252}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -143,12 +141,6 @@ Global
 		{F9C8AA3E-7E5F-4B81-B447-616187BBFDD7}.Release|x64.Build.0 = Release|Any CPU
 		{F9C8AA3E-7E5F-4B81-B447-616187BBFDD7}.Release|x86.ActiveCfg = Release|Any CPU
 		{F9C8AA3E-7E5F-4B81-B447-616187BBFDD7}.Release|x86.Build.0 = Release|Any CPU
-		{456312C8-34EC-4F62-93F5-C983D7662252}.Debug|Any CPU.ActiveCfg = Debug
-		{456312C8-34EC-4F62-93F5-C983D7662252}.Debug|x64.ActiveCfg = Debug
-		{456312C8-34EC-4F62-93F5-C983D7662252}.Debug|x86.ActiveCfg = Debug
-		{456312C8-34EC-4F62-93F5-C983D7662252}.Release|Any CPU.ActiveCfg = Release
-		{456312C8-34EC-4F62-93F5-C983D7662252}.Release|x64.ActiveCfg = Release
-		{456312C8-34EC-4F62-93F5-C983D7662252}.Release|x86.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

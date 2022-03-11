@@ -206,7 +206,7 @@ namespace Wale.WPF
             if (Converts() && await Register())
             {
                 settings.Save();
-                if (Audio != null) Audio.UpRate = settings.UpRate;
+                //if (Audio != null) Audio.UpRate = settings.UpRate;
                 if (!NewWindow) MakeOriginals();
                 if (NewWindow)
                 {

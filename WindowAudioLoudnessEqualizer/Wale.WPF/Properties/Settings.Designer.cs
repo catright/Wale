@@ -12,7 +12,7 @@ namespace Wale.WPF.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.5.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.1.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -241,29 +241,6 @@ namespace Wale.WPF.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute(@"<?xml version=""1.0"" encoding=""utf-16""?>
-<ArrayOfString xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
-  <string>audacity</string>
-  <string>obs64</string>
-  <string>Studio One</string>
-  <string>shotcut</string>
-  <string>Resolve</string>
-  <string>Cakewalk</string>
-  <string>amddvr</string>
-  <string>ShellExperienceHost</string>
-  <string>Windows Shell Experience Host</string>
-</ArrayOfString>")]
-        public global::System.Collections.Specialized.StringCollection ExcList {
-            get {
-                return ((global::System.Collections.Specialized.StringCollection)(this["ExcList"]));
-            }
-            set {
-                this["ExcList"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool CombineSession {
             get {
@@ -367,6 +344,29 @@ namespace Wale.WPF.Properties {
             }
             set {
                 this["AutoExcludeOnManualSet"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"<?xml version=""1.0"" encoding=""utf-16""?>
+<ArrayOfString xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"">
+  <string>audacity</string>
+  <string>obs64</string>
+  <string>Studio One</string>
+  <string>shotcut</string>
+  <string>Resolve</string>
+  <string>Cakewalk</string>
+  <string>amddvr</string>
+  <string>ShellExperienceHost</string>
+  <string>Windows Shell Experience Host</string>
+</ArrayOfString>")]
+        public global::System.Collections.Specialized.StringCollection ExcList {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["ExcList"]));
+            }
+            set {
+                this["ExcList"] = value;
             }
         }
     }

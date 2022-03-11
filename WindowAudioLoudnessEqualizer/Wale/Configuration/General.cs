@@ -237,6 +237,8 @@ namespace Wale.Configuration
             bool res = JPack.JsonSaveManager.TryRead(out General old, WorkingPath, ConfFileName);
             //System.Diagnostics.Debug.WriteLine($"read config {res}");
             if (!res) { JPack.FileLog.Log("Failure to read config"); return; }
+            //old.ExcList.ForEach(x => System.Diagnostics.Debug.WriteLine(x));
+            //try { old.ExcList = old.ExcList.Distinct().ToList(); } catch { }
             Update(old);
             JPack.FileLog.Log("Succeed to read config");
         }
@@ -247,7 +249,10 @@ namespace Wale.Configuration
                 if (!Attribute.IsDefined(pi, typeof(Newtonsoft.Json.JsonIgnoreAttribute)))
                 {
                     System.Reflection.PropertyInfo opi = old.GetType().GetProperty(pi.Name);
-                    if (opi != null && opi.GetValue(old) != null) pi.SetValue(this, opi.GetValue(old));
+                    //System.Diagnostics.Debug.WriteLine($"{opi.GetValue(old).GetType()} {typeof(List<string>)}");
+                    var buffer = opi.GetValue(old);
+                    if (buffer.GetType() == typeof(List<string>)) buffer = (buffer as List<string>).Distinct().ToList();
+                    if (opi != null && buffer != null) pi.SetValue(this, buffer);
                 }
             }
             //AutoControl = old.AutoControl;

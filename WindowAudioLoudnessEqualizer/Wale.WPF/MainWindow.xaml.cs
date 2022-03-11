@@ -312,11 +312,11 @@ namespace Wale.WPF
         private void StartAudio(bool restart = false)
         {
             // start audio controller
-            Audio = new AudioControl(ref settings) { UpRate = settings.UpRate };
+            Audio = new AudioControl(ref settings);
             while (Audio.MasterVolume == -1)
             {
                 Audio.Dispose();
-                Audio = new AudioControl(ref settings) { UpRate = settings.UpRate };
+                Audio = new AudioControl(ref settings);
             }
             Audio.RestartRequested += Audio_RestartRequested;
             Audio.SessionAdded += Audio_SessionAdded;
@@ -998,7 +998,7 @@ namespace Wale.WPF
             {
                 //Transformation.SetBaseLevel(settings.TargetLevel);
                 //Audio.SetBaseTo(settings.TargetLevel);
-                Audio.UpRate = settings.UpRate;
+                //Audio.UpRate = settings.UpRate;
             }
             form.Closed -= Config_FormClosed;
         }

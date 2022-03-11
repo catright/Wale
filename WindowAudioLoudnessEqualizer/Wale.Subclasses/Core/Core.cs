@@ -151,6 +151,7 @@ namespace Wale.CoreAudio
         public void Restart()
         {
             Restarting = true;
+            //RestartRequest();
             lock (sessionLocker)
             {
                 Sessions?.ForEach(s => s?.Dispose());
@@ -412,6 +413,7 @@ namespace Wale.CoreAudio
             List<string> ResetKeys = new List<string> { "AudioEndpointPath", "AudioEngineDeviceFormat", "DeviceInterfaceClassGuid", "DeviceInterfaceEnabled" };
 
             if (ResetKeys.Contains(key))
+            //if (true)
             {
                 if (e.TryGetDevice(out MMDevice mmd))
                 {
@@ -423,10 +425,13 @@ namespace Wale.CoreAudio
 
                 // Request to restart wale if detected device is current device.
                 if (e.DeviceId == DefDevice.DeviceID) {
-                    Log($"Restart Contoller. Reason: {mmd.FriendlyName}[{e.DeviceId}] {key}");
+                    Log($"Restart Contoller. Reason: {mmd?.FriendlyName}[{e.DeviceId}] {key}");
                     //RestartRequest();
+                    System.Threading.Thread.Sleep(100);
                     Restart();
                 }
+                //System.Threading.Thread.Sleep(100);
+                //Restart();
             }
             //UpdateDevice();
         }
@@ -1027,6 +1032,7 @@ namespace Wale.CoreAudio
                 lock (sessionLocker)
                 {
                     session.SetAvTime(AVTime, ACInterval);
+                    //session.SetAvTimeAR(1000, 100, AVTime, 100, ACInterval);
                 }
             }
             catch (Exception e) { JPack.FileLog.Log($"Error(SetSessionAvData): {e.ToString()}"); }

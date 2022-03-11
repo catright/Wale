@@ -39,6 +39,7 @@ namespace Wale.CoreAudio
                 AutoIncluded = true;
             }
             SetAvTime(AvgTime, AcInterval);
+            //SetAvTimeAR(1000, 100, AvgTime, 100, AcInterval);
         }
 
         #region API Default Datas
@@ -107,7 +108,7 @@ namespace Wale.CoreAudio
             {
                 try
                 {
-                    return processName ?? (processName = asc2?.Process.ProcessName);
+                    return processName ?? (processName = asc2?.Process?.ProcessName);
                 }
                 catch { return string.Empty; }
             }
@@ -115,7 +116,7 @@ namespace Wale.CoreAudio
         // we can not update main title if we using a cache.
         private string mainWindowTitle;
         // Force update main window title when needed. 
-        public void ForceGetMainTitle() { try { mainWindowTitle = asc2?.Process.MainWindowTitle; } catch { } }
+        public void ForceGetMainTitle() { try { mainWindowTitle = asc2?.Process?.MainWindowTitle; } catch { } }
         /// <summary>
         /// Take VERY LONG TIME when read this property. Because you will access process object when you use this.
         /// </summary>
@@ -125,7 +126,7 @@ namespace Wale.CoreAudio
             {
                 try
                 {
-                    return mainWindowTitle ?? (mainWindowTitle = asc2?.Process.MainWindowTitle);
+                    return mainWindowTitle ?? (mainWindowTitle = asc2?.Process?.MainWindowTitle);
                     //return asc2?.Process.MainWindowTitle;
                 }
                 catch { return string.Empty; }
@@ -137,14 +138,16 @@ namespace Wale.CoreAudio
         {
             get
             {
-                string path = asc2?.IconPath;
+                string path = string.Empty;
+                try { path = asc2?.IconPath; }
+                catch (Exception e) { JPack.FileLog.Log($"PID({ProcessID}):FAILED to get iconPath from session control\n{e.Message}"); }
                 if (string.IsNullOrWhiteSpace(path))
                 {
                     Console.WriteLine($"PID({ProcessID}):there is no icon information. try to get it from process");
                     JPack.FileLog.Log($"PID({ProcessID}):there is no icon information. try to get it from process");
                     try
                     {
-                        if (asc2?.Process.MainModule != null) path = asc2?.Process.MainModule.FileName;
+                        if (asc2?.Process?.MainModule != null) path = asc2?.Process?.MainModule.FileName;
                     }
                     catch
                     {
@@ -165,35 +168,41 @@ namespace Wale.CoreAudio
         /// </summary>
         public float Volume
         {
-            get { using (var v = asc2?.QueryInterface<CSCore.CoreAudioAPI.SimpleAudioVolume>()) { try { return v.MasterVolume; } catch { return -1; } } }
-            set { using (var v = asc2?.QueryInterface<CSCore.CoreAudioAPI.SimpleAudioVolume>()) { try { v.MasterVolume = (value > 1 ? 1 : (value < 0 ? 0 : value)); } catch { } } }
+            get { try { using (var v = asc2?.QueryInterface<CSCore.CoreAudioAPI.SimpleAudioVolume>()) { return v.MasterVolume; } } catch { return -1; } }
+            set { try { using (var v = asc2?.QueryInterface<CSCore.CoreAudioAPI.SimpleAudioVolume>()) { v.MasterVolume = (value > 1 ? 1 : (value < 0 ? 0 : value)); } } catch { } }
         }
         public float Peak
         {
             get
             {
-                using (var p = asc2?.QueryInterface<CSCore.CoreAudioAPI.AudioMeterInformation>())
+                try
                 {
-                    try
+                    using (var p = asc2?.QueryInterface<CSCore.CoreAudioAPI.AudioMeterInformation>())
                     {
                         //return p.GetMeteringChannelCount() > 1 ? p.GetChannelsPeakValues().Average() : p.PeakValue;
                         return p.PeakValue;
                     }
-                    catch { return -1; }
                 }
+                catch { return -1; }
             }
         }
         private bool _SoundEnabled;
         public bool SoundEnabled
         {
-            get { using (var v = asc2?.QueryInterface<CSCore.CoreAudioAPI.SimpleAudioVolume>()) { try { _SoundEnabled = !v.IsMuted; } catch { _SoundEnabled = false; } } return _SoundEnabled; }
-            set { using (var v = asc2?.QueryInterface<CSCore.CoreAudioAPI.SimpleAudioVolume>()) {
-                    bool buffer = !value;
-                    try { v.IsMuted = buffer;
+            get { try { using (var v = asc2?.QueryInterface<CSCore.CoreAudioAPI.SimpleAudioVolume>()) { _SoundEnabled = !v.IsMuted; } } catch { _SoundEnabled = false; } return _SoundEnabled; }
+            set
+            {
+                bool buffer = !value;
+                try
+                {
+                    using (var v = asc2?.QueryInterface<CSCore.CoreAudioAPI.SimpleAudioVolume>())
+                    {
+                        v.IsMuted = buffer;
                         //if (v.IsMuted) { LastIncluded = AutoIncluded; AutoIncluded = false; } else { AutoIncluded = LastIncluded; }
-                    } catch { return; }
-                    _SoundEnabled = buffer;
+                    }
                 }
+                catch { return; }
+                _SoundEnabled = buffer;
             }
         }
         #endregion
@@ -242,51 +251,137 @@ namespace Wale.CoreAudio
         public double AveragePeak { get; private set; }
         private uint AvCount = 0, ChunkSize = 5;
         private List<double> Peaks = new List<double>();
-        private List<double> AvBuffer = new List<double>();
+        private List<double> PeaksBuffer = new List<double>();
+        public double AveragePeakAttack { get; private set; }
+        public double AveragePeakRelease { get; private set; }
+        private uint AttackCount = 0, AttackChunk = 5, ReleaseCount = 0, ReleaseChunk = 5;
+        private List<double> PeaksAttack = new List<double>(), PeaksAttackBuffer = new List<double>();
+        private List<double> PeaksRelease = new List<double>(), PeaksReleaseBuffer = new List<double>();
 
         /// <summary>
         /// Set stacking time for average calculation.
         /// </summary>
-        /// <param name="averagingTime">Total stacking time.[ms](=AvTime)</param>
+        /// <param name="averageTime">Total stacking time.[ms](=AvTime)</param>
         /// <param name="unitTime">Passing time when calculate the average once.[ms]</param>
-        public void SetAvTime(double averagingTime, double unitTime, int chunkSize = 5)
+        public void SetAvTime(double averageTime, double unitTime, double chunkTime = 100)
         {
-            ChunkSize = chunkSize > 0 ? (uint)chunkSize : 0;
-            AvCount = (uint)Convert.ToUInt32((averagingTime / unitTime) / chunkSize);
+            if (averageTime < 0) { throw new Exception("Invalid averageTime"); }
+            if (unitTime < 0) { throw new Exception("Invalid unitTime"); }
+            if (chunkTime < 0) { throw new Exception("Invalid chunkTime"); }
+            //if (chunkTime < unitTime) { throw new Exception("chunkTime is smaller than unitTime"); }
+
+            ChunkSize = Chunk(chunkTime, unitTime);
+            AvCount = Count(averageTime, unitTime, ChunkSize);
             //Console.WriteLine($"Average Time Updated Cnt:{AvCount}");
             //JPack.FileLog.Log($"Average Time Updated Cnt:{AvCount}");
             ResetAverage();
         }
         /// <summary>
+        /// Set stacking time for average calculation.
+        /// </summary>
+        /// <param name="attackTime">Total stacking time for attack.[ms]</param>
+        /// <param name="releaseTime">Total stacking time for release.[ms]</param>
+        /// <param name="unitTime">Passing time when calculate the average once.[ms]</param>
+        public void SetAvTimeAR(double attackTime, double atChunkTime, double releaseTime, double relChunkTime, double unitTime)
+        {
+            if (attackTime < 0) { throw new Exception("Invalid attackTime"); }
+            if (releaseTime < 0) { throw new Exception("Invalid releaseTime"); }
+            if (unitTime < 0) { throw new Exception("Invalid unitTime"); }
+
+            AttackChunk = Chunk(atChunkTime, unitTime);
+            ReleaseChunk = Chunk(relChunkTime, unitTime);
+
+            AttackCount = Count(attackTime, unitTime, AttackChunk);
+            ReleaseCount = Count(releaseTime, unitTime, ReleaseChunk);
+
+            ResetAverage();
+        }
+        private uint Chunk(double chunkTime, double unitTime)
+        {
+            int chunk = Convert.ToInt32(chunkTime / unitTime);
+            return (chunk > 1 ? (uint)chunk : 1);
+        }
+        private uint Count(double countTime, double unitTime, uint chunkSize)
+        {
+            return Convert.ToUInt32((countTime / unitTime) / Convert.ToDouble(chunkSize));
+        }
+
+        /// <summary>
         /// Clear all stacked peak values and set average to 0.
         /// </summary>
-        public void ResetAverage() { Peaks.Clear(); AvBuffer.Clear(); AveragePeak = 0; }// JPack.FileLog.Log("Average Reset"); }//Console.WriteLine("Average Reset");
+        public void ResetAverage()
+        {
+            AveragePeak = 0; Peaks.Clear(); PeaksBuffer.Clear();
+            // JPack.FileLog.Log("Average Reset"); }//Console.WriteLine("Average Reset");
+            AveragePeakAttack = 0; PeaksAttack.Clear(); PeaksAttackBuffer.Clear();
+            AveragePeakRelease = 0; PeaksRelease.Clear(); PeaksReleaseBuffer.Clear();
+        }
         /// <summary>
         /// Add new peak value to peaks container and re-calculate AveragePeak value.
         /// </summary>
         /// <param name="peak"></param>
-        public void SetAverage(double peak)
+        //public void SetAverage(double peak) => Average_AR(peak);
+        //public void SetAverage(double peak, double sigma = 4) => Average_Sigma(peak, sigma);
+        public void SetAverage(double peak) => Average_Chunk(peak);
+
+        private void Average_AR(double peak)
         {
-            if (Peaks.Count >= ChunkSize)
+            PeaksAttackBuffer.Add(peak);
+            if (PeaksAttackBuffer.Count > AttackChunk)
             {
-                if (AvBuffer.Count() > AvCount) AvBuffer.RemoveAt(0);
-                AvBuffer.Add(Peaks.Average());
-                Peaks.Clear();
-                AveragePeak = AvBuffer.Average();
+                PeaksAttack.AddRange(PeaksAttackBuffer);
+                PeaksAttackBuffer.Clear();
+                AveragePeakAttack = PeaksAttack.Average();
             }
-            Peaks.Add(peak);
+            PeaksReleaseBuffer.Add(peak);
+            if (PeaksReleaseBuffer.Count > ReleaseChunk)
+            {
+                PeaksRelease.AddRange(PeaksReleaseBuffer);
+                PeaksReleaseBuffer.Clear();
+                AveragePeakRelease = PeaksRelease.Average();
+            }
+        }
+        private double low, high;
+        private void Average_Sigma(double peak, double sigma)
+        {
+            if (sigma < 1) sigma = 1;
+            //Peaks.Add(peak);
+            //if (Peaks.Count > AvCount) Peaks.RemoveAt(0);
+            if (AveragePeak == 0) PeaksBuffer.Add(peak);
+            else
+            {
+                if (peak >= low && peak <= high) PeaksBuffer.Add(peak);
+            }
+            if (PeaksBuffer.Count > ChunkSize) {
+                Peaks.AddRange(PeaksBuffer);
+                PeaksBuffer.Clear();
+                AveragePeak = Peaks.Average();
+                low = AveragePeak / sigma;
+                high = AveragePeak * sigma;
+            }
+        }
+        private void Average_Chunk(double peak)
+        {
+            if (PeaksBuffer.Count >= ChunkSize)
+            {
+                if (Peaks.Count() > AvCount) Peaks.RemoveAt(0);
+                Peaks.Add(PeaksBuffer.Average());
+                PeaksBuffer.Clear();
+                AveragePeak = Peaks.Average();
+            }
+            PeaksBuffer.Add(peak);
             //Console.WriteLine($"Av={AveragePeak}, PC={Peaks.Count}, AvT={AvTime}");
         }
         public void SetAverage2()
         {
-            if (Peaks.Count >= ChunkSize)
+            if (PeaksBuffer.Count >= ChunkSize)
             {
-                if (AvBuffer.Count() > AvCount) AvBuffer.RemoveAt(0);
-                AvBuffer.Add(Peaks.Average());
-                Peaks.Clear();
-                AveragePeak = AvBuffer.Average();
+                if (Peaks.Count() > AvCount) Peaks.RemoveAt(0);
+                Peaks.Add(PeaksBuffer.Average());
+                PeaksBuffer.Clear();
+                AveragePeak = Peaks.Average();
             }
-            else Peaks.Add(Peak);
+            else PeaksBuffer.Add(Peak);
             //Console.WriteLine($"Av={AveragePeak}, PC={Peaks.Count}, AvT={AvTime}");
         }
         #endregion
@@ -430,7 +525,7 @@ namespace Wale.CoreAudio
 
                 // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
                 // TODO: set large fields to null.
-
+                asc2?.Dispose();
                 disposedValue = true;
             }
         }

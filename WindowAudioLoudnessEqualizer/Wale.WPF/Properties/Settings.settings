@@ -56,20 +56,6 @@
     <Setting Name="ProcessPriority" Type="System.String" Scope="User">
       <Value Profile="(Default)">High</Value>
     </Setting>
-    <Setting Name="ExcList" Type="System.Collections.Specialized.StringCollection" Scope="User">
-      <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
-&lt;ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
-  &lt;string&gt;audacity&lt;/string&gt;
-  &lt;string&gt;obs64&lt;/string&gt;
-  &lt;string&gt;Studio One&lt;/string&gt;
-  &lt;string&gt;shotcut&lt;/string&gt;
-  &lt;string&gt;Resolve&lt;/string&gt;
-  &lt;string&gt;Cakewalk&lt;/string&gt;
-  &lt;string&gt;amddvr&lt;/string&gt;
-  &lt;string&gt;ShellExperienceHost&lt;/string&gt;
-  &lt;string&gt;Windows Shell Experience Host&lt;/string&gt;
-&lt;/ArrayOfString&gt;</Value>
-    </Setting>
     <Setting Name="CombineSession" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
@@ -96,6 +82,20 @@
     </Setting>
     <Setting Name="AutoExcludeOnManualSet" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="ExcList" Type="System.Collections.Specialized.StringCollection" Scope="User">
+      <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
+&lt;ArrayOfString xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"&gt;
+  &lt;string&gt;audacity&lt;/string&gt;
+  &lt;string&gt;obs64&lt;/string&gt;
+  &lt;string&gt;Studio One&lt;/string&gt;
+  &lt;string&gt;shotcut&lt;/string&gt;
+  &lt;string&gt;Resolve&lt;/string&gt;
+  &lt;string&gt;Cakewalk&lt;/string&gt;
+  &lt;string&gt;amddvr&lt;/string&gt;
+  &lt;string&gt;ShellExperienceHost&lt;/string&gt;
+  &lt;string&gt;Windows Shell Experience Host&lt;/string&gt;
+&lt;/ArrayOfString&gt;</Value>
     </Setting>
   </Settings>
 </SettingsFile>

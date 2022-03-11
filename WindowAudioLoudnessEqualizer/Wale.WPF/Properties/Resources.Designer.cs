@@ -19,7 +19,7 @@ namespace Wale.WPF.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class Resources {
@@ -121,7 +121,7 @@ namespace Wale.WPF.Properties {
         ///
         ///MIT License
         ///
-        ///Copyright (c) 2017-2019 Jongtae, Park (catright)
+        ///Copyright (c) 2017-2022 Jongtae, Park (catright)
         ///
         ///Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &quot;Software&quot;), to deal in the Software without restriction, including  [rest of string was truncated]&quot;;.
         /// </summary>

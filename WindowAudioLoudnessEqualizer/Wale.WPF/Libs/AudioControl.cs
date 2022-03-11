@@ -43,8 +43,10 @@ namespace Wale
                 else return 0;
             }
         }
-        public double UpRate { get => upRate; set { upRate = (value * settings.AutoControlInterval / 1000); } }
-        public double Kurtosis { get => kurtosis; set => kurtosis = value; }
+        private double URratio => settings.AutoControlInterval / 1000;
+        public double UpRate { get => settings?.UpRate * URratio ?? 1.0 * URratio; }
+        //public double UpRate { get => settings?.UpRate * URratio ?? 1.0 * URratio; set { if (settings != null) settings.UpRate = value / URratio; } }
+        public double Kurtosis { get => settings?.Kurtosis ?? 1.0; set { if (settings != null) settings.Kurtosis = value; } }
         public VFunction.Func VFunc { get => _VFunc; set => _VFunc = value; }
         #endregion
 
@@ -163,6 +165,7 @@ namespace Wale
                 //double cutLv = settings.TargetLevel + (settings.TargetLevel * settings.LimitLevel);
                 if (s.State != SessionState.Active) { return; }//Check session activity
                 tVol = Volume(peak, s.AveragePeak, volume);
+                //tVol = VolAR(peak, s.AveragePeakAttack, s.AveragePeakRelease, volume);
 
                 // calc upLimit by vfunc, deprecated
                 switch (VFunc)
@@ -174,13 +177,13 @@ namespace Wale
                         UpLimit = VFunction.SlicedLinear(volume, UpRate, settings.TargetLevel, sliceFactors.A, sliceFactors.B) + volume;
                         break;
                     case VFunction.Func.Reciprocal:
-                        UpLimit = VFunction.Reciprocal(volume, UpRate, kurtosis) + volume;
+                        UpLimit = VFunction.Reciprocal(volume, UpRate, Kurtosis) + volume;
                         break;
                     case VFunction.Func.FixedReciprocal:
-                        UpLimit = VFunction.FixedReciprocal(volume, UpRate, kurtosis) + volume;
+                        UpLimit = VFunction.FixedReciprocal(volume, UpRate, Kurtosis) + volume;
                         break;
                     default:
-                        UpLimit = upRate + volume;
+                        UpLimit = UpRate + volume;
                         break;
                 }
 
@@ -192,6 +195,11 @@ namespace Wale
                 s.Volume = fVol;
             }
             DP.DML(dm.ToString());// print debug message
+        }
+        private double VolAR(double peak, double attack, double release, double volume)
+        {
+            if (settings.Averaging) return VolumeAR(peak, attack, release, volume);
+            else return Volume2(peak, volume, settings.CompRate);
         }
         private double Volume(double peak, double average, double volume)
         {
@@ -215,6 +223,13 @@ namespace Wale
             //if (rate < 1) rate = 1;
             //double tVol = settings.TargetLevel * (1 / (((settings.TargetLevel - peak) / rate) + peak));
             double tVol = settings.TargetLevel / Math.Pow(peak, rate);
+            if (tVol * peak > settings.LimitLevel) tVol = settings.LimitLevel / peak;
+            return tVol;
+        }
+        private double VolumeAR(double peak, double attack, double release, double volume)
+        {
+            double tVol = settings.TargetLevel / attack;
+            if (tVol > volume) tVol = settings.TargetLevel / release;
             if (tVol * peak > settings.LimitLevel) tVol = settings.LimitLevel / peak;
             return tVol;
         }
@@ -396,7 +411,7 @@ namespace Wale
         //private bool _AccuTimer = false;
         //protected bool AccuTimer { get { lock (AccuTimerlock) { return _AccuTimer; } } set { lock (AccuTimerlock) { _AccuTimer = value; } } }
         protected System.Threading.CancellationTokenSource AccuTimerCTS;
-        protected double upRate = 0.02, kurtosis = 0.5;
+        //protected double upRate = 0.02, kurtosis = 0.5;
         protected VFunction.Func _VFunc;
         protected VFunction.FactorsForSlicedLinear sliceFactors;
         protected List<Task> ControlTasks = new List<Task>();//audioControlTask, controllerCleanTask;
