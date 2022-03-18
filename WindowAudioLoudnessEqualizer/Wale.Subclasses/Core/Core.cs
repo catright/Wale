@@ -32,15 +32,27 @@ namespace Wale.CoreAudio
                 if (disposeSafe)
                 {
                     // TODO: dispose managed state (managed objects).
-                    MasterEPVolume.Dispose();
-                    MasterEPPeak.Dispose();
-                    MMDE.Dispose();
-                    DefDevice.Dispose();
-
                     sessionList = null;
-                    ASM.Dispose();
-                    ASClist.Clear();
-                    ASClist = null;
+                    try { ASClist?.Clear(); }
+                    finally { ASClist = null; }
+                    try
+                    {
+                        ASM?.Dispose();
+
+                        MasterEPVolume?.Dispose();
+                        MasterEPPeak?.Dispose();
+                        DefDevice?.Dispose();
+                        MMDE?.Dispose();
+                    }
+                    catch (CoreAudioAPIException e) { Log($"{e.ErrorCode}, {e.Member}:{e.Data}"); }
+                    finally
+                    {
+                        ASM = null;
+                        MasterEPVolume = null;
+                        MasterEPPeak = null;
+                        DefDevice = null;
+                        MMDE = null;
+                    }
                 }
                 //if (defaultDevice != null) Marshal.ReleaseComObject(defaultDevice);
                 // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
@@ -148,14 +160,16 @@ namespace Wale.CoreAudio
         }
         public bool Restarting { get; private set; } = false;
         public bool Restarted { get; set; } = false;
-        public void Restart()
+        public void Restart(object reason) { lock (restartLock) { if (!_restarting) { Log($"Restart Contoller. Reason: {reason}"); RestartRequest(); _restarting = true; } } }
+        public void RestartLocal()
         {
             Restarting = true;
             //RestartRequest();
             lock (sessionLocker)
             {
-                Sessions?.ForEach(s => s?.Dispose());
-                Sessions?.Clear();
+                //Sessions?.ForEach(s => s?.Dispose());
+                //Sessions?.Clear();
+                Sessions?.DisposeAll();
 
                 //Log("Restart core: Session cleared");
                 MasterEPPeak = null;
@@ -277,7 +291,8 @@ namespace Wale.CoreAudio
         #region Private Common Variables
         private Wale.Configuration.General settings;
         private bool _debug = false;
-        private object sessionLocker = new object();
+        private object sessionLocker = new object(), restartLock = new object();
+        private volatile bool _restarting = false;
         #endregion
 
         #region Private Common Methods
@@ -374,7 +389,8 @@ namespace Wale.CoreAudio
 
         //Master Device Items
         MMDeviceEnumerator MMDE { get; set; }
-        string DeviceId = null;
+        //string DeviceId = null;
+        string DeviceId => DefDevice?.DeviceID;
         private void GetAudio()
         {
             MMDE = new CSCore.CoreAudioAPI.MMDeviceEnumerator();
@@ -387,24 +403,25 @@ namespace Wale.CoreAudio
         }
         private void MMDE_DeviceRemoved(object sender, DeviceNotificationEventArgs e)
         {
-            Log($"Audio Device is removed. {e.DeviceId}");
+            //Log($"Audio Device is removed. {e.DeviceId}");
+            if (DeviceId == e.DeviceId) Restart($"MMDE_DeviceRemoved [{e.DeviceId}]");
         }
         private void MMDE_DeviceAdded(object sender, DeviceNotificationEventArgs e)
         {
-            Log($"Audio Device is added. {e.DeviceId}");
+            //Log($"Audio Device is added. {e.DeviceId}");
         }
         private void MMDE_DeviceStateChanged(object sender, DeviceStateChangedEventArgs e)
         {
-            Log($"Audio Device State is changed to {e.DeviceState}. {e.DeviceId}");
-            if (DeviceId == e.DeviceId) Restart();
+            //Log($"Audio Device State is changed to {e.DeviceState}. {e.DeviceId}");
+            if (DeviceId == e.DeviceId) Restart($"MMDE_DeviceStateChanged {e.DeviceState} [{e.DeviceId}]");
         }
         private void MMDE_DefaultDeviceChanged(object sender, DefaultDeviceChangedEventArgs e)
         {
-            Log($"Default {e.Role} Audio {e.DataFlow} Device is changed. {e.DeviceId}");
+            //Log($"Default {e.Role} Audio {e.DataFlow} Device is changed. {e.DeviceId}");
             //if ((e.DataFlow == DataFlow.Render || e.DataFlow == DataFlow.All) && e.Role == Role.Multimedia)
             //{
             //GetDefaultDevice(true);
-            Restart();
+            Restart($"MMDE_DefaultDeviceChanged {e.Role} Audio {e.DataFlow} Device [{e.DeviceId}]");
             //}
         }
         private void MMDE_DevicePropertyChanged(object sender, DevicePropertyChangedEventArgs e)
@@ -418,19 +435,19 @@ namespace Wale.CoreAudio
                 if (e.TryGetDevice(out MMDevice mmd))
                 {
                     //Log($"Audio Device Property is changed {mmd.FriendlyName} {GetKey(mmd.PropertyStore.First(k => k.Key.ID == e.PropertyKey.ID).Key)}");
-                    Log($"Audio Device Property is changed {mmd.FriendlyName}[{e.DeviceId}] {key}");
+                    //Log($"Audio Device Property is changed {mmd.FriendlyName}[{e.DeviceId}] {key}");
                     DeviceName = mmd.FriendlyName;
                 }
-                else Log($"Audio Device Property [{key}] is changed. {e.DeviceId}");
+                //else Log($"Audio Device Property [{key}] is changed. [{e.DeviceId}]");
 
                 // Request to restart wale if detected device is current device.
-                if (e.DeviceId == DefDevice.DeviceID) {
-                    Log($"Restart Contoller. Reason: {mmd?.FriendlyName}[{e.DeviceId}] {key}");
+                if (e.DeviceId == DefDevice?.DeviceID) {
+                    //Log($"Restart Contoller. Reason: {mmd?.FriendlyName}[{e.DeviceId}] {key}");
                     //RestartRequest();
-                    System.Threading.Thread.Sleep(100);
-                    Restart();
+                    //System.Threading.Thread.Sleep(50);
+                    Restart($"MMDE_DevicePropertyChanged {key} {mmd?.FriendlyName}[{e.DeviceId}]");
                 }
-                //System.Threading.Thread.Sleep(100);
+                //System.Threading.Thread.Sleep(50);
                 //Restart();
             }
             //UpdateDevice();
@@ -463,7 +480,7 @@ namespace Wale.CoreAudio
                     //mmn.DefaultDeviceChanged += MMDE_DefaultDeviceChanged;
                     //mmn.DeviceStateChanged += MMDE_DeviceStateChanged;
                     NoDevice = false;
-                    DeviceId = DefDevice.DeviceID;
+                    //DeviceId = DefDevice.DeviceID;
                 }
                 //}
                 Log($"Current Default Device is {DeviceName}[{DefDevice.DeviceID}]");
@@ -708,11 +725,12 @@ namespace Wale.CoreAudio
         }
         private void Asn_StateChanged(object sender, AudioSessionStateChangedEventArgs e)
         {
-            Console.WriteLine("Session State change raised");
+            System.Diagnostics.Debug.WriteLine("Session State change raised");
             if (e.NewState == AudioSessionState.AudioSessionStateExpired)
             {
-                //Console.WriteLine($"{sender.GetType()}");
-                //Console.WriteLine($"Session ExpiredE {(sender as Session).PID}");
+                System.Diagnostics.Debug.WriteLine("Session Expired");
+                //System.Diagnostics.Debug.WriteLine($"{sender.GetType()}");
+                //System.Diagnostics.Debug.WriteLine($"Session ExpiredE {(sender as Session).PID}");
                 //Sessions.RemoveAt(Sessions.FindIndex(s => s.PID == (sender as AudioSessionControl2).ProcessID));
                 //Sessions.Remove(sender as Session);
             }

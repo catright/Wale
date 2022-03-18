@@ -521,11 +521,13 @@ namespace Wale.CoreAudio
                 {
                     // TODO: dispose managed state (managed objects).
                     if (AutoControlEnabled) AutoControlDisable();
+                    try { asc2?.Dispose(); }
+                    catch (CSCore.CoreAudioAPI.CoreAudioAPIException e) { JPack.FileLog.Log($"Session Dispose Error({e.ErrorCode}): {e.Member}, {e.Data}"); }
+                    finally { asc2 = null; }
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
                 // TODO: set large fields to null.
-                asc2?.Dispose();
                 disposedValue = true;
             }
         }
@@ -554,8 +556,9 @@ namespace Wale.CoreAudio
     /// </summary>
     public class SessionList : List<Session>
     {
-        public SessionList() { this.Clear(); }
+        public SessionList() { Clear(); }
         public void DisposedCheck() { int i = this.RemoveAll(s => s.Disposed == true); }
+        public void DisposeAll() { this.ForEach(s => s.Dispose()); Clear(); }
 
         /// <summary>
         /// Find session by its process id.

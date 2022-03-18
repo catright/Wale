@@ -331,7 +331,7 @@ namespace Wale.WPF
             UpdateTasks.Add(new Task(UpdateSessionTask));
             UpdateTasks.ForEach(t => t.Start());
 
-            RestartQueued = false;
+            //_Restarting = false;
             Log("OK2");
         }
 
@@ -339,25 +339,48 @@ namespace Wale.WPF
         {
             DP.DMML("Restart Audio");
             FinishApp = true;
-            Audio.RestartRequested -= Audio_RestartRequested;
+            //Audio.RestartRequested -= Audio_RestartRequested;
             if (UpdateTasks != null && UpdateTasks.Count > 0) { await Task.WhenAll(UpdateTasks); UpdateTasks.Clear(); }
             UpdateTasks = null;
 
             //while (Audio != null) { Audio?.Dispose(); await Task.Delay(100); }
-            Audio?.Dispose();
-            while (Audio != null && !Audio.Disposed) { await Task.Delay(100); }
-            Audio = null;
+            try
+            {
+                Audio?.Dispose();
+                while (Audio != null && !Audio.Disposed) { await Task.Delay(50); }
+            }
+            catch (Exception e) { Log($"{e.Message}"); }
+            finally { Audio = null; }
 
-            await Task.Delay(200);
-            GC.GetTotalMemory(true);
-            await Task.Delay(200);
+            Dispatcher?.Invoke(() => SessionPanel.Children.Clear());
+
+            //await Task.Delay(15);
+            //try { GC.GetTotalMemory(true); } catch(Exception e) { Log(e.Message); }
+            await Task.Delay(15);
 
             FinishApp = false;
             StartAudio(true);
+            _Restarting = false;
         }
-        private volatile bool RestartQueued = false;
-        private void Audio_RestartRequested(object sender, EventArgs e) { if (!RestartQueued) { RestartQueue(); } }
-        private void RestartQueue() { Log("Restart Requested, restart may need to few seconds."); RestartQueued = true; /*await Task.Delay(100);*/ RestartAudio(); }
+        private object _RestartingLock = new object();
+        private volatile bool _Restarting = false;
+        //private bool Restarting { get { lock (_RestartingLock) { return _Restarting; } } set { lock (_RestartingLock) { _Restarting = value; } } }
+        private void Audio_RestartRequested(object sender, EventArgs e)
+        {
+            lock (_RestartingLock)
+            {
+                if (!_Restarting)
+                {
+                    Log("Restart Requested, restart may need to few seconds.");
+                    _Restarting = true;
+                    /*await Task.Delay(100);*/
+                    RestartAudio();
+                }
+            }
+            //if (!RestartQueued) { RestartQueue(); }
+        }
+        //private void RestartQueue() { Log("Restart Requested, restart may need to few seconds."); RestartQueued = true; /*await Task.Delay(100);*/ RestartAudio(); }
+
         /// <summary>
         /// Initialization when window is poped up. Read all setting values, store all values as original, draw all graphs.
         /// </summary>
@@ -960,7 +983,7 @@ namespace Wale.WPF
             );
             if (dialogResult == MessageBoxResult.OK)
             {
-                RestartQueued = true;
+                //_Restarting = true;
                 SaveSessionConfigToFile();
                 RestartApp();
             }

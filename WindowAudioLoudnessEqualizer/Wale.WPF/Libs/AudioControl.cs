@@ -285,6 +285,7 @@ namespace Wale
                                 aas.Add(new Task(() => JPack.FileLog.Log($"Auto control task passed for {logCritical} times.")));
                                 logCounter = 0;
                             }
+                            //if (Terminate) { JPack.FileLog.Log("Audio Control Task End"); return; }
                             aas.ForEach(t => t.Start());
                         }
                     }
@@ -304,6 +305,7 @@ namespace Wale
                 //Console.WriteLine($"ACTaskElapsed={sw.ElapsedMilliseconds}(-{d.Ticks / 10000:n3})[ms]");
                 if (acDev) elapsed.Add(el.TotalMilliseconds);//(double)el.Ticks / 10000
                                                              //if (d.Ticks > 0) { System.Threading.Thread.Sleep(d); }
+                //if (Terminate) { JPack.FileLog.Log("Audio Control Task End"); return; }
                 try
                 {
                     await (waitTask == null ? Task.CompletedTask : waitTask);
@@ -368,8 +370,18 @@ namespace Wale
                     catch (InvalidOperationException e) { JPack.FileLog.Log($"Error(ControllerCleanTask): Session collection was modified.\r\n\t{e.ToString()}"); }
                 }
 
-                await Task.Delay(new TimeSpan((long)(settings.GCInterval * 10000)));
+                int remain = (int)new TimeSpan((long)(settings.GCInterval * 10000)).TotalMilliseconds;
+                int waitone = (int)new TimeSpan(0, 0, 1).TotalMilliseconds;
+                while (remain > 0)
+                {
+                    int wait = Math.Min(remain - waitone, waitone);
+                    if (wait == 0) break;
+                    remain -= wait;
+                    if (Terminate) { JPack.FileLog.Log("Controller Clean Task(GC) End"); return; }
+                    await Task.Delay(wait);
+                }
 
+                //if (Terminate) { JPack.FileLog.Log("Controller Clean Task(GC) End"); return; }
                 if (settings.AutoControl)
                 {
                     await Task.WhenAll(aas);
@@ -441,13 +453,15 @@ namespace Wale
                     //if (audioControlTask != null) await audioControlTask;
                     //if (controllerCleanTask != null) await controllerCleanTask;
 
-                    ControlTasks.ForEach(i => i?.Dispose());
+                    //ControlTasks.ForEach(i => i?.Dispose());
                     //audioControlTask.Dispose();
                     //controllerCleanTask.Dispose();
 
-                    core?.Dispose();
+                    try { core?.Dispose(); }
+                    catch (Exception e) { System.Diagnostics.Debug.WriteLine(e.Message); }
+                    finally { core = null; }
 
-                    await Task.Delay(250);
+                    //await Task.Delay(50);
                 }
                 disposed = true;
             }
