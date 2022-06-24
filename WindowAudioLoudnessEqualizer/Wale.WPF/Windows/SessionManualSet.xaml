@@ -7,15 +7,18 @@
         xmlns:prop="clr-namespace:Wale.WPF.Properties"
         xmlns:wale="clr-namespace:Wale;assembly=WaleBase"
         xmlns:locale="clr-namespace:Wale.Localization;assembly=Wale.Localization"
-        mc:Ignorable="d" Title="Manual Set" WindowStyle="ToolWindow" WindowStartupLocation="CenterOwner"
-        Width="250" Height="140" KeyUp="Window_KeyUp">
+        mc:Ignorable="d" d:DataContext="{d:DesignInstance Type=local:SMSDatalink}"
+        Title="Manual Set" WindowStyle="ToolWindow" WindowStartupLocation="CenterOwner"
+        KeyUp="Window_KeyUp">
     <Window.Style>
         <Style TargetType="Window">
-            <Setter Property="Foreground" Value="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
-            <Setter Property="Background" Value="{Binding Source={x:Static local:ColorSet.BackColorBrush}}"/>
+            <Setter Property="Width" Value="250"/>
+            <Setter Property="Height"  Value="120"/>
             <!--Setter Property="MinWidth" Value="{Binding Width, RelativeSource={RelativeSource self}}"/>
             <Setter Property="MinHeight" Value="{Binding Height, RelativeSource={RelativeSource self}}"/-->
-            <Setter Property="Topmost" Value="{Binding Path=AlwaysTop, Source={x:Static prop:Settings.Default}}"/>
+            <Setter Property="Foreground" Value="{x:Static local:ColorSet.ForeColorBrush}"/>
+            <Setter Property="Background" Value="{x:Static local:ColorSet.BackColorBrush}"/>
+            <Setter Property="Topmost" Value="{Binding Owner.Topmost, RelativeSource={RelativeSource AncestorType=Window}}"/>
         </Style>
     </Window.Style>
     <Window.Resources>
@@ -41,19 +44,19 @@
         <Style TargetType="CheckBox">
             <Setter Property="Background" Value="Transparent"/>
             <!--Setter Property="Foreground" Value="{Binding Path=Foreground, Source={RelativeSource FindAncestor, AncestorType=Window}}"/-->
-            <Setter Property="Foreground" Value="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+            <Setter Property="Foreground" Value="{x:Static local:ColorSet.ForeColorBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
     </Window.Resources>
     
     <Grid Margin="0">
-        <StackPanel Margin="5,0">
+        <StackPanel Margin="5,2">
             <StackPanel Height="auto" Margin="0,0,0,5">
                 <TextBlock Text="{Binding SessionName}" TextWrapping="NoWrap" FontWeight="Bold"/>
-                <TextBlock Text="Auto Control will be disengaged when you click OK button." TextWrapping="Wrap" FontStyle="Italic"/>
+                <TextBlock Visibility="Collapsed" Text="Auto Control will be disengaged when you click OK button." TextWrapping="Wrap" FontStyle="Italic"/>
             </StackPanel>
 
-            <Grid ToolTip="{Binding RelativeTooltop}">
+            <Grid ToolTip="{Binding RelativeTooltip}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
@@ -61,7 +64,7 @@
                 <WrapPanel>
                     <TextBlock Text="Relative"/>
                     <TextBlock Visibility="Collapsed" Text="(" Padding="0"/>
-                    <TextBlock Visibility="Collapsed" Text="{Binding RelativeTooltop}" Padding="0"/>
+                    <TextBlock Visibility="Collapsed" Text="{Binding RelativeTooltip}" Padding="0"/>
                     <TextBlock Visibility="Collapsed" Text=")" Padding="0"/>
                 </WrapPanel>
                 <TextBox Text="{Binding Relative}" KeyUp="Relative_TextBox_KeyUp"/>
@@ -69,7 +72,7 @@
 
             <Grid Margin="0,5,0,0">
                 <WrapPanel>
-                    <CheckBox Content="Auto Exclude" Opacity=".7" IsChecked="{Binding AutoExcludeOnManualSet, Source={x:Static prop:Settings.Default}}"/>
+                    <CheckBox Visibility="Hidden" IsEnabled="False" Content="Auto Exclude" Opacity=".7" IsChecked="{Binding AutoExcludeOnManualSet, Source={x:Static prop:Settings.Default}}"/>
                 </WrapPanel>
                 <WrapPanel HorizontalAlignment="Right">
                     <Button Content="OK" Click="OK_Click" Padding="16,1" Margin="0" VerticalAlignment="Center" HorizontalAlignment="Center"/>

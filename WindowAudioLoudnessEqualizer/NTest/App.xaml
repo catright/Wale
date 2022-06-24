@@ -1,9 +1,0 @@
-﻿<Application x:Class="NTest.App"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:NTest"
-             StartupUri="NTestMainWindow.xaml">
-    <Application.Resources>
-         
-    </Application.Resources>
-</Application>

@@ -4,177 +4,31 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Wale.WPF"
+             xmlns:ui="clr-namespace:Wale.WPF.UIDefinitions"
              xmlns:prop="clr-namespace:Wale.WPF.Properties"
              xmlns:wale="clr-namespace:Wale;assembly=WaleBase"
-             xmlns:conf="clr-namespace:Wale.Configuration;assembly=WaleBase"
+             xmlns:conf="clr-namespace:Wale.Configs;assembly=WaleBase"
              xmlns:locale="clr-namespace:Wale.Localization;assembly=Wale.Localization"
              mc:Ignorable="d" 
-             ScrollViewer.VerticalScrollBarVisibility="Disabled"
-             Height="42" MinHeight="27"
-             Width="280" MinWidth="{Binding Width, RelativeSource={RelativeSource Self}}"
-             Margin="0" Padding="0"
-             VerticalAlignment="Top">
-    <!--MinWidth="{Binding MinWidth, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MeterSet}}}" MinHeight="{Binding MinHeight, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MeterSet}}}"-->
+             ScrollViewer.VerticalScrollBarVisibility="Disabled">
     <UserControl.Resources>
-        <Style x:Key="PBarDef" TargetType="ProgressBar">
-            <Setter Property="Maximum" Value="1"/>
-            <Setter Property="Minimum" Value="0"/>
-            <Setter Property="LargeChange" Value="0.05"/>
-            <Setter Property="SmallChange" Value="0.01"/>
-            <Setter Property="Height" Value="5"/>
-            <Setter Property="Background" Value="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}"/>
-            <Setter Property="BorderBrush" Value="Black"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ProgressBar">
-                        <Grid Height="{TemplateBinding Height}" MinHeight="1" MinWidth="10">
-                            <Border Name="PART_Track" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" />
-                            <Border Name="PART_Indicator" Background="{TemplateBinding Foreground}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" HorizontalAlignment="Left"/>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style x:Key="PBarInner" TargetType="ProgressBar">
-            <Setter Property="Maximum" Value="1"/>
-            <Setter Property="Minimum" Value="0"/>
-            <Setter Property="LargeChange" Value="0.05"/>
-            <Setter Property="SmallChange" Value="0.01"/>
-            <Setter Property="Height" Value="1"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderBrush" Value="Black"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ProgressBar">
-                        <Grid Height="{TemplateBinding Height}" MinHeight="1" MinWidth="10">
-                            <Border Name="PART_Track" Background="{TemplateBinding Background}" BorderBrush="Transparent" BorderThickness="0" />
-                            <Border Name="PART_Indicator" Background="{TemplateBinding Foreground}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1,0" HorizontalAlignment="Left"/>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style x:Key="LNums" TargetType="Label">
-            <Setter Property="Content" Value="TEST"/>
-            <Setter Property="Padding" Value="3,0"/>
-            <Setter Property="HorizontalContentAlignment" Value="Right"/>
-        </Style>
-        <Style x:Key="CBoxDef" TargetType="CheckBox">
-            <Setter Property="IsChecked" Value="True"/>
-            <Setter Property="Background" Value="{Binding Source={x:Static local:ColorSet.BackColorBrush}}"/>
-            <Setter Property="Foreground" Value="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
-            <Setter Property="ToolTip" Value="{Binding Name, RelativeSource={RelativeSource Self}}"/>
-            <Setter Property="BorderBrush" Value="{Binding Foreground, RelativeSource={RelativeSource Self}}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="CheckBox">
-                        <WrapPanel>
-                            <Border Margin="0,2,0,1" Padding="{TemplateBinding Padding}" Width="13" Height="13" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
-                                <Grid Width="11" Height="11" Background="{TemplateBinding Background}">
-                                    <Path x:Name="Equis" Opacity="0" Stroke="{TemplateBinding Foreground}" Fill="Transparent" Stretch="UniformToFill" StrokeThickness="2" Data="M 0 0 M 100 100 M 6 50 L 48 83 L 92 7"/>
-                                </Grid>
-                            </Border>
-                            <ContentPresenter/>
-                        </WrapPanel>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="Equis" Property="Opacity" Value="1"/>
-                            </Trigger>
-                            <Trigger Property="IsChecked" Value="False">
-                                <Setter TargetName="Equis" Property="Opacity" Value="0"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsEnabled" Value="False">
-                    <Setter Property="Background" Value="Transparent"/>
-                    <Setter Property="Foreground" Value="#40808080"/>
-                    <Setter Property="BorderBrush" Value="#40808080"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="BaseSliderRight" TargetType="RepeatButton">
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="OverridesDefaultStyle" Value="True"/>
-            <Setter Property="IsTabStop" Value="False"/>
-            <Setter Property="Focusable" Value="False"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="RepeatButton">
-                        <Border Height="{TemplateBinding Height}" BorderThickness="1" BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding Background}"/>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style x:Key="BaseSliderLeft" TargetType="RepeatButton">
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="OverridesDefaultStyle" Value="True"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="RepeatButton">
-                        <Border Height="{TemplateBinding Height}" BorderThickness="1" BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding Foreground}"/>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style x:Key="BaseSliderThumb" TargetType="Thumb">
-            <Setter Property="SnapsToDevicePixels" Value="True" />
-            <Setter Property="OverridesDefaultStyle" Value="True" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Thumb">
-                        <Ellipse Height="{TemplateBinding Height}" Width="{TemplateBinding Width}" StrokeThickness="0" Stroke="{TemplateBinding BorderBrush}" Fill="{TemplateBinding Foreground}"/>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <ControlTemplate x:Key="BaseSliderTemplate" TargetType="Slider">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto" MinHeight="{TemplateBinding MinHeight}"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-                <Track Grid.Row="1" x:Name="PART_Track">
-                    <Track.DecreaseRepeatButton>
-                        <RepeatButton Height="{TemplateBinding MinHeight}" Style="{StaticResource BaseSliderLeft}" Command="Slider.DecreaseLarge" Background="{TemplateBinding Background}" Foreground="{TemplateBinding Foreground}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}"/>
-                    </Track.DecreaseRepeatButton>
-                    <Track.Thumb>
-                        <Thumb Height="{TemplateBinding MinHeight}" Width="0" Style="{StaticResource BaseSliderThumb}" Background="{TemplateBinding Background}" Foreground="{TemplateBinding Foreground}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}"/>
-                    </Track.Thumb>
-                    <Track.IncreaseRepeatButton>
-                        <RepeatButton Height="{TemplateBinding MinHeight}" Style="{StaticResource BaseSliderRight}" Command="Slider.IncreaseLarge" Background="{TemplateBinding Background}" Foreground="{TemplateBinding Foreground}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}"/>
-                    </Track.IncreaseRepeatButton>
-                </Track>
-            </Grid>
-        </ControlTemplate>
-        <Style x:Key="SliderDef" TargetType="Slider">
-            <!--Setter Property="Maximum" Value="2"/>
-            <Setter Property="Minimum" Value="-2"/-->
-            <Setter Property="LargeChange" Value="0.05"/>
-            <Setter Property="SmallChange" Value="0.01"/>
-            <Setter Property="TickFrequency" Value="0.01"/>
-            <Setter Property="IsSnapToTickEnabled" Value="True"/>
-            <Setter Property="Focusable" Value="False"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="OverridesDefaultStyle" Value="True"/>
-            <Style.Triggers>
-                <Trigger Property="Orientation" Value="Horizontal">
-                    <Setter Property="Height" Value="3"/>
-                    <Setter Property="MinHeight" Value="3"/>
-                    <Setter Property="MinWidth" Value="10"/>
-                    <Setter Property="BorderBrush" Value="Transparent"/>
-                    <Setter Property="Template" Value="{StaticResource BaseSliderTemplate}"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/UIDefinitions/UIRD_Main.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </UserControl.Resources>
+    <UserControl.Style>
+        <Style TargetType="UserControl">
+            <!--<Setter Property="Height" Value="42"/>
+            <Setter Property="MinHeight" Value="27"/>-->
+            <Setter Property="Width" Value="280"/>
+            <Setter Property="MinWidth" Value="{Binding Width, RelativeSource={RelativeSource Self}}"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="VerticalAlignment" Value="Top"/>
+        </Style>
+    </UserControl.Style>
     <UserControl.ContextMenu>
         <ContextMenu>
             <MenuItem Header="Manual Set" Click="ManualSet_Click"/>
@@ -199,30 +53,37 @@
                     <ColumnDefinition Width="68" MinWidth="68"/>
                 </Grid.ColumnDefinitions>
                 <Grid Grid.Column="0" MaxHeight="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Grid}, Path=ActualHeight}">
-                    <Image x:Name="Icon" Width="16" Height="16" MaxWidth="16" MaxHeight="16" Margin="0,0,2,0" HorizontalAlignment="Left" MouseLeftButtonDown="LSessionNameLabel_Click">
+                    <Image x:Name="Icon" MouseLeftButtonDown="LSessionNameLabel_Click">
                         <Image.Style>
                             <Style TargetType="Image">
+                                <Setter Property="Width" Value=" 16"/>
+                                <Setter Property="MaxWidth" Value="{Binding Width, RelativeSource={RelativeSource Self}}"/>
+                                <Setter Property="Height" Value="{Binding Width, RelativeSource={RelativeSource Self}}"/>
+                                <Setter Property="MaxHeight" Value="{Binding Height, RelativeSource={RelativeSource Self}}"/>
+                                <Setter Property="Margin" Value="0,0,2,0"/>
+                                <Setter Property="HorizontalAlignment" Value="Left"/>
                                 <Setter Property="Visibility" Value="Hidden"/>
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Path=ShowSessionIcon, Source={x:Static prop:Settings.Default}, Mode=OneWay}" Value="True">
+                                    <DataTrigger Binding="{Binding gl.ShowSessionIcon, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True">
                                         <Setter Property="Visibility" Value="Visible"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </Image.Style>
                     </Image>
-                    <TextBlock x:Name="NameLabel" Text="TEST" MouseLeftButtonDown="LSessionNameLabel_Click" TextWrapping="WrapWithOverflow">
+                    <TextBlock x:Name="NameLabel" d:Text="TEST" MouseLeftButtonDown="LSessionNameLabel_Click">
                         <TextBlock.ToolTip>
                             <ToolTip x:Name="NameToolTip"></ToolTip>
                         </TextBlock.ToolTip>
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
+                                <Setter Property="TextWrapping" Value="WrapWithOverflow"/>
                                 <Setter Property="MaxHeight" Value="16"/>
                                 <Setter Property="Padding" Value="0"/>
                                 <Setter Property="Margin" Value="0"/>
-                                <Setter Property="Foreground" Value="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
+                                <Setter Property="Foreground" Value="{x:Static local:ColorSet.ForeColorBrush}"/>
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Path=ShowSessionIcon, Source={x:Static prop:Settings.Default}, Mode=OneWay}" Value="True">
+                                    <DataTrigger Binding="{Binding gl.ShowSessionIcon, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True">
                                         <Setter Property="Margin" Value="18,0,0,0"/>
                                     </DataTrigger>
                                     <!--DataTrigger Binding="{Binding IsChecked, ElementName=AutoIncludeCBox}" Value="False">
@@ -234,26 +95,144 @@
                     </TextBlock>
                 </Grid>
                 <WrapPanel Grid.Column="1" HorizontalAlignment="Right">
-                    <Label x:Name="SessionLabel" Foreground="{Binding Source={x:Static local:ColorSet.AverageColorBrush}}" MouseDown="LSessionLabel_Click" Style="{StaticResource LNums}"/>
-                    <CheckBox x:Name="SoundOnCBox" ToolTip="Sound On" Style="{StaticResource CBoxDef}" Click="SoundOnCBox_Click"/>
-                    <CheckBox x:Name="AutoIncludeCBox" ToolTip="Auto Include" Foreground="{Binding Source={x:Static local:ColorSet.MainColorBrush}}" Style="{StaticResource CBoxDef}" Click="AutoIncludedCBox_Click"/>
+                    <Label x:Name="SessionLabel" MouseDown="LSessionValueLabel_Click">
+                        <Label.Style>
+                            <Style TargetType="Label" BasedOn="{StaticResource LNums}">
+                                <Setter Property="Visibility" Value="Visible"/>
+                                <Setter Property="Foreground" Value="{x:Static local:ColorSet.AverageColorBrush}"/>
+                                <Setter Property="Content">
+                                    <Setter.Value>
+                                        <MultiBinding Converter="{StaticResource LvConv}">
+                                            <Binding Path="gl.AudioUnit" RelativeSource="{RelativeSource AncestorType=UserControl}" Mode="OneWay"/>
+                                            <Binding Path="s.AveragePeak" RelativeSource="{RelativeSource AncestorType=UserControl}" Mode="OneWay"/>
+                                            <Binding Path="s.Volume" RelativeSource="{RelativeSource AncestorType=UserControl}" Mode="OneWay"/>
+                                        </MultiBinding>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding LMode, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="Relative">
+                                        <Setter Property="Foreground" Value="{x:Static local:ColorSet.ForeColorBrush}"/>
+                                        <Setter Property="Content">
+                                            <Setter.Value>
+                                                <MultiBinding Converter="{StaticResource RlvConv}">
+                                                    <Binding Path="gl.AudioUnit" RelativeSource="{RelativeSource AncestorType=UserControl}" Mode="OneWay"/>
+                                                    <Binding Path="s.Relative" RelativeSource="{RelativeSource AncestorType=UserControl}" Mode="OneWay"/>
+                                                </MultiBinding>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding LMode, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="Volume">
+                                        <Setter Property="Foreground" Value="{x:Static local:ColorSet.VolumeColorBrush}"/>
+                                        <Setter Property="Content">
+                                            <Setter.Value>
+                                                <MultiBinding Converter="{StaticResource LvConv}">
+                                                    <Binding Path="gl.AudioUnit" RelativeSource="{RelativeSource AncestorType=UserControl}" Mode="OneWay"/>
+                                                    <Binding Path="s.Volume" RelativeSource="{RelativeSource AncestorType=UserControl}" Mode="OneWay"/>
+                                                </MultiBinding>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding LMode, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="Peak">
+                                        <Setter Property="Foreground" Value="{x:Static local:ColorSet.PeakColorBrush}"/>
+                                        <Setter Property="Content">
+                                            <Setter.Value>
+                                                <MultiBinding Converter="{StaticResource LvConv}">
+                                                    <Binding Path="gl.AudioUnit" RelativeSource="{RelativeSource AncestorType=UserControl}" Mode="OneWay"/>
+                                                    <Binding Path="s.Peak" RelativeSource="{RelativeSource AncestorType=UserControl}" Mode="OneWay"/>
+                                                    <Binding Path="s.Volume" RelativeSource="{RelativeSource AncestorType=UserControl}" Mode="OneWay"/>
+                                                </MultiBinding>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding gl.AdvancedView, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Label.Style>
+                    </Label>
+                    <CheckBox x:Name="SoundOnCBox" ToolTip="Sound On" IsChecked="{Binding s.SoundOn, RelativeSource={RelativeSource AncestorType=UserControl}}" Style="{StaticResource CBoxMeter}"/>
+                    <CheckBox x:Name="AutoIncludeCBox" ToolTip="Auto Include" IsChecked="{Binding s.Auto, RelativeSource={RelativeSource AncestorType=UserControl}}" Foreground="{x:Static local:ColorSet.MainColorBrush}" Style="{StaticResource CBoxMeter}" Click="AutoIncludedCBox_Click"/>
                 </WrapPanel>
             </Grid>
             <StackPanel>
                 <Grid>
-                    <ProgressBar x:Name="VolumeBar" Value=".5" Foreground="{Binding Source={x:Static local:ColorSet.VolumeColorBrush}}" Style="{DynamicResource PBarDef}"/>
-                    <Slider x:Name="RelBar" Value="0" Maximum="{Binding Source={x:Static conf:Audio.RelativeEnd}}" Minimum="{Binding Source={x:Static conf:Audio.RelativeEndInv}}" Opacity=".55" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" Background="{Binding Source={x:Static local:ColorSet.BackColorAltBrush}}" Style="{DynamicResource SliderDef}" ValueChanged="RelBar_ValueChanged"/>
+                    <ProgressBar x:Name="VolumeBar" d:Value=".5" Foreground="{x:Static local:ColorSet.VolumeColorBrush}" Style="{StaticResource PBarMeter}" DataContext="{Binding gl, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                        <ProgressBar.Value>
+                            <MultiBinding Converter="{StaticResource LvConv}" ConverterParameter="-1">
+                                <Binding Path="gl.AudioUnit" RelativeSource="{RelativeSource AncestorType=UserControl}" Mode="OneWay"/>
+                                <Binding Path="s.Volume" RelativeSource="{RelativeSource AncestorType=UserControl}" Mode="OneWay"/>
+                            </MultiBinding>
+                        </ProgressBar.Value>
+                    </ProgressBar>
+                    <ui:SliderMeter x:Name="RelBar" Value="{Binding s.Relative, RelativeSource={RelativeSource AncestorType=UserControl}}" Maximum="{Binding Source={x:Static conf:Audio.RelativeEnd}}" Minimum="{Binding Source={x:Static conf:Audio.RelativeEndInv}}" Opacity=".55" Foreground="{x:Static local:ColorSet.ForeColorBrush}" Background="{x:Static local:ColorSet.BackColorAltBrush}" Style="{StaticResource SliderDef}" ValueChanged="RelBar_ValueChanged"/>
                 </Grid>
                 <Grid>
-                    <ProgressBar x:Name="LevelBar" Margin="0,0,0,0" Value=".5" Foreground="{Binding Source={x:Static local:ColorSet.PeakColorBrush}}" Style="{DynamicResource PBarDef}"/>
-                    <ProgressBar x:Name="AvLevelBar" Opacity="1.75" Value=".25" Foreground="{Binding Source={x:Static local:ColorSet.AverageColorBrush}}" Style="{DynamicResource PBarInner}"/>
+                    <ProgressBar x:Name="LevelBar" Margin="0,0,0,0" d:Value=".5" Foreground="{x:Static local:ColorSet.PeakColorBrush}" Style="{StaticResource PBarMeter}" DataContext="{Binding gl, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                        <ProgressBar.Value>
+                            <MultiBinding Converter="{StaticResource LvConv}" ConverterParameter="-1">
+                                <Binding Path="gl.AudioUnit" RelativeSource="{RelativeSource AncestorType=UserControl}" Mode="OneWay"/>
+                                <Binding Path="s.Peak" RelativeSource="{RelativeSource AncestorType=UserControl}" Mode="OneWay"/>
+                                <Binding Path="s.Volume" RelativeSource="{RelativeSource AncestorType=UserControl}" Mode="OneWay"/>
+                            </MultiBinding>
+                        </ProgressBar.Value>
+                    </ProgressBar>
+                    <ProgressBar x:Name="AvLevelBar" Opacity="1" d:Value=".25" Foreground="{x:Static local:ColorSet.AverageColorBrush}" Style="{StaticResource PBarInner}" DataContext="{Binding gl, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                        <ProgressBar.Value>
+                            <MultiBinding Converter="{StaticResource LvConv}" ConverterParameter="-1">
+                                <Binding Path="gl.AudioUnit" RelativeSource="{RelativeSource AncestorType=UserControl}" Mode="OneWay"/>
+                                <Binding Path="s.AveragePeak" RelativeSource="{RelativeSource AncestorType=UserControl}" Mode="OneWay"/>
+                                <Binding Path="s.Volume" RelativeSource="{RelativeSource AncestorType=UserControl}" Mode="OneWay"/>
+                            </MultiBinding>
+                        </ProgressBar.Value>
+                    </ProgressBar>
                 </Grid>
             </StackPanel>
             <WrapPanel HorizontalAlignment="Right">
-                <Label x:Name="VolumeLabel" Foreground="{Binding Source={x:Static local:ColorSet.VolumeColorBrush}}" MouseDown="LSessionLabel_Click" Style="{DynamicResource LNums}"/>
-                <Label x:Name="PeakLabel" Foreground="{Binding Source={x:Static local:ColorSet.PeakColorBrush}}" MouseDown="LSessionLabel_Click" Style="{DynamicResource LNums}"/>
-                <Label x:Name="AvPeakLabel" Foreground="{Binding Source={x:Static local:ColorSet.AverageColorBrush}}" MouseDown="LSessionLabel_Click" Style="{DynamicResource LNums}"/>
-                <Label x:Name="RelLabel" Foreground="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}" MouseDown="LSessionLabel_Click" Style="{DynamicResource LNums}"/>
+                <WrapPanel.Resources>
+                    <Style TargetType="Label" BasedOn="{StaticResource LNums}">
+                        <Setter Property="Visibility" Value="Visible"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding gl.AdvancedView, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="False">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </WrapPanel.Resources>
+                <Label x:Name="VolumeLabel" Foreground="{x:Static local:ColorSet.VolumeColorBrush}">
+                    <Label.Content>
+                        <MultiBinding Converter="{StaticResource LvConv}">
+                            <Binding Path="gl.AudioUnit" RelativeSource="{RelativeSource AncestorType=UserControl}" Mode="OneWay"/>
+                            <Binding Path="s.Volume" RelativeSource="{RelativeSource AncestorType=UserControl}" Mode="OneWay"/>
+                        </MultiBinding>
+                    </Label.Content>
+                </Label>
+                <Label x:Name="PeakLabel" Foreground="{x:Static local:ColorSet.PeakColorBrush}">
+                    <Label.Content>
+                        <MultiBinding Converter="{StaticResource LvConv}">
+                            <Binding Path="gl.AudioUnit" RelativeSource="{RelativeSource AncestorType=UserControl}" Mode="OneWay"/>
+                            <Binding Path="s.Peak" RelativeSource="{RelativeSource AncestorType=UserControl}" Mode="OneWay"/>
+                            <Binding Path="s.Volume" RelativeSource="{RelativeSource AncestorType=UserControl}" Mode="OneWay"/>
+                        </MultiBinding>
+                    </Label.Content>
+                </Label>
+                <Label x:Name="AvPeakLabel" Foreground="{x:Static local:ColorSet.AverageColorBrush}">
+                    <Label.Content>
+                        <MultiBinding Converter="{StaticResource LvConv}">
+                            <Binding Path="gl.AudioUnit" RelativeSource="{RelativeSource AncestorType=UserControl}" Mode="OneWay"/>
+                            <Binding Path="s.AveragePeak" RelativeSource="{RelativeSource AncestorType=UserControl}" Mode="OneWay"/>
+                            <Binding Path="s.Volume" RelativeSource="{RelativeSource AncestorType=UserControl}" Mode="OneWay"/>
+                        </MultiBinding>
+                    </Label.Content>
+                </Label>
+                <Label x:Name="RelLabel" Foreground="{x:Static local:ColorSet.ForeColorBrush}">
+                    <Label.Content>
+                        <MultiBinding Converter="{StaticResource RlvConv}">
+                            <Binding Path="gl.AudioUnit" RelativeSource="{RelativeSource AncestorType=UserControl}" Mode="OneWay"/>
+                            <Binding Path="s.Relative" RelativeSource="{RelativeSource AncestorType=UserControl}" Mode="OneWay"/>
+                        </MultiBinding>
+                    </Label.Content>
+                </Label>
             </WrapPanel>
         </StackPanel>
     </Grid>

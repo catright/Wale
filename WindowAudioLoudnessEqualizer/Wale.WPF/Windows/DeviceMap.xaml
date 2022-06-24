@@ -6,7 +6,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Wale.WPF"
         xmlns:wale="clr-namespace:Wale;assembly=WaleBase"
-        xmlns:conf="clr-namespace:Wale.Configuration;assembly=WaleBase"
+        xmlns:conf="clr-namespace:Wale.Configs;assembly=WaleBase"
         xmlns:locale="clr-namespace:Wale.Localization;assembly=Wale.Localization"
         mc:Ignorable="d"
         Title="Wale Device Map"

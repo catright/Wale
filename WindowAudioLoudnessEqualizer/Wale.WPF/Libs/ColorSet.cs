@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Windows.Media;
 
 namespace Wale.WPF
 {
@@ -11,31 +7,31 @@ namespace Wale.WPF
     /// </summary>
     public static class ColorSet
     {
-        public static System.Windows.Media.Color MainColor = System.Windows.Media.Colors.SteelBlue;
-        public static System.Windows.Media.Color VolumeColor = System.Windows.Media.Colors.SteelBlue;//.FromRgb(83, 139, 167);
-        public static System.Windows.Media.Color PeakColor = System.Windows.Media.Colors.PaleVioletRed;//.FromRgb(144, 175, 197);
-        public static System.Windows.Media.Color AverageColor = System.Windows.Media.Colors.PaleGoldenrod;//.FromRgb(154, 161, 146);
-        public static System.Windows.Media.Color TargetColor = System.Windows.Media.Colors.Goldenrod;//.FromRgb(182, 150, 38);
-        public static System.Windows.Media.Color LimitColor = System.Windows.Media.Colors.OrangeRed;
+        public static Color MainColor = Colors.SteelBlue;
+        public static Color VolumeColor = Colors.SteelBlue;//.FromRgb(83, 139, 167);
+        public static Color PeakColor = Colors.PaleVioletRed;//.FromRgb(144, 175, 197);
+        public static Color AverageColor = Colors.PaleGoldenrod;//.FromRgb(154, 161, 146);
+        public static Color TargetColor = Colors.Goldenrod;//.FromRgb(182, 150, 38);
+        public static Color LimitColor = Colors.OrangeRed;
 
-        public static System.Windows.Media.Color ForeColor = System.Windows.Media.Colors.LightGray;
-        public static System.Windows.Media.Color ForeColorAlt = System.Windows.Media.Colors.Gray;
+        public static Color ForeColor = Colors.LightGray;
+        public static Color ForeColorAlt = Colors.Gray;
 
-        public static System.Windows.Media.Color BackColor = System.Windows.Media.Color.FromRgb(64, 64, 64);
-        public static System.Windows.Media.Color BackColorAlt = System.Windows.Media.Colors.DimGray;
+        public static Color BackColor = Color.FromRgb(64, 64, 64);
+        public static Color BackColorAlt = Colors.DimGray;
 
 
-        public static System.Windows.Media.Brush MainColorBrush { get => new System.Windows.Media.SolidColorBrush(MainColor); }
-        public static System.Windows.Media.Brush VolumeColorBrush { get => new System.Windows.Media.SolidColorBrush(VolumeColor); }
-        public static System.Windows.Media.Brush PeakColorBrush { get => new System.Windows.Media.SolidColorBrush(PeakColor); }
-        public static System.Windows.Media.Brush AverageColorBrush { get => new System.Windows.Media.SolidColorBrush(AverageColor); }
-        public static System.Windows.Media.Brush TargetColorBrush { get => new System.Windows.Media.SolidColorBrush(TargetColor); }
-        public static System.Windows.Media.Brush LimitColorBrush { get => new System.Windows.Media.SolidColorBrush(LimitColor); }
+        public static Brush MainColorBrush => new SolidColorBrush(MainColor);
+        public static Brush VolumeColorBrush => new SolidColorBrush(VolumeColor);
+        public static Brush PeakColorBrush => new SolidColorBrush(PeakColor);
+        public static Brush AverageColorBrush => new SolidColorBrush(AverageColor);
+        public static Brush TargetColorBrush => new SolidColorBrush(TargetColor);
+        public static Brush LimitColorBrush => new SolidColorBrush(LimitColor);
 
-        public static System.Windows.Media.Brush ForeColorBrush { get => new System.Windows.Media.SolidColorBrush(ForeColor); }
-        public static System.Windows.Media.Brush ForeColorAltBrush { get => new System.Windows.Media.SolidColorBrush(ForeColorAlt); }
+        public static Brush ForeColorBrush => new SolidColorBrush(ForeColor);
+        public static Brush ForeColorAltBrush => new SolidColorBrush(ForeColorAlt);
 
-        public static System.Windows.Media.Brush BackColorBrush { get => new System.Windows.Media.SolidColorBrush(BackColor); }
-        public static System.Windows.Media.Brush BackColorAltBrush { get => new System.Windows.Media.SolidColorBrush(BackColorAlt); }
+        public static Brush BackColorBrush => new SolidColorBrush(BackColor);
+        public static Brush BackColorAltBrush => new SolidColorBrush(BackColorAlt);
     }
 }

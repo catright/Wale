@@ -9,8 +9,10 @@
 *.dmp
 *WaleLog*.txt
 *walesim*.txt
+backup*.zip
 UnitTestProject*/
 simdata/
+WindowAudioLoudnessEqualizer/Wale.UI
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

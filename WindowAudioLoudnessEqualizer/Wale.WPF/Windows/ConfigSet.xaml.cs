@@ -1,20 +1,18 @@
-﻿using System;
+﻿using OxyPlot;
+using OxyPlot.Series;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using OxyPlot;
-using OxyPlot.Series;
+using Wale.Configs;
+using Wale.Controller;
+using Wale.Extensions;
 
 namespace Wale.WPF
 {
@@ -27,55 +25,52 @@ namespace Wale.WPF
         /// <summary>
         /// registry key for start at windows startup
         /// </summary>
-        Microsoft.Win32.RegistryKey rkApp = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
+        private readonly Microsoft.Win32.RegistryKey rkApp = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
         /// <summary>
         /// stored setting that users can modify
         /// </summary>
-        Wale.Configuration.General settings;
-        //Wale.WPF.Properties.Settings settings = Wale.WPF.Properties.Settings.Default;
-        /// <summary>
-        /// datalink between MVVM
-        /// </summary>
-        //Datalink DL = new Datalink();
-        Wale.Configuration.General DL => settings;
+        private readonly General gl;
         /// <summary>
         /// Debug message pack
         /// </summary>
-        JPack.DebugPack DP;
+        private readonly JPack.MPack DP;
         /// <summary>
         /// Debug flag for JPack.DebugPack
         /// </summary>
-        public bool Debug { get => DP.DebugMode; set => DP.DebugMode = value; }
+        public bool Debug { get => DP.Enable; set => DP.Enable = value; }
 
-        AudioControl Audio;
-        Window Owner;
+        private readonly DFactors vff;
+
+        //AudioControl Audio;
+        private readonly Window Owner;
 
         volatile bool NewWindow = false;
 
         volatile bool loaded = false;
-        double originalMax;
+        double originalMax, Ymax;
         #endregion
 
         #region Initialization
         public ConfigSet() { InitializeComponent(); }
-        public ConfigSet(AudioControl audio, Wale.Configuration.General cf, Window owner, bool debug, bool newWindow = false)
+        public ConfigSet(Window owner, bool debug, bool newWindow = false)
         {
             InitializeComponent();
-            MakeComponents(audio, cf, owner, debug, newWindow);
+
+            Owner = owner;
+            if (owner is MainWindow m) this.gl = m.gl;
+            else if (owner is Configuration c) this.gl = c.gl;
+            else throw new ArgumentException("ConfigSet: owner is not a MainWindow or a Configuration");
+            this.DataContext = this.gl;
+
+            DP = new JPack.MPack(debug);
+            vff = new DFactors(gl);
+
+            MakeComponents(newWindow);
             MakeConfigs();
             MakeFinal();
         }
-        private void MakeComponents(AudioControl audio, Wale.Configuration.General cf, Window owner, bool debug, bool newWindow)
+        private void MakeComponents(bool newWindow)
         {
-            //this.DL = dl;
-            //this.DataContext = this.DL;
-            this.settings = cf;
-            this.DataContext = this.settings;
-
-            DP = new JPack.DebugPack(debug);
-
-            this.Owner = owner;
-
             NewWindow = newWindow;
             if (NewWindow)
             {
@@ -88,9 +83,9 @@ namespace Wale.WPF
                 Owner.KeyDown += ConfigSet_KeyDown;
             }
 
-            this.Audio = audio;
-            if (Audio == null) { Log("Config Window: Audio controller is not set"); }
-            else { Log($"Config Window: OK. V={Audio.MasterVolume}"); }
+            //this.Audio = audio;
+            //if (Audio == null) { Log("Config Window: Audio controller is not set"); }
+            //else { Log($"Config Window: OK. V={Audio.MasterVolume}"); }
         }
         private void MakeConfigs()
         {
@@ -98,9 +93,9 @@ namespace Wale.WPF
             MakeOriginals();
             loaded = true;
 
-            string selectedFunction = FunctionSelector.SelectedItem.ToString();
-            if (selectedFunction == VFunction.Func.Reciprocal.ToString() || selectedFunction == VFunction.Func.FixedReciprocal.ToString()) { KurtosisBox.IsEnabled = true; }
-            else { KurtosisBox.IsEnabled = false; }
+            if (!Enum.TryParse(FunctionSelector.SelectedItem.ToString(), true, out DType selectedFunction)) return;
+            if (selectedFunction == DType.Reciprocal || selectedFunction == DType.FixedReciprocal) KurtosisBox.IsEnabled = true;
+            else KurtosisBox.IsEnabled = false;
 
             plotView.Model = new PlotModel();//ColorSet.BackColorAltBrush
 
@@ -113,7 +108,7 @@ namespace Wale.WPF
             plotView.Model.PlotAreaBorderColor = Color(ColorSet.ForeColorAlt);
             //plotView.InvalidateVisual();
 
-            settings.PropertyChanged += Settings_PropertyChanged;
+            gl.PropertyChanged += Settings_PropertyChanged;
 
             if (NewWindow) { Owner.Activate(); }
         }
@@ -121,14 +116,14 @@ namespace Wale.WPF
         {
             Dispatcher?.Invoke(() =>
             {
-                TargetdB.Content = VFunction.Level(settings.TargetLevel, 1);
-                LimitdB.Content = VFunction.Level(settings.LimitLevel, 1);
-                MinPeakdB.Content = VFunction.Level(settings.MinPeak, 1);
+                TargetdB.Content = gl.TargetLevel.Level(1);
+                LimitdB.Content = gl.LimitLevel.Level(1);
+                MinPeakdB.Content = gl.MinPeak.Level(1);
             });
         }
         private void ConfigSet_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.F9) settings.AdvancedView = !settings.AdvancedView;
+            if (e.Key == Key.F9) gl.AdvancedView = !gl.AdvancedView;
         }
 
         #endregion
@@ -168,35 +163,35 @@ namespace Wale.WPF
         private void Function_Changed(object sender, SelectionChangedEventArgs e)
         {
             if (!loaded) return;
-            string selectedFunction = (sender as ComboBox).SelectedItem.ToString();
+            if (!Enum.TryParse((sender as ComboBox).SelectedItem.ToString(), true, out DType selectedFunction)) return;
             //Console.WriteLine($"Fnc Chg{selectedFunction}");
-            //if (selectedFunction == VFunction.Func.None.ToString()) { textBox5.Enabled = false; }
+            //if (selectedFunction == Controller.FVol.None.ToString()) { textBox5.Enabled = false; }
             //else { textBox5.Enabled = true; }
-            if (selectedFunction == VFunction.Func.Reciprocal.ToString() || selectedFunction == VFunction.Func.FixedReciprocal.ToString()) { KurtosisBox.IsEnabled = true; }
-            else { KurtosisBox.IsEnabled = false; }
+            if (selectedFunction == DType.Reciprocal || selectedFunction == DType.FixedReciprocal) KurtosisBox.IsEnabled = true;
+            else KurtosisBox.IsEnabled = false;
             DrawNew();
         }
 
-        private void textBoxesFocus_Enter(object sender, RoutedEventArgs e)
+        private void TextBoxesFocus_Enter(object sender, RoutedEventArgs e)
         {
             TextBox t = sender as TextBox;
             t.SelectionStart = t.Text.Length;
             t.SelectionLength = 0;
         }
 
-        private void resetToDafault_Click(object sender, RoutedEventArgs e)
+        private void ResetToDafault_Click(object sender, RoutedEventArgs e)
         {
             MessageBoxResult dr = MessageBox.Show(Owner, "Do you really want to reset all configurations?", "Warning", MessageBoxButton.YesNo);
             if (dr == MessageBoxResult.Yes)
             {
-                settings.Reset();
+                gl.Reset();
                 Makes();
-                JPack.FileLog.Log("All configs are reset.");
+                JPack.Log.Write("All configs are reset.");
             }
         }
         private async void ConfigSave_Click(object sender, RoutedEventArgs e)
         {
-            SavedMessageCancelTKSources.ForEach((TKSource) => { TKSource.Cancel(); });
+            SavedMessageCancelTKSources.ForEach(TKSource => TKSource.Cancel());
             if (NewWindow)
             {
                 Owner.IsEnabled = false;
@@ -205,7 +200,7 @@ namespace Wale.WPF
             }
             if (Converts() && await Register())
             {
-                settings.Save();
+                gl.Save();
                 //if (Audio != null) Audio.UpRate = settings.UpRate;
                 if (!NewWindow) MakeOriginals();
                 if (NewWindow)
@@ -218,15 +213,17 @@ namespace Wale.WPF
             if (NewWindow)
             {
                 this.IsEnabled = true;
-                Binding topmostBinding = new Binding();
-                topmostBinding.Source = settings.AlwaysTop;
+                Binding topmostBinding = new Binding
+                {
+                    Source = gl.AlwaysTop
+                };
                 BindingOperations.SetBinding(this, Window.TopmostProperty, topmostBinding);
                 Owner.WindowState = WindowState.Normal;
             }
-            System.Threading.CancellationTokenSource SavedMessageCancelTKSource = new System.Threading.CancellationTokenSource();
+            CancellationTokenSource SavedMessageCancelTKSource = new CancellationTokenSource();
             SavedMessageCancelTKSources.Add(SavedMessageCancelTKSource);
             try { await ShowSavedMessage(SavedMessageCancelTKSource.Token); }
-            catch (OperationCanceledException) { JPack.Debug.CML("Saved Msg Canceled. This is normal operation"); }
+            catch (OperationCanceledException) { JPack.M.C("Saved Msg Canceled. This is normal operation"); }
             finally { SavedMessageCancelTKSources.Remove(SavedMessageCancelTKSource); SavedMessageCancelTKSource.Dispose(); }
         }
         private void Cancel_Click(object sender, RoutedEventArgs e)
@@ -240,8 +237,8 @@ namespace Wale.WPF
 
 
         //private volatile bool SavedMessageShowing = false;
-        private List<System.Threading.CancellationTokenSource> SavedMessageCancelTKSources = new List<System.Threading.CancellationTokenSource>();
-        private async Task ShowSavedMessage(System.Threading.CancellationToken cancellationToken, int keepTime = 1600, int fadeTime = 300)
+        private readonly List<CancellationTokenSource> SavedMessageCancelTKSources = new List<CancellationTokenSource>();
+        private async Task ShowSavedMessage(CancellationToken cancellationToken, int keepTime = 1600, int fadeTime = 300)
         {
             Action cancelAction = new Action(() =>
             {
@@ -255,7 +252,7 @@ namespace Wale.WPF
             int fadeStage = fadeTime / 10;
 
             //string SaveButtonContent = SaveButton.Content.ToString();
-            SaveButton.Content = String.Empty;
+            SaveButton.Content = string.Empty;
             cancelAction();
 
             for (int i = 0; i < fadeTime; i += fadeStage)
@@ -263,17 +260,20 @@ namespace Wale.WPF
                 double divide = (double)(i + fadeStage) / fadeTime;
                 SavedNoti.Opacity = divide;
                 //DL.WikiLinkBrush.Opacity = 1.0 - divide;
-                try { await Task.Delay(fadeStage, cancellationToken); } catch (OperationCanceledException) { cancelAction(); }
+                try { await Task.Delay(fadeStage, cancellationToken); }
+                catch (OperationCanceledException) { cancelAction(); }
             }
 
-            try { await Task.Delay(keepTime, cancellationToken); } catch (OperationCanceledException) { cancelAction(); }
+            try { await Task.Delay(keepTime, cancellationToken); }
+            catch (OperationCanceledException) { cancelAction(); }
 
             for (int i = 0; i < fadeTime; i += fadeStage)
             {
                 double divide = (double)(i + fadeStage) / fadeTime;
                 SavedNoti.Opacity = 1.0 - divide;
                 //DL.ClipboardCopiedMessageBrush.Opacity = 1.0 - divide;
-                try { await Task.Delay(fadeStage, cancellationToken); } catch (OperationCanceledException) { cancelAction(); }
+                try { await Task.Delay(fadeStage, cancellationToken); }
+                catch (OperationCanceledException) { cancelAction(); }
             }
             SaveButton.Content = "Save";
         }
@@ -283,8 +283,8 @@ namespace Wale.WPF
         {
             //System.Diagnostics.Stopwatch st = new System.Diagnostics.Stopwatch();
             //Console.WriteLine("Convert");
-            bool success = true, auto = settings.AutoControl;
-            settings.AutoControl = false;
+            bool success = true, auto = gl.AutoControl;
+            gl.AutoControl = false;
             try
             {
                 //settings.UIUpdateInterval = Convert.ToInt16(textBox1.Text);
@@ -295,10 +295,10 @@ namespace Wale.WPF
                 //settings.Kurtosis = Convert.ToDouble(textBox6.Text);
                 //settings.AverageTime = Convert.ToDouble(textBox7.Text) * 1000;
                 //settings.MinPeak = Convert.ToDouble(textBox8.Text);
-                //settings.VFunc = comboBox1.SelectedValue.ToString();
+                gl.VFunc = FunctionSelector.SelectedValue.ToString();
             }
-            catch { success = false; JPack.FileLog.Log("Error: Config - Convert failure"); }
-            finally { settings.AutoControl = auto; }
+            catch { success = false; JPack.Log.Write("Error: Config - Convert failure"); }
+            finally { gl.AutoControl = auto; }
             //Console.WriteLine("Convert End");
             return success;
         }
@@ -329,7 +329,7 @@ namespace Wale.WPF
                     }
                 }
             }
-            catch { success = false; JPack.FileLog.Log("Error: Config - Register failure"); }
+            catch { success = false; JPack.Log.Write("Error: Config - Register failure"); }
             //Console.WriteLine("resister End");
             return success;
         }
@@ -341,10 +341,11 @@ namespace Wale.WPF
             RadioButton s = sender as RadioButton;
             if ((bool)s.IsChecked) SetPriority(s.Content.ToString());
         }
-        private void SetPriority(string priority)
+        private void SetPriority(string priority, bool force = false)
         {
+            if (gl.ProcessPriority == priority && !force) return;
             Log($"Set process priority {priority}");
-            settings.ProcessPriority = priority;
+            gl.ProcessPriority = priority;
             ProcessPriorityClass ppc = ProcessPriorityClass.Normal;
             switch (priority)
             {
@@ -352,7 +353,7 @@ namespace Wale.WPF
                 case "Above Normal": ppc = ProcessPriorityClass.AboveNormal; break;
                 case "Normal": ppc = ProcessPriorityClass.Normal; break;
             }
-            JPack.Debug.CML($"SPP H={DL.ProcessPriorityHigh} A={DL.ProcessPriorityAboveNormal} N={DL.ProcessPriorityNormal}");
+            //JPack.Debug.CML($"SPP H={DL.ProcessPriorityHigh} A={DL.ProcessPriorityAboveNormal} N={DL.ProcessPriorityNormal}");
             //settings.Save();
             using (Process p = Process.GetCurrentProcess()) { p.PriorityClass = ppc; }
         }
@@ -375,31 +376,31 @@ namespace Wale.WPF
                 runAtWindowsStartup.IsChecked = true;
             }
 
-            FunctionSelector.ItemsSource = Enum.GetValues(typeof(VFunction.Func));
-            if (Enum.TryParse(settings.VFunc, out VFunction.Func f)) FunctionSelector.SelectedItem = f;
+            FunctionSelector.ItemsSource = Enum.GetValues(typeof(DType));
+            if (Enum.TryParse(gl.VFunc, out DType f)) FunctionSelector.SelectedItem = f;
         }
         /// <summary>
         /// Store original setting values
         /// </summary>
         private void MakeOriginals()
         {
-            LastValues.UIUpdateInterval = settings.UIUpdateInterval;
-            LastValues.AutoControlInterval = settings.AutoControlInterval;
-            LastValues.GCInterval = settings.GCInterval;
-            LastValues.AudioUnit = settings.AudioUnit;
-            LastValues.TargetLevel = settings.TargetLevel;
-            LastValues.LimitLevel = settings.LimitLevel;
-            LastValues.CompRate = settings.CompRate;
-            LastValues.MinPeak = settings.MinPeak;
-            LastValues.UpRate = settings.UpRate;
-            LastValues.Kurtosis = settings.Kurtosis;
-            LastValues.VFunc = settings.VFunc;
-            LastValues.AverageTime = settings.AverageTime;
+            LastValues.UIUpdateInterval = gl.UIUpdateInterval;
+            LastValues.AutoControlInterval = gl.AutoControlInterval;
+            LastValues.GCInterval = gl.GCInterval;
+            LastValues.AudioUnit = gl.AudioUnit;
+            LastValues.TargetLevel = gl.TargetLevel;
+            LastValues.LimitLevel = gl.LimitLevel;
+            LastValues.CompRate = gl.CompRate;
+            LastValues.MinPeak = gl.MinPeak;
+            LastValues.UpRate = gl.UpRate;
+            LastValues.Kurtosis = gl.Kurtosis;
+            LastValues.VFunc = gl.VFunc;
+            LastValues.AverageTime = gl.AverageTime;
         }
         /// <summary>
         /// Draw new present graph
         /// </summary>
-        private void DrawNew() { Owner.Dispatcher?.Invoke(() => { DrawGraph("Graph"); }); }
+        private void DrawNew() => Owner.Dispatcher?.Invoke(() => DrawGraph("Graph"));
         /// <summary>
         /// Draw a graph of decrement function
         /// </summary>
@@ -411,61 +412,16 @@ namespace Wale.WPF
             foreach (Series s in exc) { plotView.Model.Series.Remove(s); }
             exc.Clear();
 
-            VFunction.Func f;
-            Enum.TryParse<VFunction.Func>(FunctionSelector.SelectedItem.ToString(), out f);
+            if (!Enum.TryParse(FunctionSelector.SelectedItem.ToString(), out DType f)) { Log("ConfigSet(DrawGraph): Failed to get volume function"); return; }
 
             Series exclude = null;
             foreach (var g in plotView.Model.Series) { if (g.Title == graphName) exclude = g; }
             if (exclude != null) { plotView.Model.Series.Remove(exclude); /*Console.WriteLine("Plot removed");*/ }
 
-            FunctionSeries graph;
+            FunctionSeries graph = new FunctionSeries(new Func<double, double>(x => f.Calc(x, vff)), 0, 1, 0.05, graphName);
 
-            switch (f)
-            {
-                case VFunction.Func.Linear:
-                    graph = new FunctionSeries(new Func<double, double>((x) =>
-                    {
-                        double res = VFunction.Linear(x, settings.UpRate);// * 1000 / settings.AutoControlInterval;
-                        //if (res > 1) { res = 1; } else if (res < 0) { res = 0; }
-                        return res;
-                    }), 0, 1, 0.05, graphName);
-                    break;
-                case VFunction.Func.SlicedLinear:
-                    VFunction.FactorsForSlicedLinear sliceFactors = VFunction.GetFactorsForSlicedLinear(settings.UpRate, settings.TargetLevel);
-                    graph = new FunctionSeries(new Func<double, double>((x) =>
-                    {
-                        double res = VFunction.SlicedLinear(x, settings.UpRate, settings.TargetLevel, sliceFactors.A, sliceFactors.B);// * 1000 / settings.AutoControlInterval;
-                        //if (res > 1) { res = 1; } else if (res < 0) { res = 0; }
-                        return res;
-                    }), 0, 1, 0.05, graphName);
-                    break;
-                case VFunction.Func.Reciprocal:
-                    graph = new FunctionSeries(new Func<double, double>((x) =>
-                    {
-                        double res = VFunction.Reciprocal(x, settings.UpRate, settings.Kurtosis);// * 1000 / settings.AutoControlInterval;
-                        //if (res > 1) { res = 1; } else if (res < 0) { res = 0; }
-                        return res;
-                    }), 0, 1, 0.05, graphName);
-                    break;
-                case VFunction.Func.FixedReciprocal:
-                    graph = new FunctionSeries(new Func<double, double>((x) =>
-                    {
-                        double res = VFunction.FixedReciprocal(x, settings.UpRate, settings.Kurtosis);// * 1000 / settings.AutoControlInterval;
-                        //if (res > 1) { res = 1; } else if (res < 0) { res = 0; }
-                        return res;
-                    }), 0, 1, 0.05, graphName);
-                    break;
-                default:
-                    graph = new FunctionSeries(new Func<double, double>((x) =>
-                    {
-                        double res = settings.UpRate;// * 1000 / settings.AutoControlInterval;
-                        //if (res > 1) { res = 1; } else if (res < 0) { res = 0; }
-                        return res;
-                    }), 0, 1, 0.05, graphName);
-                    break;
-            }
 
-            double maxVal = 0, yScale = 1;
+            double maxVal = 0, yScale = 0.01;
             if (graph.Title == "Original")
             {
                 graph.Color = Color(ColorSet.MainColor);
@@ -484,6 +440,8 @@ namespace Wale.WPF
             {
                 if (maxVal > i) { yScale = i * 2.0; break; }
             }
+            Ymax = yScale;
+            //plotView.Model.DefaultYAxis?.Zoom(yScale);
             //plotView.Model.DefaultYAxis.AbsoluteMaximum = yScale;
             //foreach (var g in plotView.Model.Series) { }
             //plotView.ZoomAllAxes(yScale);
@@ -491,12 +449,13 @@ namespace Wale.WPF
             //else chart.ChartAreas["Area"].AxisY.LabelStyle.Format = "#.#E0";
             //myText1.Y = chart.ChartAreas["Area"].AxisY.Maximum;
             //myText2.Y = chart.ChartAreas["Area"].AxisY.Maximum * 0.92;
+            DrawBase();
             plotView.InvalidatePlot();
         }
         /// <summary>
         /// Draw a line of Base(standard) of output level
         /// </summary>
-        private void DrawBase() => Owner.Dispatcher?.Invoke(() => { DrawBaseInside(); });
+        private void DrawBase() => Owner.Dispatcher?.Invoke(DrawBaseInside);
         private void DrawBaseInside()
         {
             List<Series> exc = new List<Series>();
@@ -504,17 +463,23 @@ namespace Wale.WPF
             foreach (Series s in exc) { plotView.Model.Series.Remove(s); }
             exc.Clear();
 
-            LineSeries lineSeries1 = new LineSeries();
-            lineSeries1.Title = "Base";
-            lineSeries1.Points.Add(new DataPoint(settings.TargetLevel, 0));
-            lineSeries1.Points.Add(new DataPoint(settings.TargetLevel, 1));
+            double y = Ymax > 0.1 ? 1 : (Ymax > 0.01 ? 0.1 : (Ymax > 0.001 ? 0.01 : 0.001));
+
+            LineSeries lineSeries1 = new LineSeries
+            {
+                Title = "Base"
+            };
+            lineSeries1.Points.Add(new DataPoint(gl.TargetLevel, 0));
+            lineSeries1.Points.Add(new DataPoint(gl.TargetLevel, y));
             lineSeries1.Color = Color(ColorSet.TargetColor);
             plotView.Model.Series.Add(lineSeries1);
 
-            LineSeries lineSeries2 = new LineSeries();
-            lineSeries2.Title = "Limit";
-            lineSeries2.Points.Add(new DataPoint(settings.LimitLevel, 0));
-            lineSeries2.Points.Add(new DataPoint(settings.LimitLevel, 1));
+            LineSeries lineSeries2 = new LineSeries
+            {
+                Title = "Limit"
+            };
+            lineSeries2.Points.Add(new DataPoint(gl.LimitLevel, 0));
+            lineSeries2.Points.Add(new DataPoint(gl.LimitLevel, y));
             lineSeries2.Color = Color(ColorSet.LimitColor);
             plotView.Model.Series.Add(lineSeries2);
 
@@ -523,15 +488,15 @@ namespace Wale.WPF
         /// <summary>
         /// Draw a line of boundary of section for sliced function
         /// </summary>
-        private void DrawDevideLine()
-        {
-            LineSeries lineSeries1 = new LineSeries();
-            lineSeries1.Points.Add(new DataPoint(0, 0));
-            lineSeries1.Points.Add(new DataPoint(1, 1));
-            lineSeries1.Color = Color(ColorSet.ForeColor);
-            plotView.Model.Series.Add(lineSeries1);
-            plotView.InvalidatePlot();
-        }
+        //private void DrawDevideLine()
+        //{
+        //    LineSeries lineSeries1 = new LineSeries();
+        //    lineSeries1.Points.Add(new DataPoint(0, 0));
+        //    lineSeries1.Points.Add(new DataPoint(1, 1));
+        //    lineSeries1.Color = Color(ColorSet.ForeColor);
+        //    plotView.Model.Series.Add(lineSeries1);
+        //    plotView.InvalidatePlot();
+        //}
         private OxyColor Color(Color color) { return OxyColor.FromArgb(color.A, color.R, color.G, color.B); }
         #endregion
 
@@ -542,30 +507,21 @@ namespace Wale.WPF
         /// </summary>
         /// <param name="msg">message to log</param>
         /// <param name="newLine">flag for making newline after the end of the <paramref name="msg"/>.</param>
-        private void Log(string msg, bool newLine = true)
-        {
-            //JPack.FileLog.Log(msg, newLine);
-            //DateTime t = DateTime.Now.ToLocalTime();
-            //string content = $"{t.Hour:d2}:{t.Minute:d2}>{msg}";
-            //if (newLine) content += "\r\n";
-            //AppendText(LogScroll, content);
-            LogInvoke(msg);
-            //DP.DMML(content);
-            //DP.CMML(content);
-            //bAllowPaintLog = true;
-        }
+        /// <param name="caller"><see cref="System.Runtime.CompilerServices.CallerMemberNameAttribute"/></param>
+        private void Log(string msg, bool newLine = true, [System.Runtime.CompilerServices.CallerMemberName] string caller = null)
+            => LogInvokedEvent?.Invoke(this, new LogEventArgs(msg, newLine, caller));
 
         public event EventHandler<LogEventArgs> LogInvokedEvent;
-        private void LogInvoke(string msg) { LogInvokedEvent?.Invoke(this, new LogEventArgs(msg)); }
-        /// <summary>
-        /// pass string msg
-        /// </summary>
         public class LogEventArgs : EventArgs
         {
-            public string msg;
-            public LogEventArgs(string msg)
+            public string Message { get; private set; }
+            public bool NewLine { get; private set; }
+            public string Caller { get; private set; }
+            public LogEventArgs(string msg, bool newline = true, string caller = null)
             {
-                this.msg = msg;
+                Message = msg;
+                NewLine = newline;
+                Caller = caller;
             }
         }
         #endregion
@@ -575,34 +531,53 @@ namespace Wale.WPF
     /// </summary>
     public static class LastValues
     {
+        public static double UIUpdateInterval { get => Get<double>(); set => Set(value); }
+        public static double AutoControlInterval { get => Get<double>(); set => Set(value); }
+        public static double GCInterval { get => Get<double>(); set => Set(value); }
+        public static double TargetLevel { get => Get<double>(); set => Set(value); }
+        public static double LimitLevel { get => Get<double>(); set => Set(value); }
+        public static double CompRate { get => Get<double>(); set => Set(value); }
+        public static double AverageTime { get => Get<double>(); set => Set(value); }
+        public static double UpRate { get => Get<double>(); set => Set(value); }
+        public static double Kurtosis { get => Get<double>(); set => Set(value); }
+        public static double MinPeak { get => Get<double>(); set => Set(value); }
+        public static string VFunc { get => Get<string>(); set => Set(value); }
+        public static int AudioUnit { get => Get<int>(); set => Set(value); }
+
+        #region GetSet definition
         public static event System.ComponentModel.PropertyChangedEventHandler StaticPropertyChanged;
-        private static void OnStaticPropertyChanged(string propertyName)
+        private static void OnStaticPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string propertyName = "")
+            => StaticPropertyChanged?.Invoke(null, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+        private static readonly Dictionary<string, object> _properties = new Dictionary<string, object>();
+        /// <summary>
+        /// Gets the value of a property
+        /// </summary>
+        /// <typeparam name="T">Type of a property</typeparam>
+        /// <param name="name">CallerMemberName</param>
+        /// <returns></returns>
+        private static T Get<T>([System.Runtime.CompilerServices.CallerMemberName] string name = null)
         {
-            StaticPropertyChanged?.Invoke(null, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            Debug.Assert(name != null, "Property CallerMemberName is null");
+            if (_properties.TryGetValue(name, out object value))
+                return value == null ? default : (T)value;
+            return default;
         }
 
-        public static double UIUpdateInterval { get => _UIUpdate; set { _UIUpdate = value; OnStaticPropertyChanged("UIUpdateInterval"); } }
-        public static double AutoControlInterval { get => _AutoControlInterval; set { _AutoControlInterval = value; OnStaticPropertyChanged("AutoControlInterval"); } }
-        public static double GCInterval { get => _GCInterval; set { _GCInterval = value; OnStaticPropertyChanged("GCInterval"); } }
-        public static double TargetLevel { get => _TargetLevel; set { _TargetLevel = value; OnStaticPropertyChanged("TargetLevel"); } }
-        public static double LimitLevel { get => _LimitLevel; set { _LimitLevel = value; OnStaticPropertyChanged("LimitLevel"); } }
-        public static double CompRate { get => _CompRate; set { _CompRate = value; OnStaticPropertyChanged("CompRate"); } }
-        public static double AverageTime { get => _AverageTime; set { _AverageTime = value; OnStaticPropertyChanged("AverageTime"); } }
-        public static double UpRate { get => _UpRate; set { _UpRate = value; OnStaticPropertyChanged("UpRate"); } }
-        public static double Kurtosis { get => _Kurtosis; set { _Kurtosis = value; OnStaticPropertyChanged("Kurtosis"); } }
-        public static double MinPeak { get => _MinPeak; set { _MinPeak = value; OnStaticPropertyChanged("MinPeak"); } }
-        public static string VFunc { get => _VFunc; set { _VFunc = value; OnStaticPropertyChanged("VFunc"); } }
-        public static int AudioUnit { get => _AudioUnit; set { _AudioUnit = value; OnStaticPropertyChanged("AudioUnit"); } }
-
-        private static double _UIUpdate, _AutoControlInterval, _GCInterval;
-        private static double _TargetLevel, _LimitLevel, _CompRate, _AverageTime, _UpRate, _Kurtosis, _MinPeak;
-        private static string _VFunc;
-        private static int _AudioUnit;
-        /*
-        public static int UIUpdate, AutoControlInterval, GCInterval;
-        public static double TargetLevel, AverageTime, UpRate, Kurtosis, MinPeak;
-        public static string VFunc;*/
-
-        //public static bool AdvancedView { get; set; }
+        /// <summary>
+        /// Sets the value of a property
+        /// </summary>
+        /// <typeparam name="T">Type of a property</typeparam>
+        /// <param name="value">New value of a property</param>
+        /// <param name="name">CallerMemberName</param>
+        /// <remarks>Use this overload when implicitly naming the property</remarks>
+        private static void Set<T>(T value, [System.Runtime.CompilerServices.CallerMemberName] string name = null)
+        {
+            Debug.Assert(name != null, "Property CallerMemberName is null");
+            if (Equals(value, Get<T>(name)))
+                return;
+            _properties[name] = value;
+            OnStaticPropertyChanged(name);
+        }
+        #endregion
     }
 }

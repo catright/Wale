@@ -1,17 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
+﻿using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace Wale.WPF
 {
@@ -20,7 +11,7 @@ namespace Wale.WPF
     /// </summary>
     public partial class Help : Window
     {
-        Datalink DL = new Datalink();
+        readonly Datalink DL = new Datalink();
         public Help()
         {
             InitializeComponent();
@@ -32,7 +23,7 @@ namespace Wale.WPF
             this.Title = "Wale " + Localization.Interpreter.Current.Help;
             message.Text = Localization.Interpreter.Current.HelpMsg;
         }
-        
+
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
@@ -52,7 +43,7 @@ namespace Wale.WPF
         private async Task ShowClipboardCopiedMessage()
         {
             int keepTime = 3000, fadeTime = 300, fadeStage = fadeTime / 10;
-            
+
             for (int i = 0; i < fadeTime; i += fadeStage)
             {
                 double divide = (double)(i + fadeStage) / fadeTime;
@@ -74,16 +65,25 @@ namespace Wale.WPF
 
         class Datalink : INotifyPropertyChanged
         {
-            public string Wiki { get => "https://github.com/catright/Wale/wiki"; }
+            public string Wiki => @"https://github.com/catright/Wale/wiki";
 
             private Brush _WikiLinkBrush = ColorSet.ForeColorBrush;
-            public Brush WikiLinkBrush { get => _WikiLinkBrush; set { _WikiLinkBrush = value; Changed("WikiLinkBrush"); } }
+            public Brush WikiLinkBrush
+            {
+                get => _WikiLinkBrush;
+                set { _WikiLinkBrush = value; OnPropertyChanged(); }
+            }
             private Brush _ClipboardCopiedMessageBrush = ColorSet.ForeColorBrush;
-            public Brush ClipboardCopiedMessageBrush { get=> _ClipboardCopiedMessageBrush; set { _ClipboardCopiedMessageBrush = value; Changed("ClipboardCopiedMessageBrush"); } }
+            public Brush ClipboardCopiedMessageBrush
+            {
+                get => _ClipboardCopiedMessageBrush;
+                set { _ClipboardCopiedMessageBrush = value; OnPropertyChanged(); }
+            }
 
             public Datalink() { _ClipboardCopiedMessageBrush.Opacity = 0; }
             public event PropertyChangedEventHandler PropertyChanged;
-            private void Changed(string name) { PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name)); }
+            private void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string name = null)
+                => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

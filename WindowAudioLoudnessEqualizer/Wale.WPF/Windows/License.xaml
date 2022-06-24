@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Wale.WPF"
         xmlns:prop="clr-namespace:Wale.WPF.Properties"
         xmlns:wale="clr-namespace:Wale;assembly=WaleBase"
-        xmlns:conf="clr-namespace:Wale.Configuration;assembly=WaleBase"
+        xmlns:conf="clr-namespace:Wale.Configs;assembly=WaleBase"
         xmlns:locale="clr-namespace:Wale.Localization;assembly=Wale.Localization"
         mc:Ignorable="d"
         Title="Wale License"

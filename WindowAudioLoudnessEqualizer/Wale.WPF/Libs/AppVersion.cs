@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Wale.WPF
 {
     public static class AppVersion
     {
-        private static System.Version versionObject = typeof(Wale.WPF.App).Assembly.GetName().Version;
+        private static readonly Version versionObject = typeof(App).Assembly.GetName().Version;
         /// <summary>
         /// App Release Number. Top level version
         /// </summary>
@@ -28,8 +24,8 @@ namespace Wale.WPF
         //private static TimeSpan critDate = buildDate.Subtract(new DateTime(2017, 8, 20));
         //public static int Build = (int)critDate.TotalDays;
         //public static int Revision = (int)critDate.Subtract(new TimeSpan(Build, 0, 0, 0)).TotalSeconds / 10;
-        private static int Build = versionObject.Build;
-        private static int Revision = versionObject.Revision;
+        private static readonly int Build = versionObject.Build;
+        private static readonly int Revision = versionObject.Revision;
 
         /// <summary>
         /// Build number
@@ -68,8 +64,12 @@ namespace Wale.WPF
             {
                 if (item.SelectSingleNode("title").InnerText.EndsWith("msi"))
                 {
-                    DateTime newDate;// Console.WriteLine(item.SelectSingleNode("pubDate").InnerText.Replace(" UT", "Z"));
-                    DateTime.TryParse(item.SelectSingleNode("pubDate").InnerText.Replace(" UT", "Z"), System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AdjustToUniversal | System.Globalization.DateTimeStyles.AssumeUniversal, out newDate);
+                    // Console.WriteLine(item.SelectSingleNode("pubDate").InnerText.Replace(" UT", "Z"));
+                    DateTime.TryParse(
+                        item.SelectSingleNode("pubDate").InnerText.Replace(" UT", "Z"),
+                        System.Globalization.CultureInfo.InvariantCulture,
+                        System.Globalization.DateTimeStyles.AdjustToUniversal | System.Globalization.DateTimeStyles.AssumeUniversal,
+                        out DateTime newDate);
                     //Console.WriteLine($"{latestDate} | {newDate} | {newDate.CompareTo(latestDate)}");
                     if (newDate.CompareTo(latestDate) > 0) { latestDate = newDate; latest = item; }
                 }
@@ -80,11 +80,7 @@ namespace Wale.WPF
             //Console.WriteLine($"{title} {link}");
             string[] version = title.Substring(0, title.LastIndexOf('.')).Split('_')[1].Split('.');// Console.WriteLine($"{version[0]}.{version[1]}.{version[2]}");
 
-            bool UpdateReq = false;
-            if (Convert.ToInt32(version[0]) > AppVersion.ARN) { UpdateReq = true; }
-            else if (Convert.ToInt32(version[1]) > AppVersion.Major) { UpdateReq = true; }
-            else if (Convert.ToInt32(version[2]) > AppVersion.Minor) { UpdateReq = true; }
-
+            bool UpdateReq = Convert.ToInt32(version[0]) > AppVersion.ARN || Convert.ToInt32(version[1]) > AppVersion.Major || Convert.ToInt32(version[2]) > AppVersion.Minor;
             return new Tuple<bool, string>(UpdateReq, string.IsNullOrEmpty(link) ? null : link);
         }
     }

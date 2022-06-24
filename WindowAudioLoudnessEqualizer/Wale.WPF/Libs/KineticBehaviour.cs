@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -26,18 +22,12 @@ namespace Wale.WPF
         /// Gets the Friction property.  This dependency property
         /// indicates ....
         /// </summary>
-        public static double GetFriction(DependencyObject d)
-        {
-            return (double)d.GetValue(FrictionProperty);
-        }
+        public static double GetFriction(DependencyObject d) => (double)d.GetValue(FrictionProperty);
 
         /// <summary>
         /// Sets the Friction property.
         /// </summary>
-        public static void SetFriction(DependencyObject d, double value)
-        {
-            d.SetValue(FrictionProperty, value);
-        }
+        public static void SetFriction(DependencyObject d, double value) => d.SetValue(FrictionProperty, value);
 
         #endregion
 
@@ -54,19 +44,12 @@ namespace Wale.WPF
         /// <summary>
         /// Gets the ScrollStartPoint property.
         /// </summary>
-        private static Point GetScrollStartPoint(DependencyObject d)
-        {
-            return (Point)d.GetValue(ScrollStartPointProperty);
-        }
+        private static Point GetScrollStartPoint(DependencyObject d) => (Point)d.GetValue(ScrollStartPointProperty);
 
         /// <summary>
         /// Sets the ScrollStartPoint property.
         /// </summary>
-        private static void SetScrollStartPoint(DependencyObject d,
-            Point value)
-        {
-            d.SetValue(ScrollStartPointProperty, value);
-        }
+        private static void SetScrollStartPoint(DependencyObject d, Point value) => d.SetValue(ScrollStartPointProperty, value);
 
         #endregion
 
@@ -83,19 +66,12 @@ namespace Wale.WPF
         /// <summary>
         /// Gets the ScrollStartOffset property.
         /// </summary>
-        private static Point GetScrollStartOffset(DependencyObject d)
-        {
-            return (Point)d.GetValue(ScrollStartOffsetProperty);
-        }
+        private static Point GetScrollStartOffset(DependencyObject d) => (Point)d.GetValue(ScrollStartOffsetProperty);
 
         /// <summary>
         /// Sets the ScrollStartOffset property.
         /// </summary>
-        private static void SetScrollStartOffset(DependencyObject d,
-            Point value)
-        {
-            d.SetValue(ScrollStartOffsetProperty, value);
-        }
+        private static void SetScrollStartOffset(DependencyObject d, Point value) => d.SetValue(ScrollStartOffsetProperty, value);
 
         #endregion
 
@@ -112,19 +88,12 @@ namespace Wale.WPF
         /// <summary>
         /// Gets the InertiaProcessor property.
         /// </summary>
-        private static InertiaHandler GetInertiaProcessor(DependencyObject d)
-        {
-            return (InertiaHandler)d.GetValue(InertiaProcessorProperty);
-        }
+        private static InertiaHandler GetInertiaProcessor(DependencyObject d) => (InertiaHandler)d.GetValue(InertiaProcessorProperty);
 
         /// <summary>
         /// Sets the InertiaProcessor property.
         /// </summary>
-        private static void SetInertiaProcessor(DependencyObject d,
-            InertiaHandler value)
-        {
-            d.SetValue(InertiaProcessorProperty, value);
-        }
+        private static void SetInertiaProcessor(DependencyObject d, InertiaHandler value) => d.SetValue(InertiaProcessorProperty, value);
 
         #endregion
 
@@ -144,19 +113,12 @@ namespace Wale.WPF
         /// <summary>
         /// Gets the HandleKineticScrolling property.
         /// </summary>
-        public static bool GetHandleKineticScrolling(DependencyObject d)
-        {
-            return (bool)d.GetValue(HandleKineticScrollingProperty);
-        }
+        public static bool GetHandleKineticScrolling(DependencyObject d) => (bool)d.GetValue(HandleKineticScrollingProperty);
 
         /// <summary>
         /// Sets the HandleKineticScrolling property.
         /// </summary>
-        public static void SetHandleKineticScrolling(DependencyObject d,
-            bool value)
-        {
-            d.SetValue(HandleKineticScrollingProperty, value);
-        }
+        public static void SetHandleKineticScrolling(DependencyObject d, bool value) => d.SetValue(HandleKineticScrollingProperty, value);
 
         /// <summary>
         /// Handles changes to the HandleKineticScrolling property.
@@ -187,19 +149,15 @@ namespace Wale.WPF
         #endregion
 
         #region Mouse Events
-        private static void OnPreviewMouseDown(object sender,
-            MouseButtonEventArgs e)
+        private static void OnPreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
             var scrollViewer = (ScrollViewer)sender;
             if (scrollViewer.IsMouseOver)
             {
                 // Save starting point, used later when
                 //determining how much to scroll.
-                SetScrollStartPoint(scrollViewer,
-                    e.GetPosition(scrollViewer));
-                SetScrollStartOffset(scrollViewer,
-                    new Point(scrollViewer.HorizontalOffset,
-                        scrollViewer.VerticalOffset));
+                SetScrollStartPoint(scrollViewer, e.GetPosition(scrollViewer));
+                SetScrollStartOffset(scrollViewer, new Point(scrollViewer.HorizontalOffset, scrollViewer.VerticalOffset));
                 scrollViewer.CaptureMouse();
             }
         }
@@ -214,12 +172,10 @@ namespace Wale.WPF
 
                 var scrollStartPoint = GetScrollStartPoint(scrollViewer);
                 // Determine the new amount to scroll.
-                Point delta = new Point(scrollStartPoint.X -
-                    currentPoint.X, scrollStartPoint.Y - currentPoint.Y);
+                Point delta = new Point(scrollStartPoint.X - currentPoint.X, scrollStartPoint.Y - currentPoint.Y);
 
                 var scrollStartOffset = GetScrollStartOffset(scrollViewer);
-                Point scrollTarget = new Point(scrollStartOffset.X +
-                    delta.X, scrollStartOffset.Y + delta.Y);
+                Point scrollTarget = new Point(scrollStartOffset.X + delta.X, scrollStartOffset.Y + delta.Y);
 
                 var inertiaProcessor = GetInertiaProcessor(scrollViewer);
                 if (inertiaProcessor != null)
@@ -231,14 +187,11 @@ namespace Wale.WPF
             }
         }
 
-        private static void OnPreviewMouseUp(object sender,
-            MouseButtonEventArgs e)
+        private static void OnPreviewMouseUp(object sender, MouseButtonEventArgs e)
         {
             var scrollViewer = (ScrollViewer)sender;
             if (scrollViewer.IsMouseCaptured)
-            {
                 scrollViewer.ReleaseMouseCapture();
-            }
         }
         #endregion
 
@@ -251,29 +204,29 @@ namespace Wale.WPF
         {
             private Point previousPoint;
             private Vector velocity;
-            ScrollViewer scroller;
-            DispatcherTimer animationTimer;
+            readonly ScrollViewer scroller;
+            readonly DispatcherTimer animationTimer;
 
             private Point scrollTarget;
             public Point ScrollTarget
             {
-                get { return scrollTarget; }
-                set { scrollTarget = value; }
+                get => scrollTarget;
+                set => scrollTarget = value;
             }
 
             public InertiaHandler(ScrollViewer scroller)
             {
                 this.scroller = scroller;
-                animationTimer = new DispatcherTimer();
-                animationTimer.Interval =
-                    new TimeSpan(0, 0, 0, 0, 20);
-                animationTimer.Tick +=
-                    new EventHandler(HandleWorldTimerTick);
+                animationTimer = new DispatcherTimer
+                {
+                    Interval =
+                    new TimeSpan(0, 0, 0, 0, 20)
+                };
+                animationTimer.Tick += new EventHandler(HandleWorldTimerTick);
                 animationTimer.Start();
             }
 
-            private void HandleWorldTimerTick(object sender,
-                EventArgs e)
+            private void HandleWorldTimerTick(object sender, EventArgs e)
             {
                 if (scroller.IsMouseCaptured)
                 {
@@ -285,14 +238,11 @@ namespace Wale.WPF
                 {
                     if (velocity.Length > 1)
                     {
-                        scroller.ScrollToHorizontalOffset(
-                            ScrollTarget.X);
-                        scroller.ScrollToVerticalOffset(
-                            ScrollTarget.Y);
+                        scroller.ScrollToHorizontalOffset(ScrollTarget.X);
+                        scroller.ScrollToVerticalOffset(ScrollTarget.Y);
                         scrollTarget.X += velocity.X;
                         scrollTarget.Y += velocity.Y;
-                        velocity *=
-                            KineticBehaviour.GetFriction(scroller);
+                        velocity *= GetFriction(scroller);
                     }
                 }
             }

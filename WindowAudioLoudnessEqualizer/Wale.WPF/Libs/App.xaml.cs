@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace Wale.WPF
@@ -19,7 +14,7 @@ namespace Wale.WPF
         // declare the mutex
         private readonly Mutex _mutex;
         // overload the constructor
-        bool createdNew, StartRequire = true, mutexOwned = false;
+        readonly bool createdNew, StartRequire = true, mutexOwned = false;
         public App()
         {
             // overloaded mutex constructor which outs a boolean
@@ -29,7 +24,11 @@ namespace Wale.WPF
             if (!createdNew)
             {
                 Console.WriteLine("Acquiring.");
-                if (!_mutex.WaitOne(3000))
+                bool needToStop;
+                try { needToStop = !_mutex.WaitOne(3000); }
+                catch (AbandonedMutexException) { needToStop = false; }
+                catch { needToStop = true; }
+                if (needToStop)
                 {
                     StartRequire = false;
                     // if the mutex already exists, notify and quit
@@ -49,13 +48,8 @@ namespace Wale.WPF
             //foreach (string arg in e.Args) { Console.WriteLine(arg); }
             //string installedPath = System.AppDomain.CurrentDomain.BaseDirectory;
             //string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            Conf.settings.Init();
-            string path = Conf.WorkingPath;
-            JPack.FileLog.SetWorkDirectory(path);
-            JPack.FileLog.Open("WaleLog");
-            JPack.FileLog.Erase(7);
-            JPack.FileLog.Log($"Wale {AppVersion.Version}.{AppVersion.SubVersion}");
-            JPack.FileLog.Log(path);
+            Configs.Manager.Initialize();
+            M.F($"Wale {AppVersion.Version}.{AppVersion.SubVersion}");
 
             int UICreation = 0;
             try
@@ -65,26 +59,22 @@ namespace Wale.WPF
                 mw.Show();
                 UICreation = 2;
             }
-            catch (Exception uice) { JPack.FileLog.Log($"Failed to create and show UI on stage {UICreation}, {uice.ToString()}"); }
+            catch (Exception uice) { M.F($"Failed to create and show UI on stage {UICreation}, {uice}"); }
         }
         void App_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
         {
+            if (e.Exception.HResult.IsKnown()) { e.Handled = true; return; }
             // Process unhandled exception
-            JPack.FileLog.Log($"{e.Exception.Message} {e.Exception.StackTrace}");
+            M.F($"{e.Exception.Message} {e.Exception.StackTrace}");
             // Prevent default unhandled exception processing
             //e.Handled = true;
         }
         protected override void OnExit(ExitEventArgs e)
         {
+            M.F($"AppExit {e.ApplicationExitCode}");
             if (mutexOwned) _mutex.ReleaseMutex();
             base.OnExit(e);
         }
 
-    }
-
-    public static class Conf
-    {
-        public static Wale.Configuration.General settings = new Wale.Configuration.General();
-        public static string WorkingPath => settings.WorkingPath;
     }
 }

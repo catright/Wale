@@ -1,16 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace Wale.WPF
 {
@@ -19,18 +10,24 @@ namespace Wale.WPF
     /// </summary>
     public partial class TitleBar : UserControl
     {
-        Window Owner;
+        readonly Window Owner;
 
         public TitleBar()
         {
             InitializeComponent();
         }
-        public TitleBar(Window owner) { InitializeComponent(); this.Owner = owner; this.DataContext = Owner; Owner.LocationChanged += Window_LocationAndSizeChanged; }
+        public TitleBar(Window owner)
+        {
+            InitializeComponent();
+            this.Owner = owner;
+            this.DataContext = Owner;
+            Owner.LocationChanged += Window_LocationAndSizeChanged;
+        }
 
 
         #region title panel control, location and size check events
         private Point titlePosition;
-        private void TitlePanel_MouseDown(object sender, MouseButtonEventArgs e) { titlePosition = e.GetPosition(Owner); }
+        private void TitlePanel_MouseDown(object sender, MouseButtonEventArgs e) => titlePosition = e.GetPosition(Owner);
         private void TitlePanel_MouseMove(object sender, MouseEventArgs e)
         {
             if (e.LeftButton == MouseButtonState.Pressed)
@@ -40,9 +37,9 @@ namespace Wale.WPF
 
                 double x = mouse.X / visource.M11 - titlePosition.X;
                 double y = mouse.Y / visource.M22 - titlePosition.Y;
-                
+
                 var loc = CheckWindowLocation(Owner, x, y);
-                
+
                 Owner.Left = loc.Item1;
                 Owner.Top = loc.Item2;
             }
@@ -55,12 +52,12 @@ namespace Wale.WPF
         }
         public static Tuple<double, double> CheckWindowLocation(Window win, double left, double top)
         {
-            if ((left + win.Width) > System.Windows.SystemParameters.WorkArea.Width) left = System.Windows.SystemParameters.WorkArea.Width - win.Width;
-            else if (left < System.Windows.SystemParameters.WorkArea.Left) left = System.Windows.SystemParameters.WorkArea.Left;
+            if ((left + win.Width) > SystemParameters.WorkArea.Width) left = SystemParameters.WorkArea.Width - win.Width;
+            else if (left < SystemParameters.WorkArea.Left) left = SystemParameters.WorkArea.Left;
 
-            if ((top + win.Height) > System.Windows.SystemParameters.WorkArea.Height) top = System.Windows.SystemParameters.WorkArea.Height - win.Height;
-            else if (top < System.Windows.SystemParameters.WorkArea.Top) top = System.Windows.SystemParameters.WorkArea.Top;
-            
+            if ((top + win.Height) > SystemParameters.WorkArea.Height) top = SystemParameters.WorkArea.Height - win.Height;
+            else if (top < SystemParameters.WorkArea.Top) top = SystemParameters.WorkArea.Top;
+
             return new Tuple<double, double>(left, top);
         }
         #endregion

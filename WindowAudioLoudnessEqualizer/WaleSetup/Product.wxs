@@ -3,7 +3,7 @@
 	<Product Id="*" Name="Wale" Language="1033" Manufacturer="Jongtae Park (catright)"
            UpgradeCode="7286072b-aa45-40bc-a835-88de5243a963" Version="!(bind.fileVersion.WaleEXE)">
 		<Package Id="*" Keywords="Installer" InstallerVersion="405" InstallScope="perMachine" Compressed="yes" Languages="1033"
-             Description="Windows Audio Loudness Equalizer" Manufacturer="Jongtae Park (catright)" Comments="Copyright @ 2017-2021 Jongtae Park (catright)" />
+             Description="Windows Audio Loudness Equalizer" Manufacturer="Jongtae Park (catright)" Comments="Copyright @ 2017-2022 Jongtae Park (catright)" />
 
 		<MajorUpgrade AllowDowngrades="no" DowngradeErrorMessage="A newer version of [ProductName] is already installed."
                   AllowSameVersionUpgrades="yes"
@@ -11,119 +11,125 @@
                   Schedule="afterInstallInitialize"
                   />
 		<MediaTemplate EmbedCab="yes" />
-    
-    <Icon Id="Waleicon.ico" SourceFile="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\Icon\WaleLeftOn.ico" />
-    <Property Id="ARPPRODUCTICON" Value="Waleicon.ico" />
-    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
-    <WixVariable Id="WixUILicenseRtf" Value="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\WaleSetup\licence.rtf" />
 
-    <UIRef Id="WixUI_InstallDir" />
-    <!--UIRef Id="WixUI_Mondo" />
+		<Icon Id="Waleicon.ico" SourceFile="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\Icon\WaleLeftOn.ico" />
+		<Property Id="ARPPRODUCTICON" Value="Waleicon.ico" />
+		<Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+		<WixVariable Id="WixUILicenseRtf" Value="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\WaleSetup\licence.rtf" />
+
+		<UIRef Id="WixUI_InstallDir" />
+		<!--UIRef Id="WixUI_Mondo" />
     <UIRef Id="WixUI_ErrorProgressText" /-->
-    <!--UIRef Id="WixUI_Minimal "/-->
-    
-    <Feature Id="Package" Title="Wale" Description="Windows Audio Loudness Equalizer" Display="expand" Level ="1" ConfigurableDirectory="INSTALLFOLDER">
-		  <Feature Id="ProductFeature" Title="Wale" Description="Windows Audio Loudness Equalizer" Level="1">
-			  <ComponentGroupRef Id="ProductComponents" />
-        <ComponentGroupRef Id="StartMenuFolderComponents" />
-		  </Feature>
-    </Feature>
-    
-    
-    
-    <!--<InstallExecuteSequence>
+		<!--UIRef Id="WixUI_Minimal "/-->
+
+		<Feature Id="Package" Title="Wale" Description="Windows Audio Loudness Equalizer" Display="expand" Level ="1" ConfigurableDirectory="INSTALLFOLDER">
+			<Feature Id="ProductFeature" Title="Wale" Description="Windows Audio Loudness Equalizer" Level="1">
+				<ComponentGroupRef Id="ProductComponents" />
+				<ComponentGroupRef Id="StartMenuFolderComponents" />
+			</Feature>
+		</Feature>
+
+
+
+		<!--<InstallExecuteSequence>
       <RemoveExistingProducts After='InstallInitialize' />
     </InstallExecuteSequence>-->
 
-  </Product>
-  
-  <!-- Directory fragment -->
+	</Product>
+
+	<!-- Directory fragment -->
 	<Fragment>
 		<Directory Id="TARGETDIR" Name="SourceDir">
-			<Directory Id="ProgramFilesFolder">
+			<Directory Id="ProgramFiles64Folder">
 				<Directory Id="INSTALLFOLDER" Name="Wale" />
 			</Directory>
-      <Directory Id="ProgramMenuFolder">
-        <Directory Id="StartDir" Name="Wale" />
-      </Directory>
+			<Directory Id="ProgramMenuFolder">
+				<Directory Id="StartDir" Name="Wale" />
+			</Directory>
 		</Directory>
 	</Fragment>
 
-  <!-- Component fragment -->
+	<!-- Component fragment -->
 	<Fragment>
 		<ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
 			<!-- TODO: Remove the comments around this Component element and the ComponentRef below in order to add resources to this installer. -->
 			<Component Id="ProductComponent">
 				<!-- TODO: Insert files, registry keys, and other resources here. -->
-        <RegistryValue Root='HKCU' Key='Software\[ProductName]' Type='string' Value='' KeyPath='yes' />
-        <RemoveRegistryKey Root='HKCU' Key='Software\[ProductName]' Action='removeOnUninstall' />
-        <RemoveFolder Id='INSTALLFOLDER' On='uninstall' />
+				<RegistryValue Root='HKCU' Key='Software\[ProductName]' Type='string' Value='' KeyPath='yes' />
+				<RemoveRegistryKey Root='HKCU' Key='Software\[ProductName]' Action='removeOnUninstall' />
+				<RemoveFolder Id='INSTALLFOLDER' On='uninstall' />
 			</Component>
-      
-      <Component Id="MainExecutable">
-        <!-- Assembly=".net" AssemblyApplication="WaleEXE"-->
-        <File Id="WaleEXE" Name="Wale.exe" Assembly=".net" AssemblyApplication="WaleEXE"
-              Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Release\Wale.exe"
-              KeyPath="yes">
-        </File>
-      </Component>
-      
-      <Component Id="WaleBaseComp">
-        <File Id="WaleBase" Name="WaleBase.dll"
-              Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Release\WaleBase.dll"
-              KeyPath="yes" />
-      </Component>
-      
-      <Component Id="WaleCoreAudioComp">
-        <File Id="WaleCoreAudio" Name="Wale.CoreAudio.dll"
-              Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Release\Wale.CoreAudio.dll"
-              KeyPath="yes" />
-      </Component>
 
-      <Component Id="WaleLocalizationComp">
-        <File Id="WaleLocalization" Name="Wale.Localization.dll"
-              Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Release\Wale.Localization.dll"
-              KeyPath="yes" />
-      </Component>
+			<Component Id="MainExecutable">
+				<!-- Assembly=".net" AssemblyApplication="WaleEXE"-->
+				<File Id="WaleEXE" Name="Wale.exe" Assembly=".net" AssemblyApplication="WaleEXE"
+					  Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Release\Wale.exe"
+					  KeyPath="yes">
+				</File>
+			</Component>
 
-      <Component Id="JPackComp">
-        <File Id="JPack" Name="JPack.dll"
-              Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Release\JPack.dll"
-              KeyPath="yes" />
-      </Component>
-      
-      <Component Id="CSCoreComp">
-        <File Id="CSCore" Name="CSCore.dll"
-              Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Release\CSCore.dll"
-              KeyPath="yes" />
-      </Component>
+			<Component Id="WaleBaseComp">
+				<File Id="WaleBase" Name="WaleBase.dll"
+					  Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Release\WaleBase.dll"
+					  KeyPath="yes" />
+			</Component>
 
-      <Component Id="NJsonComp">
-        <File Id="NJson" Name="Newtonsoft.Json.dll"
-              Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Release\Newtonsoft.Json.dll"
-              KeyPath="yes" />
-      </Component>
+			<!--<Component Id="WaleCoreAudioComp">
+				<File Id="WaleCoreAudio" Name="Wale.CoreAudio.dll"
+					Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Release\Wale.CoreAudio.dll"
+					KeyPath="yes" />
+			</Component>-->
 
-      <Component Id="OxyComp">
-        <File Id="Oxy" Name="OxyPlot.dll"
-              Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Release\OxyPlot.dll"
-              KeyPath="yes" />
-      </Component>
-      
-      <Component Id="OxyWpfComp">
-        <File Id="OxyWpf" Name="OxyPlot.Wpf.dll"
-              Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Release\OxyPlot.Wpf.dll"
-              KeyPath="yes" />
-      </Component>
+			<Component Id="WaleLocalizationComp">
+				<File Id="WaleLocalization" Name="Wale.Localization.dll"
+					  Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Release\Wale.Localization.dll"
+					  KeyPath="yes" />
+			</Component>
+
+			<Component Id="JPackComp">
+				<File Id="JPack" Name="JPack.dll"
+					  Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Release\JPack.dll"
+					  KeyPath="yes" />
+			</Component>
+
+			<Component Id="CSCoreComp">
+				<File Id="CSCore" Name="CSCore.dll"
+					  Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Release\CSCore.dll"
+					  KeyPath="yes" />
+			</Component>
+
+			<Component Id="NJsonComp">
+				<File Id="NJson" Name="Newtonsoft.Json.dll"
+					  Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Release\Newtonsoft.Json.dll"
+					  KeyPath="yes" />
+			</Component>
+
+			<Component Id="OxyComp">
+				<File Id="Oxy" Name="OxyPlot.dll"
+					  Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Release\OxyPlot.dll"
+					  KeyPath="yes" />
+			</Component>
+
+			<Component Id="OxyWpfComp">
+				<File Id="OxyWpf" Name="OxyPlot.Wpf.dll"
+					  Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Release\OxyPlot.Wpf.dll"
+					  KeyPath="yes" />
+			</Component>
+
+			<Component Id="OxyWpfSharedComp">
+				<File Id="OxyWpfShared" Name="OxyPlot.Wpf.Shared.dll"
+					  Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Release\OxyPlot.Wpf.Shared.dll"
+					  KeyPath="yes" />
+			</Component>
 		</ComponentGroup>
-    <ComponentGroup Id="StartMenuFolderComponents" Directory="StartDir">
-      <Component Id="RemoveStartDiratUninstall">
-        <Shortcut Id="StartMenuShortCut" Directory="StartDir" Name="Wale" Target="[INSTALLFOLDER]\Wale.exe" WorkingDirectory="INSTALLFOLDER" Icon="Waleicon.ico" IconIndex="0" />
-        <RegistryValue Root='HKCU' Key='Software\[ProductName]\StartMenu' Type='string' Value='' KeyPath='yes' />
-        <RemoveRegistryKey Root='HKCU' Key='Software\[ProductName]\StartMenu' Action='removeOnUninstall' />
-        <RemoveFolder Id='StartDir' On='uninstall' />
-      </Component>
-    </ComponentGroup>
+		<ComponentGroup Id="StartMenuFolderComponents" Directory="StartDir">
+			<Component Id="RemoveStartDiratUninstall">
+				<Shortcut Id="StartMenuShortCut" Directory="StartDir" Name="Wale" Target="[INSTALLFOLDER]\Wale.exe" WorkingDirectory="INSTALLFOLDER" Icon="Waleicon.ico" IconIndex="0" />
+				<RegistryValue Root='HKCU' Key='Software\[ProductName]\StartMenu' Type='string' Value='' KeyPath='yes' />
+				<RemoveRegistryKey Root='HKCU' Key='Software\[ProductName]\StartMenu' Action='removeOnUninstall' />
+				<RemoveFolder Id='StartDir' On='uninstall' />
+			</Component>
+		</ComponentGroup>
 	</Fragment>
-  
+
 </Wix>

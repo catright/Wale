@@ -52,7 +52,7 @@ namespace Wale
                 }
             }
         }
-        double signal(double t)
+        double Signal(double t)
         {
             double[] freq = { 2, 5, 11, 17, 29 }; // known freqs for testing
             double sum = 0;
@@ -67,7 +67,7 @@ namespace Wale
             int N = x.Length;
             for (int i = 0; i < N; i++)
             {
-                x[i] = signal((double)i / N);
+                x[i] = Signal((double)i / N);
                 X[i] = x[i];  // copy into X[] for FFT work & result
             }
         }

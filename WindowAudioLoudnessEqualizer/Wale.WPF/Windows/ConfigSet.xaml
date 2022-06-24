@@ -6,25 +6,27 @@
              xmlns:local="clr-namespace:Wale.WPF"
              xmlns:prop="clr-namespace:Wale.WPF.Properties"
              xmlns:wale="clr-namespace:Wale;assembly=WaleBase"
+             xmlns:conf="clr-namespace:Wale.Configs;assembly=WaleBase"
              xmlns:locale="clr-namespace:Wale.Localization;assembly=Wale.Localization"
              xmlns:oxy="http://oxyplot.org/wpf"
              mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=conf:General}"
              x:Name="confset">
     <UserControl.Style>
         <Style TargetType="UserControl">
-            <Setter Property="Foreground" Value="{Binding Source={x:Static local:ColorSet.ForeColorBrush}}"/>
-            <Setter Property="Background" Value="{Binding Source={x:Static local:ColorSet.BackColorBrush}}"/>
+            <Setter Property="Foreground" Value="{x:Static local:ColorSet.ForeColorBrush}"/>
+            <Setter Property="Background" Value="{x:Static local:ColorSet.BackColorBrush}"/>
 
             <Setter Property="Width" Value="478"/>
             <Setter Property="MinWidth" Value="{Binding Width, RelativeSource={RelativeSource Self}}"/>
             <Setter Property="MaxWidth" Value="{Binding Width, RelativeSource={RelativeSource Self}}"/>
 
-            <Setter Property="Height" Value="{Binding Path=ConfigSetHeight, Mode=OneWay}"/>
+            <!--<Setter Property="Height" Value="{Binding Source={x:Static conf:Visual.ConfigSetHeight}, Mode=OneWay}"/>
             <Setter Property="MinHeight" Value="{Binding Height, RelativeSource={RelativeSource Self}}"/>
-            <Setter Property="MaxHeight" Value="{Binding Height, RelativeSource={RelativeSource Self}}"/>
+            <Setter Property="MaxHeight" Value="{Binding Height, RelativeSource={RelativeSource Self}}"/>-->
             <Style.Triggers>
                 <DataTrigger Binding="{Binding Path=AdvancedView, Mode=OneWay}" Value="True">
-                    <Setter Property="Height" Value="{Binding Path=ConfigSetLongHeight, Mode=OneWay}"/>
+                    <Setter Property="Height" Value="{Binding Source={x:Static conf:Visual.ConfigSetLongHeight}, Mode=OneWay}"/>
                 </DataTrigger>
             </Style.Triggers>
         </Style>
@@ -275,7 +277,7 @@
                         </Grid>
                         <Grid Style="{StaticResource LineItem}" Visibility="Visible">
                             <WrapPanel>
-                                <Label Content="Comp Rate" ToolTip="Slightly varies from 1.0"/>
+                                <Label Content="Comp Rate" ToolTip="Should be >=1"/>
                             </WrapPanel>
                             <Label Content="{Binding Path=(local:LastValues.CompRate), Mode=TwoWay}" Style="{StaticResource LLastVal}"/>
                             <TextBox Text="{Binding Path=CompRate, Mode=TwoWay}"/>
@@ -301,7 +303,7 @@
                             <TextBox x:Name="KurtosisBox" Text="{Binding Path=Kurtosis, Mode=TwoWay}" TextChanged="Kurtosis_Changed"/>
                         </Grid>
                         <Grid Height="40" Style="{StaticResource LineItem}">
-                            <Label Content="Function"/>
+                            <Label Content="Function" ToolTip="Delay Function"/>
                             <Label Content="{Binding Path=(local:LastValues.VFunc), Mode=TwoWay}" Margin="60,20,0,0"/>
                             <ComboBox x:Name="FunctionSelector" HorizontalAlignment="Left" Margin="60,0,0,0" VerticalAlignment="Top" Width="150" Height="20" SelectionChanged="Function_Changed"/>
                         </Grid>
@@ -370,7 +372,7 @@
                         <StackPanel Grid.Column="0">
                             <CheckBox Content="Advanced View(F9)" IsChecked="{Binding Path=AdvancedView, Mode=TwoWay}"/>
                             <CheckBox x:Name="runAtWindowsStartup" Content="Run at Windows Startup"/>
-                            <CheckBox Content="Detailed Log" IsEnabled="False"/>
+                            <CheckBox Content="Verbose Log" IsChecked="{Binding VerboseLog, Mode=TwoWay}"/>
                             <CheckBox Visibility="Collapsed" IsEnabled="False" x:Name="CheckForUpdateCB" Content="Check for Update"/>
                         </StackPanel>
                         <StackPanel Grid.Column="1">
@@ -408,7 +410,7 @@
                 <Grid HorizontalAlignment="Left" Margin="10,5,0,5" Width="130" Height="20" IsHitTestVisible="False">
                     <TextBlock x:Name="SavedNoti" Opacity="0" Text="Saved" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False"/>
                 </Grid>
-                <Button Content="Return to Default" HorizontalAlignment="Center" Margin="10,5" Style="{StaticResource FinalButtons}" Click="resetToDafault_Click"/>
+                <Button Content="Return to Default" HorizontalAlignment="Center" Margin="10,5" Style="{StaticResource FinalButtons}" Click="ResetToDafault_Click"/>
                 <Button x:Name="CancelButton" Content="Cancel" IsEnabled="False" Visibility="Hidden" IsCancel="True" IsDefault="True" HorizontalAlignment="Right" Margin="0,5,10,5" Style="{StaticResource FinalButtons}" Click="Cancel_Click"/>
             </Grid>
         </StackPanel>

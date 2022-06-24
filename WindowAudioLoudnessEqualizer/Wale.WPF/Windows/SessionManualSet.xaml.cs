@@ -1,17 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using Wale.CoreAudio;
+using Wale.Configs;
 
 namespace Wale.WPF
 {
@@ -28,7 +18,7 @@ namespace Wale.WPF
             InitializeComponent();
             Init1();
         }
-        public SessionManualSet(Window owner, string sessionName, double rel=0)
+        public SessionManualSet(Window owner, string sessionName, double rel = 0)
         {
             InitializeComponent();
             Init1();
@@ -44,7 +34,7 @@ namespace Wale.WPF
         {
             this.Owner = owner;
             DL.SessionName = sessionName;
-            DL.RelativeTooltop = $"{Wale.Configuration.Audio.RelativeEndInv}~{Wale.Configuration.Audio.RelativeEnd}";
+            DL.RelativeTooltip = $"{Audio.RelativeEndInv}~{Audio.RelativeEnd}";
             Relative = DL.Relative = rel;
         }
 
@@ -75,7 +65,7 @@ namespace Wale.WPF
 
         public string SessionName { get => Get<string>(); set => Set(value); }
 
-        public string RelativeTooltop { get => Get<string>(); set => Set(value); }
+        public string RelativeTooltip { get => Get<string>(); set => Set(value); }
         public double Relative { get => Get<double>(); set => Set(Math.Round(value, 3)); }
     }
 

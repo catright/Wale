@@ -1,16 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace Wale.WPF
 {
@@ -19,19 +11,13 @@ namespace Wale.WPF
     /// </summary>
     public partial class DeviceMap : Window
     {
-        Properties.Settings settings = Properties.Settings.Default;
-        private List<Wale.CoreAudio.DeviceData> data;
+        //Properties.Settings settings = Properties.Settings.Default;
+        private CoreAudio.MapDataDevice[] data;
 
         public DeviceMap()
         {
             InitializeComponent();
             Init();
-        }
-        public DeviceMap(List<Wale.CoreAudio.DeviceData> data)
-        {
-            InitializeComponent();
-            Init();
-            this.data = data;
         }
         private void Init()
         {
@@ -44,20 +30,17 @@ namespace Wale.WPF
 
 
         #region Data control
-        private Task GetData()
-        {
-            return Task.Run(() => { data = new Wale.CoreAudio.Core().GetDeviceList(); });
-        }
+        private Task GetData() => Task.Run(() => data = new CoreAudio.Map().Devices);
         private void DrawMap()
         {
             if (data == null) { MessageBox.Show("There is no data."); return; }
             //View.ItemsSource = data;
             View.Items.Clear();
             View.Items.IsLiveSorting = true;
-            foreach (Wale.CoreAudio.DeviceData dd in data)
+            for (int i = 0; i < data.Length; i++)
             {
-                TreeViewItem node = new TreeViewItem() { Header = dd.Name, ToolTip = dd.DeviceId };
-                switch (dd.State)
+                TreeViewItem node = new TreeViewItem() { Header = data[i].Name, ToolTip = data[i].DeviceId };
+                switch (data[i].State)
                 {
                     case CoreAudio.DeviceState.Active:
                         node.Background = new SolidColorBrush(ColorSet.MainColor);
@@ -71,20 +54,20 @@ namespace Wale.WPF
                     default:
                         break;
                 }
-                if (dd.Sessions != null)
+                if (data[i].Sessions != null)
                 {
-                    foreach (Wale.CoreAudio.SessionData ss in dd.Sessions)
+                    for (int j = 0; j < data[i].Sessions.Length; j++)
                     {
-                        TreeViewItem childNode = new TreeViewItem() { Header = ss.Name };
-                        switch (ss.State)
+                        TreeViewItem childNode = new TreeViewItem() { Header = data[i].Sessions[j].Name };
+                        switch (data[i].Sessions[j].State)
                         {
-                            case CoreAudio.SessionState.Active:
+                            case CoreAudio.SessionState.AudioSessionStateActive:
                                 childNode.Background = new SolidColorBrush(ColorSet.MainColor);
                                 break;
-                            case CoreAudio.SessionState.Inactive:
+                            case CoreAudio.SessionState.AudioSessionStateInactive:
                                 childNode.Background = new SolidColorBrush(ColorSet.AverageColor);
                                 break;
-                            case CoreAudio.SessionState.Expired:
+                            case CoreAudio.SessionState.AudioSessionStateExpired:
                                 childNode.Background = new SolidColorBrush(ColorSet.PeakColor);
                                 break;
                             default:
