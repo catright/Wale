@@ -400,7 +400,11 @@ namespace Wale.WPF
         /// <summary>
         /// Draw new present graph
         /// </summary>
-        private void DrawNew() => Owner.Dispatcher?.Invoke(() => DrawGraph("Graph"));
+        private void DrawNew()
+        {
+            try { Owner.Dispatcher?.Invoke(() => DrawGraph("Graph")); }
+            catch (TaskCanceledException) { }
+        }
         /// <summary>
         /// Draw a graph of decrement function
         /// </summary>
@@ -455,7 +459,11 @@ namespace Wale.WPF
         /// <summary>
         /// Draw a line of Base(standard) of output level
         /// </summary>
-        private void DrawBase() => Owner.Dispatcher?.Invoke(DrawBaseInside);
+        private void DrawBase()
+        {
+            try { Owner.Dispatcher?.Invoke(DrawBaseInside); }
+            catch (TaskCanceledException) { }
+        }
         private void DrawBaseInside()
         {
             List<Series> exc = new List<Series>();
@@ -497,7 +505,7 @@ namespace Wale.WPF
         //    plotView.Model.Series.Add(lineSeries1);
         //    plotView.InvalidatePlot();
         //}
-        private OxyColor Color(Color color) { return OxyColor.FromArgb(color.A, color.R, color.G, color.B); }
+        private OxyColor Color(Color color) => OxyColor.FromArgb(color.A, color.R, color.G, color.B);
         #endregion
 
 

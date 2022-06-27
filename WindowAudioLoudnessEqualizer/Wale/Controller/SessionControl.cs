@@ -8,7 +8,7 @@ namespace Wale.Controller
 {
     internal class SessionControl
     {
-        private readonly bool Debug;
+        public bool Debug { get; set; }
         private readonly General gl;
         private readonly DFactors dfac;
         public SessionControl(General gl, bool debug = false)

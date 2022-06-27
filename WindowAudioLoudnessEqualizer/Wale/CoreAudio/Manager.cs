@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using CSCore.CoreAudioAPI;
+using CSCore.Win32;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
-using HighPrecisionTimer;
 using Wale.Configs;
-using CSCore.CoreAudioAPI;
-using CSCore.Win32;
 //using NAudio.CoreAudioApi;
 //using NAudio.CoreAudioApi.Interfaces;
 
@@ -19,51 +16,33 @@ namespace Wale.CoreAudio
         public Manager(General gl)
         {
             this.gl = gl;
-            //_ = Polling();
-            _ = UIPolling();
+            gl.PropertyChanged += Gl_PropertyChanged;
+            Polling.Start(Poll, (int)gl.UIUpdateInterval);
+        }
+        private void Gl_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case nameof(gl.UIUpdateInterval):
+                    Polling.Interval = (int)gl.UIUpdateInterval;
+                    break;
+            }
         }
 
         #region Background Tasks
-        protected CancellationTokenSource cts = new CancellationTokenSource();
         private double LastMMDPeakValue = 0;
-        private async Task UIPolling()
+        protected readonly TimedWorker Polling = new TimedWorker();
+        private void Poll()
         {
-            List<Task> t = new List<Task>();
-            while (!cts.IsCancellationRequested)
+            if (CheckAccess<object>())
             {
-                t.Clear();
-                t.Add(HPT.Delay((int)gl.UIUpdateInterval, HPT.Select.MMT, gl.ForceMMT, cts.Token));
-                t.Add(Task.Run(() =>
-                {
-                    if (CheckAccess<object>())
-                    {
-                        try { _MMDPeakValue = MMDPeak?.PeakValue ?? 0; }
-                        catch (NullReferenceException) { }
-                        catch (CoreAudioAPIException e) { if (e.HResult.IsUnknown()) M.F(e); }
-                        catch (Exception e) { M.F(e); }
-                    }
-                    if (_MMDPeakValue != LastMMDPeakValue) { OnPropertyChanged("MMDPeakValue"); LastMMDPeakValue = _MMDPeakValue; }
-                }, cts.Token));
-
-                try { await Task.WhenAll(t); }
-                catch (TaskCanceledException) { }
+                try { _MMDPeakValue = MMDPeak?.PeakValue ?? 0; }
+                catch (NullReferenceException) { }
+                catch (CoreAudioAPIException e) { if (e.HResult.IsUnknown()) M.F(e); }
+                catch (Exception e) { M.F(e); }
             }
+            if (_MMDPeakValue != LastMMDPeakValue) { OnPropertyChanged("MMDPeakValue"); LastMMDPeakValue = _MMDPeakValue; }
         }
-        //private async Task Polling()
-        //{
-        //    List<Task> t = new List<Task>();
-        //    while (!cts.IsCancellationRequested)
-        //    {
-        //        t.Clear();
-        //        t.Add(HPT.Delay((int)(gl.StaticMode ? gl.UIUpdateInterval : gl.AutoControlInterval), HPT.Select.MMT, gl.ForceMMT, cts.Token));
-        //        t.Add(Task.Run(() => {
-
-        //        }, cts.Token));
-
-        //        try { await Task.WhenAll(t); }
-        //        catch (TaskCanceledException) { }
-        //    }
-        //}
         #endregion
 
         #region Device Reset
@@ -83,15 +62,25 @@ namespace Wale.CoreAudio
             await Task.Delay(15);
             if (work)
             {
-                M.F($"Reset Contoller. Reason: {reason}");
+                M.F($"Reset CoreManager. Reason: {reason}", verbose: gl.VerboseLog);
 
                 //RestartRequested?.Invoke(this, new EventArgs());
                 //ResetType1();
 
                 // unregister notify events
-                if (_MMDVolume != null) _MMDVolume.UnregisterControlChangeNotify(MMDVolumeCallback);
+                if (_MMDVolume != null)
+                {
+                    try { _MMDVolume.UnregisterControlChangeNotify(MMDVolumeCallback); }
+                    catch (CoreAudioAPIException e) { if (e.HResult.IsUnknown()) M.F(e); }
+                    catch (Exception e) { M.F(e); }
+                }
                 else M.F("Manager: MMDVolume was null");
-                if (_ASM != null) _ASM.SessionCreated -= Audio_SessionCreated;
+                if (_ASM != null)
+                {
+                    try { _ASM.UnregisterSessionNotification(SessionNotification); }
+                    catch (CoreAudioAPIException e) { if (e.HResult.IsUnknown()) M.F(e); }
+                    catch (Exception e) { M.F(e); }
+                }
                 else M.F("Manager: ASM was null");
 
                 // reset all audio objects except mmde
@@ -100,9 +89,12 @@ namespace Wale.CoreAudio
                 _MMDName = null;
                 Nullize(ref _MMDPeak);
                 Nullize(ref _MMDVolume);
+                _MMDMuted = null;
+                _MMDVolumeValue = null;
                 Nullize(ref _ASM);
                 Nullize(ref _Sessions);
 
+                await Task.Delay(2000);
                 // set flag finish
                 lock (resetLock) _reseting = false;
             }
@@ -110,9 +102,19 @@ namespace Wale.CoreAudio
         protected void ResetType1()
         {
             // unregister notify events
-            if (_MMDVolume != null) _MMDVolume.UnregisterControlChangeNotify(MMDVolumeCallback);
+            if (_MMDVolume != null)
+            {
+                try { _MMDVolume.UnregisterControlChangeNotify(MMDVolumeCallback); }
+                catch (CoreAudioAPIException e) { if (e.HResult.IsUnknown()) M.F(e); }
+                catch (Exception e) { M.F(e); }
+            }
             else M.F("Manager: MMDVolume was null");
-            if (_ASM != null) _ASM.SessionCreated -= Audio_SessionCreated;
+            if (_ASM != null)
+            {
+                try { _ASM.UnregisterSessionNotification(SessionNotification); }
+                catch (CoreAudioAPIException e) { if (e.HResult.IsUnknown()) M.F(e); }
+                catch (Exception e) { M.F(e); }
+            }
             else M.F("Manager: ASM was null");
 
             // reset all audio objects except mmde
@@ -120,6 +122,8 @@ namespace Wale.CoreAudio
             Nullize(ref _ASM);
             Nullize(ref _MMDPeak);
             Nullize(ref _MMDVolume);
+            _MMDMuted = null;
+            _MMDVolumeValue = null;
             Nullize(ref _MMD);
             _DeviceID = string.Empty;
             _MMDName = null;
@@ -128,8 +132,7 @@ namespace Wale.CoreAudio
         {
             // unregister notify events
             _MMDVolume?.UnregisterControlChangeNotify(MMDVolumeCallback);
-            if (_ASM != null) _ASM.SessionCreated -= Audio_SessionCreated;
-            else M.F("Manager: ASM was null");
+            _ASM?.UnregisterSessionNotification(SessionNotification);
 
             // reset all audio objects except mmde
             _MMD = null;
@@ -310,7 +313,18 @@ namespace Wale.CoreAudio
         /// </summary>
         public bool MMDMuted
         {
-            get { lock (AccessLock) { return _MMDMuted == null && CanAccess ? (MMDVolume?.IsMuted ?? false) : (bool)_MMDMuted; } }
+            get
+            {
+                lock (AccessLock)
+                {
+                    if (_MMDMuted == null)
+                    {
+                        if (CanAccess) return MMDVolume?.IsMuted ?? false;
+                        else return false;
+                    }
+                    return (bool)_MMDMuted;
+                }
+            }
             set { lock (AccessLock) { if (CanAccess && MMDVolume != null) MMDVolume.IsMuted = value; } }
         }
         private double? _MMDVolumeValue;
@@ -319,7 +333,18 @@ namespace Wale.CoreAudio
         /// </summary>
         public double MMDVolumeValue
         {
-            get { lock (AccessLock) { return _MMDVolumeValue == null && CanAccess ? MMDVolume?.MasterVolumeLevelScalar ?? 0 : (double)_MMDVolumeValue; } }
+            get
+            {
+                lock (AccessLock)
+                {
+                    if (_MMDVolumeValue == null)
+                    {
+                        if (CanAccess) return MMDVolume?.MasterVolumeLevelScalar ?? 0;
+                        else return 0;
+                    }
+                    return (double)_MMDVolumeValue;
+                }
+            }
             set { lock (AccessLock) { if (CanAccess && MMDVolume != null && !double.IsNaN(value)) MMDVolume.MasterVolumeLevelScalar = (float)value; } }
         }
 
@@ -345,42 +370,28 @@ namespace Wale.CoreAudio
         private void GetASM()
         {
             _ASM = MMD != null ? AudioSessionManager2.FromMMDevice(MMD) : null;
-            _ASM.SessionCreated += Audio_SessionCreated;
+            //_ASM.SessionCreated += Audio_SessionCreated;
+            _ASM.RegisterSessionNotification(SessionNotification);
             //_ASM = MMD?.AudioSessionManager;
             //_ASM.OnSessionCreated += Audio_SessionCreated;
         }
 
-        private SessionList _Sessions;
-        public SessionList Sessions
+        private AudioSessionNotification _SessionNotification;
+        private AudioSessionNotification SessionNotification
         {
             get
             {
-                if (CheckAccessNull(_Sessions))
+                if (_SessionNotification == null)
                 {
                     try
                     {
-                        InvokeThreadApartment(GetSessions);
+                        _SessionNotification = new AudioSessionNotification();
+                        _SessionNotification.SessionCreated += Audio_SessionCreated;
                     }
                     catch (Exception e) { M.F(e.Message); }
                 }
-                return _Sessions;
+                return _SessionNotification;
             }
-        }
-        private void GetSessions()
-        {
-            if (_Sessions == null) _Sessions = new SessionList();
-            else
-            {
-                lock(_Sessions.Locker) { _Sessions.DisposeAll(); }
-            }
-            //enumerate all sessions
-            foreach (var asc in ASM.GetSessionEnumerator())
-            //for (int i = 0; i < ASM.Sessions.Count; i++)
-            {
-                //var asc = ASM.Sessions[i];
-                lock (_Sessions.Locker) { _Sessions.Add(new Session(asc, gl, DeviceID)); }
-            }
-            lock (_Sessions.Locker) { _Sessions.Sort(); }
         }
 
         private void Audio_SessionCreated(object sender, SessionCreatedEventArgs e)
@@ -413,6 +424,39 @@ namespace Wale.CoreAudio
         //        }
         //    }
         //}
+
+        private SessionList _Sessions;
+        public SessionList Sessions
+        {
+            get
+            {
+                if (CheckAccessNull(_Sessions))
+                {
+                    try
+                    {
+                        InvokeThreadApartment(GetSessions);
+                    }
+                    catch (Exception e) { M.F(e.Message); }
+                }
+                return _Sessions;
+            }
+        }
+        private void GetSessions()
+        {
+            if (_Sessions == null) _Sessions = new SessionList();
+            else
+            {
+                lock (_Sessions.Locker) { _Sessions.DisposeAll(); }
+            }
+            //enumerate all sessions
+            foreach (var asc in ASM.GetSessionEnumerator())
+            //for (int i = 0; i < ASM.Sessions.Count; i++)
+            {
+                //var asc = ASM.Sessions[i];
+                lock (_Sessions.Locker) { _Sessions.Add(new Session(asc, gl, DeviceID)); }
+            }
+            lock (_Sessions.Locker) { _Sessions.Sort(); }
+        }
         #endregion
 
         #region System Management
@@ -454,7 +498,7 @@ namespace Wale.CoreAudio
 
                 // TODO: free unmanaged resources (unmanaged objects) and override finalizer
                 // TODO: set large fields to null
-                cts.Cancel();
+                Polling.Dispose();
                 Reset("Disposing");
                 disposedValue = true;
             }

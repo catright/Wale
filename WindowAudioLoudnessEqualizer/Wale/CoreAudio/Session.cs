@@ -1,9 +1,6 @@
 ﻿using CSCore.CoreAudioAPI;
-using HighPrecisionTimer;
 using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using Wale.Configs;
 using Wale.Controller;
 using Wale.Extensions;
@@ -24,7 +21,7 @@ namespace Wale.CoreAudio
             ID = Guid.NewGuid();
             DeviceID = DeviceId;
             this.gl = gl;
-            this.gl.PropertyChanged += (sender, e) => OnPropertyChanged(e.PropertyName);
+            this.gl.PropertyChanged += Gl_PropertyChanged; ;
             aCheck = new ActiveChecker(this.gl);
             _asc = asc.QueryInterface<AudioSessionControl2>();
             asc.Dispose();
@@ -68,10 +65,27 @@ namespace Wale.CoreAudio
             //SetAvTimeAR(1000, 100, AvgTime, 100, AcInterval);
 
             // start background tasks
-            _ = Polling();
-            _ = UIPolling();
+            //_ = Polling();
+            //_ = UIPolling();
+            UIPolling.Start(UIPoll, (int)gl.UIUpdateInterval);
+            Polling.Start(Poll, (int)(gl.StaticMode ? gl.UIUpdateInterval : gl.AutoControlInterval));
         }
 
+        private void Gl_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            OnPropertyChanged(e.PropertyName);
+            switch (e.PropertyName)
+            {
+                case nameof(gl.UIUpdateInterval):
+                    UIPolling.Interval = (int)gl.UIUpdateInterval;
+                    Polling.Interval = (int)(gl.StaticMode ? gl.UIUpdateInterval : gl.AutoControlInterval);
+                    break;
+                case nameof(gl.StaticMode):
+                case nameof(gl.AutoControlInterval):
+                    Polling.Interval = (int)(gl.StaticMode ? gl.UIUpdateInterval : gl.AutoControlInterval);
+                    break;
+            }
+        }
         public event EventHandler<Guid> SessionExpired;
 
         #region API Data
@@ -302,63 +316,65 @@ namespace Wale.CoreAudio
 
 
         #region Background Tasks
-        private readonly CancellationTokenSource cts = new CancellationTokenSource();
         private float lastPeak;
-        private async Task UIPolling()
+        private readonly TimedWorker UIPolling = new TimedWorker(), Polling = new TimedWorker();
+        private void UIPoll()
         {
-            List<Task> t = new List<Task>();
-            while (!cts.IsCancellationRequested)
+            if (!Auto)
             {
-                t.Clear();
-                t.Add(HPT.Delay((int)gl.UIUpdateInterval, HPT.Select.MMT, gl.ForceMMT, cts.Token));
-                t.Add(Task.Run(() =>
+                try
                 {
-                    if (!Auto)
-                    {
-                        try
-                        {
-                            _Peak = ami?.PeakValue ?? 0;
-                            _ = aCheck.Push(_Peak, Auto);
-                        }
-                        catch (NullReferenceException) { }
-                        catch (CoreAudioAPIException e) { if (e.HResult.IsUnknown()) M.F(e); else Dispose(); }
-                        catch (Exception e) { M.F(e); }
-                    }
-                    if (_Peak != lastPeak) { lastPeak = _Peak; OnPropertyChanged("Peak"); }
-                }, cts.Token));
-
-                try { await Task.WhenAll(t); }
-                catch (TaskCanceledException) { }
+                    _Peak = ami?.PeakValue ?? 0;
+                    _ = aCheck.Push(_Peak, Auto);
+                }
+                catch (NullReferenceException) { }
+                catch (CoreAudioAPIException e) { if (e.HResult.IsUnknown()) M.F(e); else Dispose(); }
+                catch (Exception e) { M.F(e); }
+            }
+            if (_Peak != lastPeak) { lastPeak = _Peak; OnPropertyChanged("Peak"); }
+        }
+        private void Poll()
+        {
+            if (Auto)
+            {
+                try
+                {
+                    _Peak = ami?.PeakValue ?? 0;
+                    if (aCheck.Push(_Peak, Auto) && gl.Averaging) avr?.SetAverage(_Peak);
+                    //Console.WriteLine($"{Name} {AveragePeak:n4} {_Peak:n4}/{gl.MinPeak:n4} {_Peak > gl.MinPeak} {aCheck.Active}");
+                }
+                catch (NullReferenceException) { }
+                catch (CoreAudioAPIException e) { if (e.HResult.IsUnknown()) M.F(e); else Dispose(); }
+                catch (Exception e) { M.F(e); }
             }
         }
-        private async Task Polling()
-        {
-            List<Task> t = new List<Task>();
-            while (!cts.IsCancellationRequested)
-            {
-                t.Clear();
-                t.Add(HPT.Delay((int)(gl.StaticMode ? gl.UIUpdateInterval : gl.AutoControlInterval), HPT.Select.MMT, gl.ForceMMT, cts.Token));
-                t.Add(Task.Run(() =>
-                {
-                    if (Auto)
-                    {
-                        try
-                        {
-                            _Peak = ami?.PeakValue ?? 0;
-                            if (aCheck.Push(_Peak, Auto) && gl.Averaging)
-                                avr?.SetAverage(_Peak);
-                            //Console.WriteLine($"{Name} {AveragePeak:n4} {_Peak:n4}/{gl.MinPeak:n4} {_Peak > gl.MinPeak} {State}");
-                        }
-                        catch (NullReferenceException) { }
-                        catch (CoreAudioAPIException e) { if (e.HResult.IsUnknown()) M.F(e); else Dispose(); }
-                        catch (Exception e) { M.F(e); }
-                    }
-                }, cts.Token));
+        //private readonly CancellationTokenSource cts = new CancellationTokenSource();
+        //private async Task UIPolling()
+        //{
+        //    List<Task> t = new List<Task>();
+        //    while (!cts.IsCancellationRequested)
+        //    {
+        //        t.Clear();
+        //        t.Add(HPT.Delay((int)gl.UIUpdateInterval, HPT.Select.MMT, gl.ForceMMT, cts.Token));
+        //        t.Add(Task.Run(UIPoll, cts.Token));
 
-                try { await Task.WhenAll(t); }
-                catch (TaskCanceledException) { }
-            }
-        }
+        //        try { await Task.WhenAll(t); }
+        //        catch (TaskCanceledException) { }
+        //    }
+        //}
+        //private async Task Polling()
+        //{
+        //    List<Task> t = new List<Task>();
+        //    while (!cts.IsCancellationRequested)
+        //    {
+        //        t.Clear();
+        //        t.Add(HPT.Delay((int)(gl.StaticMode ? gl.UIUpdateInterval : gl.AutoControlInterval), HPT.Select.MMT, gl.ForceMMT, cts.Token));
+        //        t.Add(Task.Run(Poll, cts.Token));
+
+        //        try { await Task.WhenAll(t); }
+        //        catch (TaskCanceledException) { }
+        //    }
+        //}
         #endregion
         #region SessionAutoControl
         #endregion
@@ -383,7 +399,9 @@ namespace Wale.CoreAudio
 
                 // TODO: free unmanaged resources (unmanaged objects) and override finalizer
                 // TODO: set large fields to null
-                cts.Cancel();
+                //cts.Cancel();
+                UIPolling.Dispose();
+                Polling.Dispose();
                 try
                 {
                     if (_asc != null)
@@ -465,24 +483,51 @@ namespace Wale.CoreAudio
         public ActiveChecker(General gl)
         {
             this.gl = gl;
-            list = new List<float>(10);
-            wait = (int)(gl.AverageTime / 10);
+            this.gl.PropertyChanged += Gl_PropertyChanged;
         }
-        private readonly List<float> list;
-        private readonly double wait;
-        private double now;
+        private void Gl_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case nameof(gl.StaticMode):
+                    mode = gl.StaticMode;
+                    break;
+            }
+        }
 
-        public bool Active => list.Exists(p => p > gl.MinPeak);
+        private int index = 0;
+        private readonly float[] list = new float[10];
+        private readonly double wait = 100;//have to divided by list.capacity, c.g. 100 for 1000ms when list.capacity is 10
+        private double now;
+        private bool mode;
+        private double GetInterval(bool auto) => auto && !mode ? gl.AutoControlInterval : gl.UIUpdateInterval;
+        private bool GetActive(double std)
+        {
+            for (int i = 0; i < list.Length; i++)
+            {
+                if (list[i] > std) return true;
+            }
+            return false;
+        }
+
+        public bool Active { get; private set; }
+
         public bool Push(float peak, bool auto)
         {
-            now -= auto && !gl.StaticMode ? gl.AutoControlInterval : gl.UIUpdateInterval;
+            now -= GetInterval(auto);
             if (now < 0)
             {
-                list.Add(peak);
-                list.TrimExcess();
                 now = wait;
+                if (index >= list.Length) index = 0;
+                list[index] = peak;
+                Active = GetActive(gl.MinPeak);
             }
             return Active;
+        }
+        public bool Reset()
+        {
+            for (int i = 0; i < list.Length; i++) list[i] = 0;
+            return Active = GetActive(gl.MinPeak);
         }
     }
 }

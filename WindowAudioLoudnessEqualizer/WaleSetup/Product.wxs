@@ -121,6 +121,13 @@
 					  Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Release\OxyPlot.Wpf.Shared.dll"
 					  KeyPath="yes" />
 			</Component>
+
+			<Component Id="PrecisionTimerComp">
+				<File Id="PrecisionTimer" Name="PrecisionTimer.NET.dll"
+					  Source="C:\Users\catri\Documents\Sources\Repos\Wale\WindowAudioLoudnessEqualizer\Wale.WPF\bin\Release\PrecisionTimer.NET.dll"
+					  KeyPath="yes" />
+			</Component>
+			
 		</ComponentGroup>
 		<ComponentGroup Id="StartMenuFolderComponents" Directory="StartDir">
 			<Component Id="RemoveStartDiratUninstall">

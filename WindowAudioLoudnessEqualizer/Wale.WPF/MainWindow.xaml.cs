@@ -75,7 +75,7 @@ namespace Wale.WPF
         /// </summary>
         private bool FinishApp
         {
-            get { bool val; lock (_FinishAppLock) { val = _FinishApp; } return val; }
+            get => _FinishApp;//{ bool val; lock (_FinishAppLock) { val = _FinishApp; } return val; }
             set { lock (_FinishAppLock) { _FinishApp = value; } }
         }
         /// <summary>
@@ -83,7 +83,7 @@ namespace Wale.WPF
         /// </summary>
         private bool Active
         {
-            get { bool val; lock (_activelock) { val = _activated; } return val; }
+            get => _activated;//{ bool val; lock (_activelock) { val = _activated; } return val; }
             set { lock (_activelock) { _activated = value; } }
         }
         private bool loaded = false;
@@ -458,19 +458,23 @@ namespace Wale.WPF
                 // Update exist session
                 bool getname = nameGetCount++ > nameGetStd;//nameGetTimer.ElapsedMilliseconds > 1000;
                 bool stopProgress = false;
-                Dispatcher?.Invoke(() =>
+                try
                 {
-                    try
+                    Dispatcher?.Invoke(() =>
                     {
-                        foreach (MeterSet mSet in SessionPanel.Children)
+                        try
                         {
-                            workingPID = mSet.ID;
-                            // update session that is not expired
-                            _ = mSet.UpdateData(did, getname);
+                            foreach (MeterSet mSet in SessionPanel.Children)
+                            {
+                                workingPID = mSet.ID;
+                                // update session that is not expired
+                                _ = mSet.UpdateData(did, getname);
+                            }
                         }
-                    }
-                    catch (InvalidOperationException) { stopProgress = true; }
-                });
+                        catch (InvalidOperationException) { stopProgress = true; }
+                    });
+                }
+                catch (TaskCanceledException) { }
                 if (stopProgress) return;
                 if (getname) nameGetCount = 0;
                 //if (getname) nameGetTimer.Restart();
@@ -494,21 +498,25 @@ namespace Wale.WPF
             //re-align when there is(are) added or removed session(s)
             if (gl.VerboseLog) Log("Re-aligning");
             double lastHeight = 0, sessionCount = 0, minHeight = 0, spacing = gl.AdvancedView ? Visual.SessionBlockHeightDetail : Visual.SessionBlockHeightNormal;
-            Dispatcher?.Invoke(() =>
+            try
             {
-                lastHeight = this.Height;
-                sessionCount = SessionPanel.Children.Count;
-                minHeight = this.MinHeight;
-                //double lastHeight = this.Height,
-                //    spacing = gl.AdvancedView
-                //        ? Wale.Configs.Visual.SessionBlockHeightDetail
-                //        : Wale.Configs.Visual.SessionBlockHeightNormal;
-                //double newHeight = (double)(SessionPanel.Children.Count) * spacing + 60 + 2;
-                //if (newHeight < this.MinHeight) { newHeight = Wale.Configs.Visual.MainWindowHeightDefault; }
-                ////Console.WriteLine($"fsgH:{fsgHeight},DF:{dif}");
-                //mainHeight = newHeight;
-                //if (!nowConfig) DoChangeHeightSB(newHeight, "0:0:.1");
-            });
+                Dispatcher?.Invoke(() =>
+                {
+                    lastHeight = this.Height;
+                    sessionCount = SessionPanel.Children.Count;
+                    minHeight = this.MinHeight;
+                    //double lastHeight = this.Height,
+                    //    spacing = gl.AdvancedView
+                    //        ? Wale.Configs.Visual.SessionBlockHeightDetail
+                    //        : Wale.Configs.Visual.SessionBlockHeightNormal;
+                    //double newHeight = (double)(SessionPanel.Children.Count) * spacing + 60 + 2;
+                    //if (newHeight < this.MinHeight) { newHeight = Wale.Configs.Visual.MainWindowHeightDefault; }
+                    ////Console.WriteLine($"fsgH:{fsgHeight},DF:{dif}");
+                    //mainHeight = newHeight;
+                    //if (!nowConfig) DoChangeHeightSB(newHeight, "0:0:.1");
+                });
+            }
+            catch (TaskCanceledException) { }
             double newHeight = sessionCount * spacing + 60 + 2;
             if (newHeight < minHeight) newHeight = Visual.MainWindowHeightDefault;
             mainHeight = newHeight;
@@ -526,15 +534,19 @@ namespace Wale.WPF
             string name;
             lock (s.Locker) name = s.Name;
             int idx = -1;
-            Dispatcher?.Invoke(() =>
+            try
             {
-                idx = SessionPanel.Children.Count;
-                foreach (MeterSet m in SessionPanel.Children)
+                Dispatcher?.Invoke(() =>
                 {
-                    if (s.ID == m.ID) { found = true; break; }
-                    if (m.CompareTo(name) < 0) { idx = SessionPanel.Children.IndexOf(m); }
-                }
-            });
+                    idx = SessionPanel.Children.Count;
+                    foreach (MeterSet m in SessionPanel.Children)
+                    {
+                        if (s.ID == m.ID) { found = true; break; }
+                        if (m.CompareTo(name) < 0) { idx = SessionPanel.Children.IndexOf(m); }
+                    }
+                });
+            }
+            catch (TaskCanceledException) { }
             if (found || idx < 0) return;
 
             // get and apply saved session config
@@ -542,21 +554,29 @@ namespace Wale.WPF
 
             // make new MeterSet
             MeterSet set = null;
-            Dispatcher?.Invoke(() =>
+            try
             {
-                set = new MeterSet(this, s, updateSessionDebug);
-                set.Logged += (loggedsender, t) => MeterSet_Log(t);
-                set.SessionChanged += (changedsender, e) => MeterSet_SessionChanged(changedsender, e);
-                set.SessionExpired += (expiredsender, e) => MeterSet_SessionRemoved(e);
-            });
+                Dispatcher?.Invoke(() =>
+                {
+                    set = new MeterSet(this, s, updateSessionDebug);
+                    set.Logged += (loggedsender, t) => MeterSet_Log(t);
+                    set.SessionChanged += (changedsender, e) => MeterSet_SessionChanged(changedsender, e);
+                    set.SessionExpired += (expiredsender, e) => MeterSet_SessionRemoved(e);
+                });
+            }
+            catch (TaskCanceledException) { }
             if (set != null)
             {
                 // add the MeterSet
-                Dispatcher?.Invoke(() =>
+                try
                 {
-                    if (idx < SessionPanel.Children.Count) SessionPanel.Children.Insert(idx, set);
-                    else SessionPanel.Children.Add(set);
-                });
+                    Dispatcher?.Invoke(() =>
+                    {
+                        if (idx < SessionPanel.Children.Count) SessionPanel.Children.Insert(idx, set);
+                        else SessionPanel.Children.Add(set);
+                    });
+                }
+                catch (TaskCanceledException) { }
 
                 // realign SessionPanel
                 reAlignRequested = true;
@@ -630,7 +650,7 @@ namespace Wale.WPF
             FinishApp = true;
             NI.Visible = false;
             NI.Dispose();
-            if (UpdateTasks != null) await Task.WhenAll(UpdateTasks.Append(Audio.Stop()));
+            if (UpdateTasks != null) await Task.WhenAll(UpdateTasks);
             UpdateTasks.Clear();
             Audio?.Dispose();
         }
