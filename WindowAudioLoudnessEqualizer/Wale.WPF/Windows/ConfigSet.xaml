@@ -293,17 +293,17 @@
                             <TextBox Text="{Binding Path=MinPeak, Mode=TwoWay}"/>
                         </Grid>
                         <Grid Style="{StaticResource LineItem}">
-                            <Label Content="Up Rate"/>
+                            <Label Content="Up Rate" ToolTip="Up Rate for Delay Function, Set to 1 to completely disable delay function"/>
                             <Label Content="{Binding Path=(local:LastValues.UpRate), Mode=TwoWay}" Style="{StaticResource LLastVal}"/>
                             <TextBox Text="{Binding Path=UpRate, Mode=TwoWay}" TextChanged="UpRate_Changed"/>
                         </Grid>
                         <Grid Style="{StaticResource LineItem}">
-                            <Label Content="Kurtosis"/>
+                            <Label Content="Kurtosis" ToolTip="Kurtosis for Delay Function"/>
                             <Label Content="{Binding Path=(local:LastValues.Kurtosis), Mode=TwoWay}" Style="{StaticResource LLastVal}"/>
                             <TextBox x:Name="KurtosisBox" Text="{Binding Path=Kurtosis, Mode=TwoWay}" TextChanged="Kurtosis_Changed"/>
                         </Grid>
                         <Grid Height="40" Style="{StaticResource LineItem}">
-                            <Label Content="Function" ToolTip="Delay Function"/>
+                            <Label Content="Function" ToolTip="Delay Function for volume raise, 'none' is a straight function"/>
                             <Label Content="{Binding Path=(local:LastValues.VFunc), Mode=TwoWay}" Margin="60,20,0,0"/>
                             <ComboBox x:Name="FunctionSelector" HorizontalAlignment="Left" Margin="60,0,0,0" VerticalAlignment="Top" Width="150" Height="20" SelectionChanged="Function_Changed"/>
                         </Grid>

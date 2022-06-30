@@ -44,10 +44,10 @@ namespace Wale.WPF
         //AudioControl Audio;
         private readonly Window Owner;
 
-        volatile bool NewWindow = false;
+        private volatile bool NewWindow = false;
 
-        volatile bool loaded = false;
-        double originalMax, Ymax;
+        private volatile bool loaded = false;
+        private double OriginalMax = 0.1, YMax = 0.1;//, YScale = 0.1;
         #endregion
 
         #region Initialization
@@ -411,40 +411,35 @@ namespace Wale.WPF
         /// <param name="graphName">Unique identification of a visual graph</param>
         private void DrawGraph(string graphName)
         {
-            List<Series> exc = new List<Series>();
-            foreach (Series s in plotView.Model.Series) { if (s.Title == graphName) exc.Add(s); }
-            foreach (Series s in exc) { plotView.Model.Series.Remove(s); }
-            exc.Clear();
+            List<Series> existing = new List<Series>();
+            foreach (Series s in plotView.Model.Series) { if (s.Title == graphName) existing.Add(s); }
+            foreach (Series s in existing) { plotView.Model.Series.Remove(s); }
+            existing.Clear();
 
             if (!Enum.TryParse(FunctionSelector.SelectedItem.ToString(), out DType f)) { Log("ConfigSet(DrawGraph): Failed to get volume function"); return; }
 
-            Series exclude = null;
-            foreach (var g in plotView.Model.Series) { if (g.Title == graphName) exclude = g; }
-            if (exclude != null) { plotView.Model.Series.Remove(exclude); /*Console.WriteLine("Plot removed");*/ }
-
-            FunctionSeries graph = new FunctionSeries(new Func<double, double>(x => f.Calc(x, vff)), 0, 1, 0.05, graphName);
-
-
-            double maxVal = 0, yScale = 0.01;
-            if (graph.Title == "Original")
-            {
-                graph.Color = Color(ColorSet.MainColor);
-                originalMax = graph.MaxY;
-            }
-            else
-            {
-                graph.Color = Color(ColorSet.PeakColor);
-                maxVal = Math.Max(graph.MaxY, originalMax);
-            }
+            FunctionSeries graph = new FunctionSeries(new Func<double, double>(x => f.Calc(x, vff) / vff.URratio), 0, 1, 0.05, graphName);
 
             plotView.Model.Series.Add(graph);
             plotView.Model.InvalidatePlot(true);
 
-            for (double i = 1.0; i > 0.00001; i /= 2)
+            if (graph.Title == "Original")
             {
-                if (maxVal > i) { yScale = i * 2.0; break; }
+                graph.Color = Color(ColorSet.MainColor);
+                YMax = OriginalMax = graph.MaxY;
             }
-            Ymax = yScale;
+            else
+            {
+                graph.Color = Color(ColorSet.PeakColor);
+                YMax = Math.Max(graph.MaxY, OriginalMax);
+            }
+
+            //for (double i = 1.0; i > 0.00001; i /= 2)
+            //{
+            //    if (YMax > i) { YScale = i * 2.0; break; }
+            //}
+            //M.D($"{graph.Title} {graph.MaxY} {OriginalMax} {YMax} {YScale}");
+
             //plotView.Model.DefaultYAxis?.Zoom(yScale);
             //plotView.Model.DefaultYAxis.AbsoluteMaximum = yScale;
             //foreach (var g in plotView.Model.Series) { }
@@ -453,8 +448,9 @@ namespace Wale.WPF
             //else chart.ChartAreas["Area"].AxisY.LabelStyle.Format = "#.#E0";
             //myText1.Y = chart.ChartAreas["Area"].AxisY.Maximum;
             //myText2.Y = chart.ChartAreas["Area"].AxisY.Maximum * 0.92;
+
+            //plotView.InvalidatePlot();
             DrawBase();
-            plotView.InvalidatePlot();
         }
         /// <summary>
         /// Draw a line of Base(standard) of output level
@@ -466,31 +462,27 @@ namespace Wale.WPF
         }
         private void DrawBaseInside()
         {
-            List<Series> exc = new List<Series>();
-            foreach (Series s in plotView.Model.Series) { if (s.Title == "Base" || s.Title == "Limit") exc.Add(s); }
-            foreach (Series s in exc) { plotView.Model.Series.Remove(s); }
-            exc.Clear();
+            List<Series> existing = new List<Series>();
+            foreach (Series s in plotView.Model.Series) { if (s.Title == "Base" || s.Title == "Limit") existing.Add(s); }
+            foreach (Series s in existing) { plotView.Model.Series.Remove(s); }
+            existing.Clear();
 
-            double y = Ymax > 0.1 ? 1 : (Ymax > 0.01 ? 0.1 : (Ymax > 0.001 ? 0.01 : 0.001));
+            //double y = YScale;// > 0.1 ? 1 : (YScale > 0.01 ? 0.1 : (YScale > 0.001 ? 0.01 : 0.001));
 
-            LineSeries lineSeries1 = new LineSeries
-            {
-                Title = "Base"
-            };
+            LineSeries lineSeries1 = new LineSeries { Title = "Base" };
             lineSeries1.Points.Add(new DataPoint(gl.TargetLevel, 0));
-            lineSeries1.Points.Add(new DataPoint(gl.TargetLevel, y));
+            lineSeries1.Points.Add(new DataPoint(gl.TargetLevel, YMax));
             lineSeries1.Color = Color(ColorSet.TargetColor);
             plotView.Model.Series.Add(lineSeries1);
 
-            LineSeries lineSeries2 = new LineSeries
-            {
-                Title = "Limit"
-            };
+            LineSeries lineSeries2 = new LineSeries { Title = "Limit" };
             lineSeries2.Points.Add(new DataPoint(gl.LimitLevel, 0));
-            lineSeries2.Points.Add(new DataPoint(gl.LimitLevel, y));
+            lineSeries2.Points.Add(new DataPoint(gl.LimitLevel, YMax));
             lineSeries2.Color = Color(ColorSet.LimitColor);
             plotView.Model.Series.Add(lineSeries2);
 
+            plotView.Model.InvalidatePlot(true);
+            //plotView.Model.DefaultYAxis.Zoom(y);
             plotView.InvalidatePlot();
         }
         /// <summary>

@@ -2,7 +2,6 @@
 using System.Text;
 using Wale.Configs;
 using Wale.CoreAudio;
-using Wale.Extensions;
 
 namespace Wale.Controller
 {
@@ -76,11 +75,11 @@ namespace Wale.Controller
         {
             try
             {
-                double rfac = s.Relfactor, peak = s.Peak, apeak = s.AveragePeak;//, volume = s.Volume / rfac;
+                double rfac = s.Relfactor, peak = s.Peak, apeak = s.AveragePeak, volume = s.Volume / rfac;
 #if DEBUG
                 StringBuilder dm = new StringBuilder();
                 if (Debug) { lock (s.Locker) { dm.Append($"AutoVolume:{s.Name}({s.ProcessID}), inc={s.Auto}"); } }
-                if (Debug) dm.Append($" P:{peak:n3} A:{apeak:n3}");// V:{volume:n3}");
+                if (Debug) dm.Append($" P:{peak:n3} A:{apeak:n3} V:{volume:n3}");
 #endif
                 //if (volume == 0) volume = 0.001;
                 // control volume when audio session makes sound, re-check session activity
@@ -88,7 +87,7 @@ namespace Wale.Controller
                 {
                     //double tVol = VType.CompAR.Next(peak, 0, new CompFactor(s.AveragePeakAttack, s.AveragePeakRelease, volume));
                     double vn = VType.CompressDB.Next(peak, apeak);
-                    double cut = Delay.Segment(vn, dfac);
+                    double cut = volume + Delay.Calc(vn, dfac);
 #if DEBUG
                     if (Debug) dm.Append($" T={vn:n3} UC={cut:n3}");
 #endif

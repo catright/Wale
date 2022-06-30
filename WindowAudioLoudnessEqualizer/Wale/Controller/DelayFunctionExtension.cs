@@ -49,7 +49,7 @@ namespace Wale.Controller
             GetFactorsForSlicedLinear();
         }
 
-        private double URratio;
+        public double URratio;
         protected double GetURratio() => URratio = gl.AutoControlInterval / 1000;
 
         public double UpRate;
@@ -65,7 +65,7 @@ namespace Wale.Controller
 
     public static class DelayFunctionExtension
     {
-        public static double Segment(this DType f, double nextVol, DFactors df) => f.Calc(nextVol, df) + nextVol;
+        //public static double Segment(this DType f, double nextVol, DFactors df) => f.Calc(nextVol, df) + nextVol;
         public static double Calc(this DType f, double nextVol, DFactors df)
         {
             switch (f)
