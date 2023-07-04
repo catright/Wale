@@ -325,15 +325,10 @@ namespace Wale.WPF
 
             // start window update tasks
             UpdateTasks.Clear();
-            //if (!restart) UpdateTasks.Add(new Task(CheckFirstLoadTask));
             if (!restart) UpdateTasks.Add(Task.Run(CheckFirstLoadTask));
-            //UpdateTasks.Add(new Task(UpdateStateTask));
-            //UpdateTasks.Add(new Task(UpdateMasterDeviceTask));
-            //UpdateTasks.Add(new Task(UpdateSessionTask));
             UpdateTasks.Add(Task.Run(UpdateStateTask));
             UpdateTasks.Add(Task.Run(UpdateMasterDeviceTask));
             UpdateTasks.Add(Task.Run(UpdateSessionTask));
-            //UpdateTasks.ForEach(t => t.Start());
 
             //_Restarting = false;
             Log("OK2");

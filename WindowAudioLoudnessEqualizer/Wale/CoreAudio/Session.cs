@@ -67,8 +67,11 @@ namespace Wale.CoreAudio
             // start background tasks
             //_ = Polling();
             //_ = UIPolling();
+            UIPolling = new TimedWorker(gl.ForceMMT);
             UIPolling.Start(UIPoll, (int)gl.UIUpdateInterval);
+            Polling = new TimedWorker(gl.ForceMMT);
             Polling.Start(Poll, (int)(gl.StaticMode ? gl.UIUpdateInterval : gl.AutoControlInterval));
+            //DebugPolling.Start(DebugPoll, 10000);
         }
 
         private void Gl_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -317,9 +320,11 @@ namespace Wale.CoreAudio
 
         #region Background Tasks
         private float lastPeak;
-        private readonly TimedWorker UIPolling = new TimedWorker(), Polling = new TimedWorker();
+        private readonly TimedWorker UIPolling, Polling;
+        //private readonly TimedWorker DebugPolling = new TimedWorker();
         private void UIPoll()
         {
+            if (_asc.IsDisposed) Dispose();
             if (!Auto)
             {
                 try
@@ -348,6 +353,10 @@ namespace Wale.CoreAudio
                 catch (Exception e) { M.F(e); }
             }
         }
+        //private void DebugPoll()
+        //{
+        //    M.F($"Session UI Polling: {Name} {ProcessID} {SessionIdentifier} {_asc.SessionInstanceIdentifier} [{ID}]. dispose={_asc.IsDisposed}");
+        //}
         //private readonly CancellationTokenSource cts = new CancellationTokenSource();
         //private async Task UIPolling()
         //{
@@ -400,6 +409,7 @@ namespace Wale.CoreAudio
                 // TODO: free unmanaged resources (unmanaged objects) and override finalizer
                 // TODO: set large fields to null
                 //cts.Cancel();
+                //DebugPolling.Dispose();
                 UIPolling.Dispose();
                 Polling.Dispose();
                 try

@@ -10,7 +10,7 @@ namespace Wale.CoreAudio
     {
         public object Locker { get; } = new object();
         public SessionList() { }
-        public void DisposedCheck() => _ = RemoveAll(s => s == null);
+        public void DisposedCheck() => _ = RemoveAll(s => s == null || s.State == SessionState.AudioSessionStateExpired);
         public void DisposeAll()
         {
             ForEach(s => s.Dispose());

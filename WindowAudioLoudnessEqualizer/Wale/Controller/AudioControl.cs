@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using Wale.Extensions;
@@ -164,25 +165,17 @@ namespace Wale.Controller
     }//End Class AudioControl
 
 
-    internal class AudioWorker : TimedWorker
+    internal class AudioWorker : Worker
     {
-        public readonly Configs.General gl;
-        public readonly CoreAudio.Manager core;
-        public readonly SessionControl Control;
-        public AudioWorker(Configs.General gl, CoreAudio.Manager core, SessionControl Control, bool start = true) : base()
+        public AudioWorker(Configs.General gl, CoreAudio.Manager core, SessionControl control, bool start = true) : base(gl, core, control)
         {
-            this.gl = gl;
-            this.gl.PropertyChanged += Gl_PropertyChanged;
-            this.core = core;
-            this.Control = Control;
-
             d = new TimeSpan(0, 0, 0, 0, (int)(gl.StaticMode ? gl.UIUpdateInterval : gl.AutoControlInterval));
             acDev = gl.ACDevShow == Visibility.Visible;
 
             if (start) Start();
         }
 
-        private void Gl_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        protected override void Gl_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
             {
@@ -198,8 +191,6 @@ namespace Wale.Controller
             }
         }
 
-        private CoreAudio.SessionList Sessions => core?.Sessions;
-        private bool CanAccess => core?.CanAccess ?? false;
 
         private readonly List<Task> aas = new List<Task>();
         private uint logCounter = 0;
@@ -268,22 +259,14 @@ namespace Wale.Controller
         }
         public void Stop() => base.Stop(() => M.F("[End] Audio Control Task", verbose: gl.VerboseLog));
     }
-    internal class CleanWorker : TimedWorker
+    internal class CleanWorker : Worker
     {
-        public readonly Configs.General gl;
-        public readonly CoreAudio.Manager core;
-        public readonly SessionControl Control;
-        public CleanWorker(Configs.General gl, CoreAudio.Manager core, SessionControl control, bool start = true) : base()
+        public CleanWorker(Configs.General gl, CoreAudio.Manager core, SessionControl control, bool start = true) : base(gl, core, control)
         {
-            this.gl = gl;
-            this.gl.PropertyChanged += Gl_PropertyChanged;
-            this.core = core;
-            Control = control;
-
             if (start) Start();
         }
 
-        private void Gl_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        protected override void Gl_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
             {
@@ -293,8 +276,6 @@ namespace Wale.Controller
             }
         }
 
-        private CoreAudio.SessionList Sessions => core?.Sessions;
-        private bool CanAccess => core?.CanAccess ?? false;
 
         private readonly List<Task> aas = new List<Task>();
         //private readonly int waitone = (int)new TimeSpan(0, 0, 1).TotalMilliseconds;
@@ -340,6 +321,23 @@ namespace Wale.Controller
             base.Start(Work, (int)gl.GCInterval);
         }
         public void Stop() => base.Stop(() => M.F("[End] Controller Clean Task(GC)", verbose: gl.VerboseLog));
+    }
+    internal abstract class Worker : TimedWorker
+    {
+        public readonly Configs.General gl;
+        public readonly CoreAudio.Manager core;
+        public readonly SessionControl Control;
+        public Worker(Configs.General gl, CoreAudio.Manager core, SessionControl control) : base(gl.ForceMMT)
+        {
+            this.gl = gl;
+            this.gl.PropertyChanged += Gl_PropertyChanged;
+            this.core = core;
+            Control = control;
+        }
+        protected abstract void Gl_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e);
+
+        protected virtual CoreAudio.SessionList Sessions => core?.Sessions;
+        protected virtual bool CanAccess => core?.CanAccess ?? false;
     }
 
 }

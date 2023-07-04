@@ -17,6 +17,7 @@ namespace Wale.CoreAudio
         {
             this.gl = gl;
             gl.PropertyChanged += Gl_PropertyChanged;
+            Polling = new TimedWorker(gl.ForceMMT);
             Polling.Start(Poll, (int)gl.UIUpdateInterval);
         }
         private void Gl_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -31,7 +32,7 @@ namespace Wale.CoreAudio
 
         #region Background Tasks
         private double LastMMDPeakValue = 0;
-        protected readonly TimedWorker Polling = new TimedWorker();
+        protected readonly TimedWorker Polling;
         private void Poll()
         {
             if (CheckAccess<object>())
@@ -43,6 +44,18 @@ namespace Wale.CoreAudio
             }
             if (_MMDPeakValue != LastMMDPeakValue) { OnPropertyChanged("MMDPeakValue"); LastMMDPeakValue = _MMDPeakValue; }
         }
+
+        //protected readonly TimedWorker KeepAlive = new TimedWorker();
+        //private void Alive()
+        //{
+        //    if (CheckAccess<object>())
+        //    {
+        //        try { ASM.IsDisposed}
+        //        catch (NullReferenceException) { }
+        //        catch (CoreAudioAPIException e) { if (e.HResult.IsUnknown()) M.F(e); }
+        //        catch (Exception e) { M.F(e); }
+        //    }
+        //}
         #endregion
 
         #region Device Reset

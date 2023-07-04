@@ -343,7 +343,7 @@
                             </WrapPanel>
                             <WrapPanel Grid.Column="1" Style="{StaticResource AdvItem}">
                                 <CheckBox Content="Force MMT" IsChecked="{Binding Path=ForceMMT, Mode=TwoWay}"
-                                          ToolTip="!Very instable, Force to use Multimedia Timer"/>
+                                          ToolTip="!Very unstable, Force to use Multimedia Timer, required restart"/>
                                 <TextBlock Text="Critical" Margin="3,0" FontSize="8" Foreground="Orange"/>
                             </WrapPanel>
                         </Grid>
